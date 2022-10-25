@@ -3,15 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import './infoview.css'
 import './vscode.css'
-
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-
-import useWebSocket from 'react-use-websocket'
-
-import { MonacoLanguageClient, CloseAction, ErrorAction, MessageTransports } from 'monaco-languageclient'
-import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
-
-// import { Rpc } from './rpc' //'lean4/src/rpc'
 import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './infoview'
