@@ -6,5 +6,5 @@
 
 .App > div{
   height: 100vh;
-  flex: 1;
+  width: 50%;
 }
