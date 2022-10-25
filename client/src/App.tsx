@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import '@leanprover/infoview/dist/index.css'
+import './infoview.css'
 import './vscode.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { renderInfoview } from '@leanprover/infoview'
