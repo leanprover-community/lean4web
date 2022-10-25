@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require('webpack');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 
@@ -73,7 +74,17 @@ module.exports = env => {
           parallel: true
         }
       }),
-      isDevelopment && new ReactRefreshWebpackPlugin()
-    ].filter(Boolean),
+      isDevelopment && new ReactRefreshWebpackPlugin(),
+      new webpack.ContextReplacementPlugin(
+        /\/@leanprover\/infoview\//,
+        (data) => {
+          // Webpack is not happy about the dynamically loaded widget code in the function
+          // `dynamicallyLoadComponent` in `infoview/userWidget.tsx`. If we want to support
+          // dynamically loaded widget code, we need to make sure that the files are available.
+          delete data.dependencies[0].critical;
+          return data;
+        },
+      ),
+    ].filter(Boolean)
   };
 }
