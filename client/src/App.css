@@ -4,7 +4,13 @@
   display: flex;
 }
 
-.App > div{
+.editor {
+  height: 100vh;
+  width: 50%;
+}
+
+.infoview {
+  padding-left: 1rem;
   height: 100vh;
   width: 50%;
 }

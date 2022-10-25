@@ -34,7 +34,10 @@ const App: React.FC = () => {
           lightbulb: {
             enabled: true
           },
-          automaticLayout: true
+          automaticLayout: true,
+          minimap: {
+            enabled: false
+          }
         })
       )
     }
@@ -61,7 +64,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <div ref={editorRef} className="editor"></div>
-      <div ref={infoViewRef} className="infoView"></div>
+      <div ref={infoViewRef} className="infoview"></div>
     </div>
   )
 }
