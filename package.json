@@ -6,7 +6,7 @@
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
     "@fontsource/roboto-mono": "^4.5.8",
-    "@leanprover/infoview": "^0.2.0",
+    "@leanprover/infoview": "git+https://github.com/abentkamp/infoview-npm.git",
     "express": "^4.18.2",
     "monaco-languageclient": "^4.0.1",
     "path-browserify": "^1.0.1",
