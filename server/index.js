@@ -24,7 +24,7 @@ if (isDevelopment) {
     cmd = "docker";
     cmdArgs = ["run",
      "--runtime=runsc",
-     "--network=none", "--rm", "-i", "elan:latest", "\"lean --server\""];
+     "--network=none", "--rm", "-i", "elan:latest", "lean", "--server"];
 }
 const cwd = '.'
 
