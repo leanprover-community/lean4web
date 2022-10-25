@@ -1,0 +1,10 @@
+.App {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+.App > div{
+  height: 100vh;
+  flex: 1;
+}
