@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import './infoview.css'
+import '@leanprover/infoview/dist/index.css'
 import './vscode.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { renderInfoview } from '@leanprover/infoview'
@@ -33,7 +33,8 @@ const App: React.FC = () => {
           glyphMargin: true,
           lightbulb: {
             enabled: true
-          }
+          },
+          automaticLayout: true
         })
       )
     }
@@ -59,8 +60,8 @@ const App: React.FC = () => {
 
   return (
     <div className="App">
-      <div ref={editorRef}></div>
-      <div ref={infoViewRef}></div>
+      <div ref={editorRef} className="editor"></div>
+      <div ref={infoViewRef} className="infoView"></div>
     </div>
   )
 }
