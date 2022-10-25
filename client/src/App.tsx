@@ -8,6 +8,7 @@ import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './infoview'
 import { LeanClient } from './leanclient'
+import languageConfig from './language-configuration.json';
 
 const App: React.FC = () => {
   const uri = monaco.Uri.parse('inmemory://lean4web.lean')
@@ -24,6 +25,12 @@ const App: React.FC = () => {
       id: 'lean4',
       extensions: ['.lean']
     })
+
+    let config: any = languageConfig
+    config.autoClosingPairs = config.autoClosingPairs.map(
+      pair => { return {'open': pair[0], 'close': pair[1]} }
+    )
+    monaco.languages.setLanguageConfiguration('lean4', config);
 
     const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('#check 0', 'lean4', uri)
     if (!model.isAttachedToEditor()) {

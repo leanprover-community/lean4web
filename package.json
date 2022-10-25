@@ -27,6 +27,7 @@
     "babel-loader": "^8.2.5",
     "concurrently": "^7.4.0",
     "css-loader": "^6.7.1",
+    "json-loader": "^0.5.7",
     "nodemon": "^2.0.20",
     "react-refresh": "^0.14.0",
     "style-loader": "^3.3.1",
