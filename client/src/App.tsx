@@ -9,6 +9,8 @@ import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './infoview'
 import { LeanClient } from './leanclient'
 import languageConfig from './language-configuration.json';
+import { AbbreviationRewriter } from './abbreviation/rewriter/AbbreviationRewriter'
+import { AbbreviationProvider } from './abbreviation/AbbreviationProvider'
 
 const App: React.FC = () => {
   const uri = monaco.Uri.parse('inmemory://lean4web.lean')
@@ -34,20 +36,20 @@ const App: React.FC = () => {
 
     const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('#check 0', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
-      setEditor(
-        monaco.editor.create(editorRef.current!, {
-          model,
-          glyphMargin: true,
-          lightbulb: {
-            enabled: true
-          },
-          automaticLayout: true,
-          minimap: {
-            enabled: false
-          }
-        })
-      )
+      const editor = monaco.editor.create(editorRef.current!, {
+        model,
+        glyphMargin: true,
+        lightbulb: {
+          enabled: true
+        },
+        automaticLayout: true,
+        minimap: {
+          enabled: false
+        }
+      })
+      setEditor(editor)
     }
+    new AbbreviationRewriter(new AbbreviationProvider(), model)
   }, [])
 
   useEffect(() => {

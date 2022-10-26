@@ -14,3 +14,8 @@
   height: 100vh;
   width: 50%;
 }
+
+/* Styling in the editor while typing abbreviations such as "\alpha" */
+.abbreviation {
+  text-decoration: underline;
+}

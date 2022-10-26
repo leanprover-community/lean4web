@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "moduleResolution": "node",
     "jsx": "react",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "experimentalDecorators": true
   }
 }
