@@ -48,8 +48,8 @@ const App: React.FC = () => {
         }
       })
       setEditor(editor)
+      new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
     }
-    new AbbreviationRewriter(new AbbreviationProvider(), model)
   }, [])
 
   useEffect(() => {

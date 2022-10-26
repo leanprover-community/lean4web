@@ -22,7 +22,6 @@ export class AbbreviationRewriter {
 	// });
 
 	private dontTrackNewAbbr = false;
-	private decoIds: string[] = [];
 	// private stderrOutput: OutputChannel;
 	// private firstOutput = true;
 
@@ -30,6 +29,7 @@ export class AbbreviationRewriter {
 		// private readonly config: AbbreviationConfig,
 		private readonly abbreviationProvider: AbbreviationProvider,
 		private readonly model: monaco.editor.ITextModel,
+		private readonly editor: monaco.editor.IStandaloneCodeEditor
 	) {
 		// this.disposables.push(this.decorationType);
 
@@ -199,7 +199,7 @@ export class AbbreviationRewriter {
 	// }
 
 	private updateState() {
-		this.decoIds = this.model.deltaDecorations(this.decoIds,
+		this.editor.createDecorationsCollection(
 		  [...this.trackedAbbreviations].map<monaco.editor.IModelDeltaDecoration>((a: TrackedAbbreviation) => {
 				return {
 					range: toVsCodeRange(a.range, this.model),
