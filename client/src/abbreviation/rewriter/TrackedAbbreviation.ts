@@ -21,23 +21,24 @@ export class TrackedAbbreviation {
 		return this._text;
 	}
 
-	// get matchingSymbol(): string | undefined {
-	// 	return this.abbreviationProvider.getReplacementText(this.abbreviation);
-	// }
+	get matchingSymbol(): string | undefined {
+		return this.abbreviationProvider.getReplacementText(this.abbreviation);
+	}
 
 	/**
 	 * Does this abbreviation uniquely identify a symbol and is it complete?
 	 */
-	// get isAbbreviationUniqueAndComplete(): boolean {
-	// 	return (
-	// 		this.abbreviationProvider.findSymbolsByAbbreviationPrefix(
-	// 			this.abbreviation
-	// 		).length === 1 &&
-	// 		!!this.abbreviationProvider.getSymbolForAbbreviation(
-	// 			this.abbreviation
-	// 		)
-	// 	);
-	// }
+	get isAbbreviationUniqueAndComplete(): boolean {
+		return (
+			this.abbreviation !== "" && // Check empty string for speed up
+			this.abbreviationProvider.findSymbolsByAbbreviationPrefix(
+				this.abbreviation
+			).length === 1 &&
+			!!this.abbreviationProvider.getSymbolForAbbreviation(
+				this.abbreviation
+			)
+		);
+	}
 
 	private _finished = false;
 	/**
@@ -63,21 +64,21 @@ export class TrackedAbbreviation {
 		if (this.abbreviationRange.containsRange(range)) {
 			this._finished = false;
 
-			// if (this.abbreviationRange.isBefore(range)) {
-			// 	// `newText` is appended to `this.abbreviation`
-			// 	if (
-			// 		this.abbreviationProvider.findSymbolsByAbbreviationPrefix(
-			// 			this.abbreviation + newText
-			// 		).length === 0
-			// 	) {
-			// 		// newText is not helpful anymore. Finish this and don't accept the change.
-			// 		this._finished = true;
-			// 		return {
-			// 			shouldStopTracking: false,
-			// 			isAffected: false,
-			// 		};
-			// 	}
-			// }
+			if (this.abbreviationRange.isBefore(range)) {
+				// `newText` is appended to `this.abbreviation`
+				if (
+					this.abbreviationProvider.findSymbolsByAbbreviationPrefix(
+						this.abbreviation + newText
+					).length === 0
+				) {
+					// newText is not helpful anymore. Finish this and don't accept the change.
+					this._finished = true;
+					return {
+						shouldStopTracking: false,
+						isAffected: false,
+					};
+				}
+			}
 
 			this._abbreviationRange = this.abbreviationRange.moveEnd(
 				newText.length - range.length
