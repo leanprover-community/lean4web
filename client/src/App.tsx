@@ -28,11 +28,13 @@ const App: React.FC = () => {
       extensions: ['.lean']
     })
 
-    let config: any = languageConfig
-    config.autoClosingPairs = config.autoClosingPairs.map(
-      pair => { return {'open': pair[0], 'close': pair[1]} }
-    )
-    monaco.languages.setLanguageConfiguration('lean4', config);
+    monaco.languages.onLanguage('lean4',() => {
+      let config: any = languageConfig
+      config.autoClosingPairs = config.autoClosingPairs.map(
+        pair => { return {'open': pair[0], 'close': pair[1]} }
+      )
+      monaco.languages.setLanguageConfiguration('lean4', config);
+    })
 
     const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('#check 0', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
