@@ -28,7 +28,6 @@ export class AbbreviationRewriter {
 	// private firstOutput = true;
 
 	constructor(
-		// private readonly config: AbbreviationConfig,
 		private readonly abbreviationProvider: AbbreviationProvider,
 		private readonly model: monaco.editor.ITextModel,
 		private readonly editor: monaco.editor.IStandaloneCodeEditor
@@ -97,7 +96,7 @@ export class AbbreviationRewriter {
 		}
 
 		// Wait for VS Code to trigger `onDidChangeTextEditorSelection`
-		waitForNextTick();
+		await waitForNextTick();
 
 		const cursorVar = '$CURSOR';
 		const replacements = new Array<{
