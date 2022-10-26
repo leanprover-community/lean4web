@@ -23,6 +23,7 @@ export class AbbreviationRewriter {
 
 	private dontTrackNewAbbr = false;
 	private decosIds: string[] = [];
+	private isActiveContextKey: monaco.editor.IContextKey<boolean>;
 	// private stderrOutput: OutputChannel;
 	// private firstOutput = true;
 
@@ -54,7 +55,6 @@ export class AbbreviationRewriter {
 							abbr.isAbbreviationUniqueAndComplete)
 				)
 			);
-			console.log(this.trackedAbbreviations)
 		})
 
 
@@ -75,10 +75,15 @@ export class AbbreviationRewriter {
 			);
 		})
 
-		// monaco.editor.addCommand(
-		// 	'lean4.input.convert',
-		// 	async () => this.forceReplace([...this.trackedAbbreviations])
-		// )
+		this.isActiveContextKey = this.editor.createContextKey('lean4.input.isActive', false);
+
+		monaco.editor.addEditorAction({
+			id: 'lean4.input.convert',
+			label: 'Convert abbreviation',
+			precondition: "editorTextFocus && editorLangId == lean4 && lean4.input.isActive",
+			keybindings: [monaco.KeyCode.Tab],
+			run: async () => this.forceReplace([...this.trackedAbbreviations])
+		})
 	}
 
 	private async forceReplace(
@@ -191,16 +196,12 @@ export class AbbreviationRewriter {
 					}
 		}}))
 
-		// void this.setInputActive(this.trackedAbbreviations.size > 0);
+		void this.setInputActive(this.trackedAbbreviations.size > 0);
 	}
 
-	// private async setInputActive(isActive: boolean) {
-	// 	await commands.executeCommand(
-	// 		'setContext',
-	// 		'lean4.input.isActive',
-	// 		isActive
-	// 	);
-	// }
+	private async setInputActive(isActive: boolean) {
+		this.isActiveContextKey.set(isActive);
+	}
 
 	private processChange(
 		range: Range,
