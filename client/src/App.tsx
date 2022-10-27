@@ -47,7 +47,8 @@ const App: React.FC = () => {
         automaticLayout: true,
         minimap: {
           enabled: false
-        }
+        },
+        'semanticHighlighting.enabled': true
       })
       setEditor(editor)
       new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
