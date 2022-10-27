@@ -100,7 +100,7 @@ export class LeanClient implements Disposable {
   /** Files which are open. */
   private readonly isOpen: Map<string, TextDocument> = new Map()
 
-  constructor (workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri/*, outputChannel: OutputChannel, elanDefaultToolchain: string */) {
+  constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri/*, outputChannel: OutputChannel, elanDefaultToolchain: string */) {
     // this.storageManager = storageManager
     // this.outputChannel = outputChannel
     this.workspaceFolder = workspaceFolder // can be null when opening adhoc files.
@@ -310,9 +310,8 @@ export class LeanClient implements Disposable {
       connectionProvider: {
         get: async () => {
           return await new Promise((resolve, reject) => {
-            const socketUrl = 'ws://localhost:8080/websocket/'
-            console.log(`connecting ${socketUrl}`)
-            const websocket = new WebSocket(socketUrl)
+            console.log(`connecting ${this.socketUrl}`)
+            const websocket = new WebSocket(this.socketUrl)
             websocket.addEventListener('error', (ev) => {
               reject(ev)
             })

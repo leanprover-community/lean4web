@@ -12,6 +12,8 @@ import languageConfig from './language-configuration.json';
 import { AbbreviationRewriter } from './abbreviation/rewriter/AbbreviationRewriter'
 import { AbbreviationProvider } from './abbreviation/AbbreviationProvider'
 
+const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
+
 const App: React.FC = () => {
   const uri = monaco.Uri.parse('inmemory://lean4web.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
@@ -57,7 +59,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(undefined, uri)
+    const client = new LeanClient(socketUrl, undefined, uri)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoViewRef.current!
     const infoviewApi = renderInfoview(infoProvider.getApi(), div)
