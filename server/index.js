@@ -15,7 +15,7 @@ const app = express()
 app.use(express.static(path.join(__dirname, '../client/dist/')))
 
 let server;
-if (crtFile && sslFile) {
+if (crtFile && keyFile) {
   var privateKey  = fs.readFileSync(keyFile, 'utf8');
   var certificate = fs.readFileSync(crtFile, 'utf8');
   var credentials = {key: privateKey, cert: certificate};
