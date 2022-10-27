@@ -16,6 +16,8 @@ import { createConverter as createC2PConverter } from 'vscode-languageclient/lib
 import * as ls from 'vscode-languageserver-protocol'
 import * as code from 'vscode'
 import { Code2ProtocolConverter, Protocol2CodeConverter } from 'vscode-languageclient'
+import { MonacoLanguageClient} from 'monaco-languageclient/.'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 interface Lean4Diagnostic extends ls.Diagnostic {
   fullRange: ls.Range
@@ -48,3 +50,26 @@ export function patchConverters (p2cConverter: Protocol2CodeConverter, c2pConver
 }
 
 patchConverters(p2cConverter, c2pConverter)
+
+export function toLanguageServerRange (range: monaco.Range): ls.Range {
+  return {
+    start: { line: range.startLineNumber - 1, character: range.startColumn - 1},
+    end: { line: range.endLineNumber - 1, character: range.endColumn - 1}
+  }
+}
+
+export function fromLanguageServerPosition (pos: ls.Position): monaco.Position {
+  return new monaco.Position(
+    pos.line + 1,
+    pos.character + 1
+  )
+}
+
+export function fromLanguageServerRange (range: ls.Range): monaco.Range {
+  return new monaco.Range(
+    range.start.line + 1,
+    range.start.character + 1,
+    range.end.line + 1,
+    range.end.character + 1
+  )
+}

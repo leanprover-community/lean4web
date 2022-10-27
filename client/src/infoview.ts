@@ -2,7 +2,7 @@
 import { join } from 'path'
 import {
   commands, Disposable, DocumentSelector,
-  ExtensionContext, languages, Range,
+  ExtensionContext, languages,
   Selection, TextEditor, TextEditorRevealType,
   Uri, ViewColumn, WebviewPanel, window, workspace, env, Position, WorkspaceEdit
 } from 'vscode'
@@ -18,7 +18,7 @@ import { LeanClient } from './leanclient'
 // import { Rpc } from './rpc'
 // import { LeanClientProvider } from './utils/clientProvider'
 import * as ls from 'vscode-languageserver-protocol'
-import { c2pConverter, p2cConverter } from './utils/converters'
+import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils/converters'
 // import { logger } from './utils/logger'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
@@ -218,7 +218,7 @@ export class InfoProvider implements Disposable {
       let pos: Position | undefined
       if (tdpp != null) {
         uri = p2cConverter.asUri(tdpp.textDocument.uri)
-        pos = p2cConverter.asPosition(tdpp.position)
+        pos = fromLanguageServerPosition(tdpp.position)
       }
       await this.handleInsertText(text, kind, uri, pos)
     },
@@ -229,7 +229,7 @@ export class InfoProvider implements Disposable {
     showDocument: async (show) => {
       void this.revealEditorSelection(
         Uri.parse(show.uri),
-        p2cConverter.asRange(show.selection)
+        fromLanguageServerRange(show.selection)
       )
     },
 
@@ -620,10 +620,7 @@ export class InfoProvider implements Disposable {
     const selection = editor.getSelection()!
     return {
       uri: uri!.toString(),
-      range: {
-        start: { line: selection.selectionStartLineNumber - 1, character: selection.selectionStartColumn },
-        end: { line: selection.positionLineNumber - 1, character: selection.positionColumn }
-      }
+      range: toLanguageServerRange(selection)
     }
   }
 
@@ -669,64 +666,47 @@ export class InfoProvider implements Disposable {
     await this.infoviewApi?.changedCursorLocation(loc)
   }
 
-  private async revealEditorSelection (uri: Uri, selection?: Range) {
-    let editor: TextEditor | undefined
-    for (const e of window.visibleTextEditors) {
-      if (e.document.uri.toString() === uri.toString()) {
-        editor = e
-        break
-      }
-    }
-    if (editor == null) {
-      const c = (window.activeTextEditor != null) ? window.activeTextEditor.viewColumn : ViewColumn.One
-      editor = await window.showTextDocument(uri, { viewColumn: c, preserveFocus: false })
+  private async revealEditorSelection (uri: Uri, selection?: monaco.Range) {
+    if (this.editor == null) {
+      console.error("Editor not set")
+      return
     }
     if (selection !== undefined) {
-      editor.revealRange(selection, TextEditorRevealType.InCenterIfOutsideViewport)
-      editor.selection = new Selection(selection.start, selection.end)
+      this.editor.revealRange(selection)//TextEditorRevealType.InCenterIfOutsideViewport
+      this.editor.setSelection(selection)
       // ensure the text document has the keyboard focus.
-      await window.showTextDocument(editor.document, { viewColumn: editor.viewColumn, preserveFocus: false })
+      this.editor.focus()
     }
   }
 
-  private async handleInsertText (text: string, kind: TextInsertKind, uri?: Uri, pos?: Position) {
-    let editor: TextEditor | undefined
-    if (uri != null) {
-      editor = window.visibleTextEditors.find(e => e.document.uri.toString() === uri.toString())
-    } else {
-      editor = window.activeTextEditor
-      if (editor == null) { // sometimes activeTextEditor is null.
-        editor = window.visibleTextEditors.find(e => e.document.languageId === 'lean4')
-      }
-    }
-    if (editor == null) {
-      // user must have switch away from any lean source file in which case we don't know
-      // what to do here.  TODO: show a popup error?  Or should we use the last uri used in
-      // sendPosition and automatically activate that editor?
+  private async handleInsertText (text: string, kind: TextInsertKind, uri?: Uri, pos?: monaco.Position) {
+    if (this.editor == null) {
       return
     }
-    pos = (pos != null) ? pos : editor.selection.active
+    pos = (pos != null) ? pos : this.editor.getSelection().getStartPosition()
     if (kind === 'above') {
       // in this case, assume that we actually want to insert at the same
       // indentation level as the neighboring text
-      const current_line = editor.document.lineAt(pos.line)
-      const spaces = current_line.firstNonWhitespaceCharacterIndex
+      const spaces =  this.editor.getModel().getLineFirstNonWhitespaceColumn(pos.lineNumber) - 1
       const margin_str = [...Array(spaces).keys()].map(x => ' ').join('')
       let new_command = text.replace(/\n/g, '\n' + margin_str)
       new_command = `${margin_str}${new_command}\n`
-      const insertPosition = current_line.range.start
+      const insertPosition = monaco.Range.fromPositions({lineNumber: pos.lineNumber, column: 0})
 
-      await editor.edit((builder) => {
-        builder.insert(insertPosition, new_command)
-      })
+      await this.editor.executeEdits(
+        "infoview",
+        [{ range: insertPosition, text: new_command, forceMoveMarkers: true }],
+      )
     } else {
-      await editor.edit((builder) => {
-        if (pos != null) builder.insert(pos, text)
-      })
-      editor.selection = new Selection(pos, pos)
+      if (pos != null) {
+        await this.editor.executeEdits(
+          "infoview",
+          [{ range: monaco.Range.fromPositions(pos), text: text, forceMoveMarkers: true }],
+        )
+      }
+      this.editor.setSelection(monaco.Selection.fromPositions(pos, pos))
     }
-    // ensure the text document has the keyboard focus.
-    await window.showTextDocument(editor.document, { viewColumn: editor.viewColumn, preserveFocus: false })
+    this.editor.focus()
   }
 
   private getLocalPath (path: string): string | undefined {
