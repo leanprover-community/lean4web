@@ -20,18 +20,15 @@ if (crtFile && keyFile) {
   var certificate = fs.readFileSync(crtFile, 'utf8');
   var credentials = {key: privateKey, cert: certificate};
 
-  app.use(function(req,resp,next){
-    if (req.headers['x-forwarded-proto'] == 'http') {
-        return resp.redirect(301, 'https://' + req.headers.host + '/');
-    } else {
-        return next();
-    }
-  });
-
-  http.createServer(app).listen(80)
   const PORT = process.env.PORT ?? 443
   server = https.createServer(credentials, app).listen(PORT,
     () => console.log(`HTTPS on port ${PORT}`));
+
+  // redirect http to https
+  var http = express();
+  http.get('*', function(req, res) {
+    res.redirect('https://' + req.headers.host + req.url).listen(80);
+  })
 } else {
   const PORT = process.env.PORT ?? 8080
   server = app.listen(PORT,
