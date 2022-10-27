@@ -83,7 +83,6 @@ class ClientConnection {
 class WebsocketServer {
 
   constructor(server, dockerContainer) {
-    this.clientConnections = []
     this.wss = new WebSocket.Server({ server })
 
     let cmd, cmdArgs;
@@ -100,7 +99,7 @@ class WebsocketServer {
     const cwd = '.'
 
     this.wss.on('connection', (ws) => {
-      this.clientConnections.push(new ClientConnection(ws, spawn(cmd, cmdArgs, { cwd })))
+      new ClientConnection(ws, spawn(cmd, cmdArgs, { cwd }))
     })
   }
 }
