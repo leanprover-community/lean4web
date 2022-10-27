@@ -25,8 +25,7 @@ if (crtFile && keyFile) {
     () => console.log(`HTTPS on port ${PORT}`));
 
   // redirect http to https
-  var http = express();
-  http.get('*', function(req, res) {
+  express().get('*', function(req, res) {
     res.redirect('https://' + req.headers.host + req.url).listen(80);
   })
 } else {
