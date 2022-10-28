@@ -63,7 +63,7 @@ export class InfoProvider implements Disposable {
 
   private readonly stylesheet: string = ''
   private readonly autoOpened: boolean = false
-  private readonly client?: LeanClient
+  public readonly client?: LeanClient
   // private readonly clientProvider: LeanClientProvider
 
   // Subscriptions are counted and only disposed of when count becomes 0.

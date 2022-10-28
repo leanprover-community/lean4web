@@ -21,6 +21,22 @@
   text-decoration: underline;
 }
 
+/* Styling in the left margin of the editor when processing */
+.processing {
+  background: linear-gradient(
+    to right,
+    rgba(255, 165, 0, 1) 0%,
+    rgba(255, 165, 0, 1) 30%,
+    transparent 30%,
+    transparent  100%
+  );;
+}
+
+/* Styling in the left margin of the editor on error */
+.error {
+  background: rgba(255, 0, 0, 1);
+}
+
 code {
   font-family: 'Source Code Pro', 'STIX Two Math', monospace;
   color: rgba(0, 32, 90, 0.87);

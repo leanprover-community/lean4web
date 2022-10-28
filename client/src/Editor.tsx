@@ -11,6 +11,7 @@ import { LeanClient } from './editor/leanclient'
 import languageConfig from 'lean4/language-configuration.json';
 import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
+import { LeanTaskGutter } from './editor/taskgutter'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
@@ -50,6 +51,7 @@ const Editor: React.FC = () => {
         minimap: {
           enabled: false
         },
+        lineNumbersMinChars: 3,
         'semanticHighlighting.enabled': true
       })
       setEditor(editor)
@@ -72,6 +74,7 @@ const Editor: React.FC = () => {
     if (infoProvider !== null && editor !== null && infoviewApi !== null) {
       console.log('Opening Preview')
       infoProvider.openPreview(editor, infoviewApi)
+      const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
   }, [editor, infoviewApi, infoProvider])
 
