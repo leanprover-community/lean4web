@@ -29,7 +29,7 @@
     rgba(255, 165, 0, 1) 30%,
     transparent 30%,
     transparent  100%
-  );;
+  );
 }
 
 /* Styling in the left margin of the editor on error */
