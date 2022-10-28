@@ -1,6 +1,7 @@
 // import { AbbreviationProvider } from '../AbbreviationProvider';
 import { AbbreviationProvider } from '../AbbreviationProvider';
-import { Range } from './Range';
+import { Range } from 'lean4/src/abbreviation/rewriter/Range';
+/* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/rewriter/TrackedAbbreviation.ts` */
 
 /**
  * Represents an abbreviation that is tracked and currently typed by the user.

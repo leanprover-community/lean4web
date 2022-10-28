@@ -1,4 +1,5 @@
-/* Adapted from `vscode-lean4/src/infoview.ts` */
+/* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
+
 import { join } from 'path'
 import {
   commands, Disposable, DocumentSelector,

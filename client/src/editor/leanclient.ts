@@ -1,4 +1,5 @@
-/* Adapted from `vscode-lean4/src/leanclient.ts` */
+/* This file is based on `vscode-lean4/src/leanclient.ts` */
+
 import {
   TextDocument, EventEmitter, Diagnostic,
   DocumentHighlight, Range, DocumentHighlightKind, workspace,

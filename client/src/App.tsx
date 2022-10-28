@@ -8,7 +8,7 @@ import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './editor/infoview'
 import { LeanClient } from './editor/leanclient'
-import languageConfig from './editor/language-configuration.json';
+import languageConfig from 'lean4/language-configuration.json';
 import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 

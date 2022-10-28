@@ -1,4 +1,5 @@
-/* Adapted from `src/utils/converters.ts` */
+/* This file is based on `vscode-lean4/src/utils/converters.ts` */
+
 /**
  * For LSP communication, we need a way to translate between LSP types and corresponding VSCode types.
  * By default this translation is provided as a bunch of methods on a `LanguageClient`, but this is

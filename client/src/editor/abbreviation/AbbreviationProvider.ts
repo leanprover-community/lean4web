@@ -1,7 +1,9 @@
+/* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/AbbreviationProvider.ts` */
+
 import { computed } from 'mobx';
 // import { Disposable } from 'vscode';
 // import { autorunDisposable } from '../utils/autorunDisposable';
-import * as abbreviations from './abbreviations.json';
+import * as abbreviations from 'lean4/src/abbreviation/abbreviations.json';
 import { config } from './config';
 
 export interface SymbolsByAbbreviation {

@@ -1,9 +1,11 @@
+/* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/rewriter/AbbreviationRewriter.ts` */
+
 // import { Range as LineColRange } from 'vscode';
 // import { commands, Disposable, TextEditor, window, workspace, Selection, OutputChannel, TextDocument } from 'vscode';
-import { assert } from '../../utils/assert';
+import { assert } from 'lean4/src/utils/assert';
 import { AbbreviationProvider } from '../AbbreviationProvider';
 import { config } from '../config';
-import { Range } from './Range';
+import { Range } from 'lean4/src/abbreviation/rewriter/Range';
 import { TrackedAbbreviation } from './TrackedAbbreviation';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {IRange, Range as MonacoRange} from 'monaco-editor'

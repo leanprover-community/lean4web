@@ -8,6 +8,7 @@
     "@fontsource/roboto-mono": "^4.5.8",
     "@leanprover/infoview": "git+https://github.com/abentkamp/infoview-npm.git",
     "express": "^4.18.2",
+    "lean4": "https://gitpkg.now.sh/leanprover/vscode-lean4/vscode-lean4?a51db90",
     "mobx": "^6.6.2",
     "monaco-languageclient": "^4.0.1",
     "path-browserify": "^1.0.1",
