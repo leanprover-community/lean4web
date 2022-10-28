@@ -12,6 +12,7 @@ import languageConfig from 'lean4/language-configuration.json';
 import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 import { LeanTaskGutter } from './editor/taskgutter'
+import Split from 'react-split'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
@@ -23,6 +24,8 @@ const Editor: React.FC = () => {
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
+  const [dragging, setDragging] = useState<boolean | null>(false)
+
 
   useEffect(() => {
     // register Monaco languages
@@ -79,10 +82,11 @@ const Editor: React.FC = () => {
   }, [editor, infoviewApi, infoProvider])
 
   return (
-    <div className="editor">
+    <Split className={`editor ${ dragging? 'dragging':''}`} gutterSize={5}
+      onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}>
       <div ref={codeviewRef} className="codeview"></div>
       <div ref={infoviewRef} className="infoview"></div>
-    </div>
+    </Split>
   )
 }
 

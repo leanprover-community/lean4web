@@ -1,18 +1,31 @@
 .editor {
-  height: 100%;
-  overflow: hidden;
   display: flex;
+  flex-direction: row;
+  height: 100%;
 }
 
-.codeview {
-  height: 100%;
-  width: 50%;
+.gutter {
+  background-color: transparent;
+  box-shadow: inset -1px -1px var(--vscode-editorWidget-border);
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+.gutter:hover, .dragging .gutter{
+  background-color: var(--vscode-focusBorder);
+  box-shadow: none;
+  transition-delay:0.3s;
+}
+
+.gutter.gutter-horizontal {
+  cursor: col-resize;
+  margin-left: -4px;
+  z-index: 1;
 }
 
 .infoview {
   padding-left: 1rem;
   height: 100%;
-  width: 50%;
   overflow: auto;
 }
 
