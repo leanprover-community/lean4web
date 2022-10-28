@@ -1,0 +1,87 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editor-wrapper {
+  flex: 1;
+  padding-top: .5em
+}
+
+.nav {
+  text-align: right;
+  box-shadow: 0 .3em .3em 0 rgba(0, 0, 0, 0.1);
+  background-color: var(--vscode-breadcrumb-background);
+  color: var(--vscode-breadcrumb-foreground);
+  padding: 0.3em;
+  z-index: 1;
+}
+
+.nav .nav-link {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 0 .5em;
+}
+
+.nav .nav-link:hover {
+  color: var(--vscode-breadcrumb-focusForeground);
+}
+
+.modal-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+.modal h2 {
+  text-align: center;
+}
+
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 60ch;
+  background: #fff;
+  z-index: 3;
+  padding: 2em;
+  border-radius: 1em;
+  text-align: left;
+  color: var(--vscode-breadcrumb-foreground);
+}
+
+.modal-close {
+  float: right;
+  scale: 2;
+  color: var(--vscode-breadcrumb-foreground);
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  float: right;
+  scale: 2;
+  color: var(--vscode-breadcrumb-focusForeground);
+}
+
+a {
+  text-decoration: none;
+  color: var(--vscode-textLink-foreground);
+}

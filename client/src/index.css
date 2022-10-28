@@ -1,11 +1,10 @@
 body {
   margin: 0;
-  font-family: Roboto;
+  font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: 'Source Code Pro', 'STIX Two Math', monospace;
-  color: rgba(0, 32, 90, 0.87);
+#root {
+  height: 100vh;
 }

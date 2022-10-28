@@ -1,17 +1,17 @@
-.App {
-  height: 100vh;
+.editor {
+  height: 100%;
   overflow: hidden;
   display: flex;
 }
 
-.editor {
-  height: 100vh;
+.codeview {
+  height: 100%;
   width: 50%;
 }
 
 .infoview {
   padding-left: 1rem;
-  height: 100vh;
+  height: 100%;
   width: 50%;
   overflow: auto;
 }
@@ -19,4 +19,9 @@
 /* Styling in the editor while typing abbreviations such as "\alpha" */
 .abbreviation {
   text-decoration: underline;
+}
+
+code {
+  font-family: 'Source Code Pro', 'STIX Two Math', monospace;
+  color: rgba(0, 32, 90, 0.87);
 }

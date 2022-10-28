@@ -20,8 +20,8 @@ const Editor: React.FC = () => {
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
-  const editorRef = useRef<HTMLDivElement>(null)
-  const infoViewRef = useRef<HTMLDivElement>(null)
+  const codeviewRef = useRef<HTMLDivElement>(null)
+  const infoviewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     // register Monaco languages
@@ -40,7 +40,7 @@ const Editor: React.FC = () => {
 
     const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('#check 0', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
-      const editor = monaco.editor.create(editorRef.current!, {
+      const editor = monaco.editor.create(codeviewRef.current!, {
         model,
         glyphMargin: true,
         lightbulb: {
@@ -61,7 +61,7 @@ const Editor: React.FC = () => {
     // Following `vscode-lean4/webview/index.ts`
     const client = new LeanClient(socketUrl, undefined, uri)
     const infoProvider = new InfoProvider(client)
-    const div: HTMLElement = infoViewRef.current!
+    const div: HTMLElement = infoviewRef.current!
     const infoviewApi = renderInfoview(infoProvider.getApi(), div)
     setInfoProvider(infoProvider)
     setInfoviewApi(infoviewApi)
@@ -76,9 +76,9 @@ const Editor: React.FC = () => {
   }, [editor, infoviewApi, infoProvider])
 
   return (
-    <div className="App">
-      <div ref={editorRef} className="editor"></div>
-      <div ref={infoViewRef} className="infoview"></div>
+    <div className="editor">
+      <div ref={codeviewRef} className="codeview"></div>
+      <div ref={infoviewRef} className="infoview"></div>
     </div>
   )
 }
