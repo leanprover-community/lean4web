@@ -1,16 +1,16 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import './infoview.css'
-import './vscode.css'
+import './editor/infoview.css'
+import './editor/vscode.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
-import { InfoProvider } from './infoview'
-import { LeanClient } from './leanclient'
-import languageConfig from './language-configuration.json';
-import { AbbreviationRewriter } from './abbreviation/rewriter/AbbreviationRewriter'
-import { AbbreviationProvider } from './abbreviation/AbbreviationProvider'
+import { InfoProvider } from './editor/infoview'
+import { LeanClient } from './editor/leanclient'
+import languageConfig from './editor/language-configuration.json';
+import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
+import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
