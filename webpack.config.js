@@ -32,8 +32,11 @@ module.exports = env => {
         },
         {
           test: /\.tsx?$/,
-          use: 'ts-loader',
-          exclude: /node_modules/,
+          use: [{
+            loader: 'ts-loader',
+            options: { allowTsInNodeModules: true }
+          }],
+          exclude: /node_modules(?!\/lean4)/, // Allow .ts imports from node_modules/lean4
         },
         {
           test: /\.css$/,
