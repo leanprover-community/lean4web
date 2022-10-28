@@ -11,7 +11,11 @@ class ClientConnection {
 
   re = /Content-Length: (\d+)\r\n/i
 
-  constructor (ws, lean) {
+  constructor (ws, useDockerContainer) {
+    this.useDockerContainer = useDockerContainer
+
+    this.startProcess()
+
     console.log('Socket opened.')
     this.ws = ws
     ws.on('message', (msg) => {
@@ -20,18 +24,27 @@ class ClientConnection {
     })
 
     ws.on('close', () => {
-      this.lean?.kill()
+      if (this.lean) {
+        if (this.useDockerContainer) {
+          // We need to shut down the Docker container. Simply killing the process does not cut it.
+          console.log(this.lean.pid)
+          this.lean?.kill()
+        } else {
+          // Simply kill the Lean process
+          this.lean?.kill()
+        }
+      }
       console.log('Socket closed.')
     })
 
-    lean.stdout.on('readable', () => {
+    this.lean.stdout.on('readable', () => {
       this.read()
     })
-    lean.stderr?.on('data', (data) => {
+
+    this.lean.stderr?.on('data', (data) => {
       console.error('stderr: ')
       console.error(data.toString('utf8'))
     })
-    this.lean = lean
   }
 
   read () {
@@ -78,16 +91,12 @@ class ClientConnection {
     this.lean.stdin.write(str, 'utf-8')
     this.lean.stdin.uncork()
   }
-}
 
-class WebsocketServer {
-
-  constructor(server, dockerContainer) {
-    this.wss = new WebSocket.Server({ server })
-
+  startProcess () {
     let cmd, cmdArgs;
-    if (dockerContainer) {
+    if (this.useDockerContainer) {
       cmd = "docker";
+      // Note for MacOS: use "--platform=linux/amd64"
       cmdArgs = ["run",
         "--runtime=runsc",
         "--network=none", "--rm", "-i", "elan:latest", "lean", "--server"];
@@ -98,8 +107,17 @@ class WebsocketServer {
     }
     const cwd = '.'
 
+    this.lean = spawn(cmd, cmdArgs, { cwd })
+  }
+}
+
+class WebsocketServer {
+
+  constructor(server, useDockerContainer) {
+    this.wss = new WebSocket.Server({ server })
+
     this.wss.on('connection', (ws) => {
-      new ClientConnection(ws, spawn(cmd, cmdArgs, { cwd }))
+      new ClientConnection(ws, useDockerContainer)
     })
   }
 }
