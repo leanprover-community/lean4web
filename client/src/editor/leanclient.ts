@@ -333,6 +333,11 @@ export class LeanClient implements Disposable {
       }
     })
 
+    // HACK: Prevent monaco from panicking when the Lean server crashes
+    this.client.handleFailedRequest = (type, token: any, error: any, defaultValue, showNotification?: boolean) => {
+      return defaultValue
+    }
+
     let insideRestart = true
     patchConverters(this.client.protocol2CodeConverter, this.client.code2ProtocolConverter)
     try {
