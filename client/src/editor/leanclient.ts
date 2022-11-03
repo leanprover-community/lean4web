@@ -101,7 +101,8 @@ export class LeanClient implements Disposable {
   /** Files which are open. */
   private readonly isOpen: Map<string, TextDocument> = new Map()
 
-  constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri/*, outputChannel: OutputChannel, elanDefaultToolchain: string */) {
+  constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri,
+    private readonly showErrorMessage: (messageTitle: string, restartItem: string) => Promise<string>) {
     // this.storageManager = storageManager
     // this.outputChannel = outputChannel
     this.workspaceFolder = workspaceFolder // can be null when opening adhoc files.
@@ -116,27 +117,28 @@ export class LeanClient implements Disposable {
   }
 
   async showRestartMessage (restartFile: boolean = false): Promise<void> {
-    if (!this.showingRestartMessage) {
-      this.showingRestartMessage = true
-      let restartItem: string
-      let messageTitle: string
-      if (!restartFile) {
-        restartItem = 'Restart Lean Server'
-        messageTitle = 'Lean Server has stopped unexpectedly.'
-      } else {
-        restartItem = 'Restart Lean Server on this file'
-        messageTitle = 'The Lean Server has stopped processing this file.'
-      }
-      const item = await window.showErrorMessage(messageTitle, restartItem)
-      this.showingRestartMessage = false
-      if (item === restartItem) {
-        if (restartFile && (window.activeTextEditor != null)) {
-          await this.restartFile(window.activeTextEditor.document)
-        } else {
-          void this.start()
-        }
-      }
-    }
+    // if (!this.showingRestartMessage) {
+    //   this.showingRestartMessage = true
+    //   let restartItem: string
+    //   let messageTitle: string
+    //   if (!restartFile) {
+    //     restartItem = 'Restart Lean Server'
+    //     messageTitle = 'Lean Server has stopped unexpectedly.'
+    //   } else {
+    //     restartItem = 'Restart Lean Server on this file'
+    //     messageTitle = 'The Lean Server has stopped processing this file.'
+    //   }
+    //   const item = await this.showErrorMessage(messageTitle, restartItem)
+    //   this.showingRestartMessage = false
+    //   if (item === restartItem) {
+    //     void this.start()
+    //     // if (restartFile && (window.activeTextEditor != null)) {
+    //     //   await this.restartFile(window.activeTextEditor.document)
+    //     // } else {
+    //     //   void this.start()
+    //     // }
+    //   }
+    // }
   }
 
   async restart (): Promise<void> {
@@ -303,35 +305,39 @@ export class LeanClient implements Disposable {
         }
       }
     }
-
-    this.client = new LanguageClient({
-      id: 'lean4',
-      name: 'Lean 4',
-      clientOptions,
-      connectionProvider: {
-        get: async () => {
-          return await new Promise((resolve, reject) => {
-            console.log(`connecting ${this.socketUrl}`)
-            const websocket = new WebSocket(this.socketUrl)
-            websocket.addEventListener('error', (ev) => {
-              reject(ev)
-            })
-            websocket.addEventListener('message', (msg) => {
-              // console.log(msg.data)
-            })
-            websocket.addEventListener('open', () => {
-              const socket = toSocket(websocket)
-              const reader = new WebSocketMessageReader(socket)
-              const writer = new WebSocketMessageWriter(socket)
-              resolve({
-                reader,
-                writer
+    if (!this.client) {
+      this.client = new LanguageClient({
+        id: 'lean4',
+        name: 'Lean 4',
+        clientOptions,
+        connectionProvider: {
+          get: async () => {
+            return await new Promise((resolve, reject) => {
+              console.log(`connecting ${this.socketUrl}`)
+              const websocket = new WebSocket(this.socketUrl)
+              websocket.addEventListener('error', (ev) => {
+                reject(ev)
+              })
+              websocket.addEventListener('message', (msg) => {
+                // console.log(msg.data)
+              })
+              websocket.addEventListener('open', () => {
+                const socket = toSocket(websocket)
+                const reader = new WebSocketMessageReader(socket)
+                const writer = new WebSocketMessageWriter(socket)
+                resolve({
+                  reader,
+                  writer
+                })
               })
             })
-          })
+          }
         }
-      }
-    })
+      })
+    } else {
+      await this.client.start()
+    }
+
 
     // HACK: Prevent monaco from panicking when the Lean server crashes
     this.client.handleFailedRequest = (type, token: any, error: any, defaultValue, showNotification?: boolean) => {

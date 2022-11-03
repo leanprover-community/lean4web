@@ -13,10 +13,11 @@ import { AbbreviationRewriter } from './editor/abbreviation/rewriter/Abbreviatio
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
+import Notification from './Notification'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
-const Editor: React.FC = () => {
+const Editor: React.FC<{setRestart}> = ({setRestart}) => {
   const uri = monaco.Uri.parse('inmemory://lean4web.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -25,6 +26,7 @@ const Editor: React.FC = () => {
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
+  const [leanStopped, setLeanStopped] = useState<boolean | null>(false)
 
 
   useEffect(() => {
@@ -62,9 +64,14 @@ const Editor: React.FC = () => {
     }
   }, [])
 
+  const showErrorMessage = async (messageTitle: string, restartItem: string) => {
+    setLeanStopped(true)
+    return restartItem
+  }
+
   useEffect(() => {
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(socketUrl, undefined, uri)
+    const client = new LeanClient(socketUrl, undefined, uri, showErrorMessage)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
     const infoviewApi = renderInfoview(infoProvider.getApi(), div)
@@ -79,14 +86,23 @@ const Editor: React.FC = () => {
       infoProvider.openPreview(editor, infoviewApi)
       const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
+    setRestart(() => async () => {
+      await infoProvider.client.stop();
+      await infoProvider.client.start();
+      infoProvider.openPreview(editor, infoviewApi)
+    })
   }, [editor, infoviewApi, infoProvider])
 
+
   return (
-    <Split className={`editor ${ dragging? 'dragging':''}`} gutterSize={5}
-      onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}>
-      <div ref={codeviewRef} className="codeview"></div>
-      <div ref={infoviewRef} className="infoview"></div>
-    </Split>
+    <div className='editor-wrapper'>
+      <Split className={`editor ${ dragging? 'dragging':''}`} gutterSize={5}
+        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}>
+        <div ref={codeviewRef} className="codeview"></div>
+        <div ref={infoviewRef} className="infoview"></div>
+      </Split>
+      {leanStopped ? <Notification /> : ''}
+    </div>
   )
 }
 

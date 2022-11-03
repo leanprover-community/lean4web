@@ -6,7 +6,7 @@ const PrivacyPolicy: React.FC = () => {
   const handleClose = () => setOpen(false);
 
   return (
-    <div>
+    <span>
       <span className="nav-link" onClick={handleOpen}>Privacy Policy</span>
       {open?
         <div className="modal-wrapper">
@@ -32,7 +32,7 @@ const PrivacyPolicy: React.FC = () => {
             </p>
           </div>
         </div> : null}
-    </div>
+    </span>
   )
 }
 

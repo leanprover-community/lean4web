@@ -1,6 +1,9 @@
 const WebSocket = require("ws");
 const { spawn } = require('child_process');
 
+// TODO: Use server-side connection forwarding
+// https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
+
 class ClientConnection {
   header = ''
   content = ''

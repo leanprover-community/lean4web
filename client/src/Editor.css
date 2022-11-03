@@ -20,7 +20,7 @@
 .gutter.gutter-horizontal {
   cursor: col-resize;
   margin-left: -4px;
-  z-index: 1;
+  z-index: 0;
 }
 
 .infoview {
@@ -46,11 +46,94 @@
 }
 
 /* Styling in the left margin of the editor on error */
-.error {
+.glyph-margin-error {
   background: rgba(255, 0, 0, 1);
 }
 
 code {
   font-family: 'Source Code Pro', 'STIX Two Math', monospace;
   color: rgba(0, 32, 90, 0.87);
+}
+
+
+.notification-toasts {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notification-toasts .codicon[class*='codicon-'] {
+  font-size: 1.5em
+}
+
+.notification-toast-container {
+  z-index: 1000;
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+}
+
+.notification-toast {
+  margin: .5em;
+  background: var(--vscode-notifications-background);
+  box-shadow: rgb(0 0 0 / 16%) 0 0 .5em .1em;
+  width: 60ch;
+  display: flex;
+  flex-direction: column;
+  padding: .7em .35em;
+}
+
+.notification-row {
+  flex: 1;
+  display: flex;
+  padding-left: .3em;
+  margin: .3em 0;
+}
+
+.notification-row-main {
+  flex: 1;
+  margin: .2em 0;
+  padding: .1em;
+}
+
+.notification-icon-wrapper {
+  line-height: 0;
+  margin: 0 .2em;
+  padding: .1em;
+}
+
+.notification-icon {
+  color: var(--vscode-notificationsErrorIcon-foreground);
+}
+
+.notification-toasts button {
+  border: none;
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+  cursor: pointer;
+  padding: .5em 1em;
+  border-radius: .2em;
+  display: inline-block;
+  margin: .2em .4em;
+}
+
+.notification-toasts button:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.notification-close-wrapper {
+  cursor: pointer;
+  line-height: 0;
+  margin: 0 .2em;
+  padding: .1em;
+}
+
+.notification-close-wrapper:hover {
+  background: var(--vscode-list-hoverBackground);
+  border-radius: 5px;
+}
+
+.notification-close {
+  cursor: pointer;
+  display: flex;
 }

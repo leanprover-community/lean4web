@@ -77,7 +77,7 @@ export class LeanTaskGutter {
                   position: monaco.editor.OverviewRulerLane.Left,
                   color: 'rgba(255, 0, 0, 0.5)',
                 },
-                glyphMarginClassName: 'error',
+                glyphMarginClassName: 'glyph-margin-error',
                 hoverMessage: {value: 'processing stopped'}
             },
         )
