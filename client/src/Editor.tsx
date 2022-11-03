@@ -44,7 +44,7 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
       monaco.languages.setLanguageConfiguration('lean4', config);
     })
 
-    const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('#check 0', 'lean4', uri)
+    const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
       const editor = monaco.editor.create(codeviewRef.current!, {
         model,
