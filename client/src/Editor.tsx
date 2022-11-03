@@ -52,6 +52,9 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
         lightbulb: {
           enabled: true
         },
+        unicodeHighlight: {
+            ambiguousCharacters: false,
+        },
         automaticLayout: true,
         minimap: {
           enabled: false
