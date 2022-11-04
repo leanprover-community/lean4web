@@ -70,9 +70,13 @@ module.exports = env => {
     plugins: [
       !isDevelopment && new WebpackShellPluginNext({
         onBuildEnd:{
-          // It's hard to set up webpack to copy the index.html correctly,
-          // so we copy it explicitly after every build:
-          scripts: ['cp client/public/index.html client/dist/'],
+          scripts: [
+            // It's hard to set up webpack to copy the index.html correctly,
+            // so we copy it explicitly after every build:
+            'cp client/public/index.html client/dist/',
+            // Similarly, I haven't been able to load `onigasm.wasm` properly:
+            'cp client/public/onigasm.wasm client/dist/',
+          ],
           blocking: false,
           parallel: true
         }

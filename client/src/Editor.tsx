@@ -19,6 +19,9 @@ import { loadWASM } from 'onigasm'
 import { Registry } from 'monaco-textmate' // peer dependency
 import { wireTmGrammars } from 'monaco-editor-textmate'
 import * as lightPlusTheme from './lightPlus.json'
+import * as leanSyntax from './syntaxes/lean.json'
+import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
+import * as codeblockSyntax from './syntaxes/codeblock.json'
 
 console.log(monacoLanguageclient)
 
@@ -65,17 +68,17 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
             if (scopeName === 'source.lean') {
               return {
                   format: 'json',
-                  content: await (await fetch(`/syntaxes/lean.json`)).text()
+                  content: JSON.stringify(leanSyntax)
               }
             } else if (scopeName === 'source.lean.markdown') {
               return {
                   format: 'json',
-                  content: await (await fetch(`/syntaxes/lean-markdown.json`)).text()
+                  content: JSON.stringify(leanMarkdownSyntax)
               }
             } else {
               return {
                   format: 'json',
-                  content: await (await fetch(`/syntaxes/codeblock.json`)).text()
+                  content: JSON.stringify(codeblockSyntax)
               }
             }
           }
