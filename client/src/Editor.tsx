@@ -26,7 +26,7 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
-  const [leanStopped, setLeanStopped] = useState<boolean | null>(false)
+  const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
 
   useEffect(() => {
@@ -67,14 +67,13 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
     }
   }, [])
 
-  const showErrorMessage = async (messageTitle: string, restartItem: string) => {
-    setLeanStopped(true)
-    return restartItem
+  const showRestartMessage = () => {
+    setRestartMessage(true)
   }
 
   useEffect(() => {
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(socketUrl, undefined, uri, showErrorMessage)
+    const client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
     const infoviewApi = renderInfoview(infoProvider.getApi(), div)
@@ -83,17 +82,19 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
     client.restart()
   }, [])
 
+  const restart = async () => {
+    await infoProvider.client.stop();
+    await infoProvider.client.start();
+    infoProvider.openPreview(editor, infoviewApi)
+  }
+
   useEffect(() => {
     if (infoProvider !== null && editor !== null && infoviewApi !== null) {
       console.log('Opening Preview')
       infoProvider.openPreview(editor, infoviewApi)
       const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
-    setRestart(() => async () => {
-      await infoProvider.client.stop();
-      await infoProvider.client.start();
-      infoProvider.openPreview(editor, infoviewApi)
-    })
+    setRestart(() => restart)
   }, [editor, infoviewApi, infoProvider])
 
 
@@ -104,7 +105,11 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
         <div ref={codeviewRef} className="codeview"></div>
         <div ref={infoviewRef} className="infoview"></div>
       </Split>
-      {leanStopped ? <Notification /> : ''}
+      {restartMessage ?
+        <Notification
+          restart={() => {setRestartMessage(false); restart()} }
+          close={() => {setRestartMessage(false)}} />
+        : ''}
     </div>
   )
 }

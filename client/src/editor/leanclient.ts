@@ -102,7 +102,7 @@ export class LeanClient implements Disposable {
   private readonly isOpen: Map<string, TextDocument> = new Map()
 
   constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri,
-    private readonly showErrorMessage: (messageTitle: string, restartItem: string) => Promise<string>) {
+    public readonly showRestartMessage: () => void) {
     // this.storageManager = storageManager
     // this.outputChannel = outputChannel
     this.workspaceFolder = workspaceFolder // can be null when opening adhoc files.
@@ -116,30 +116,30 @@ export class LeanClient implements Disposable {
     if (this.isStarted()) void this.stop()
   }
 
-  async showRestartMessage (restartFile: boolean = false): Promise<void> {
-    // if (!this.showingRestartMessage) {
-    //   this.showingRestartMessage = true
-    //   let restartItem: string
-    //   let messageTitle: string
-    //   if (!restartFile) {
-    //     restartItem = 'Restart Lean Server'
-    //     messageTitle = 'Lean Server has stopped unexpectedly.'
-    //   } else {
-    //     restartItem = 'Restart Lean Server on this file'
-    //     messageTitle = 'The Lean Server has stopped processing this file.'
-    //   }
-    //   const item = await this.showErrorMessage(messageTitle, restartItem)
-    //   this.showingRestartMessage = false
-    //   if (item === restartItem) {
-    //     void this.start()
-    //     // if (restartFile && (window.activeTextEditor != null)) {
-    //     //   await this.restartFile(window.activeTextEditor.document)
-    //     // } else {
-    //     //   void this.start()
-    //     // }
-    //   }
-    // }
-  }
+  // async showRestartMessage (restartFile: boolean = false): Promise<void> {
+  //   // if (!this.showingRestartMessage) {
+  //   //   this.showingRestartMessage = true
+  //   //   let restartItem: string
+  //   //   let messageTitle: string
+  //   //   if (!restartFile) {
+  //   //     restartItem = 'Restart Lean Server'
+  //   //     messageTitle = 'Lean Server has stopped unexpectedly.'
+  //   //   } else {
+  //   //     restartItem = 'Restart Lean Server on this file'
+  //   //     messageTitle = 'The Lean Server has stopped processing this file.'
+  //   //   }
+  //   //   const item = await this.showErrorMessage(messageTitle, restartItem)
+  //   //   this.showingRestartMessage = false
+  //   //   if (item === restartItem) {
+  //   //     void this.start()
+  //   //     // if (restartFile && (window.activeTextEditor != null)) {
+  //   //     //   await this.restartFile(window.activeTextEditor.document)
+  //   //     // } else {
+  //   //     //   void this.start()
+  //   //     // }
+  //   //   }
+  //   // }
+  // }
 
   async restart (): Promise<void> {
     const startTime = Date.now()

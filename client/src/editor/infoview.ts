@@ -376,7 +376,7 @@ export class InfoProvider implements Disposable {
       this.workersFailed.set(uri, reason)
     }
     console.log(`[InfoProvider]client crashed: ${uri}`)
-    await client.showRestartMessage(true)
+    await client.showRestartMessage()
   }
 
   onClientRemoved (client: LeanClient) {
