@@ -9,6 +9,7 @@ import { Range } from 'lean4/src/abbreviation/rewriter/Range';
 import { TrackedAbbreviation } from './TrackedAbbreviation';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {IRange, Range as MonacoRange} from 'monaco-editor'
+import { AbbreviationHoverProvider } from '../AbbreviationHoverProvider';
 
 /**
  * Tracks abbreviations in a given text editor and replaces them when dynamically.
@@ -26,6 +27,7 @@ export class AbbreviationRewriter {
 	private dontTrackNewAbbr = false;
 	private decosIds: string[] = [];
 	private isActiveContextKey: monaco.editor.IContextKey<boolean>;
+	abbreviationHoverProvider: AbbreviationHoverProvider;
 	// private stderrOutput: OutputChannel;
 	// private firstOutput = true;
 
@@ -85,6 +87,10 @@ export class AbbreviationRewriter {
 			keybindings: [monaco.KeyCode.Tab],
 			run: async () => this.forceReplace([...this.trackedAbbreviations])
 		})
+
+		this.abbreviationHoverProvider = new AbbreviationHoverProvider(this.abbreviationProvider)
+
+		monaco.languages.registerHoverProvider('lean4', this.abbreviationHoverProvider);
 	}
 
 	private async forceReplace(
