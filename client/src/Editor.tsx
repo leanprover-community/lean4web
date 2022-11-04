@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import './Editor.css'
 import './editor/infoview.css'
 import './editor/vscode.css'
+import * as monacoLanguageclient from 'monaco-languageclient'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
@@ -14,6 +15,12 @@ import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
+import { loadWASM } from 'onigasm'
+import { Registry } from 'monaco-textmate' // peer dependency
+import { wireTmGrammars } from 'monaco-editor-textmate'
+import * as lightPlusTheme from './lightPlus.json'
+
+console.log(monacoLanguageclient)
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
@@ -28,20 +35,53 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
+  async function liftOff() {
 
-  useEffect(() => {
+    // map of monaco "language id's" to TextMate scopeNames
+    const grammars = new Map()
+    grammars.set('lean4', 'source.lean')
+
+    monaco.editor.defineTheme('vs-code-theme-converted', lightPlusTheme as any);
+
     // register Monaco languages
     monaco.languages.register({
       id: 'lean4',
       extensions: ['.lean']
     })
 
-    monaco.languages.onLanguage('lean4',() => {
+    monaco.languages.onLanguage('lean4', async () => {
+      // The `onLanguage` listener makes sure that the following code is only run once:
+
       let config: any = languageConfig
       config.autoClosingPairs = config.autoClosingPairs.map(
         pair => { return {'open': pair[0], 'close': pair[1]} }
       )
       monaco.languages.setLanguageConfiguration('lean4', config);
+
+      await loadWASM('./onigasm.wasm')
+
+      const registry = new Registry({
+          getGrammarDefinition: async (scopeName) => {
+            if (scopeName === 'source.lean') {
+              return {
+                  format: 'json',
+                  content: await (await fetch(`/syntaxes/lean.json`)).text()
+              }
+            } else if (scopeName === 'source.lean.markdown') {
+              return {
+                  format: 'json',
+                  content: await (await fetch(`/syntaxes/lean-markdown.json`)).text()
+              }
+            } else {
+              return {
+                  format: 'json',
+                  content: await (await fetch(`/syntaxes/codeblock.json`)).text()
+              }
+            }
+          }
+      })
+
+      await wireTmGrammars(monaco, registry, grammars, editor)
     })
 
     const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('', 'lean4', uri)
@@ -60,18 +100,13 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
           enabled: false
         },
         lineNumbersMinChars: 3,
-        'semanticHighlighting.enabled': true
+        'semanticHighlighting.enabled': true,
+        theme: 'vs-code-theme-converted'
       })
       setEditor(editor)
       new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
     }
-  }, [])
 
-  const showRestartMessage = () => {
-    setRestartMessage(true)
-  }
-
-  useEffect(() => {
     // Following `vscode-lean4/webview/index.ts`
     const client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
     const infoProvider = new InfoProvider(client)
@@ -80,7 +115,15 @@ const Editor: React.FC<{setRestart}> = ({setRestart}) => {
     setInfoProvider(infoProvider)
     setInfoviewApi(infoviewApi)
     client.restart()
+  }
+
+  useEffect(() => {
+    liftOff()
   }, [])
+
+  const showRestartMessage = () => {
+    setRestartMessage(true)
+  }
 
   const restart = async () => {
     await infoProvider.client.stop();

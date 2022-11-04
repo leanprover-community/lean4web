@@ -10,7 +10,11 @@
     "express": "^4.18.2",
     "lean4": "https://gitpkg.now.sh/leanprover/vscode-lean4/vscode-lean4?a51db90",
     "mobx": "^6.6.2",
+    "monaco-editor": "^0.34.1",
+    "monaco-editor-textmate": "^4.0.0",
     "monaco-languageclient": "^4.0.1",
+    "monaco-textmate": "^3.0.1",
+    "onigasm": "^2.2.5",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -40,6 +44,11 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1",
     "webpack-shell-plugin-next": "^2.2.2"
+  },
+  "overrides": {
+    "vscode": {
+      "monaco-editor": "$monaco-editor"
+    }
   },
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start_server\" \"npm run start_client\"",
