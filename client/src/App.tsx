@@ -1,9 +1,10 @@
 import * as React from 'react'
-import Editor from './Editor'
 import './editor/vscode.css'
 import './App.css'
 import PrivacyPolicy from './PrivacyPolicy'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+const Editor = React.lazy(() => import('./Editor'))
+
 
 const App: React.FC = () => {
   const [restart, setRestart] = useState()
@@ -14,7 +15,9 @@ const App: React.FC = () => {
         <span className="nav-link" onClick={restart}>Restart Server</span>
         <PrivacyPolicy />
       </div>
-      <Editor setRestart={setRestart}/>
+      <Suspense fallback={<div className="loading-ring"></div>}>
+        <Editor setRestart={setRestart}/>
+      </Suspense>
     </div>
   )
 }
