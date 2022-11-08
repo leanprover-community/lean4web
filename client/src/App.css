@@ -6,7 +6,8 @@
 
 .editor-wrapper {
   flex: 1;
-  padding-top: .5em
+  min-height: 0;
+  padding-top: .5em;
 }
 
 .nav {
