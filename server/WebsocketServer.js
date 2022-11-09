@@ -105,10 +105,10 @@ class ClientConnection {
         "--network=none", "--rm", "-i", "lean:latest", "lake", "serve"];
     } else{
       console.warn("==== Running without Docker container! ===")
-      cmd = "lake";
-      cmdArgs = ["exe", "myServer", "--server"];
+      cmd = "./build/bin/myServer";
+      cmdArgs = ["--server"];
     }
-    const cwd = './MyServer'
+    const cwd = 'MyServer'
 
     this.lean = spawn(cmd, cmdArgs, { cwd })
   }
