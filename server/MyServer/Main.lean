@@ -1,5 +1,33 @@
 import Lean
 
+
+namespace MyModule
+open Lean
+open Elab
+open Parser
+
+private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
+  let pos := c.fileMap.toPosition pos
+  { fileName := c.fileName, pos := pos, data := errorMsg }
+
+/-- convenience function for testing -/
+def parseTactic (env : Environment) (input : String) (messages : MessageLog) (fileName := "<input>")  : (Syntax × MessageLog) := Id.run do
+  let mut messages := messages
+  let mut stx := Syntax.missing
+  let c := mkParserContext (mkInputContext input fileName) { env := env, options := {} }
+  let s := mkParserState input
+  let s := whitespace c s
+  let s := categoryParserFnImpl `tactic c s
+  if s.hasError then
+    messages := messages.add <| mkErrorMessage c s.pos (toString s.errorMsg.get!)
+  else if input.atEnd s.pos then
+    stx := s.stxStack.back
+  else
+    messages := messages.add <| mkErrorMessage c s.pos "end of input"
+  return (stx, messages)
+
+end MyModule
+
 namespace MyServer.FileWorker
 open Lean
 open Lean.Server
@@ -36,11 +64,10 @@ section Updates
       let mvar ← mkFreshExprMVar (kind := MetavarKind.synthetic) none
       let mvar := mvar.mvarId!
       mvar.withContext do
-        match Parser.runParserCategory (← getEnv) `tactic newMeta.text.source with
-        | Except.error err => throwError "ah"
-        | Except.ok stx    => do
-          let unsolvedGoals ← Tactic.run mvar (Tactic.evalTactic stx)
-          return unsolvedGoals
+        let (stx, msgs) := MyModule.parseTactic (← getEnv) newMeta.text.source (← Core.getMessageLog)
+        Core.setMessageLog msgs
+        let unsolvedGoals ← Tactic.run mvar (Tactic.evalTactic stx)
+        return unsolvedGoals
     let metaM : MetaM _ := termElabM.run' (ctx := {})
     searchPathRef.set [(← Lean.findSysroot) / "lib" / "lean"]
     -- initSearchPath "/home/reh/bentkamp/.elan/toolchains/leanprover--lean4---nightly-2022-10-29/"
