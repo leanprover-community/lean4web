@@ -22,26 +22,53 @@ def mkEmptySnapshot : IO Snapshot := do
 
 section Updates
 
-  def compileProof (newMeta : DocumentMeta) : IO Snapshot := do
-    let message : Widget.InteractiveDiagnostic := {
-      range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩,
-      severity? := DiagnosticSeverity.information,
-      message := Widget.TaggedText.text newMeta.text.source
-    }
+  /-- Dummy `Core.Context` value to be fed to `Lean.Core.CoreM.toIO` -/
+  def coreCtx : Core.Context := { 
+    currNamespace := Name.anonymous, 
+    openDecls := [],
+    fileName := "<Game>",
+    fileMap := { source := "", positions := #[0], lines := #[1] } }
+
+  open Elab Meta Expr in
+  def compileProof (newMeta : DocumentMeta) (hasWidgets: Bool) : IO Snapshot := do
+
+    let termElabM : TermElabM _ := do
+      let mvar ← mkFreshExprMVar (kind := MetavarKind.synthetic) none
+      let mvar := mvar.mvarId!
+      mvar.withContext do
+        match Parser.runParserCategory (← getEnv) `tactic newMeta.text.source with
+        | Except.error err => throwError "ah"
+        | Except.ok stx    => do
+          let unsolvedGoals ← Tactic.run mvar (Tactic.evalTactic stx)
+          return unsolvedGoals
+    let metaM : MetaM _ := termElabM.run' (ctx := {})
+    searchPathRef.set [(← Lean.findSysroot) / "lib" / "lean"]
+    -- initSearchPath "/home/reh/bentkamp/.elan/toolchains/leanprover--lean4---nightly-2022-10-29/"
+    let env ← importModules [{ module := `Init : Import }] {} 0 
+    let mut interactiveDiags := PersistentArray.empty
+    try
+      let res ← metaM.run'.toIO coreCtx { env := env }
+      interactiveDiags := ← res.2.messages.msgs.mapM fun msg =>
+        Widget.msgToInteractiveDiagnostic newMeta.mkInputContext.fileMap msg hasWidgets
+    catch e =>
+      pure ()
+      
     let  snap := {
       beginPos := 0
       stx := default
       mpState := default
       cmdState := default
-      interactiveDiags := PersistentArray.empty.push message
+      interactiveDiags := interactiveDiags
       tacticCache := (← IO.mkRef {})
     }  
     return snap
 
   def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
+    let ctx ← read
+    let mut st ← get
     let cancelTk ← CancelToken.new
     let newSnaps ← EIO.asTask (ε := ElabTaskError) <| do 
-      return AsyncList.ofList [← mkEmptySnapshot, ← compileProof newMeta]
+      return AsyncList.ofList [← mkEmptySnapshot, ← compileProof newMeta ctx.clientHasWidgets]
     modify fun st => { st with doc := ⟨newMeta, AsyncList.delayed newSnaps, cancelTk⟩ }
 
 end Updates
