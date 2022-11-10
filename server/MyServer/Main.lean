@@ -83,10 +83,14 @@ def compileProof (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets 
       fileMap      := inputCtx.fileMap
       tacticCache? := some tacticCacheNew
     }
+    let tacticStx := tacticStx[0]!
     let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> do
-          let cmdStx ← `(command| example : Nat.zero = Nat.zero := by $(⟨tacticStx[0]!⟩) )
+          let done := Syntax.node (.synthetic cmdParserState.pos cmdParserState.pos) ``Lean.Parser.Tactic.done #[]
+          let tacticStx := (tacticStx[0]![0]!.getArgs.push done).map (⟨.⟩)
+          let tacticStx := ← `(Lean.Parser.Tactic.tacticSeq| $[$(tacticStx)]*)
+          let cmdStx ← `(command| example : Nat.zero = Nat.zero := by $(⟨tacticStx⟩) )
           Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
