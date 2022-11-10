@@ -38,7 +38,7 @@ partial def parseTactic (inputCtx : InputContext) (pmctx : ParserModuleContext) 
     stx := s.stxStack.back
     if ¬ c.input.atEnd s.pos then
       messages := messages.add <| mkErrorMessage c s.pos "end of input"
-  return (stx, { pos, recovering }, messages)
+  return (stx, { pos := c.input.endPos, recovering }, messages)
 
 end MyModule
 
