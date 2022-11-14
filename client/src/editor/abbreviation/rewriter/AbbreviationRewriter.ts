@@ -164,6 +164,7 @@ export class AbbreviationRewriter {
 		this.dontTrackNewAbbr = true;
 		let ok = false;
 		try {
+			await this.editor.pushUndoStop()
 			await this.editor.executeEdits("abbreviation-rewriter",
 			  replacements.map((r) => {
 					return {

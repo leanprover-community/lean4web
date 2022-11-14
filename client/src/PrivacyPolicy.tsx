@@ -7,7 +7,7 @@ const PrivacyPolicy: React.FC = () => {
 
   return (
     <span>
-      <span className="nav-link" onClick={handleOpen}>Privacy Policy</span>
+      <span className="nav-link" onClick={handleOpen}>Privacy policy</span>
       {open?
         <div className="modal-wrapper">
           <div className="modal-backdrop" onClick={handleClose} />

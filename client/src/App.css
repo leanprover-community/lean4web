@@ -32,6 +32,10 @@
   color: var(--vscode-breadcrumb-focusForeground);
 }
 
+input[type="file"] {
+  display: none;
+}
+
 .modal-wrapper {
   position: fixed;
   top: 0;
