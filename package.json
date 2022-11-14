@@ -6,6 +6,9 @@
   "dependencies": {
     "@fontsource/roboto": "^4.5.8",
     "@fontsource/roboto-mono": "^4.5.8",
+    "@fortawesome/fontawesome-svg-core": "^6.2.0",
+    "@fortawesome/free-solid-svg-icons": "^6.2.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@leanprover/infoview": "git+https://github.com/abentkamp/infoview-npm.git",
     "express": "^4.18.2",
     "lean4": "https://gitpkg.now.sh/leanprover/vscode-lean4/vscode-lean4?a51db90",
@@ -30,6 +33,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.18.6",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.8",
+    "@svgr/webpack": "^6.5.1",
     "@testing-library/react": "^13.4.0",
     "babel-loader": "^8.2.5",
     "concurrently": "^7.4.0",

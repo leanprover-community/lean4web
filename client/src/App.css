@@ -11,12 +11,17 @@
 }
 
 .nav {
-  text-align: right;
   box-shadow: 0 .3em .3em 0 rgba(0, 0, 0, 0.1);
   background-color: var(--vscode-breadcrumb-background);
   color: var(--vscode-breadcrumb-foreground);
-  padding: 0.3em;
   z-index: 1;
+}
+
+.nav .logo {
+  height: 2em;
+  vertical-align: middle;
+  margin-left: .5em;
+  margin-right: 1em;
 }
 
 .nav .nav-link {

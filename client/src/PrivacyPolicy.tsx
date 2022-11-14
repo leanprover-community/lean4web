@@ -1,3 +1,5 @@
+import { faShield } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react'
 
 const PrivacyPolicy: React.FC = () => {
@@ -7,7 +9,9 @@ const PrivacyPolicy: React.FC = () => {
 
   return (
     <span>
-      <span className="nav-link" onClick={handleOpen}>Privacy policy</span>
+      <span className="nav-link" onClick={handleOpen}>
+        <FontAwesomeIcon icon={faShield} /> Privacy policy
+      </span>
       {open?
         <div className="modal-wrapper">
           <div className="modal-backdrop" onClick={handleClose} />
