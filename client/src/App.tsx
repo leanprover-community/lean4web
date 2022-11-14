@@ -12,6 +12,14 @@ const App: React.FC = () => {
   const [restart, setRestart] = useState()
   const [load, setLoad] = useState<(string) => void >(() => {console.error('not ready to load')})
 
+  let value = ''
+  if (window.location.hash.startsWith('#code=')) {
+    value = decodeURI(window.location.hash.substring(6));
+  }
+  const onDidChangeContent = (newValue) => {
+    history.replaceState(undefined, undefined, '#code=' + encodeURI(newValue));
+  }
+
   const loadFileFromDisk = (event) => {
     const fileToLoad = event.target.files[0]
     var fileReader = new FileReader();
@@ -40,7 +48,8 @@ const App: React.FC = () => {
         </a>
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
-        <Editor setRestart={setRestart} setLoad={setLoad} />
+        <Editor setRestart={setRestart} setLoad={setLoad}
+          initialValue={value} onDidChangeContent={onDidChangeContent} />
       </Suspense>
     </div>
   )

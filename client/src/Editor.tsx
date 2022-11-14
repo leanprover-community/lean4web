@@ -27,7 +27,8 @@ console.log(monacoLanguageclient)
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
-const Editor: React.FC<{setRestart?, setLoad?}> = ({setRestart, setLoad}) => {
+const Editor: React.FC<{setRestart?, setLoad?, onDidChangeContent?, initialValue?}> =
+    ({setRestart, setLoad, onDidChangeContent, initialValue}) => {
   const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -87,8 +88,12 @@ const Editor: React.FC<{setRestart?, setLoad?}> = ({setRestart, setLoad}) => {
       await wireTmGrammars(monaco, registry, grammars, editor)
     })
 
-    const model = monaco.editor.getModel(uri) ?? monaco.editor.createModel('', 'lean4', uri)
+    const model = monaco.editor.getModel(uri) ??
+      monaco.editor.createModel(initialValue ?? '', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
+      if (onDidChangeContent) {
+        model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
+      }
       const editor = monaco.editor.create(codeviewRef.current!, {
         model,
         glyphMargin: true,
