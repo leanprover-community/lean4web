@@ -164,12 +164,14 @@ export class AbbreviationRewriter {
 		this.dontTrackNewAbbr = true;
 		let ok = false;
 		try {
-			await this.model.applyEdits(replacements.map((r) => {
-				return {
-					range: toVsCodeRange(r.range, this.model),
-					text:	r.newText
-				}
+			await this.editor.executeEdits("abbreviation-rewriter",
+			  replacements.map((r) => {
+					return {
+						range: toVsCodeRange(r.range, this.model),
+						text:	r.newText
+					}
 			}));
+
 			ok = true
 		} catch (e) {
 			throw Error('Error: while replacing abbreviation: ' + e);

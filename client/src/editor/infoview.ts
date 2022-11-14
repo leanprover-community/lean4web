@@ -698,14 +698,15 @@ export class InfoProvider implements Disposable {
         "infoview",
         [{ range: insertPosition, text: new_command, forceMoveMarkers: true }],
       )
+      await this.editor.pushUndoStop()
     } else {
       if (pos != null) {
         await this.editor.executeEdits(
           "infoview",
           [{ range: monaco.Range.fromPositions(pos), text: text, forceMoveMarkers: true }],
         )
+        await this.editor.pushUndoStop()
       }
-      this.editor.setSelection(monaco.Selection.fromPositions(pos, pos))
     }
     this.editor.focus()
   }
