@@ -15,12 +15,12 @@ private def mkEOI (pos : String.Pos) : Syntax :=
   let atom := mkAtom (SourceInfo.original "".toSubstring pos "".toSubstring pos) ""
   mkNode `Lean.Parser.Module.eoi #[atom]
 
-partial def parseTactic (inputCtx : InputContext) (pmctx : ParserModuleContext) (mps : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog := Id.run do
+partial def parseTactic (inputCtx : InputContext) (pmctx : ParserModuleContext) (mps : ModuleParserState) (messages : MessageLog) (couldBeEndSnap : Bool) : Syntax × ModuleParserState × MessageLog := Id.run do
   let mut pos := mps.pos
   let mut recovering := mps.recovering
   let mut messages := messages
   let mut stx := Syntax.missing  -- will always be assigned below
-  if inputCtx.input.atEnd pos then
+  if inputCtx.input.atEnd pos ∧ couldBeEndSnap then
     stx := mkEOI pos
     return (stx, { pos, recovering }, messages)
   let c := mkParserContext inputCtx pmctx
@@ -54,12 +54,12 @@ open JsonRpc
 section Elab
 
 open Elab Meta Expr in
-def compileProof (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
+def compileProof (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets : Bool) (couldBeEndSnap : Bool) : IO Snapshot := do
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
   let (tacticStx, cmdParserState, msgLog) :=
-    MyModule.parseTactic inputCtx pmctx snap.mpState snap.msgLog
+    MyModule.parseTactic inputCtx pmctx snap.mpState snap.msgLog couldBeEndSnap
   let cmdPos := tacticStx.getPos?.get!
   if Parser.isEOI tacticStx then
     let endSnap : Snapshot := {
@@ -88,7 +88,7 @@ def compileProof (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets 
       Elab.Command.catchExceptions
         (getResetInfoTrees *> do
           let done := Syntax.node (.synthetic cmdParserState.pos cmdParserState.pos) ``Lean.Parser.Tactic.done #[]
-          let tacticStx := (tacticStx[0]![0]!.getArgs.push done).map (⟨.⟩)
+          let tacticStx := (tacticStx.getArgs.push done).map (⟨.⟩)
           let tacticStx := ← `(Lean.Parser.Tactic.tacticSeq| $[$(tacticStx)]*)
           let cmdStx ← `(command| example : Nat.zero = Nat.zero := by $(⟨tacticStx⟩) )
           Elab.Command.elabCommandTopLevel cmdStx)
@@ -115,37 +115,6 @@ def compileProof (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets 
       tacticCache := (← IO.mkRef {})
     }
     return postCmdSnap
-
-      -- let termElabM : TermElabM _ := do
-      --   let mvar ← mkFreshExprMVar (kind := MetavarKind.synthetic) none
-      --   let mvar := mvar.mvarId!
-      --   mvar.withContext do
-      --     let unsolvedGoals ← Tactic.run mvar (Tactic.evalTactic stx)
-      --     return stx
-      -- let tacticCacheNew ← IO.mkRef (← snap.tacticCache.get)
-      -- let termElabMCtx : Lean.Elab.Term.Context := {
-      --   tacticCache? := some tacticCacheNew
-      -- }
-      -- let metaM : MetaM _ := termElabM.run' (ctx := termElabMCtx)
-      -- searchPathRef.set [(← Lean.findSysroot) / "lib" / "lean"]
-      -- let env := snap.env
-      -- let mut interactiveDiags := PersistentArray.empty
-      -- let metaMCtx := {
-      --   fileName     := inputCtx.fileName
-      --   fileMap      := inputCtx.fileMap
-      -- }
-      -- let (stx, msgLog) ← metaM.run'.toIO metaMCtx { env := env }
-      -- interactiveDiags := ← withNewInteractiveDiags msgLog.messages
-        
-      -- let postCmdSnap : Snapshot := {
-      --   beginPos := stx.getPos?.get!
-      --   stx := stx
-      --   mpState := cmdParserState
-      --   cmdState := postCmdState
-      --   interactiveDiags := interactiveDiags
-      --   tacticCache := (← IO.mkRef {})
-      -- }
-      -- return snap
 
 where
   /-- Compute the current interactive diagnostics log by finding a "diff" relative to the parent
@@ -186,7 +155,10 @@ where
       publishIleanInfoFinal m ctx.hOut s.snaps
       return none
     publishProgressAtPos m lastSnap.endPos ctx.hOut
-    let snap ← compileProof m.mkInputContext lastSnap ctx.clientHasWidgets
+    -- Make sure that there is at least one snap after the head snap, so that
+    -- we can see the current goal even on an empty document
+    let couldBeEndSnap := s.snaps.size > 1 
+    let snap ← compileProof m.mkInputContext lastSnap ctx.clientHasWidgets couldBeEndSnap
     set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
