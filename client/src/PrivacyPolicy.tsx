@@ -23,8 +23,7 @@ const PrivacyPolicy: React.FC = () => {
             and the data that the user enters into the editor. The data is used to
             compute the Lean output and display it to the user. The information will be stored
             as long as the user stays on our website and will be deleted immediately afterwards.
-            Severe errors in the Lean server will be logged to improve the software.
-            The logs will be deleted after 30 days.
+            We keep logs to improve our software, but the contained data is anonymized.
             Our server is located in Germany.</p>
 
             <p><strong>Contact information:</strong><br />
