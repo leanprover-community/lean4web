@@ -1,5 +1,7 @@
 const WebSocket = require("ws");
 const { spawn } = require('child_process');
+const os = require('os');
+const anonymize = require('ip-anonymize')
 
 // TODO: Use server-side connection forwarding
 // https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
@@ -19,7 +21,6 @@ class ClientConnection {
 
     this.startProcess()
 
-    console.log('Socket opened.')
     this.ws = ws
     ws.on('message', (msg) => {
       // console.log(`[client] ${msg}`)
@@ -37,7 +38,6 @@ class ClientConnection {
           this.lean?.kill()
         }
       }
-      console.log('Socket closed.')
     })
 
     this.lean.stdout.on('readable', () => {
@@ -118,10 +118,24 @@ class WebsocketServer {
 
   constructor(server, useDockerContainer) {
     this.wss = new WebSocket.Server({ server })
+    this.userCounter = 0;
 
-    this.wss.on('connection', (ws) => {
+    this.wss.on('connection', (ws, req) => {
+      this.userCounter += 1;
+      const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
+      console.log(`[${new Date()}] Socket opened - ${ip}`)
+      this.logStats()
       new ClientConnection(ws, useDockerContainer)
+      ws.on('close', () => {
+        console.log(`[${new Date()}] Socket closed - ${ip}`)
+        this.userCounter -= 1;
+      })
     })
+  }
+
+  logStats() {
+    console.log(`[${new Date()}] Number of users - ${this.userCounter}`)
+    console.log(`[${new Date()}] System RAM usage - ${Math.round(os.freemem() / 1024 / 1024)} / ${os.totalmem() / 1024 / 1024} GB`)
   }
 }
 
