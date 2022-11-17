@@ -118,24 +118,24 @@ class WebsocketServer {
 
   constructor(server, useDockerContainer) {
     this.wss = new WebSocket.Server({ server })
-    this.userCounter = 0;
+    this.socketCounter = 0;
 
     this.wss.on('connection', (ws, req) => {
-      this.userCounter += 1;
+      this.socketCounter += 1;
       const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
       console.log(`[${new Date()}] Socket opened - ${ip}`)
       this.logStats()
       new ClientConnection(ws, useDockerContainer)
       ws.on('close', () => {
         console.log(`[${new Date()}] Socket closed - ${ip}`)
-        this.userCounter -= 1;
+        this.socketCounter -= 1;
       })
     })
   }
 
   logStats() {
-    console.log(`[${new Date()}] Number of users - ${this.userCounter}`)
-    console.log(`[${new Date()}] System RAM usage - ${Math.round(os.freemem() / 1024 / 1024)} / ${os.totalmem() / 1024 / 1024} GB`)
+    console.log(`[${new Date()}] Number of open sockets - ${this.socketCounter}`)
+    console.log(`[${new Date()}] System RAM usage - ${Math.round(os.freemem() / 1024 / 1024)} / ${Math.round(os.totalmem() / 1024 / 1024)} GB`)
   }
 }
 
