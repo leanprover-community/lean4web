@@ -135,7 +135,7 @@ class WebsocketServer {
 
   logStats() {
     console.log(`[${new Date()}] Number of open sockets - ${this.socketCounter}`)
-    console.log(`[${new Date()}] System RAM usage - ${Math.round(os.freemem() / 1024 / 1024)} / ${Math.round(os.totalmem() / 1024 / 1024)} GB`)
+    console.log(`[${new Date()}] Free RAM - ${Math.round(os.freemem() / 1024 / 1024)} / ${Math.round(os.totalmem() / 1024 / 1024)} GB`)
   }
 }
 
