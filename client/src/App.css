@@ -30,7 +30,8 @@
   color: inherit;
   cursor: pointer;
   text-decoration: none;
-  padding: 0 .5em;
+  padding: .5em;
+  display: inline-block;
 }
 
 .nav .nav-link:hover {
