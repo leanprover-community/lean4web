@@ -26,7 +26,7 @@ partial def parseTactic (inputCtx : InputContext) (pmctx : ParserModuleContext) 
   let c := mkParserContext inputCtx pmctx
   let s := { cache := initCacheForInput c.input, pos := pos : ParserState }
   let s := whitespace c s
-  let s := categoryParserFnImpl `tacticSeq c s
+  let s := (Tactic.sepByIndentSemicolon tacticParser).fn c s
   pos := s.pos
   match s.errorMsg with
   | none =>
@@ -83,14 +83,14 @@ def compileProof (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets 
       fileMap      := inputCtx.fileMap
       tacticCache? := some tacticCacheNew
     }
-    let tacticStx := tacticStx[0]!
     let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> do
+          let level := `level1
           let done := Syntax.node (.synthetic cmdParserState.pos cmdParserState.pos) ``Lean.Parser.Tactic.done #[]
           let tacticStx := (tacticStx.getArgs.push done).map (⟨.⟩)
           let tacticStx := ← `(Lean.Parser.Tactic.tacticSeq| $[$(tacticStx)]*)
-          let cmdStx ← `(command| example : Nat.zero = Nat.zero := by $(⟨tacticStx⟩) )
+          let cmdStx ← `(command| example : $(mkIdent level) := by {unfold $(mkIdent level); $(⟨tacticStx⟩)} )
           Elab.Command.elabCommandTopLevel cmdStx)
         cmdCtx cmdStateRef
     let postNew := (← tacticCacheNew.get).post
@@ -320,10 +320,10 @@ section Initialization
         initParams
         clientHasWidgets
       }
-    let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
-      | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx
+    let snaps ← EIO.mapTask (t := headerTask) (match · with
+      | Except.ok (s, _) => unfoldSnaps meta #[s] cancelTk ctx
       | Except.error e   => throw (e : ElabTaskError))
-    let doc : EditableDocument := ⟨meta, AsyncList.delayed cmdSnaps, cancelTk⟩
+    let doc : EditableDocument := ⟨meta, AsyncList.delayed snaps, cancelTk⟩
     return (ctx,
     { doc             := doc
       pendingRequests := RBMap.empty

@@ -1,4 +1,3 @@
 import Lean
 
-declare_syntax_cat tacticSeq
-syntax Lean.Parser.Tactic.tacticSeq : tacticSeq
+def level1 : Prop := Nat.zero = Nat.zero
