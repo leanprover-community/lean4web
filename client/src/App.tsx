@@ -4,20 +4,31 @@ import './App.css'
 import PrivacyPolicy from './PrivacyPolicy'
 import { useState, Suspense } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload } from '@fortawesome/free-solid-svg-icons'
 const Editor = React.lazy(() => import('./Editor'))
 import Logo from "./logo.svg";
+import LoadUrl from './LoadUrl'
+import { saveAs } from 'file-saver';
+
 
 const App: React.FC = () => {
   const [restart, setRestart] = useState()
   const [load, setLoad] = useState<(string) => void >(() => {console.error('not ready to load')})
 
-  let value = ''
+  let initialValue = ''
   if (window.location.hash.startsWith('#code=')) {
-    value = decodeURI(window.location.hash.substring(6));
+    initialValue = decodeURI(window.location.hash.substring(6));
   }
+  const [value, setValue] = useState(initialValue)
+
   const onDidChangeContent = (newValue) => {
     history.replaceState(undefined, undefined, '#code=' + encodeURI(newValue));
+    setValue(newValue)
+  }
+
+  const save = () => {
+    var blob = new Blob([value], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "LeanProject.lean");
   }
 
   const loadFileFromDisk = (event) => {
@@ -38,7 +49,11 @@ const App: React.FC = () => {
         <label htmlFor="file-upload" className="nav-link">
           <FontAwesomeIcon icon={faUpload} /> Load file from disk
         </label>
+        <LoadUrl load={load} />
         <input id="file-upload" type="file" onChange={loadFileFromDisk} />
+        <span className="nav-link" onClick={save}>
+          <FontAwesomeIcon icon={faDownload} /> Save file
+        </span>
         <span className="nav-link" onClick={restart}>
           <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
         </span>
@@ -52,7 +67,7 @@ const App: React.FC = () => {
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart} setLoad={setLoad}
-          initialValue={value} onDidChangeContent={onDidChangeContent} />
+          initialValue={initialValue} onDidChangeContent={onDidChangeContent} />
       </Suspense>
     </div>
   )

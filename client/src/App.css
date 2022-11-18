@@ -70,6 +70,7 @@ input[type="file"] {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  min-width: 50%;
   max-width: 60ch;
   background: #fff;
   z-index: 3;
@@ -77,6 +78,10 @@ input[type="file"] {
   border-radius: 1em;
   text-align: left;
   color: var(--vscode-breadcrumb-foreground);
+}
+
+.modal input[type="text"] {
+  width: 100%;
 }
 
 .modal-close {
