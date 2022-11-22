@@ -40,7 +40,7 @@ const LoadUrl: React.FC<{loadFromUrl:(url: string) => void}> = ({loadFromUrl}) =
             <h2>Load from URL</h2>
             {error ? <p className="form-error">{error}</p>: null}
             <form onSubmit={handleLoad}>
-            <input type="text" placeholder="Paste URL here" ref={urlRef}/>
+            <input autoFocus type="text" placeholder="Paste URL here" ref={urlRef}/>
             <input type="submit" value="Load"/>
             </form>
           </div>
