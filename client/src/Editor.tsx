@@ -27,8 +27,8 @@ console.log(monacoLanguageclient)
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
-const Editor: React.FC<{setRestart?, setLoad?, onDidChangeContent?, initialValue?}> =
-    ({setRestart, setLoad, onDidChangeContent, initialValue}) => {
+const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
+    ({setRestart, onDidChangeContent, value}) => {
   const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -89,7 +89,7 @@ const Editor: React.FC<{setRestart?, setLoad?, onDidChangeContent?, initialValue
     })
 
     const model = monaco.editor.getModel(uri) ??
-      monaco.editor.createModel(initialValue ?? '', 'lean4', uri)
+      monaco.editor.createModel(value ?? '', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
       if (onDidChangeContent) {
         model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
@@ -139,13 +139,17 @@ const Editor: React.FC<{setRestart?, setLoad?, onDidChangeContent?, initialValue
     infoProvider.openPreview(editor, infoviewApi)
   }
 
-  const load = (text) => {
-    editor.pushUndoStop()
-    editor.executeEdits("", [
-      { range: editor.getModel().getFullModelRange(), text }
-    ]);
-    editor.setSelection(new monaco.Range(1,1,1,1))
-  }
+  useEffect(() => {
+    if (editor){
+      if (editor.getModel().getValue() != value) {
+        editor.pushUndoStop()
+        editor.executeEdits("component", [
+          { range: editor.getModel().getFullModelRange(), text: value }
+        ]);
+        editor.setSelection(new monaco.Range(1,1,1,1))
+      }
+    }
+  }, [value])
 
   useEffect(() => {
     if (infoProvider !== null && editor !== null && infoviewApi !== null) {
@@ -154,7 +158,6 @@ const Editor: React.FC<{setRestart?, setLoad?, onDidChangeContent?, initialValue
       const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
     setRestart(() => restart)
-    setLoad(() => load)
   }, [editor, infoviewApi, infoProvider])
 
 

@@ -1,33 +1,69 @@
 import * as React from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import './editor/vscode.css'
 import './App.css'
 import PrivacyPolicy from './PrivacyPolicy'
-import { useState, Suspense } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload } from '@fortawesome/free-solid-svg-icons'
 const Editor = React.lazy(() => import('./Editor'))
 import Logo from "./logo.svg";
-import LoadUrl from './LoadUrl'
 import { saveAs } from 'file-saver';
+import LoadUrl from './LoadUrl'
 
 
 const App: React.FC = () => {
   const [restart, setRestart] = useState()
-  const [load, setLoad] = useState<(string) => void >(() => {console.error('not ready to load')})
 
-  let initialValue = ''
-  if (window.location.hash.startsWith('#code=')) {
-    initialValue = decodeURI(window.location.hash.substring(6));
+  const [content, setContent] = useState<string>('')
+  const [url, setUrl] = useState<string>(null)
+  const [contentFromUrl, setContentFromUrl] = useState<string>(null)
+
+  const readHash = () => {
+    if (window.location.hash.startsWith('#code=')) {
+      setContent(decodeURI(window.location.hash.substring(6)));
+    }
+    if (window.location.hash.startsWith('#url=')) {
+      setUrl(decodeURI(window.location.hash.substring(5)));
+    }
   }
-  const [value, setValue] = useState(initialValue)
+  if ("onhashchange" in window) // does the browser support the hashchange event?
+    window.addEventListener('hashchange', readHash)
 
-  const onDidChangeContent = (newValue) => {
-    history.replaceState(undefined, undefined, '#code=' + encodeURI(newValue));
-    setValue(newValue)
+  useEffect(() => { readHash(); }, []) // Trigger onhashchange once in the beginning
+
+  useEffect(() => {
+    if (contentFromUrl === content) {
+      history.replaceState(undefined, undefined, '#url=' + encodeURI(url));
+    } else if (content === "") {
+      history.replaceState(undefined, undefined, ' ');
+    } else {
+      history.replaceState(undefined, undefined, '#code=' + encodeURI(content));
+    }
+  }, [content])
+
+  useEffect(() => {
+    if (url !== null) {
+      setContent("Loading...")
+      setContentFromUrl("Loading...")
+      fetch(url)
+      .then((response) => response.text())
+      .then((content) => {
+        setContent(content)
+        setContentFromUrl(content)
+      })
+      .catch( err => {
+        setContent(err.toString())
+        setContentFromUrl(err.toString())
+      })
+    }
+  }, [url])
+
+  const onDidChangeContent = (newContent) => {
+    setContent(newContent)
   }
 
   const save = () => {
-    var blob = new Blob([value], {type: "text/plain;charset=utf-8"});
+    var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "LeanProject.lean");
   }
 
@@ -35,11 +71,20 @@ const App: React.FC = () => {
     const fileToLoad = event.target.files[0]
     var fileReader = new FileReader();
     fileReader.onload = (fileLoadedEvent) => {
-        var textFromFileLoaded = fileLoadedEvent.target.result;
-        load(textFromFileLoaded)
+        var textFromFileLoaded = fileLoadedEvent.target.result as string;
+        setContent(textFromFileLoaded)
     };
 
     fileReader.readAsText(fileToLoad, "UTF-8");
+  }
+
+  const loadFromUrl = (url) => {
+    setUrl((oldUrl) => {
+      if (oldUrl === url) {
+        setContent(contentFromUrl)
+      }
+      return url
+    })
   }
 
   return (
@@ -49,7 +94,7 @@ const App: React.FC = () => {
         <label htmlFor="file-upload" className="nav-link">
           <FontAwesomeIcon icon={faUpload} /> Load file from disk
         </label>
-        <LoadUrl load={load} />
+        <LoadUrl loadFromUrl={loadFromUrl} />
         <input id="file-upload" type="file" onChange={loadFileFromDisk} />
         <span className="nav-link" onClick={save}>
           <FontAwesomeIcon icon={faDownload} /> Save file
@@ -66,8 +111,8 @@ const App: React.FC = () => {
         </a>
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
-        <Editor setRestart={setRestart} setLoad={setLoad}
-          initialValue={initialValue} onDidChangeContent={onDidChangeContent} />
+        <Editor setRestart={setRestart}
+          value={content} onDidChangeContent={onDidChangeContent} />
       </Suspense>
     </div>
   )

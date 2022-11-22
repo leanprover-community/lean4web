@@ -84,6 +84,22 @@ input[type="file"] {
   width: 100%;
 }
 
+.modal .form-error {
+  color: #a00;
+  font-weight: bold;
+}
+
+.modal input[type="submit"] {
+  border: none;
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+  cursor: pointer;
+  padding: .5em 1em;
+  border-radius: .2em;
+  display: block;
+  margin: 1em auto;
+}
+
 .modal-close {
   float: right;
   scale: 2;
