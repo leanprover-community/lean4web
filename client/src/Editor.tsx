@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react'
 import './Editor.css'
 import './editor/infoview.css'
 import './editor/vscode.css'
-import * as monacoLanguageclient from 'monaco-languageclient'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
@@ -23,9 +22,59 @@ import * as leanSyntax from './syntaxes/lean.json'
 import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
 import * as codeblockSyntax from './syntaxes/codeblock.json'
 
-console.log(monacoLanguageclient)
-
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
+
+// map of monaco "language id's" to TextMate scopeNames
+const grammars = new Map()
+grammars.set('lean4', 'source.lean')
+
+monaco.editor.defineTheme('vs-code-theme-converted', lightPlusTheme as any);
+
+// register Monaco languages
+monaco.languages.register({
+  id: 'lean4',
+  extensions: ['.lean']
+})
+
+let config: any = { ...languageConfig }
+config.autoClosingPairs = config.autoClosingPairs.map(
+  pair => { return {'open': pair[0], 'close': pair[1]} }
+)
+monaco.languages.setLanguageConfiguration('lean4', config);
+
+const registry = new Registry({
+  getGrammarDefinition: async (scopeName) => {
+    if (scopeName === 'source.lean') {
+      return {
+          format: 'json',
+          content: JSON.stringify(leanSyntax)
+      }
+    } else if (scopeName === 'source.lean.markdown') {
+      return {
+          format: 'json',
+          content: JSON.stringify(leanMarkdownSyntax)
+      }
+    } else {
+      return {
+          format: 'json',
+          content: JSON.stringify(codeblockSyntax)
+      }
+    }
+  }
+});
+
+// Load onigasm
+(async () => {
+  try {
+    await loadWASM('./onigasm.wasm')
+  } catch (err) {
+    // Hot module replacement can cause us to run this code twice and that's ok.
+    if (!(err as Error).message?.startsWith('Onigasm#init has been called')) {
+      throw err
+    }
+  }
+  wireTmGrammars(monaco, registry, grammars)
+})()
 
 const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     ({setRestart, onDidChangeContent, value}) => {
@@ -39,55 +88,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
-  async function liftOff() {
-
-    // map of monaco "language id's" to TextMate scopeNames
-    const grammars = new Map()
-    grammars.set('lean4', 'source.lean')
-
-    monaco.editor.defineTheme('vs-code-theme-converted', lightPlusTheme as any);
-
-    // register Monaco languages
-    monaco.languages.register({
-      id: 'lean4',
-      extensions: ['.lean']
-    })
-
-    monaco.languages.onLanguage('lean4', async () => {
-      // The `onLanguage` listener makes sure that the following code is only run once:
-
-      let config: any = languageConfig
-      config.autoClosingPairs = config.autoClosingPairs.map(
-        pair => { return {'open': pair[0], 'close': pair[1]} }
-      )
-      monaco.languages.setLanguageConfiguration('lean4', config);
-
-      await loadWASM('./onigasm.wasm')
-
-      const registry = new Registry({
-          getGrammarDefinition: async (scopeName) => {
-            if (scopeName === 'source.lean') {
-              return {
-                  format: 'json',
-                  content: JSON.stringify(leanSyntax)
-              }
-            } else if (scopeName === 'source.lean.markdown') {
-              return {
-                  format: 'json',
-                  content: JSON.stringify(leanMarkdownSyntax)
-              }
-            } else {
-              return {
-                  format: 'json',
-                  content: JSON.stringify(codeblockSyntax)
-              }
-            }
-          }
-      })
-
-      await wireTmGrammars(monaco, registry, grammars, editor)
-    })
-
+  useEffect(() => {
     const model = monaco.editor.getModel(uri) ??
       monaco.editor.createModel(value ?? '', 'lean4', uri)
     if (!model.isAttachedToEditor()) {
@@ -123,10 +124,6 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     setInfoProvider(infoProvider)
     setInfoviewApi(infoviewApi)
     client.restart()
-  }
-
-  useEffect(() => {
-    liftOff()
   }, [])
 
   const showRestartMessage = () => {
@@ -153,7 +150,6 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
 
   useEffect(() => {
     if (infoProvider !== null && editor !== null && infoviewApi !== null) {
-      console.log('Opening Preview')
       infoProvider.openPreview(editor, infoviewApi)
       const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
