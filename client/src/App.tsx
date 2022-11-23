@@ -20,10 +20,10 @@ const App: React.FC = () => {
 
   const readHash = () => {
     if (window.location.hash.startsWith('#code=')) {
-      setContent(decodeURI(window.location.hash.substring(6)));
+      setContent(decodeURIComponent(window.location.hash.substring(6)));
     }
     if (window.location.hash.startsWith('#url=')) {
-      setUrl(decodeURI(window.location.hash.substring(5)));
+      setUrl(decodeURIComponent(window.location.hash.substring(5)));
     }
   }
   if ("onhashchange" in window) // does the browser support the hashchange event?
@@ -33,11 +33,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (contentFromUrl === content) {
-      history.replaceState(undefined, undefined, '#url=' + encodeURI(url));
+      history.replaceState(undefined, undefined, '#url=' + encodeURIComponent(url));
     } else if (content === "") {
       history.replaceState(undefined, undefined, ' ');
     } else {
-      history.replaceState(undefined, undefined, '#code=' + encodeURI(content));
+      history.replaceState(undefined, undefined, '#code=' + encodeURIComponent(content));
     }
   }, [content])
 
