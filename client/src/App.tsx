@@ -1,22 +1,29 @@
 import * as React from 'react'
 import { useState, Suspense, useEffect } from 'react'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import './editor/vscode.css'
 import './App.css'
+import Notification from './Notification'
+import { LeanClient } from './editor/leanclient'
 import PrivacyPolicy from './PrivacyPolicy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload } from '@fortawesome/free-solid-svg-icons'
-const Editor = React.lazy(() => import('./Editor'))
+import Editor from './Editor'
 import Logo from "./logo.svg";
 import { saveAs } from 'file-saver';
 import LoadUrl from './LoadUrl'
+import { monacoSetup } from './editor/monacoSetup'
 
+const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
+
+monacoSetup()
 
 const App: React.FC = () => {
-  const [restart, setRestart] = useState()
-
   const [content, setContent] = useState<string>('')
   const [url, setUrl] = useState<string>(null)
+  const [client, setClient] = useState<LeanClient>(null)
   const [contentFromUrl, setContentFromUrl] = useState<string>(null)
+  const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   const readHash = () => {
     if (window.location.hash.startsWith('#code=')) {
@@ -30,6 +37,17 @@ const App: React.FC = () => {
     window.addEventListener('hashchange', readHash)
 
   useEffect(() => { readHash(); }, []) // Trigger onhashchange once in the beginning
+
+  useEffect(() => {
+    let client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
+    setClient(client)
+    client.start()
+
+    const cleanup = async () => {
+      await client.stop();
+    }
+    return () => { cleanup() }
+  }, [])
 
   useEffect(() => {
     if (contentFromUrl === content) {
@@ -87,6 +105,16 @@ const App: React.FC = () => {
     })
   }
 
+  const showRestartMessage = () => {
+    setRestartMessage(true)
+  }
+
+  const restart = async () => {
+
+  }
+
+  const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
+
   return (
     <div className='app'>
       <div className='nav'>
@@ -111,9 +139,13 @@ const App: React.FC = () => {
         </a>
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
-        <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} />
+        <Editor value={content} onDidChangeContent={onDidChangeContent} client={client} uri={uri} />
       </Suspense>
+      {restartMessage ?
+        <Notification
+          restart={() => {setRestartMessage(false); restart()} }
+          close={() => {setRestartMessage(false)}} />
+        : ''}
     </div>
   )
 }

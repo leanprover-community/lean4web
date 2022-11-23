@@ -7,78 +7,14 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './editor/infoview'
-import { LeanClient } from './editor/leanclient'
-import languageConfig from 'lean4/language-configuration.json';
 import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
-import Notification from './Notification'
-import { loadWASM } from 'onigasm'
-import { Registry } from 'monaco-textmate' // peer dependency
-import { wireTmGrammars } from 'monaco-editor-textmate'
-import * as lightPlusTheme from './lightPlus.json'
-import * as leanSyntax from './syntaxes/lean.json'
-import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
-import * as codeblockSyntax from './syntaxes/codeblock.json'
+import { LeanClient } from './editor/leanclient'
 
-const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
-
-// map of monaco "language id's" to TextMate scopeNames
-const grammars = new Map()
-grammars.set('lean4', 'source.lean')
-
-monaco.editor.defineTheme('vs-code-theme-converted', lightPlusTheme as any);
-
-// register Monaco languages
-monaco.languages.register({
-  id: 'lean4',
-  extensions: ['.lean']
-})
-
-let config: any = { ...languageConfig }
-config.autoClosingPairs = config.autoClosingPairs.map(
-  pair => { return {'open': pair[0], 'close': pair[1]} }
-)
-monaco.languages.setLanguageConfiguration('lean4', config);
-
-const registry = new Registry({
-  getGrammarDefinition: async (scopeName) => {
-    if (scopeName === 'source.lean') {
-      return {
-          format: 'json',
-          content: JSON.stringify(leanSyntax)
-      }
-    } else if (scopeName === 'source.lean.markdown') {
-      return {
-          format: 'json',
-          content: JSON.stringify(leanMarkdownSyntax)
-      }
-    } else {
-      return {
-          format: 'json',
-          content: JSON.stringify(codeblockSyntax)
-      }
-    }
-  }
-});
-
-// Load onigasm
-(async () => {
-  try {
-    await loadWASM('./onigasm.wasm')
-  } catch (err) {
-    // Hot module replacement can cause us to run this code twice and that's ok.
-    if (!(err as Error).message?.startsWith('Onigasm#init has been called')) {
-      throw err
-    }
-  }
-  wireTmGrammars(monaco, registry, grammars)
-})()
-
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
-    ({setRestart, onDidChangeContent, value}) => {
-  const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
+const Editor: React.FC<{onDidChangeContent?, value: string, uri: monaco.Uri, client: LeanClient}> =
+    ({onDidChangeContent, value, uri, client}) => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
@@ -86,58 +22,44 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
-  const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   useEffect(() => {
-    const model = monaco.editor.getModel(uri) ??
-      monaco.editor.createModel(value ?? '', 'lean4', uri)
-    if (!model.isAttachedToEditor()) {
-      if (onDidChangeContent) {
-        model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
-      }
-      const editor = monaco.editor.create(codeviewRef.current!, {
-        model,
-        glyphMargin: true,
-        lightbulb: {
-          enabled: true
-        },
-        unicodeHighlight: {
-            ambiguousCharacters: false,
-        },
-        automaticLayout: true,
-        minimap: {
-          enabled: false
-        },
-        lineNumbersMinChars: 3,
-        'semanticHighlighting.enabled': true,
-        theme: 'vs-code-theme-converted'
-      })
-      setEditor(editor)
-      new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
+    if (client === null) return;
+    const model = monaco.editor.createModel(value ?? '', 'lean4', uri)
+    if (onDidChangeContent) {
+      model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
     }
+    const editor = monaco.editor.create(codeviewRef.current!, {
+      model,
+      glyphMargin: true,
+      lightbulb: {
+        enabled: true
+      },
+      unicodeHighlight: {
+          ambiguousCharacters: false,
+      },
+      automaticLayout: true,
+      minimap: {
+        enabled: false
+      },
+      lineNumbersMinChars: 3,
+      'semanticHighlighting.enabled': true,
+      theme: 'vs-code-theme-converted'
+    })
+    setEditor(editor)
+    new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
 
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
     const infoviewApi = renderInfoview(infoProvider.getApi(), div)
     setInfoProvider(infoProvider)
     setInfoviewApi(infoviewApi)
-    client.restart()
-  }, [])
-
-  const showRestartMessage = () => {
-    setRestartMessage(true)
-  }
-
-  const restart = async () => {
-    await infoProvider.client.stop();
-    await infoProvider.client.start();
-    infoProvider.openPreview(editor, infoviewApi)
-  }
+    return () => {model.dispose()}
+  }, [client])
 
   useEffect(() => {
-    if (editor){
+    if (editor && editor.getModel()){
       if (editor.getModel().getValue() != value) {
         editor.pushUndoStop()
         editor.executeEdits("component", [
@@ -149,12 +71,11 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   }, [value])
 
   useEffect(() => {
-    if (infoProvider !== null && editor !== null && infoviewApi !== null) {
+    if (client !== null && infoProvider !== null && editor !== null && infoviewApi !== null) {
       infoProvider.openPreview(editor, infoviewApi)
-      const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
+      const taskgutter = new LeanTaskGutter(client, editor)
     }
-    setRestart(() => restart)
-  }, [editor, infoviewApi, infoProvider])
+  }, [client, editor, infoviewApi, infoProvider])
 
 
   return (
@@ -164,11 +85,6 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
         <div ref={codeviewRef} className="codeview"></div>
         <div ref={infoviewRef} className="infoview"></div>
       </Split>
-      {restartMessage ?
-        <Notification
-          restart={() => {setRestartMessage(false); restart()} }
-          close={() => {setRestartMessage(false)}} />
-        : ''}
     </div>
   )
 }

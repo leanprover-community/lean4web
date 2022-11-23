@@ -334,10 +334,9 @@ export class LeanClient implements Disposable {
           }
         }
       })
-    } else {
-      await this.client.start()
     }
 
+    await this.client.start()
 
     // HACK: Prevent monaco from panicking when the Lean server crashes
     this.client.handleFailedRequest = (type, token: any, error: any, defaultValue, showNotification?: boolean) => {
