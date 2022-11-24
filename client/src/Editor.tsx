@@ -8,19 +8,11 @@ import { renderInfoview } from '@leanprover/infoview'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './editor/infoview'
 import { LeanClient } from './editor/leanclient'
-import languageConfig from 'lean4/language-configuration.json';
 import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
-import { loadWASM } from 'onigasm'
-import { Registry } from 'monaco-textmate' // peer dependency
-import { wireTmGrammars } from 'monaco-editor-textmate'
-import * as lightPlusTheme from './lightPlus.json'
-import * as leanSyntax from './syntaxes/lean.json'
-import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
-import * as codeblockSyntax from './syntaxes/codeblock.json'
 import { monacoSetup } from './monacoSetup'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
