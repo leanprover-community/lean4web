@@ -511,7 +511,7 @@ export class LeanClient implements Disposable {
     // let newToolchainPath = this.storageManager.getLeanPath()
     // if (!newToolchainPath) newToolchainPath = toolchainPath()
     // if (this.toolchainPath !== newToolchainPath) {
-      void this.restart()
+    //  void this.restart()
     // }
   }
 
