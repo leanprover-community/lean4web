@@ -105,7 +105,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
       <Split className={`editor ${ dragging? 'dragging':''}`} gutterSize={5}
         onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}>
         <div ref={codeviewRef} className="codeview"></div>
-        <div ref={infoviewRef} className="infoview"></div>
+        <div ref={infoviewRef} className="vscode-light infoview"></div>
       </Split>
       {restartMessage ?
         <Notification
