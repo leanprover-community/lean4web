@@ -223,10 +223,10 @@ export class InfoProvider implements Disposable {
       }
       await this.handleInsertText(text, kind, uri, pos)
     },
-    // applyEdit: async (e: ls.WorkspaceEdit) => {
-    //   const we = await p2cConverter.asWorkspaceEdit(e)
-    //   await workspace.applyEdit(we)
-    // },
+    applyEdit: async (e: ls.WorkspaceEdit) => {
+      const we = await p2cConverter.asWorkspaceEdit(e)
+      await workspace.applyEdit(we)
+    },
     showDocument: async (show) => {
       void this.revealEditorSelection(
         Uri.parse(show.uri),
@@ -361,7 +361,7 @@ export class InfoProvider implements Disposable {
   }
 
   async onWorkerRestarted (uri: string): Promise<void> {
-    await this.infoviewApi?.serverStopped('worker restarted') // clear any server stopped state
+    await this.infoviewApi?.serverStopped(undefined) // clear any server stopped state
     if (this.workersFailed.has(uri)) {
       this.workersFailed.delete(uri)
       console.log('[InfoProvider] Restarting worker for file: ' + uri)
@@ -569,7 +569,7 @@ export class InfoProvider implements Disposable {
     // by listening to notifications.  Send these notifications when the infoview starts
     // so that it has up-to-date information.
     if ((client?.initializeResult) != null) {
-      await this.infoviewApi?.serverStopped('') // clear any server stopped state
+      await this.infoviewApi?.serverStopped(undefined) // clear any server stopped state
       await this.infoviewApi?.serverRestarted(client.initializeResult)
       await this.sendDiagnostics(client)
       await this.sendProgress(client)
@@ -580,8 +580,9 @@ export class InfoProvider implements Disposable {
 
   private async sendConfig () {
     await this.infoviewApi?.changedInfoviewConfig({
-      infoViewAllErrorsOnLine: true, // getInfoViewAllErrorsOnLine(),
-      infoViewAutoOpenShowGoal: true // getInfoViewAutoOpenShowGoal()
+      allErrorsOnLine: true, //getInfoViewAllErrorsOnLine(),
+      autoOpenShowsGoal: true, // getInfoViewAllErrorsOnLine(),
+      debounceTime: 50 // getInfoViewAutoOpenShowGoal()
     })
   }
 
