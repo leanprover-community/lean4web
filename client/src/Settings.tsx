@@ -2,11 +2,44 @@ import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { config } from './editor/abbreviation/config';
 import * as React from 'react'
+import { useEffect } from 'react'
+import { getCookie, setCookie, removeCookie } from 'typescript-cookie'
 
 const Settings: React.FC = () => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const [abbreviationCharacter, setAbbreviationCharacter] =
+    React.useState(config.abbreviationCharacter);
+  const [cookiesAllowed, setCookiesAllowed] = React.useState(false);
+
+  // Synchronize state with initial cookies
+  useEffect(() => {
+    let abbreviationCharacter = getCookie("abbreviationCharacter")
+    if (abbreviationCharacter) {
+      setAbbreviationCharacter(abbreviationCharacter)
+      setCookiesAllowed(true)
+    }
+  }, [])
+
+  // Synchronize config and cookies with state
+  useEffect(() => {
+    config.abbreviationCharacter = abbreviationCharacter
+    if (cookiesAllowed) {
+      setCookie("abbreviationCharacter", abbreviationCharacter)
+    } else {
+      removeCookie("abbreviationCharacter")
+    }
+  }, [cookiesAllowed, abbreviationCharacter])
+
+  const handleChangeCookie = (ev) => {
+    if (ev.target.checked) {
+      setCookiesAllowed(true)
+    } else {
+      setCookiesAllowed(false)
+    }
+  }
 
   return (
     <span>
@@ -20,9 +53,15 @@ const Settings: React.FC = () => {
             <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
             <h2>Settings</h2>
             <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false)}}>
-            <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
-            <input name="abbreviationCharacter" type="text" onChange={(ev) => {config.abbreviationCharacter = ev.target.value}}  defaultValue={config.abbreviationCharacter} />
-            <input type="submit" value="OK"/>
+              <p>
+                <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
+                <input id="abbreviationCharacter" type="text"
+                  onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}}  value={abbreviationCharacter} />
+              </p>
+              <p>
+                <input id="cookiesAllowed" type="checkbox" onChange={handleChangeCookie} checked={cookiesAllowed}/> <label htmlFor="cookiesAllowed">Save my settings in a cookie</label>
+                <input type="submit" value="OK"/>
+              </p>
             </form>
           </div>
         </div> : null}

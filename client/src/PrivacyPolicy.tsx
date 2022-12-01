@@ -23,8 +23,13 @@ const PrivacyPolicy: React.FC = () => {
             and the data that the user enters into the editor. The data is used to
             compute the Lean output and display it to the user. The information will be stored
             as long as the user stays on our website and will be deleted immediately afterwards.
-            We keep logs to improve our software, but the contained data is anonymized.
-            Our server is located in Germany.</p>
+            We keep logs to improve our software, but the contained data is anonymized.</p>
+
+            <p>We use cookies only if explicitly enabled in the settings. The cookies
+              are used only to restore the user's settings.
+            </p>
+
+            <p>Our server is located in Germany.</p>
 
             <p><strong>Contact information:</strong><br />
               Alexander Bentkamp<br />
