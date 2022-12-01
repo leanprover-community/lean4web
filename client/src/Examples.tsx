@@ -16,7 +16,7 @@ const Examples: React.FC<{loadFromUrl:(url: string) => void}> = ({loadFromUrl}) 
   }, [])
 
   const load = (file) => {
-    loadFromUrl(`/examples/${file}`)
+    loadFromUrl(`${window.location.origin}/examples/${file}`)
     setOpen(false)
   }
 
