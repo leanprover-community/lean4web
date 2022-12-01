@@ -143,3 +143,19 @@ a {
     transform: rotate(360deg);
   }
 }
+
+.dropdown-menu {
+  position: absolute;
+  width: 12em;
+  top: 150%;
+  left: 0%;
+  /* margin-left: -60px; */
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  z-index: 1;
+}
+
+
+.dropdown-menu .nav-link {
+  display: block;
+}

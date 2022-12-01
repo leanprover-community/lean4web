@@ -10,6 +10,7 @@ import Logo from "./logo.svg";
 import { saveAs } from 'file-saver';
 import LoadUrl from './LoadUrl'
 import Settings from './Settings'
+import Examples from './Examples'
 
 
 const App: React.FC = () => {
@@ -92,6 +93,7 @@ const App: React.FC = () => {
     <div className='app'>
       <div className='nav'>
         <Logo className='logo' />
+        <Examples loadFromUrl={loadFromUrl} />
         <label htmlFor="file-upload" className="nav-link">
           <FontAwesomeIcon icon={faUpload} /> Load file from disk
         </label>
