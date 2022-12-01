@@ -6,7 +6,7 @@ package leanProject {
 }
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git"@"b902a2ae691979df0b5e19cc4200e817c6fdc463"
+  "https://github.com/leanprover-community/mathlib4.git"@"3fc135870439cc9dfad464e65684884eb751319e"
 
 @[default_target]
 lean_lib LeanProject {
