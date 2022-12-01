@@ -55,7 +55,7 @@
   },
   "overrides": {
     "vscode": {
-      "monaco-editor": "$monaco-editor"
+      "monaco-editor": "^0.34.1"
     }
   },
   "scripts": {
