@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { config } from './editor/abbreviation/config';
 import * as React from 'react'
 import { useEffect } from 'react'
-import { getCookie, setCookie, removeCookie } from 'typescript-cookie'
 
 const Settings: React.FC = () => {
   const [open, setOpen] = React.useState(false);
@@ -16,7 +15,7 @@ const Settings: React.FC = () => {
 
   // Synchronize state with initial cookies
   useEffect(() => {
-    let abbreviationCharacter = getCookie("abbreviationCharacter")
+    let abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
     if (abbreviationCharacter) {
       setAbbreviationCharacter(abbreviationCharacter)
       setCookiesAllowed(true)
@@ -27,9 +26,9 @@ const Settings: React.FC = () => {
   useEffect(() => {
     config.abbreviationCharacter = abbreviationCharacter
     if (cookiesAllowed) {
-      setCookie("abbreviationCharacter", abbreviationCharacter)
+      window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
     } else {
-      removeCookie("abbreviationCharacter")
+      window.localStorage.removeItem("abbreviationCharacter")
     }
   }, [cookiesAllowed, abbreviationCharacter])
 
