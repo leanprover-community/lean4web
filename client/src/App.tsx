@@ -9,6 +9,7 @@ const Editor = React.lazy(() => import('./Editor'))
 import Logo from "./logo.svg";
 import { saveAs } from 'file-saver';
 import LoadUrl from './LoadUrl'
+import Settings from './Settings'
 
 
 const App: React.FC = () => {
@@ -102,6 +103,7 @@ const App: React.FC = () => {
         <span className="nav-link" onClick={restart}>
           <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
         </span>
+        <Settings />
         <PrivacyPolicy />
         <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
           <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
