@@ -84,6 +84,8 @@ module.exports = env => {
             'cp client/public/index.html client/dist/',
             // Similarly, I haven't been able to load `onigasm.wasm` properly:
             'cp client/public/onigasm.wasm client/dist/',
+            // Also copy the example files
+            'cp -R client/public/examples client/dist/examples',
           ],
           blocking: false,
           parallel: true
