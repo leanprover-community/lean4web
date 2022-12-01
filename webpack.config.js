@@ -92,16 +92,6 @@ module.exports = env => {
         }
       }),
       isDevelopment && new ReactRefreshWebpackPlugin(),
-      new webpack.ContextReplacementPlugin(
-        /\/@leanprover\/infoview\//,
-        (data) => {
-          // Webpack is not happy about the dynamically loaded widget code in the function
-          // `dynamicallyLoadComponent` in `infoview/userWidget.tsx`. If we want to support
-          // dynamically loaded widget code, we need to make sure that the files are available.
-          delete data.dependencies[0].critical;
-          return data;
-        },
-      ),
     ].filter(Boolean)
   };
 }

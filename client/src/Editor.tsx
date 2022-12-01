@@ -4,7 +4,7 @@ import './Editor.css'
 import './editor/infoview.css'
 import './editor/vscode.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import { renderInfoview } from '@leanprover/infoview'
+import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './editor/infoview'
 import { LeanClient } from './editor/leanclient'
@@ -63,9 +63,15 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     const client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
-    const infoviewApi = renderInfoview(infoProvider.getApi(), div)
+    const imports = {
+      '@leanprover/infoview': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/index.production.min.js',
+      'react': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react.production.min.js',
+      'react/jsx-runtime': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react-jsx-runtime.production.min.js',
+      'react-dom': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react-dom.production.min.js',
+      'react-popper': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react-popper.production.min.js'
+    }
+    loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
     setInfoProvider(infoProvider)
-    setInfoviewApi(infoviewApi)
     client.restart()
   }, [])
 
