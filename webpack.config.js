@@ -1,8 +1,8 @@
 const path = require("path");
-const webpack = require('webpack');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const WebpackShellPluginNext = require('webpack-shell-plugin-next');
+const CopyPlugin = require('copy-webpack-plugin');
 
+/** @type {(env: any) => import('webpack').Configuration} */
 module.exports = env => {
   const environment = process.env.NODE_ENV
   const isDevelopment = environment === 'development'
@@ -76,20 +76,21 @@ module.exports = env => {
     },
     devtool: "source-map",
     plugins: [
-      !isDevelopment && new WebpackShellPluginNext({
-        onBuildEnd:{
-          scripts: [
-            // It's hard to set up webpack to copy the index.html correctly,
-            // so we copy it explicitly after every build:
-            'cp client/public/index.html client/dist/',
-            // Similarly, I haven't been able to load `onigasm.wasm` properly:
-            'cp client/public/onigasm.wasm client/dist/',
-            // Also copy the example files
-            'cp -R client/public/examples client/dist/examples',
-          ],
-          blocking: false,
-          parallel: true
-        }
+      new CopyPlugin({
+        patterns: [{
+          context: path.resolve(__dirname, 'client', 'public'),
+          from: 'index.html',
+        }, {
+          context: path.resolve(__dirname, 'client', 'public'),
+          from: 'onigasm.wasm',
+        }, {
+          context: path.resolve(__dirname, 'client', 'public', 'examples'),
+          from: '**/*',
+          to: 'examples/',
+        }, {
+          context: path.resolve(path.dirname(require.resolve('@leanprover/infoview/package.json')), 'dist'),
+          from: '*.production.min.js',
+        }]
       }),
       isDevelopment && new ReactRefreshWebpackPlugin(),
     ].filter(Boolean)

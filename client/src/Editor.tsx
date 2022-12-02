@@ -64,11 +64,11 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
     const imports = {
-      '@leanprover/infoview': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/index.production.min.js',
-      'react': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react.production.min.js',
-      'react/jsx-runtime': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react-jsx-runtime.production.min.js',
-      'react-dom': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react-dom.production.min.js',
-      'react-popper': 'https://unpkg.com/@leanprover/infoview@0.4.0/dist/react-popper.production.min.js'
+      '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
+      'react': `${window.location.origin}/react.production.min.js`,
+      'react/jsx-runtime': `${window.location.origin}/react-jsx-runtime.production.min.js`,
+      'react-dom': `${window.location.origin}/react-dom.production.min.js`,
+      'react-popper': `${window.location.origin}/react-popper.production.min.js`
     }
     loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
     setInfoProvider(infoProvider)
