@@ -10,6 +10,7 @@ import Logo from "./logo.svg";
 import { saveAs } from 'file-saver';
 import LoadUrl from './LoadUrl'
 import Settings from './Settings'
+import Version from './Version'
 import Examples from './Examples'
 
 
@@ -107,6 +108,7 @@ const App: React.FC = () => {
         </span>
         <Settings />
         <PrivacyPolicy />
+        <Version />
         <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
           <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
         </a>

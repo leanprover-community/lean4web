@@ -15,6 +15,7 @@
     "ip-anonymize": "^0.1.0",
     "lean4": "https://gitpkg.now.sh/leanprover/vscode-lean4/vscode-lean4?79d345c739bf707024eef5057ccef81b404a2ddf",
     "mobx": "^6.6.2",
+    "moment-timezone": "^0.5.39",
     "monaco-editor": "^0.34.1",
     "monaco-editor-textmate": "^4.0.0",
     "monaco-languageclient": "^4.0.1",

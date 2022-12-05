@@ -113,6 +113,10 @@ input[type="file"] {
   color: var(--vscode-breadcrumb-focusForeground);
 }
 
+.modal table {
+  width: 100%;
+}
+
 a {
   text-decoration: none;
   color: var(--vscode-textLink-foreground);
