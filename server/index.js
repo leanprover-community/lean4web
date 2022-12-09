@@ -4,6 +4,7 @@ const path = require("path")
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
+const nocache = require("nocache");
 
 const environment = process.env.NODE_ENV
 const isDevelopment = environment === 'development'
@@ -13,6 +14,7 @@ const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
 app.use(express.static(path.join(__dirname, '../client/dist/')))
+app.use(nocache())
 
 let server;
 if (crtFile && keyFile) {
