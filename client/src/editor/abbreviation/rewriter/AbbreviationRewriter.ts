@@ -1,7 +1,7 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/rewriter/AbbreviationRewriter.ts` */
 
 // import { Range as LineColRange } from 'vscode';
-// import { commands, Disposable, TextEditor, window, workspace, Selection, OutputChannel, TextDocument } from 'vscode';
+import { Disposable } from 'vscode';
 import { assert } from 'lean4/src/utils/assert';
 import { AbbreviationProvider } from '../AbbreviationProvider';
 import { config } from '../config';
@@ -15,7 +15,7 @@ import { AbbreviationHoverProvider } from '../AbbreviationHoverProvider';
  * Tracks abbreviations in a given text editor and replaces them when dynamically.
  */
 export class AbbreviationRewriter {
-	// private readonly disposables = new Array<Disposable>();
+	private readonly disposables = new Array<Disposable>();
 	// /**
 	//  * All tracked abbreviations are disjoint.
 	//  */
@@ -36,7 +36,7 @@ export class AbbreviationRewriter {
 		private readonly model: monaco.editor.ITextModel,
 		private readonly editor: monaco.editor.IStandaloneCodeEditor
 	) {
-		model.onDidChangeContent((e: monaco.editor.IModelContentChangedEvent) => {
+		this.disposables.push(model.onDidChangeContent((e: monaco.editor.IModelContentChangedEvent) => {
 			const changes = e.changes.slice(0);
 			// // We need to process the changes at the bottom first.
 			// // Otherwise, changes at the top will move spans at the bottom down.
@@ -58,39 +58,46 @@ export class AbbreviationRewriter {
 							abbr.isAbbreviationUniqueAndComplete)
 				)
 			);
-		})
+		}))
 
 
-		editor.onDidChangeCursorSelection((e: monaco.editor.ICursorSelectionChangedEvent) => {
-			// Replace any tracked abbreviation that lost selection.
-			void this.forceReplace(
-				[...this.trackedAbbreviations].filter(
-					(abbr) =>
-						![...e.secondarySelections, e.selection].some((s) =>
-							abbr.range.containsRange(
-								fromVsCodeRange(
-									s,
-									this.model
-								).withLength(0)
+		this.disposables.push(
+			editor.onDidChangeCursorSelection((e: monaco.editor.ICursorSelectionChangedEvent) => {
+				// Replace any tracked abbreviation that lost selection.
+				void this.forceReplace(
+					[...this.trackedAbbreviations].filter(
+						(abbr) =>
+							![...e.secondarySelections, e.selection].some((s) =>
+								abbr.range.containsRange(
+									fromVsCodeRange(
+										s,
+										this.model
+									).withLength(0)
+								)
 							)
-						)
-				)
-			);
-		})
+					)
+				);
+			})
+		)
 
 		this.isActiveContextKey = this.editor.createContextKey('lean4.input.isActive', false);
 
-		monaco.editor.addEditorAction({
-			id: 'lean4.input.convert',
-			label: 'Convert abbreviation',
-			precondition: "editorTextFocus && editorLangId == lean4 && lean4.input.isActive",
-			keybindings: [monaco.KeyCode.Tab],
-			run: async () => this.forceReplace([...this.trackedAbbreviations])
-		})
+		this.disposables.push(
+			monaco.editor.addEditorAction({
+				id: 'lean4.input.convert',
+				label: 'Convert abbreviation',
+				precondition: "editorTextFocus && editorLangId == lean4 && lean4.input.isActive",
+				keybindings: [monaco.KeyCode.Tab],
+				run: async () => this.forceReplace([...this.trackedAbbreviations])
+			})
+		)
 
 		this.abbreviationHoverProvider = new AbbreviationHoverProvider(this.abbreviationProvider)
+		this.disposables.push(this.abbreviationHoverProvider)
 
-		monaco.languages.registerHoverProvider('lean4', this.abbreviationHoverProvider);
+		this.disposables.push(
+			monaco.languages.registerHoverProvider('lean4', this.abbreviationHoverProvider)
+		)
 	}
 
 	private async forceReplace(
@@ -246,6 +253,12 @@ export class AbbreviationRewriter {
 			this.trackedAbbreviations.add(abbr);
 		}
 		return { affectedAbbr };
+	}
+
+	dispose(): void {
+		for (const d of this.disposables) {
+			d.dispose();
+		}
 	}
 }
 

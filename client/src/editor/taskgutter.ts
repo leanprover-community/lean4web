@@ -111,8 +111,8 @@ export class LeanTaskGutter {
         }
     }
 
-    // dispose(): void {
-    //     for (const [decoration, _message] of this.decorations.values()) { decoration.dispose() }
-    //     for (const s of this.subscriptions) { s.dispose(); }
-    // }
+    dispose(): void {
+        // for (const decoration of this.decorations.values()) { decoration.dispose() }
+        for (const s of this.subscriptions) { s.dispose(); }
+    }
 }
