@@ -26,7 +26,7 @@ export class AbbreviationRewriter {
 
 	private dontTrackNewAbbr = false;
 	private decosIds: string[] = [];
-	private isActiveContextKey: monaco.editor.IContextKey<boolean>;
+	// private isActiveContextKey: monaco.editor.IContextKey<boolean>;
 	abbreviationHoverProvider: AbbreviationHoverProvider;
 	// private stderrOutput: OutputChannel;
 	// private firstOutput = true;
@@ -80,7 +80,7 @@ export class AbbreviationRewriter {
 			})
 		)
 
-		this.isActiveContextKey = this.editor.createContextKey('lean4.input.isActive', false);
+		// this.isActiveContextKey = this.editor.createContextKey('lean4.input.isActive', false);
 
 		this.disposables.push(
 			monaco.editor.addEditorAction({
@@ -93,7 +93,6 @@ export class AbbreviationRewriter {
 		)
 
 		this.abbreviationHoverProvider = new AbbreviationHoverProvider(this.abbreviationProvider)
-		this.disposables.push(this.abbreviationHoverProvider)
 
 		this.disposables.push(
 			monaco.languages.registerHoverProvider('lean4', this.abbreviationHoverProvider)
@@ -213,12 +212,12 @@ export class AbbreviationRewriter {
 					}
 		}}))
 
-		void this.setInputActive(this.trackedAbbreviations.size > 0);
+		// void this.setInputActive(this.trackedAbbreviations.size > 0);
 	}
 
-	private async setInputActive(isActive: boolean) {
-		this.isActiveContextKey.set(isActive);
-	}
+	// private async setInputActive(isActive: boolean) {
+	// 	this.isActiveContextKey.set(isActive);
+	// }
 
 	private processChange(
 		range: Range,
