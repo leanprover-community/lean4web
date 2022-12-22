@@ -108,7 +108,7 @@ export class LeanClient implements Disposable {
     this.workspaceFolder = workspaceFolder // can be null when opening adhoc files.
     this.folderUri = folderUri
     // this.elanDefaultToolchain = elanDefaultToolchain
-    this.subscriptions.push(workspace.onDidChangeConfiguration((e) => this.configChanged(e)))
+    // this.subscriptions.push(workspace.onDidChangeConfiguration((e) => this.configChanged(e)))
   }
 
   dispose (): void {
