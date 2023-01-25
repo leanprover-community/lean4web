@@ -6,6 +6,7 @@ cd $(dirname $0)
 (cd LeanProject &&
   lake update && # download latest mathlib
   cp ./lake-packages/mathlib/lean-toolchain . # copy lean version of mathlib
+  lake exe cache get
   lake build)
 
 # Build elan image if not already present
