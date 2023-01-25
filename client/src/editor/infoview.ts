@@ -160,7 +160,7 @@ export class InfoProvider implements Disposable {
     },
     unsubscribeServerNotifications: async (method) => {
       const el = this.serverNotifSubscriptions.get(method)
-      if (el == null) throw new Error(`trying to unsubscribe from '${method}' with no active subscriptions`)
+      if (el == null) return
       const [count, subscriptions] = el
       if (count === 1) {
         for (const h of subscriptions) {
@@ -199,7 +199,7 @@ export class InfoProvider implements Disposable {
 
     unsubscribeClientNotifications: async (method) => {
       const el = this.clientNotifSubscriptions.get(method)
-      if (el == null) throw new Error(`trying to unsubscribe from '${method}' with no active subscriptions`)
+      if (el == null) return
       const [count, subscriptions] = el
       if (count === 1) {
         for (const d of subscriptions) {
