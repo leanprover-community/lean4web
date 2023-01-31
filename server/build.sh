@@ -6,7 +6,7 @@ SECONDS=0
 cd $(dirname $0)
 
 (cd LeanProject &&
-  rm ./lake-manifest.json &&
+  rm -f ./lake-manifest.json &&
   lake update && # download latest mathlib
   cp ./lake-packages/mathlib/lean-toolchain . && # copy lean version of mathlib
   lake exe cache get &&
