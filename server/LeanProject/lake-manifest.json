@@ -1,34 +1,10 @@
 {"version": 4,
- "packagesDir": "./lake-packages",
+ "packagesDir": "lake-packages",
  "packages":
  [{"git":
-   {"url": "https://github.com/xubaiw/CMark.lean",
-    "subDir?": null,
-    "rev": "2cc7cdeef67184f84db6731450e4c2b258c28fe8",
-    "name": "CMark",
-    "inputRev?": "main"}},
-  {"git":
-   {"url": "https://github.com/leanprover/lake",
-    "subDir?": null,
-    "rev": "235383015cdcb0082777b0347b84dba01843c79c",
-    "name": "lake",
-    "inputRev?": "master"}},
-  {"git":
-   {"url": "https://github.com/leanprover/doc-gen4",
-    "subDir?": null,
-    "rev": "7009910876145a9a1220359f968ba7045dd05290",
-    "name": "doc-gen4",
-    "inputRev?": "main"}},
-  {"git":
-   {"url": "https://github.com/mhuisi/lean4-cli",
-    "subDir?": null,
-    "rev": "5a858c32963b6b19be0d477a30a1f4b6c120be7e",
-    "name": "Cli",
-    "inputRev?": "nightly"}},
-  {"git":
    {"url": "https://github.com/leanprover-community/mathlib4",
     "subDir?": null,
-    "rev": "764d8fbe157971351e9a92d9447b1aba7d16020c",
+    "rev": "ea60b267f386465f962b52b5e5195d2173928fc2",
     "name": "mathlib",
     "inputRev?": "master"}},
   {"git":
@@ -40,24 +16,12 @@
   {"git":
    {"url": "https://github.com/JLimperg/aesop",
     "subDir?": null,
-    "rev": "ddced06b6b76483fe8794f2b516c57980a08fcef",
+    "rev": "ccff5d4ae7411c5fe741f3139950e8bddf353dea",
     "name": "aesop",
     "inputRev?": "master"}},
   {"git":
-   {"url": "https://github.com/hargonix/LeanInk",
-    "subDir?": null,
-    "rev": "9f3101452135964ac9107ec8e9910bfd14022bbc",
-    "name": "leanInk",
-    "inputRev?": "doc-gen"}},
-  {"git":
-   {"url": "https://github.com/xubaiw/Unicode.lean",
-    "subDir?": null,
-    "rev": "6dd6ae3a3839c8350a91876b090eda85cf538d1d",
-    "name": "Unicode",
-    "inputRev?": "main"}},
-  {"git":
    {"url": "https://github.com/leanprover/std4",
     "subDir?": null,
-    "rev": "6196cf930a95664987eba8aee62ae7802d51428c",
+    "rev": "cda27d551340756d5ed6f9b83716a9db799c5537",
     "name": "std",
     "inputRev?": "main"}}]}
