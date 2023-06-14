@@ -443,7 +443,8 @@ export class LeanClient implements Disposable {
   }
 
   notifyDidOpen (doc: TextDocument) {
-    void this.client?.sendNotification(DidOpenTextDocumentNotification.type, {
+    // BUG: was `DidOpenTextDocumentNotification.type` instead of the string, but that failed
+    void this.client?.sendNotification('textDocument/didOpen', {
       textDocument: {
         uri: doc.uri.toString(),
         languageId: doc.languageId,

@@ -52,6 +52,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
           enabled: false
         },
         lineNumbersMinChars: 3,
+        tabSize: 2,
         'semanticHighlighting.enabled': true,
         theme: 'vs-code-theme-converted'
       })
