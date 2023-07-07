@@ -11,4 +11,8 @@
     "downlevelIteration": true,
     "experimentalDecorators": true
   },
+  "exclude": [
+    "server",
+    "node_modules"
+  ]
 }
