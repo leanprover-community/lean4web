@@ -7,35 +7,88 @@
 .editor-wrapper {
   flex: 1;
   min-height: 0;
-  padding-top: .5em;
+  padding-top: .5rem;
 }
 
 .nav {
-  box-shadow: 0 .3em .3em 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 .3rem .3rem 0 rgba(0, 0, 0, 0.1);
   background-color: var(--vscode-breadcrumb-background);
   color: var(--vscode-breadcrumb-foreground);
   z-index: 1;
+  height: 2.2rem;
+  position: relative;
 }
 
+
+/* The Lean logo */
 .nav .logo {
-  height: 2em;
+  height: 100%;
   vertical-align: middle;
-  margin-left: .5em;
-  margin-right: 1em;
+  margin-left: .5rem;
+  margin-right: 1rem;
 }
 
+/* `nav-icon` is the menu item to toggle the dropdown */
+.nav-icon {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  padding: .5rem;
+  height: 100%;
+  float: right;
+  padding-right: 1rem;
+}
+
+/* Wrapper for the menu items */
+.nav .menu {
+  background: none;
+  border: none;
+  display: inline-block;
+}
+
+/* Wrapper if menu is dropdown */
+.nav .menu.dropdown {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  right: 0;
+  top: 2.2rem;
+  background-color: #fff;
+  z-index: 1;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: -.1rem .3rem .3rem 0 rgba(0, 0, 0, 0.1);
+}
+
+
+/* The menu items */
 .nav .nav-link {
   background: none;
   border: none;
   color: inherit;
   cursor: pointer;
   text-decoration: none;
-  padding: .5em;
+  padding: .5rem;
   display: inline-block;
 }
 
-.nav .nav-link:hover {
+/* menu items for dropdown */
+.nav .dropdown .nav-link {
+  width: 100%;
+  padding-left: .8rem;
+  padding-right: .8rem;
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+}
+
+.nav .nav-link:hover, .nav-icon:hover {
   color: var(--vscode-breadcrumb-focusForeground);
+}
+
+.nav .dropdown .nav-link:hover {
+  background-color: #f9f9f9;
 }
 
 input[type="file"] {
@@ -74,11 +127,19 @@ input[type="file"] {
   max-width: 60ch;
   background: #fff;
   z-index: 3;
-  padding: 2em;
-  border-radius: 1em;
+  padding: 2rem;
+  border-radius: 1rem;
   text-align: left;
   color: var(--vscode-breadcrumb-foreground);
 }
+
+@media only screen and (max-width: 800px) {
+  .modal {
+    min-width: 90%;
+  }
+
+}
+
 
 .modal input[type="text"] {
   width: 100%;
@@ -94,10 +155,10 @@ input[type="file"] {
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
   cursor: pointer;
-  padding: .5em 1em;
-  border-radius: .2em;
+  padding: .5rem 1rem;
+  border-radius: .2rem;
   display: block;
-  margin: 1em auto;
+  margin: 1rem auto;
 }
 
 .modal-close {
@@ -150,16 +211,24 @@ a {
 
 .dropdown-menu {
   position: absolute;
-  width: 12em;
+  width: 12rem;
   top: 150%;
   left: 0%;
   /* margin-left: -60px; */
   background: #fff;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   z-index: 1;
 }
 
+.dropdown .dropdown-menu {
+  transform: translateX(-100%);
+}
 
 .dropdown-menu .nav-link {
   display: block;
+}
+
+.hidden {
+  display: none !important;
 }

@@ -6,4 +6,5 @@ export const config = {
   'languages': ['lean4', 'lean'],
   'inputModeCustomTranslations': {},
   'eagerReplacementEnabled': true,
+  'verticalLayout': false,
 }

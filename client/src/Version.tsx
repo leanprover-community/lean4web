@@ -22,10 +22,21 @@ const Version: React.FC = () => {
 
   const [packageVersions, setPackageVersions] = React.useState(null);
 
+  // TODO: this is hacky
   useEffect(() => {
-    let data = fetch('package_versions.json').then(function (r) {r.ok ? r.text().then(function (r) {
-        setPackageVersions(JSON.parse(r))}) : setPackageVersions(
-          JSON.parse('{"time" : "error" , "packages" : [] }'))});
+    try {
+      fetch('package_versions.json').then(function (r) {r.ok ? r.text().then(function (r) {
+        if (r) {
+          setPackageVersions(JSON.parse(r))
+        } else {
+          setPackageVersions({time : "error" , packages : [] })
+        }
+
+      }) : setPackageVersions({time : "error" , packages : [] })});
+    } catch {
+      console.log('rip, something with the versions file failed')
+    }
+
   }, [])
 
   const readVersions = (x) => {

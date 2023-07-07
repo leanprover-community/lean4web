@@ -4,7 +4,7 @@ import './editor/vscode.css'
 import './App.css'
 import PrivacyPolicy from './PrivacyPolicy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload } from '@fortawesome/free-solid-svg-icons'
+import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 const Editor = React.lazy(() => import('./Editor'))
 import Logo from "./logo.svg";
 import { saveAs } from 'file-saver';
@@ -12,10 +12,34 @@ import LoadUrl from './LoadUrl'
 import Settings from './Settings'
 import Version from './Version'
 import Examples from './Examples'
+import { useWindowDimensions } from './window_width'
 
 
 const App: React.FC = () => {
   const [restart, setRestart] = useState()
+
+  /* Vertical layout is changeable in the settings.
+
+  If screen width is below 800, default to vertical layout instead. */
+  const {width, height} = useWindowDimensions()
+
+  console.log(width)
+
+  const [verticalLayout, setVerticalLayout] =
+  React.useState(width < 800)
+
+  const changeVerticalLayout = () => {
+    if (verticalLayout) {
+      setVerticalLayout(false)
+      // set this to true, so that when switching to vertical layout, the settings stay open
+      setNavOpen(true)
+    } else {
+      setVerticalLayout(true)
+    }
+  }
+
+
+  const [navOpen, setNavOpen] = useState(false)
 
   const [content, setContent] = useState<string>('')
   const [url, setUrl] = useState<string>(null)
@@ -94,31 +118,36 @@ const App: React.FC = () => {
     <div className='app'>
       <div className='nav'>
         <Logo className='logo' />
-        <Examples loadFromUrl={loadFromUrl} />
-        <label htmlFor="file-upload" className="nav-link">
-          <FontAwesomeIcon icon={faUpload} /> Load file from disk
-        </label>
-        <LoadUrl loadFromUrl={loadFromUrl} />
-        <input id="file-upload" type="file" onChange={loadFileFromDisk} />
-        <span className="nav-link" onClick={save}>
-          <FontAwesomeIcon icon={faDownload} /> Save file
-        </span>
-        <span className="nav-link" onClick={restart}>
-          <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
-        </span>
-        <Settings />
-        <PrivacyPolicy />
-        <Version />
-        <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
-          <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
-        </a>
-        <a className="nav-link" href="https://github.com/hhu-adam/lean4web" target="_blank">
-          <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> GitHub
-        </a>
+        <div className={'menu' + (verticalLayout ? (navOpen ? ' dropdown' : ' dropdown hidden') : '')}>
+          <Examples loadFromUrl={loadFromUrl} />
+          <label htmlFor="file-upload" className="nav-link">
+            <FontAwesomeIcon icon={faUpload} /> Load file from disk
+          </label>
+          <LoadUrl loadFromUrl={loadFromUrl} />
+          <input id="file-upload" type="file" onChange={loadFileFromDisk} />
+          <span className="nav-link" onClick={save}>
+            <FontAwesomeIcon icon={faDownload} /> Save file
+          </span>
+          <span className="nav-link" onClick={restart}>
+            <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
+          </span>
+          <Settings verticalLayout={verticalLayout} changeVerticalLayout={changeVerticalLayout}/>
+          <PrivacyPolicy />
+          <Version />
+          <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
+          </a>
+          <a className="nav-link" href="https://github.com/hhu-adam/lean4web" target="_blank">
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> GitHub
+          </a>
+        </div>
+        <div className={verticalLayout ? "nav-icon" : "nav-icon hidden"} onClick={(ev) => {setNavOpen(!navOpen)}}>
+          {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
+        </div>
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} />
+          value={content} onDidChangeContent={onDidChangeContent} verticalLayout={verticalLayout} />
       </Suspense>
     </div>
   )

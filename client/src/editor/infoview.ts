@@ -211,7 +211,7 @@ export class InfoProvider implements Disposable {
       }
     },
     copyToClipboard: async (text) => {
-      await env.clipboard.writeText(text)
+      await window.clipboard.writeText(text)
       await window.showInformationMessage(`Copied to clipboard: ${text}`)
     },
     insertText: async (text, kind, tdpp) => {

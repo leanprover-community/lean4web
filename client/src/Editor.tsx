@@ -14,13 +14,14 @@ import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
 import { monacoSetup } from './monacoSetup'
+import { config } from './editor/abbreviation/config'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
-    ({setRestart, onDidChangeContent, value}) => {
+const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, verticalLayout: boolean}> =
+    ({setRestart, onDidChangeContent, value, verticalLayout}) => {
   const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -109,10 +110,30 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
 
   return (
     <div className='editor-wrapper'>
-      <Split className={`editor ${ dragging? 'dragging':''}`} gutterSize={5}
-        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}>
-        <div ref={codeviewRef} className="codeview"></div>
-        <div ref={infoviewRef} className="vscode-light infoview"></div>
+      <Split className={`editor ${ dragging? 'dragging':''}`}
+        gutter={(index,direction) => {
+          const gutter = document.createElement('div')
+          gutter.className = `gutter` // no `gutter-${direction}` as it might change
+          return gutter
+        }}
+        gutterStyle={(dimension, gutterSize, index) => {
+          return {
+            'width': verticalLayout ? '100%' : `${gutterSize}px`,
+            'height': verticalLayout ? `${gutterSize}px` : '100%',
+            'cursor': verticalLayout ? 'row-resize' : 'col-resize',
+            'margin-left': verticalLayout ? 0 : `-${gutterSize}px`,
+            'margin-top': verticalLayout ? `-${gutterSize}px` : 0,
+            'z-index': 0,
+          }}}
+        gutterSize={5}
+        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
+        sizes={verticalLayout ? [50, 50] : [70, 30]}
+        direction={verticalLayout ? "vertical" : "horizontal"}
+        style={{flexDirection: verticalLayout ? "column" : "row"}}>
+        <div ref={codeviewRef} className="codeview"
+          style={verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+        <div ref={infoviewRef} className="vscode-light infoview"
+          style={verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
       </Split>
       {restartMessage ?
         <Notification

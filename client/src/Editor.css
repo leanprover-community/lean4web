@@ -1,7 +1,10 @@
 .editor {
   display: flex;
-  flex-direction: row;
   height: 100%;
+}
+
+.infoview {
+  padding-left: 1rem;
 }
 
 .gutter {
@@ -10,6 +13,14 @@
   background-repeat: no-repeat;
   background-position: 50%;
 }
+/*
+.gutter-vertical {
+  width: 100% !important;
+}
+
+.gutter-horizontal {
+  height: 100% !important;
+} */
 
 .gutter:hover, .dragging .gutter{
   background-color: var(--vscode-focusBorder);
@@ -17,15 +28,7 @@
   transition-delay:0.3s;
 }
 
-.gutter.gutter-horizontal {
-  cursor: col-resize;
-  margin-left: -4px;
-  z-index: 0;
-}
-
 .infoview {
-  padding-left: 1rem;
-  height: 100%;
   overflow: auto;
 }
 
