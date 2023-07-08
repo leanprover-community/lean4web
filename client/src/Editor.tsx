@@ -42,6 +42,11 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, vertica
       const editor = monaco.editor.create(codeviewRef.current!, {
         model,
         glyphMargin: true,
+        lineDecorationsWidth: 5,
+        folding: false,
+        lineNumbers: 'on',
+        lineNumbersMinChars: 1,
+        rulers: [100],
         lightbulb: {
           enabled: true
         },
@@ -52,7 +57,6 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, vertica
         minimap: {
           enabled: false
         },
-        lineNumbersMinChars: 3,
         tabSize: 2,
         'semanticHighlighting.enabled': true,
         theme: 'vs-code-theme-converted'

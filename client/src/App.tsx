@@ -23,8 +23,6 @@ const App: React.FC = () => {
   If screen width is below 800, default to vertical layout instead. */
   const {width, height} = useWindowDimensions()
 
-  console.log(width)
-
   const [verticalLayout, setVerticalLayout] =
   React.useState(width < 800)
 

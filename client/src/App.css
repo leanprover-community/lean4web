@@ -15,14 +15,13 @@
   background-color: var(--vscode-breadcrumb-background);
   color: var(--vscode-breadcrumb-foreground);
   z-index: 1;
-  height: 2.2rem;
   position: relative;
 }
 
 
 /* The Lean logo */
 .nav .logo {
-  height: 100%;
+  height: 2.2rem;
   vertical-align: middle;
   margin-left: .5rem;
   margin-right: 1rem;

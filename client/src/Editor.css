@@ -49,8 +49,8 @@
 }
 
 /* Styling in the left margin of the editor on error */
-.glyph-margin-error {
-  background: rgba(255, 0, 0, 1);
+.monaco-editor .glyph-margin-error {
+  background: linear-gradient( to right, rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 30%, transparent 30%, transparent 100% )
 }
 
 code {
