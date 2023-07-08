@@ -116,22 +116,25 @@ const App: React.FC = () => {
     <div className='app'>
       <div className='nav'>
         <Logo className='logo' />
-        <div className={'menu' + (verticalLayout ? (navOpen ? ' dropdown' : ' dropdown hidden') : '')}>
+        <div className={'menu dropdown' + (navOpen ? '' : ' hidden')}>
           <Examples loadFromUrl={loadFromUrl} />
+          <Settings verticalLayout={verticalLayout} changeVerticalLayout={changeVerticalLayout}/>
+          <span className="nav-link" onClick={restart}>
+            <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
+          </span>
+          <Version />
+          <span className="nav-link" onClick={save}>
+            <FontAwesomeIcon icon={faDownload} /> Save file
+          </span>
           <label htmlFor="file-upload" className="nav-link">
             <FontAwesomeIcon icon={faUpload} /> Load file from disk
           </label>
           <LoadUrl loadFromUrl={loadFromUrl} />
           <input id="file-upload" type="file" onChange={loadFileFromDisk} />
-          <span className="nav-link" onClick={save}>
-            <FontAwesomeIcon icon={faDownload} /> Save file
-          </span>
-          <span className="nav-link" onClick={restart}>
-            <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
-          </span>
-          <Settings verticalLayout={verticalLayout} changeVerticalLayout={changeVerticalLayout}/>
           <PrivacyPolicy />
-          <Version />
+          <a className="nav-link" href="https://leanprover-community.github.io/" target="_blank">
+            <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean community
+          </a>
           <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
             <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
           </a>
@@ -139,7 +142,7 @@ const App: React.FC = () => {
             <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> GitHub
           </a>
         </div>
-        <div className={verticalLayout ? "nav-icon" : "nav-icon hidden"} onClick={(ev) => {setNavOpen(!navOpen)}}>
+        <div className={"nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
           {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
         </div>
       </div>
