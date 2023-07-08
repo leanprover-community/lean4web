@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { config } from './editor/abbreviation/config';
 import * as React from 'react'
 import { useEffect } from 'react'
+import Switch from '@mui/material/Switch';
 
 const Settings: React.FC<{verticalLayout: boolean, changeVerticalLayout}> =
     ({verticalLayout, changeVerticalLayout}) => {
@@ -69,11 +70,11 @@ const Settings: React.FC<{verticalLayout: boolean, changeVerticalLayout}> =
                   onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
               </p>
               <p>
-                <input id="verticalLayout" type="checkbox" onChange={changeVerticalLayout} checked={verticalLayout} />
+                <Switch id="verticalLayout" onChange={changeVerticalLayout} checked={verticalLayout} />
                 <label htmlFor="verticalLayout">Mobile Layout (vertical)</label>
               </p>
               <p>
-                <input id="cookiesAllowed" type="checkbox" onChange={handleChangeCookie} checked={cookiesAllowed}/>
+                <Switch id="cookiesAllowed" onChange={handleChangeCookie} checked={cookiesAllowed} />
                 <label htmlFor="cookiesAllowed">Save my settings in a cookie</label>
                 <input type="submit" value="OK"/>
               </p>

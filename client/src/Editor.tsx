@@ -46,7 +46,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, vertica
         folding: false,
         lineNumbers: 'on',
         lineNumbersMinChars: 1,
-        rulers: [100],
+        // rulers: [100],
         lightbulb: {
           enabled: true
         },
