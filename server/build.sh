@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SECONDS=0
+echo "Starting build." | logger -t lean4web
 
 # Operate in the directory where this file is located
 cd $(dirname $0)
