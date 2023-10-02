@@ -97,12 +97,10 @@ class ClientConnection {
 
   startProcess () {
     let cmd, cmdArgs;
-    if (this.useDockerContainer) {
-      cmd = "docker";
+    if (true) {
+      cmd = "./bubblewrap.sh";
       // Note for MacOS: use "--platform=linux/amd64"
-      cmdArgs = ["run",
-        "--runtime=runsc",
-        "--network=none", "--rm", "-i", "lean:latest", "lake", "serve"];
+      cmdArgs = [];
     } else{
       console.warn("Running without Docker container!")
       cmd = "lean";
