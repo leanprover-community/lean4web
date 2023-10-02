@@ -16,8 +16,8 @@ class ClientConnection {
 
   re = /Content-Length: (\d+)\r\n/i
 
-  constructor (ws, useDockerContainer) {
-    this.useDockerContainer = useDockerContainer
+  constructor (ws, useBubblewrap) {
+    this.useBubblewrap = useBubblewrap
 
     this.startProcess()
 
@@ -29,7 +29,7 @@ class ClientConnection {
 
     ws.on('close', () => {
       if (this.lean) {
-        if (this.useDockerContainer) {
+        if (this.useBubblewrap) {
           // We need to shut down the Docker container. Simply killing the process does not cut it.
           console.log(this.lean.pid)
           this.lean?.kill()
@@ -97,7 +97,7 @@ class ClientConnection {
 
   startProcess () {
     let cmd, cmdArgs;
-    if (this.useDockerContainer) {
+    if (this.useBubblewrap) {
       cmd = "./bubblewrap.sh";
       // Note for MacOS: use "--platform=linux/amd64"
       cmdArgs = [];
@@ -113,7 +113,7 @@ class ClientConnection {
 
 class WebsocketServer {
 
-  constructor(server, useDockerContainer) {
+  constructor(server, useBubblewrap) {
     this.wss = new WebSocket.Server({ server })
     this.socketCounter = 0;
 
@@ -122,7 +122,7 @@ class WebsocketServer {
       const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
       console.log(`[${new Date()}] Socket opened - ${ip}`)
       this.logStats()
-      new ClientConnection(ws, useDockerContainer)
+      new ClientConnection(ws, useBubblewrap)
       ws.on('close', () => {
         console.log(`[${new Date()}] Socket closed - ${ip}`)
         this.socketCounter -= 1;
