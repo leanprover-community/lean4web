@@ -102,7 +102,7 @@ class ClientConnection {
       // Note for MacOS: use "--platform=linux/amd64"
       cmdArgs = [];
     } else{
-      console.warn("Running without Docker container!")
+      console.warn("Running without Bubblewrap container!")
       cmd = "lean";
       cmdArgs = ["--server"];
     }
