@@ -97,7 +97,7 @@ class ClientConnection {
 
   startProcess () {
     let cmd, cmdArgs;
-    if (true) {
+    if (this.useDockerContainer) {
       cmd = "./bubblewrap.sh";
       // Note for MacOS: use "--platform=linux/amd64"
       cmdArgs = [];
@@ -106,9 +106,8 @@ class ClientConnection {
       cmd = "lean";
       cmdArgs = ["--server"];
     }
-    const cwd = '.'
 
-    this.lean = spawn(cmd, cmdArgs, { cwd })
+    this.lean = spawn(cmd, cmdArgs, { cwd: __dirname })
   }
 }
 
