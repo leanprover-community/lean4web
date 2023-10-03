@@ -17,9 +17,6 @@ cd $(dirname $0)
   lake exe cache get &&
   lake build)
 
-# Build elan image if not already present
-docker build --pull --rm -f lean.Dockerfile -t lean:latest .
-
 # Copy info about new versions to the client.
 ./copy_versions.sh
 
