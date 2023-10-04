@@ -53,8 +53,13 @@ To do so, run
 ```
 crontab -e
 ```
-and add the following lines, where `/home/adam/lean4web` and `/home/adam/.cache/mathlib/` must be replaced by an appropriate path:
+and add the following lines, where all paths must be adjusted appropriately:
 ```
+# Need to set PATH manually:
+SHELL=/usr/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/adam/.elan/bin:/home/adam/.nvm/versions/node/v20.8.0/bin/
+
+# Update server (i.e. mathlib) of lean4web and delete mathlib cache
 *  */6 * * * cd /home/adam/lean4web && npm run build_server 2>&1 1>/dev/null | logger -t lean4web
 40 2   * * * rm -rf /home/adam/.cache/mathlib/
 ```
