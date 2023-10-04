@@ -1,6 +1,7 @@
 import Mathlib.Data.Rat.Order -- import the rationals
 import Mathlib.Data.Rat.Init -- import notation ℚ for rationals
 import Mathlib.Tactic.Linarith -- a linear arithmetic tactic
+import Mathlib.Tactic.Ring -- import the `ring` tactic
 
 -- let `x`, `y` and `z` be rationals
 variable (x y z : ℚ)
