@@ -1,19 +1,15 @@
 #/bin/bash
 
-ELAN_HOME=$(cd LeanProject && lake env printenv ELAN_HOME)
+ELAN_HOME=/home/lean4web/.elan
 
 (exec bwrap\
   --ro-bind ./LeanProject /LeanProject \
   --ro-bind $ELAN_HOME /elan \
-  --ro-bind /usr /usr \
+  --ro-bind /nix /nix \
   --dev /dev \
   --proc /proc \
-  --symlink usr/lib /lib\
-  --symlink usr/lib64 /lib64\
-  --symlink usr/bin /bin\
-  --symlink usr/sbin /sbin\
   --clearenv \
-  --setenv PATH "/elan/bin:/bin" \
+  --setenv PATH "/elan/bin:$PATH" \
   --setenv ELAN_HOME "/elan" \
   --unshare-user \
   --unshare-pid  \

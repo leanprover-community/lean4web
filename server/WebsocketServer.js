@@ -2,6 +2,7 @@ const WebSocket = require("ws");
 const { spawn } = require('child_process');
 const os = require('os');
 const anonymize = require('ip-anonymize')
+const path = require("path")
 
 // TODO: Use server-side connection forwarding
 // https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
@@ -98,7 +99,7 @@ class ClientConnection {
   startProcess () {
     let cmd, cmdArgs, cwd;
     if (this.useBubblewrap) {
-      cmd = "./bubblewrap.sh";
+      cmd = path.join (__dirname, "bubblewrap.sh");
       cmdArgs = [];
       cwd = __dirname;
     } else{
@@ -108,7 +109,7 @@ class ClientConnection {
       cwd = __dirname + "/LeanProject";
     }
 
-    this.lean = spawn(cmd, cmdArgs, { cwd })
+    this.lean = spawn(cmd, cmdArgs, {})
   }
 }
 
