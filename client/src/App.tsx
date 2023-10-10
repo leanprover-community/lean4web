@@ -122,7 +122,7 @@ const App: React.FC = () => {
           <span className="nav-link" onClick={restart}>
             <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
           </span>
-          <Version />
+          {/* <Version /> */}
           <span className="nav-link" onClick={save}>
             <FontAwesomeIcon icon={faDownload} /> Save file
           </span>

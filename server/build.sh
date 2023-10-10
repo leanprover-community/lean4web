@@ -18,7 +18,7 @@ cd $(dirname $0)
   lake build)
 
 # Copy info about new versions to the client.
-./copy_versions.sh
+# ./copy_versions.sh
 
 duration=$SECONDS
 echo "Finished in $(($duration / 60)):$(($duration % 60)) min."
