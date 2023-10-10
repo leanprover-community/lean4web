@@ -48,6 +48,8 @@ To set the locations of SSL certificates, use the following environment variable
 SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem PORT=8080 npm run production
 ```
 
+### Cronjob
+
 Optionally, you can set up a cronjob to regularly update the mathlib version.
 To do so, run
 ```
@@ -57,12 +59,14 @@ and add the following lines, where all paths must be adjusted appropriately:
 ```
 # Need to set PATH manually:
 SHELL=/usr/bin/bash
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/adam/.elan/bin:/home/adam/.nvm/versions/node/v20.8.0/bin/
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.elan/bin:/home/USER/.nvm/versions/node/v20.8.0/bin/
 
 # Update server (i.e. mathlib) of lean4web and delete mathlib cache
-*  */6 * * * cd /home/adam/lean4web && npm run build_server 2>&1 1>/dev/null | logger -t lean4web
-40 2   * * * rm -rf /home/adam/.cache/mathlib/
+*  */6 * * * cd /home/USER/lean4web && npm run build_server 2>&1 1>/dev/null | logger -t lean4web
+40 2   * * * rm -rf /home/USER/.cache/mathlib/
 ```
+
+Note that with this setup, you will still have to manage the lean toolchains manually, as they will slowly fill up your space (~0.9GB per new toolchain): see `elan toolchain --help` for infos.
 
 In addition, we use Nginx and pm2 to manage our server.
 
