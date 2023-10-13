@@ -90,6 +90,9 @@ module.exports = env => {
         }, {
           context: path.resolve(path.dirname(require.resolve('@leanprover/infoview/package.json')), 'dist'),
           from: '*.production.min.js',
+        }, {
+          context: path.resolve(__dirname, 'client', 'public'),
+          from: 'favicon.ico',
         }]
       }),
       isDevelopment && new ReactRefreshWebpackPlugin(),
