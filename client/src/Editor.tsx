@@ -14,7 +14,7 @@ import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
 import { monacoSetup } from './monacoSetup'
-import { config } from './editor/abbreviation/config'
+import { config } from './config/config'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 

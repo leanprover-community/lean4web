@@ -13,7 +13,7 @@ import Settings from './Settings'
 import Version from './Version'
 import Examples from './Examples'
 import { useWindowDimensions } from './window_width'
-import { config } from './editor/abbreviation/config'
+import { config } from './config/config'
 
 
 const App: React.FC = () => {

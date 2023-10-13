@@ -1,6 +1,7 @@
 import { faShield } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react'
+import { text } from './config/text';
 
 const PrivacyPolicy: React.FC = () => {
   const [open, setOpen] = React.useState(false);
@@ -10,7 +11,7 @@ const PrivacyPolicy: React.FC = () => {
   return (
     <span>
       <span className="nav-link" onClick={handleOpen}>
-        <FontAwesomeIcon icon={faShield} />Privacy policy
+        <FontAwesomeIcon icon={faShield} />&nbsp;Privacy policy
       </span>
       {open?
         <div className="modal-wrapper">
@@ -29,17 +30,16 @@ const PrivacyPolicy: React.FC = () => {
               by activating the option in the settings.
             </p>
 
-            <p>Our server is located in Germany.</p>
+            { text.serverCountry &&
+              <p>Our server is located in {text.serverCountry}.</p>
+            }
 
-            <p><strong>Contact information:</strong><br />
-              <a href="https://www.math.hhu.de/lehrstuehle-/-personen-/-ansprechpartner/innen/lehrstuehle-des-mathematischen-instituts/lehrstuhl-fuer-algebraische-geometrie/team/dr-alexander-bentkamp">Alexander Bentkamp</a>,&nbsp;
-              <a href="https://www.math.hhu.de/lehrstuehle-/-personen-/-ansprechpartner/innen/lehrstuehle-des-mathematischen-instituts/lehrstuhl-fuer-algebraische-geometrie/team/jon-eugster">Jon Eugster</a><br />
-              Mathematisches Institut der Heinrich-Heine-Universität Düsseldorf<br />
-              Universitätsstr. 1<br />
-              40225 Düsseldorf<br />
-              Germany<br />
-              +49 211 81-12173<br />
-            </p>
+            { text.contactInformation &&
+              <p>
+                <strong>Contact information:</strong><br/>
+                {text.contactInformation}
+              </p>
+            }
           </div>
         </div> : null}
     </span>

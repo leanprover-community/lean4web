@@ -1,7 +1,5 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/config.ts` */
 
-import { useWindowDimensions } from "../../window_width"
-
 export const config = {
   'inputModeEnabled': true,
   'abbreviationCharacter': '\\',

@@ -4,7 +4,7 @@
 import { Disposable } from 'vscode';
 import { assert } from 'lean4/src/utils/assert';
 import { AbbreviationProvider } from '../AbbreviationProvider';
-import { config } from '../config';
+import { config } from '../../../config/config';
 import { Range } from 'lean4/src/abbreviation/rewriter/Range';
 import { TrackedAbbreviation } from './TrackedAbbreviation';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'

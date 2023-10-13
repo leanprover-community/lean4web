@@ -1,18 +1,12 @@
-<!DOCTYPE html>
-<html>
+import React from "react"
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Lean 4 Web</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-
-<body>
-  <div id="root"></div>
-  <noscript>
-    <p>You need to enable JavaScript to use the lean4web editor, as it is a <a href="https://react.dev">React app</a>.</p>
-    <p>Contact details:</p>
-    <p>
+/**
+ * serverCountry: string or `null`.
+ * contactInformation: React fragment like `<>blah blah</>` to be inserted inside a `<p>`. Alternatively `null` to be ommitted.
+ */
+export const text = {
+  serverCountry: 'Germany',
+  contactInformation: <>
       <a href="https://www.math.hhu.de/lehrstuehle-/-personen-/-ansprechpartner/innen/lehrstuehle-des-mathematischen-instituts/lehrstuhl-fuer-algebraische-geometrie/team/dr-alexander-bentkamp">Alexander Bentkamp</a>,&nbsp;
       <a href="https://www.math.hhu.de/lehrstuehle-/-personen-/-ansprechpartner/innen/lehrstuehle-des-mathematischen-instituts/lehrstuhl-fuer-algebraische-geometrie/team/jon-eugster">Jon Eugster</a><br />
       Mathematisches Institut der Heinrich-Heine-Universität Düsseldorf<br />
@@ -20,9 +14,5 @@
       40225 Düsseldorf<br />
       Germany<br />
       +49 211 81-12173<br />
-    </p>
-  </noscript>
-  <script src="bundle.js"></script>
-</body>
-
-</html>
+    </>
+}

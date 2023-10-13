@@ -1,7 +1,7 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/AbbreviationHoverProvider.ts` */
 
 import { AbbreviationProvider } from './AbbreviationProvider';
-import { config } from './config';
+import { config } from '../../config/config';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 /**

@@ -1,6 +1,6 @@
 import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { config } from './editor/abbreviation/config';
+import { config } from './config/config';
 import * as React from 'react'
 import { useEffect } from 'react'
 import Switch from '@mui/material/Switch';
@@ -97,7 +97,7 @@ const Settings: React.FC<{closeNav}> =
               </p>
               <p>
                 <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
-                <label htmlFor="verticalLayout">Mobile Layout (vertical)</label>
+                <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
               </p>
               <p>
                 <Switch id="theme" onChange={handleThemeChange} checked={theme == 'dark'} />
@@ -105,7 +105,7 @@ const Settings: React.FC<{closeNav}> =
               </p>
               <p>
                 <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
-                <label htmlFor="savingAllowed">Save my settings in the browser</label>
+                <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
                 <input type="submit" value="OK" />
               </p>
             </form>
