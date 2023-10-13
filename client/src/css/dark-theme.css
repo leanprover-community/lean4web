@@ -1,7 +1,18 @@
+/* @media (prefers-color-scheme: dark) {
+  .nav {
+    box-shadow: 0 0.3rem 0.3rem 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .app, .monaco-workbench {
+    background-color: #2B2B2B;
+  }
+} */
+
 .dark-theme .nav {
   box-shadow: 0 0.3rem 0.3rem 0 rgba(255, 255, 255, 0.1);
 }
 
+.dark-theme,
 .dark-theme .editor-wrapper {
   background-color: #2B2B2B;
 }

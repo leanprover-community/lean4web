@@ -1,3 +1,16 @@
+
+/* hack to prevent white flashing on loading in dark mode. */
+@media (prefers-color-scheme: dark) {
+  .app {
+    background-color: #2B2B2B;
+  }
+}
+
+/* hack to prevent white flashing on loading in dark mode. */
+.app.light-theme {
+  background-color: #fff;
+}
+
 .app {
   display: flex;
   flex-direction: column;

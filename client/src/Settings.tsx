@@ -6,14 +6,14 @@ import { useEffect } from 'react'
 import Switch from '@mui/material/Switch';
 import { useWindowDimensions } from './window_width';
 
-const Settings: React.FC<{closeNav}> =
-    ({closeNav}) => {
+const Settings: React.FC<{closeNav, theme, setTheme}> =
+    ({closeNav, theme, setTheme}) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(config.abbreviationCharacter)
-  const [theme, setTheme] = React.useState(config.theme)
+
   const [savingAllowed, setSavingAllowed] = React.useState(false)
 
   /* Vertical layout is changeable in the settings.
@@ -29,12 +29,15 @@ const Settings: React.FC<{closeNav}> =
     let _savingAllowed = window.localStorage.getItem("savingAllowed")
     if (_abbreviationCharacter) {
       setAbbreviationCharacter(_abbreviationCharacter)
+      setSavingAllowed(true)
     }
     if (_verticalLayout) {
       setVerticalLayout(_verticalLayout == 'true')
+      setSavingAllowed(true)
     }
     if (_theme) {
       setTheme(_theme)
+      setSavingAllowed(true)
     }
 
   }, [])

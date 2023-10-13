@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { useState, Suspense, useEffect } from 'react'
 import './editor/vscode.css'
-import './App.css'
+import './css/App.css'
+import './css/dark-theme.css'
 import PrivacyPolicy from './PrivacyPolicy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -42,6 +43,9 @@ const App: React.FC = () => {
   function closeNav() {
     setNavOpen(false)
   }
+
+  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'dark' : 'light')
 
   const [content, setContent] = useState<string>('')
   const [url, setUrl] = useState<string>(null)
@@ -117,12 +121,12 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`app ${config.theme}-theme`}>
+    <div className={`app ${theme}-theme`}>
       <div className='nav'>
         <Logo className='logo' />
         <div className={'menu dropdown' + (navOpen ? '' : ' hidden')}>
           <Examples loadFromUrl={loadFromUrl} />
-          <Settings closeNav={closeNav}/>
+          <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}/>
           <span className="nav-link" onClick={restart}>
             <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
           </span>
