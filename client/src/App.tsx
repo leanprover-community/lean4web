@@ -13,6 +13,7 @@ import Settings from './Settings'
 import Version from './Version'
 import Examples from './Examples'
 import { useWindowDimensions } from './window_width'
+import { config } from './editor/abbreviation/config'
 
 
 const App: React.FC = () => {
@@ -23,21 +24,24 @@ const App: React.FC = () => {
   If screen width is below 800, default to vertical layout instead. */
   const {width, height} = useWindowDimensions()
 
-  const [verticalLayout, setVerticalLayout] =
-  React.useState(width < 800)
+  // const [verticalLayout, setVerticalLayout] =
+  // React.useState(width < 800)
 
-  const changeVerticalLayout = () => {
-    if (verticalLayout) {
-      setVerticalLayout(false)
-      // set this to true, so that when switching to vertical layout, the settings stay open
-      setNavOpen(true)
-    } else {
-      setVerticalLayout(true)
-    }
-  }
-
+  // const changeVerticalLayout = () => {
+  //   if (verticalLayout) {
+  //     setVerticalLayout(false)
+  //     // set this to true, so that when switching to vertical layout, the settings stay open
+  //     setNavOpen(true)
+  //   } else {
+  //     setVerticalLayout(true)
+  //   }
+  // }
 
   const [navOpen, setNavOpen] = useState(false)
+
+  function closeNav() {
+    setNavOpen(false)
+  }
 
   const [content, setContent] = useState<string>('')
   const [url, setUrl] = useState<string>(null)
@@ -113,12 +117,12 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className='app'>
+    <div className={`app ${config.theme}-theme`}>
       <div className='nav'>
         <Logo className='logo' />
         <div className={'menu dropdown' + (navOpen ? '' : ' hidden')}>
           <Examples loadFromUrl={loadFromUrl} />
-          <Settings verticalLayout={verticalLayout} changeVerticalLayout={changeVerticalLayout}/>
+          <Settings closeNav={closeNav}/>
           <span className="nav-link" onClick={restart}>
             <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
           </span>
@@ -148,7 +152,7 @@ const App: React.FC = () => {
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} verticalLayout={verticalLayout} />
+          value={content} onDidChangeContent={onDidChangeContent} />
       </Suspense>
     </div>
   )

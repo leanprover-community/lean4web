@@ -20,8 +20,8 @@ const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://")
 
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, verticalLayout: boolean}> =
-    ({setRestart, onDidChangeContent, value, verticalLayout}) => {
+const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
+    ({setRestart, onDidChangeContent, value}) => {
   const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -122,22 +122,22 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, vertica
         }}
         gutterStyle={(dimension, gutterSize, index) => {
           return {
-            'width': verticalLayout ? '100%' : `${gutterSize}px`,
-            'height': verticalLayout ? `${gutterSize}px` : '100%',
-            'cursor': verticalLayout ? 'row-resize' : 'col-resize',
-            'margin-left': verticalLayout ? 0 : `-${gutterSize}px`,
-            'margin-top': verticalLayout ? `-${gutterSize}px` : 0,
+            'width': config.verticalLayout ? '100%' : `${gutterSize}px`,
+            'height': config.verticalLayout ? `${gutterSize}px` : '100%',
+            'cursor': config.verticalLayout ? 'row-resize' : 'col-resize',
+            'margin-left': config.verticalLayout ? 0 : `-${gutterSize}px`,
+            'margin-top': config.verticalLayout ? `-${gutterSize}px` : 0,
             'z-index': 0,
           }}}
         gutterSize={5}
         onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
-        sizes={verticalLayout ? [50, 50] : [70, 30]}
-        direction={verticalLayout ? "vertical" : "horizontal"}
-        style={{flexDirection: verticalLayout ? "column" : "row"}}>
+        sizes={config.verticalLayout ? [50, 50] : [70, 30]}
+        direction={config.verticalLayout ? "vertical" : "horizontal"}
+        style={{flexDirection: config.verticalLayout ? "column" : "row"}}>
         <div ref={codeviewRef} className="codeview"
-          style={verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+          style={config.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
         <div ref={infoviewRef} className="vscode-light infoview"
-          style={verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+          style={config.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
       </Split>
       {restartMessage ?
         <Notification

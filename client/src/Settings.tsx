@@ -4,51 +4,77 @@ import { config } from './editor/abbreviation/config';
 import * as React from 'react'
 import { useEffect } from 'react'
 import Switch from '@mui/material/Switch';
+import { useWindowDimensions } from './window_width';
 
-const Settings: React.FC<{verticalLayout: boolean, changeVerticalLayout}> =
-    ({verticalLayout, changeVerticalLayout}) => {
+const Settings: React.FC<{closeNav}> =
+    ({closeNav}) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
-  const [abbreviationCharacter, setAbbreviationCharacter] =
-    React.useState(config.abbreviationCharacter);
-  const [cookiesAllowed, setCookiesAllowed] = React.useState(false);
+  const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(config.abbreviationCharacter)
+  const [theme, setTheme] = React.useState(config.theme)
+  const [savingAllowed, setSavingAllowed] = React.useState(false)
 
-  // Synchronize state with initial cookies
+  /* Vertical layout is changeable in the settings.
+    If screen width is below 800, default to vertical layout instead. */
+  const {width, height} = useWindowDimensions()
+  const [verticalLayout, setVerticalLayout] = React.useState(width < 800)
+
+  // Synchronize state with initial local store
   useEffect(() => {
-    let abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
-    let verticalLayout = window.localStorage.getItem("verticalLayout")
-    if (abbreviationCharacter) {
-      setAbbreviationCharacter(abbreviationCharacter)
-      setCookiesAllowed(true)
+    let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
+    let _verticalLayout = window.localStorage.getItem("verticalLayout")
+    let _theme = window.localStorage.getItem("theme")
+    let _savingAllowed = window.localStorage.getItem("savingAllowed")
+    if (_abbreviationCharacter) {
+      setAbbreviationCharacter(_abbreviationCharacter)
     }
-    if (verticalLayout) {
-      changeVerticalLayout()
-      setCookiesAllowed(true)
-    }  }, [])
+    if (_verticalLayout) {
+      setVerticalLayout(_verticalLayout == 'true')
+    }
+    if (_theme) {
+      setTheme(_theme)
+    }
 
-  /** Synchronize config and cookie whenever there is a change to any of the config
+  }, [])
+
+  /** Synchronize config and local store whenever there is a change to any of the config
    * variables (state)
    */
   useEffect(() => {
     config.abbreviationCharacter = abbreviationCharacter
     config.verticalLayout = verticalLayout
-    console.log(verticalLayout)
-    if (cookiesAllowed) {
+    config.theme = theme
+    if (savingAllowed) {
       window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
       window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')
+      window.localStorage.setItem("theme", theme)
     } else {
       window.localStorage.removeItem("abbreviationCharacter")
       window.localStorage.removeItem("verticalLayout")
+      window.localStorage.removeItem("theme")
     }
-  }, [cookiesAllowed, abbreviationCharacter, verticalLayout])
+  }, [savingAllowed, abbreviationCharacter, verticalLayout, theme])
 
-  const handleChangeCookie = (ev) => {
+  const handleChangeSaving = (ev) => {
     if (ev.target.checked) {
-      setCookiesAllowed(true)
+      setSavingAllowed(true)
     } else {
-      setCookiesAllowed(false)
+      setSavingAllowed(false)
+    }
+  }
+
+  const handleLayoutChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    setVerticalLayout(!verticalLayout)
+  //  ev.stopPropagation()
+  }
+
+  const handleThemeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    if (theme == 'dark') {
+      setTheme('light')
+    } else {
+      setTheme('dark')
     }
   }
 
@@ -63,20 +89,24 @@ const Settings: React.FC<{verticalLayout: boolean, changeVerticalLayout}> =
           <div className="modal">
             <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
             <h2>Settings</h2>
-            <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false)}}>
+            <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
               <p>
                 <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
                 <input id="abbreviationCharacter" type="text"
                   onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
               </p>
               <p>
-                <Switch id="verticalLayout" onChange={changeVerticalLayout} checked={verticalLayout} />
+                <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
                 <label htmlFor="verticalLayout">Mobile Layout (vertical)</label>
               </p>
               <p>
-                <Switch id="cookiesAllowed" onChange={handleChangeCookie} checked={cookiesAllowed} />
-                <label htmlFor="cookiesAllowed">Save my settings in a cookie</label>
-                <input type="submit" value="OK"/>
+                <Switch id="theme" onChange={handleThemeChange} checked={theme == 'dark'} />
+                <label htmlFor="theme">Dark theme</label>
+              </p>
+              <p>
+                <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
+                <label htmlFor="savingAllowed">Save my settings in the browser</label>
+                <input type="submit" value="OK" />
               </p>
             </form>
           </div>

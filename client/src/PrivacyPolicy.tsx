@@ -10,7 +10,7 @@ const PrivacyPolicy: React.FC = () => {
   return (
     <span>
       <span className="nav-link" onClick={handleOpen}>
-        <FontAwesomeIcon icon={faShield} /> Privacy policy
+        <FontAwesomeIcon icon={faShield} />Privacy policy
       </span>
       {open?
         <div className="modal-wrapper">
@@ -25,8 +25,8 @@ const PrivacyPolicy: React.FC = () => {
             as long as the user stays on our website and will be deleted immediately afterwards.
             We keep logs to improve our software, but the contained data is anonymized.</p>
 
-            <p>We use cookies only if explicitly enabled in the settings. The cookies
-              are used only to restore the user's settings.
+            <p>We don't use cookies but you can choose to save the settings in the browser store
+              by activating the option in the settings.
             </p>
 
             <p>Our server is located in Germany.</p>
