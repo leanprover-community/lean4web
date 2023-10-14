@@ -3,6 +3,11 @@
 This is a web version of Lean 4. In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
 
+## Contribution
+
+If you experience any problems, or have feature requests, please open an issue here!
+PRs are welcome as well.
+
 ## Security
 Providing the use access to a Lean instance running on the server is a severe security risk. That is why we start the Lean server
 using [Bubblewrap](https://github.com/containers/bubblewrap).
