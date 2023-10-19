@@ -87,6 +87,7 @@ class ClientConnection {
 
   send (data) {
     const str = JSON.stringify(data) + '\r\n'
+    console.log(JSON.stringify(data))
     const byteLength = Buffer.byteLength(str, 'utf-8')
     if (this.lean === null || this.lean.stdin === null) { throw Error('Lean not running yet.') }
     this.lean.stdin.cork()

@@ -20,7 +20,7 @@ import {
 } from 'monaco-languageclient'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
-import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
+import { toSocket } from 'vscode-ws-jsonrpc'
 
 import {
   // toolchainPath, lakePath, addServerEnvPaths, serverArgs, serverLoggingEnabled, serverLoggingPath, shouldAutofocusOutput,
@@ -39,6 +39,7 @@ import { join } from 'path'
 import { SemVer } from 'semver'
 // import { fileExists, isFileInFolder } from './utils/fsHelper'
 import { c2pConverter, p2cConverter, patchConverters } from './utils/converters'
+import { WasmReader, WasmWriter, WebSocketMessageWriter, WebSocketMessageReader } from '../wasm'
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -104,7 +105,7 @@ export class LeanClient implements Disposable {
   constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri,
     public readonly showRestartMessage: () => void) {
     // this.storageManager = storageManager
-    // this.outputChannel = outputChannel
+    // this.outputChannel WebSocketMessageWriter= outputChannel
     this.workspaceFolder = workspaceFolder // can be null when opening adhoc files.
     this.folderUri = folderUri
     // this.elanDefaultToolchain = elanDefaultToolchain
@@ -323,8 +324,8 @@ export class LeanClient implements Disposable {
               })
               websocket.addEventListener('open', () => {
                 const socket = toSocket(websocket)
-                const reader = new WebSocketMessageReader(socket)
-                const writer = new WebSocketMessageWriter(socket)
+                const reader = new WasmReader()
+                const writer = new WasmWriter()
                 resolve({
                   reader,
                   writer

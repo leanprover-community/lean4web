@@ -13,7 +13,18 @@ const crtFile = process.env.SSL_CRT_FILE
 const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
-app.use(express.static(path.join(__dirname, '../client/dist/')))
+app.use(express.static(path.join(__dirname, '../client/dist/'), {
+  setHeaders: function(res, path) {
+
+    res.set("Cross-Origin-Opener-Policy", "same-origin");
+    res.set("Cross-Origin-Embedder-Policy", "require-corp");
+    // res.set("Access-Control-Allow-Origin", "*");
+    // res.set("Access-Control-Allow-Headers", "Content-Type,X-Requested-With");
+    // res.set("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+    // res.set("X-Powered-By",' 3.2.1')
+    // res.type("application/json");
+    // res.type("jpg");
+  }}))
 app.use(nocache())
 
 let server;
