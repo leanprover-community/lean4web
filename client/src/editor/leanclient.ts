@@ -606,16 +606,16 @@ export class LeanClient implements Disposable {
   //   return false
   // }
 
-  private extractVersion (v: string | undefined): SemVer {
-    if (!v) return new SemVer('0.0.0')
-    const prefix = 'Lake version'
-    if (v.startsWith(prefix)) v = v.slice(prefix.length).trim()
-    const pos = v.indexOf('(')
-    if (pos > 0) v = v.slice(0, pos).trim()
-    try {
-      return new SemVer(v)
-    } catch {
-      return new SemVer('0.0.0')
-    }
-  }
+  // private extractVersion (v: string | undefined): SemVer {
+  //   if (!v) return new SemVer('0.0.0')
+  //   const prefix = 'Lake version'
+  //   if (v.startsWith(prefix)) v = v.slice(prefix.length).trim()
+  //   const pos = v.indexOf('(')
+  //   if (pos > 0) v = v.slice(0, pos).trim()
+  //   try {
+  //     return new SemVer(v)
+  //   } catch {
+  //     return new SemVer('0.0.0')
+  //   }
+  // }
 }
