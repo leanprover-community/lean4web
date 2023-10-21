@@ -10,6 +10,8 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { MonacoServices } from 'monaco-languageclient';
 import { StandaloneServices } from 'vscode/services';
 import getMessageServiceOverride from 'vscode/service-override/messages';
+//@ts-ignore
+import onigasmUrl from 'onigasm/lib/onigasm.wasm?url'
 
 export function monacoSetup () {
 
@@ -62,7 +64,7 @@ export function monacoSetup () {
   // Load onigasm
   (async () => {
     try {
-      await loadWASM('./onigasm.wasm')
+      await loadWASM(onigasmUrl)
     } catch (err) {
       // Hot module replacement can cause us to run this code twice and that's ok.
       if (!(err as Error).message?.startsWith('Onigasm#init has been called')) {
