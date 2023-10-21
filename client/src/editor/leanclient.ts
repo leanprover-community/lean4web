@@ -16,8 +16,9 @@ import {
   LanguageClientOptions,
   PublishDiagnosticsParams,
   CloseAction, ErrorAction,
-  RevealOutputChannelOn
+  RevealOutputChannelOn,
 } from 'monaco-languageclient'
+import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
 import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 
@@ -348,16 +349,16 @@ export class LeanClient implements Disposable {
     try {
       this.client.onDidChangeState(async (s) => {
         // see https://github.com/microsoft/vscode-languageserver-node/issues/825
-        if (s.newState === 3) {
+        if (s.newState === State.Starting) {
           console.log('[LeanClient] starting')
-        } else if (s.newState === 2) {
+        } else if (s.newState === State.Running) {
           const end = Date.now()
           console.log(`[LeanClient] running, started in ${end - startTime} ms`)
           this.running = true // may have been auto restarted after it failed.
           if (!insideRestart) {
             this.restartedEmitter.fire(undefined)
           }
-        } else if (s.newState === 1) {
+        } else if (s.newState === State.Stopped) {
           this.running = false
           console.log('[LeanClient] has stopped or it failed to start')
           if (!this.noPrompt) {
