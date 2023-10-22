@@ -10,7 +10,7 @@ export default defineConfig({
       targets: [
         {
           src: 'node_modules/@leanprover/infoview/dist/*.production.min.js',
-          dest: '/'
+          dest: '.'
         }
       ]
     })],
