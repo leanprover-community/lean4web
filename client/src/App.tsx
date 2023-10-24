@@ -123,7 +123,7 @@ const App: React.FC = () => {
   return (
     <div className={`app ${theme}-theme`}>
       <div className='nav'>
-        {/* <Logo className='logo' /> */}
+        <Logo className='logo' />
         <div className={'menu dropdown' + (navOpen ? '' : ' hidden')}>
           <Examples loadFromUrl={loadFromUrl} />
           <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}/>
