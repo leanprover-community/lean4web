@@ -17,6 +17,7 @@ export default defineConfig({
     })],
   publicDir: "client/public",
   server: {
+    port: 3000,
     proxy: {
       '/websocket': {
         target: 'ws://localhost:8080',
