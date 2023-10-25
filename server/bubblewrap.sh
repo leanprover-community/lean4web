@@ -1,10 +1,10 @@
 #/bin/bash
 
-LEAN_ROOT=$(cd LeanProject; lean --print-prefix)
-LEAN_PATH=$(cd LeanProject; lake env printenv LEAN_PATH)
+LEAN_ROOT=$(lean --print-prefix)
+LEAN_PATH=$(lake env printenv LEAN_PATH)
 
 (exec bwrap\
-  --ro-bind ./LeanProject /LeanProject \
+  --ro-bind . /LeanProject \
   --ro-bind $LEAN_ROOT /lean \
   --ro-bind $GLIBC $GLIBC `# only dep of bin/lean` \
   --dev /dev \
@@ -19,6 +19,6 @@ LEAN_PATH=$(cd LeanProject; lake env printenv LEAN_PATH)
   --unshare-uts  \
   --unshare-cgroup \
   --die-with-parent \
-  --chdir "/LeanProject/" \
+  --chdir "/LeanProject" \
   lean --server
 )

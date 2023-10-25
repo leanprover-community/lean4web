@@ -97,16 +97,14 @@ class ClientConnection {
   }
 
   startProcess () {
-    let cmd, cmdArgs, cwd;
+    let cmd, cmdArgs;
     if (this.useBubblewrap) {
       cmd = path.join (__dirname, "bubblewrap.sh");
       cmdArgs = [];
-      cwd = __dirname;
     } else{
       console.warn("Running without Bubblewrap container!")
       cmd = "lean";
       cmdArgs = ["--server"];
-      cwd = __dirname + "/LeanProject";
     }
 
     this.lean = spawn(cmd, cmdArgs, {})

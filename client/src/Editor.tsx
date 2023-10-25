@@ -22,7 +22,7 @@ monacoSetup()
 
 const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     ({setRestart, onDidChangeContent, value}) => {
-  const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
+  const uri = monaco.Uri.parse('file:///LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
