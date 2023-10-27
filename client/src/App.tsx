@@ -7,7 +7,7 @@ import PrivacyPolicy from './PrivacyPolicy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUpload, faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
 const Editor = React.lazy(() => import('./Editor'))
-import Logo from "./logo.svg";
+import { ReactComponent as Logo } from './assets/logo.svg'
 import { saveAs } from 'file-saver';
 import LoadUrl from './LoadUrl'
 import Settings from './Settings'
