@@ -47,7 +47,8 @@
     "style-loader": "^3.3.1",
     "ts-loader": "^9.4.1",
     "typescript": "^4.8.4",
-    "vite-plugin-static-copy": "^0.17.0"
+    "vite-plugin-static-copy": "^0.17.0",
+    "vite-plugin-svgr": "^3.2.0"
   },
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start_server\" \"npm run start_client\"",
