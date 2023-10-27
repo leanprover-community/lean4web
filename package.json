@@ -53,7 +53,7 @@
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start_server\" \"npm run start_client\"",
     "start_server": "cd server && NODE_ENV=development nodemon ./index.js",
-    "start_client": "NODE_ENV=development vite",
+    "start_client": "NODE_ENV=development vite --host",
     "build": "npm run build_server && npm run build_client",
     "build_server": "server/build.sh",
     "build_client": "NODE_ENV=production vite build",
