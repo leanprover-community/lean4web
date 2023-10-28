@@ -12,6 +12,16 @@ export default defineConfig({
         // svgr options
       },
     }),
+    {
+      name: "configure-response-headers",
+      configureServer: (server) => {
+        server.middlewares.use((_req, res, next) => {
+          res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+          res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+          next();
+        });
+      },
+    },
     viteStaticCopy({
       targets: [
         {
@@ -22,6 +32,9 @@ export default defineConfig({
     })],
   publicDir: "client/public",
   server: {
+    watch: {
+      ignored: "**/bin/**'"
+    },
     port: 3000,
     proxy: {
       '/websocket': {
