@@ -81,41 +81,40 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
     }
   }
 
-  return (
-    <span>
-      <span className="nav-link" onClick={handleOpen}>
-        <FontAwesomeIcon icon={faGear} /> Settings
-      </span>
-      {open?
-        <div className="modal-wrapper">
-          <div className="modal-backdrop" onClick={handleClose} />
-          <div className="modal">
-            <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
-            <h2>Settings</h2>
-            <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
-              <p>
-                <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
-                <input id="abbreviationCharacter" type="text"
-                  onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
-              </p>
-              <p>
-                <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
-                <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
-              </p>
-              <p>
-                <Switch id="theme" onChange={handleThemeChange} checked={theme == 'dark'} />
-                <label htmlFor="theme">Dark theme</label>
-              </p>
-              <p>
-                <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
-                <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
-                <input type="submit" value="OK" />
-              </p>
-            </form>
-          </div>
-        </div> : null}
+  return <>
+    <span className="nav-link" onClick={handleOpen}>
+      <FontAwesomeIcon icon={faGear} /> Settings
     </span>
-  )
+    {open?
+      <div className="modal-wrapper">
+        <div className="modal-backdrop" onClick={handleClose} />
+        <div className="modal">
+          <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
+          <h2>Settings</h2>
+          <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
+            <p>
+              <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
+              <input id="abbreviationCharacter" type="text"
+                onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
+            </p>
+            <p>
+              <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
+              <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
+            </p>
+            <p>
+              <Switch id="theme" onChange={handleThemeChange} checked={theme == 'dark'} />
+              <label htmlFor="theme">Dark theme</label>
+            </p>
+            <p>
+              <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
+              <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
+              <input type="submit" value="OK" />
+            </p>
+          </form>
+        </div>
+      </div> : null
+    }
+  </>
 }
 
 export default Settings
