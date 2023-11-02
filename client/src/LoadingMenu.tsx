@@ -4,7 +4,7 @@ import * as React from 'react'
 import { useEffect } from 'react';
 import { LoadUrl, LoadZulipMessage } from './LoadUrl';
 
-const LoadingMenu: React.FC<{loadFromUrl: (url: string) => void, setContent: (url: string) => void, openSubmenu: (ev: React.MouseEvent, component: React.JSX.Element) => void}> = ({loadFromUrl, setContent, openSubmenu}) => {
+const LoadingMenu: React.FC<{loadFromUrl: (url: string) => void, setContent: (url: string) => void, openSubmenu: (ev: React.MouseEvent, component: React.JSX.Element) => void, closeNav: any}> = ({loadFromUrl, setContent, openSubmenu, closeNav}) => {
 
   const loadFileFromDisk = (event) => {
     const fileToLoad = event.target.files[0]
@@ -14,14 +14,15 @@ const LoadingMenu: React.FC<{loadFromUrl: (url: string) => void, setContent: (ur
         setContent(textFromFileLoaded)
     }
     fileReader.readAsText(fileToLoad, "UTF-8")
+    closeNav()
   }
 
   const submenu = <>
     <label htmlFor="file-upload" className="nav-link" >
       <FontAwesomeIcon icon={faUpload} /> Load file from disk
     </label>
-    <LoadUrl loadFromUrl={loadFromUrl} />
-    <LoadZulipMessage loadZulipMessage={loadFromUrl} />
+    <LoadUrl loadFromUrl={loadFromUrl} closeNav={closeNav} />
+    <LoadZulipMessage setContent={setContent} closeNav={closeNav} />
     <input id="file-upload" type="file" onChange={loadFileFromDisk} />
   </>
 

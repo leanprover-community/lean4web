@@ -3,7 +3,7 @@ import { faCloudArrowUp, faShield } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ReactComponent as ZulipIcon } from './assets/zulip.svg'
 
-export const LoadUrl: React.FC<{loadFromUrl:(url: string) => void}> = ({loadFromUrl}) => {
+export const LoadUrl: React.FC<{loadFromUrl:(url: string) => void, closeNav: any}> = ({loadFromUrl, closeNav}) => {
   const [open, setOpen] = React.useState(false);
   const [error, setError] = React.useState(null);
   const urlRef = React.useRef<HTMLInputElement>();
@@ -26,6 +26,7 @@ export const LoadUrl: React.FC<{loadFromUrl:(url: string) => void}> = ({loadFrom
     }
     loadFromUrl(url)
     setOpen(false)
+    closeNav()
   }
 
   return <>
@@ -49,30 +50,41 @@ export const LoadUrl: React.FC<{loadFromUrl:(url: string) => void}> = ({loadFrom
 }
 
 
-export const LoadZulipMessage: React.FC<{loadZulipMessage:(message: string) => void}> = ({loadZulipMessage}) => {
+export const LoadZulipMessage: React.FC<{setContent:(message: string) => void, closeNav}> = ({setContent, closeNav}) => {
   const [open, setOpen] = React.useState(false);
   const [error, setError] = React.useState(null);
-  const urlRef = React.useRef<HTMLInputElement>();
+  const textInputRef = React.useRef<HTMLTextAreaElement>();
   const handleOpen = (ev: React.MouseEvent) => {
     setError(null)
     setOpen(true)
-    // ev.stopPropagation()
   }
   const handleClose = () => setOpen(false);
 
   const handleLoad = (ev) => {
     ev.preventDefault()
-    let url = urlRef.current.value
-    if (!url) {
-      setError(`Please enter a URL to a message.`)
-      return
+    let md = textInputRef.current.value // TODO: not a URL but text, update the var names
+
+    console.log(`received: ${md}`)
+
+    // regex 1 finds the code-blocks
+    let regex1 = /(`{3,})\s*(lean)?\s*\n(.+?)\1/gs
+    // regex 2 extracts the code from a codeblock
+    let regex2 = /^(`{3,})\s*(?:lean)?\s*\n\s*(.+)\s*\1$/s
+
+    let res = md.match(regex1)
+
+    if (res) {
+      let code = res.map(s => {
+        console.log(`match: ${s}`)
+        return s.match(regex2)[2]}).join('\n\n-- new codeblock\n\n').trim() + '\n'
+      console.log(code)
+      setContent(code)
+      //setError('')
+      setOpen(false)
+      closeNav()
+    } else {
+      setError('Could not find a code-block in the message')
     }
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://' + url
-    }
-    setError('Feature not implemented yet!')
-    // loadZulipMessage(url)
-    // setOpen(false)
   }
 
   return <>
@@ -85,12 +97,13 @@ export const LoadZulipMessage: React.FC<{loadZulipMessage:(message: string) => v
         <div className="modal">
           <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
           <h2>Link to Zulip message</h2>
-          <p><i>You get this link from "Share" (mobile) or "Copy link to message" (web). It will
-            automatically extract code-blocks wrapped inside <code>```</code>-tags</i>.
+          <p>Copy paste a zulip message here to extract
+            code-blocks. <i>(mobile: "copy to clipboard",
+            web: "view message source")</i>
           </p>
           {error ? <p className="form-error">{error}</p>: null}
           <form onSubmit={handleLoad}>
-          <input autoFocus type="text" placeholder="Link to Zulip message" ref={urlRef}/>
+          <textarea autoFocus placeholder="Paste Zulip message" ref={textInputRef}/>
           <input type="submit" value="Parse message"/>
           </form>
         </div>

@@ -55,7 +55,6 @@ const App: React.FC = () => {
           // Close Nav on clicking somewhere outside the menu
           setNavOpen(false)
           console.log('closing nav')
-          ev.stopImmediatePropagation()
         }
       }
     })
@@ -134,14 +133,14 @@ const App: React.FC = () => {
           {!config.verticalLayout && <>
             {/* Buttons for desktop version */}
             <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-            <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} />
+            <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
           </>
           }
           <div className={'menu dropdown' + (navOpen ? '' : ' hidden')}>
             {config.verticalLayout && <>
               {/* Buttons for mobile version */}
               <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-              <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} />
+              <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
             </>}
             <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}/>
             <span className="nav-link" onClick={restart}>

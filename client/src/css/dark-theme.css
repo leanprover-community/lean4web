@@ -8,6 +8,11 @@
   }
 } */
 
+.dark-theme .nav-icon:hover {
+  color: #fff;
+}
+
+
 .dark-theme .nav {
   box-shadow: 0 0.3rem 0.3rem 0 rgba(255, 255, 255, 0.1);
 }

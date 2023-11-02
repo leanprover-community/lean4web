@@ -100,12 +100,13 @@
   padding-bottom: .6rem;
 }
 
-.nav .nav-link:hover, .nav-icon:hover {
+.nav .nav-link:hover {
   color: var(--vscode-breadcrumb-focusForeground);
+  background-color: #f9f9f9;
 }
 
-.nav .dropdown .nav-link:hover {
-  background-color: #f9f9f9;
+.nav-icon:hover {
+  color: var(--vscode-breadcrumb-focusForeground);
 }
 
 input[type="file"] {
@@ -158,8 +159,12 @@ input[type="file"] {
 }
 
 
-.modal input[type="text"] {
+.modal input[type="text"], .modal textarea {
   width: 100%;
+}
+
+.modal textarea {
+  height: 10em;
 }
 
 .modal .form-error {
