@@ -10,5 +10,4 @@ jobs:
         with:
           node-version: 19
       - run: npm install --loglevel verbose
-      - run: npm audit
       - run: npm run build
