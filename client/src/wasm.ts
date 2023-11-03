@@ -13,7 +13,7 @@ export class WasmWriter implements MessageWriter {
   protected errorCount = 0;
   errorEmitter
   closeEmitter
-  constructor() {
+  constructor(private worker: Worker) {
     this.errorEmitter = new Emitter()
     this.closeEmitter = new Emitter()
 }
@@ -48,7 +48,7 @@ asError(error) {
   async write(msg: Message): Promise<void> {
       try {
           const content = JSON.stringify(msg);
-          IO.putLine(content)
+          this.worker.postMessage(content)
       } catch (e) {
           this.errorCount++;
           this.fireError(e, msg, this.errorCount);
@@ -62,10 +62,10 @@ export class WasmReader implements MessageReader {
   protected callback: DataCallback | undefined;
   protected readonly events: { message?: any, error?: any }[] = [];
 
-  constructor() {
-    IO.listenPutStr(message => {
-      this.readMessage(message)
-    })
+  constructor(private worker: Worker) {
+    this.worker.onmessage = (ev) => {
+      this.readMessage(ev.data)
+    }
       // this.socket.onMessage(message =>
       //     this.readMessage(message)
       // );

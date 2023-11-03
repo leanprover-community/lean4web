@@ -324,8 +324,9 @@ export class LeanClient implements Disposable {
               })
               websocket.addEventListener('open', () => {
                 const socket = toSocket(websocket)
-                const reader = new WasmReader()
-                const writer = new WasmWriter()
+                const worker = new Worker("worker.js")
+                const reader = new WasmReader(worker)
+                const writer = new WasmWriter(worker)
                 resolve({
                   reader,
                   writer
