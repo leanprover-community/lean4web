@@ -314,23 +314,12 @@ export class LeanClient implements Disposable {
         connectionProvider: {
           get: async () => {
             return await new Promise((resolve, reject) => {
-              console.log(`connecting ${this.socketUrl}`)
-              const websocket = new WebSocket(this.socketUrl)
-              websocket.addEventListener('error', (ev) => {
-                reject(ev)
-              })
-              websocket.addEventListener('message', (msg) => {
-                // console.log(msg.data)
-              })
-              websocket.addEventListener('open', () => {
-                const socket = toSocket(websocket)
-                const worker = new Worker("worker.js")
-                const reader = new WasmReader(worker)
-                const writer = new WasmWriter(worker)
-                resolve({
-                  reader,
-                  writer
-                })
+              const worker = new Worker("worker.js")
+              const reader = new WasmReader(worker)
+              const writer = new WasmWriter(worker)
+              resolve({
+                reader,
+                writer
               })
             })
           }
