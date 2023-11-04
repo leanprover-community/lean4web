@@ -71,7 +71,7 @@ var stderrBuffer = ""
 
 var Module = {
     "arguments": ["--worker"],
-    "preRun": function() {
+    "preRun": [function() {
     function stdin() {
         if (i < input.length) {
           i++;
@@ -90,7 +90,7 @@ var Module = {
     }
 
     FS.init(stdin, stdout, stderr);
-}};
+}]};
 
 importScripts("lean.js")
 
