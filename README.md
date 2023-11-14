@@ -1,6 +1,10 @@
 # Lean 4 Web
 
-This is a web version of Lean 4. In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
+This is a web version of Lean 4. The official lean playground is hosted at live.lean-lang.org, while lean.math.hhu.de hosts a development server testing newer features.
+
+
+
+In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
 
 ## Contribution
