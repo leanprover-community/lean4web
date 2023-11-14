@@ -1,6 +1,6 @@
 # Lean 4 Web
 
-This is a web version of Lean 4. The official lean playground is hosted at live.lean-lang.org, while lean.math.hhu.de hosts a development server testing newer features.
+This is a web version of Lean 4. The official lean playground is hosted at [live.lean-lang.org](https://live.lean-lang.org), while [lean.math.hhu.de](https://lean.math.hhu.de) hosts a development server testing newer features.
 
 
 
