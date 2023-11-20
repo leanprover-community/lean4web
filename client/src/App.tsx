@@ -10,7 +10,7 @@ const Editor = React.lazy(() => import('./Editor'))
 import { ReactComponent as Logo } from './assets/logo.svg'
 import { saveAs } from 'file-saver';
 import Settings from './Settings'
-import Version from './Version'
+import Tools from './Tools'
 import Examples from './Examples'
 import LoadingMenu from './LoadingMenu'
 import { config } from './config/config'
@@ -146,7 +146,7 @@ const App: React.FC = () => {
             <span className="nav-link" onClick={restart}>
               <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
             </span>
-            {/* <Version /> */}
+            <Tools />
             <span className="nav-link" onClick={save}>
               <FontAwesomeIcon icon={faDownload} /> Save file
             </span>
