@@ -79,6 +79,22 @@ Note that with this setup, you will still have to manage the lean toolchains man
 
 In addition, we use Nginx and pm2 to manage our server.
 
+#### Managing toolchains
+
+Running and updating the server periodically might accumulate lean toolchains.
+
+To delete unused toolchains automatically, you can use the
+[elan-cleanup tool](https://github.com/JLimperg/elan-cleanup) and set up a
+cron-job with `crontab -e` and adding the following line, which runs once a month and
+deletes any unused toolchains:
+
+```
+30 2 1 * * /PATH/TO/elan-cleanup/build/bin/elan-cleanup | logger -t lean-cleanup
+```
+
+You can see installed lean toolchains with `elan toolchain list`
+and check the size of `~/.elan`.
+
 ### Legal information
 For legal purposes, we need to display contact details. When setting up your own server,
 you will need to modify the following files:
