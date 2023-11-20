@@ -12,10 +12,11 @@ cd $(dirname $0)
 # to `mathlib`, therefore we now delete it every time for good measure.
 (cd LeanProject &&
   rm -f ./lake-manifest.json &&
-  curl -L https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain -o lean-toolchain &&
-  lake update &&
-  lake exe cache get &&
+  lake update -R &&
   lake build)
+
+  # note: mathlib has now a post-update hook that modifies the `lean-toolchain`
+  # and calls `lake exe cache get`. Therefore these two steps are currently superfluous.
 
 # Copy info about new versions to the client.
 # ./copy_versions.sh
