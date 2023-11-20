@@ -39,7 +39,7 @@ def getPackageVersions : IO String := do
         s!"{name}:\nlocal package"
       | .git name _ _ _ url rev _ _ =>
         let rev := rev.slice 0 7
-        s!"{name}:\n{rev} ({url}/commit/{rev})")
+        s!"{name}:\n{rev}\n{url}/commits/{rev}")
     return "\n\n".intercalate out
 
 /-- Print the lean version and all available packages. -/
