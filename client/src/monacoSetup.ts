@@ -1,6 +1,6 @@
 import { Registry } from 'monaco-textmate' // peer dependency
 import { wireTmGrammars } from 'monaco-editor-textmate'
-import * as lightPlusTheme from './lightPlus.json'
+import * as lightPlusTheme from './css/theme/lightPlus.json'
 import * as leanSyntax from './syntaxes/lean.json'
 import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
 import * as codeblockSyntax from './syntaxes/codeblock.json'
