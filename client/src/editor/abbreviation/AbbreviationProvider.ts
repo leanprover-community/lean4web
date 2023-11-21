@@ -3,7 +3,7 @@
 import { computed } from 'mobx';
 // import { Disposable } from 'vscode';
 // import { autorunDisposable } from '../utils/autorunDisposable';
-import * as abbreviations from 'lean4/src/abbreviation/abbreviations.json';
+import abbreviations from 'lean4/src/abbreviation/abbreviations.json';
 import { config } from '../../config/config';
 
 export interface SymbolsByAbbreviation {
