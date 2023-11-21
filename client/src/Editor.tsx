@@ -12,12 +12,9 @@ import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
-import { monacoSetup } from './monacoSetup'
 import { config } from './config/config'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
-
-monacoSetup()
 
 const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string}> =
     ({setRestart, onDidChangeContent, value, theme}) => {
@@ -32,21 +29,24 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   useEffect(() => {
-    //monaco.editor.setTheme(theme)
-    fetch(`./themes/${theme}.json`,{
-      headers : {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-       }
-    })
-    .then(response => response.json())
-    .then(themeJson => {
-      monaco.editor.defineTheme('usedTheme', themeJson as any);
-      monaco.editor.setTheme('usedTheme')
-      console.log(`changed theme to ${theme}`)
-    })
+    if (theme == 'lightPlus') {
+      monaco.editor.setTheme('lightPlus')
+    } else {
+      //monaco.editor.setTheme(theme)
+      fetch(`./themes/${theme}.json`,{
+        headers : {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(themeJson => {
+        monaco.editor.defineTheme('usedTheme', themeJson as any);
+        monaco.editor.setTheme('usedTheme')
+        console.log(`changed theme to ${theme}`)
+      })
+    }
   }, [theme])
-
 
   useEffect(() => {
     const model = monaco.editor.getModel(uri) ??

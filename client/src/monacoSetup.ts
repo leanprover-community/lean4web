@@ -11,10 +11,7 @@ import { StandaloneServices } from 'vscode/services';
 import getMessageServiceOverride from 'vscode/service-override/messages';
 //@ts-ignore
 import onigasmUrl from 'onigasm/lib/onigasm.wasm?url'
-
-// import * as lightPlusTheme from './css/theme/lightPlus.json'
-// import * as githubDarkTheme from './css/theme/GitHubDark.json'
-
+import * as lightPlusTheme from './css/lightPlus.json'
 
 export function monacoSetup () {
 
@@ -29,10 +26,8 @@ export function monacoSetup () {
   const grammars = new Map()
   grammars.set('lean4', 'source.lean')
 
-  //monaco.editor.defineTheme('lightPlus', lightPlusTheme as any);
-  // monaco.editor.defineTheme('GithubDark', githubDarkTheme as any);
-
-  // monaco.editor.setTheme('GithubDark')
+  // define one hard-coded theme as default
+  monaco.editor.defineTheme('lightPlus', lightPlusTheme as any);
 
   // register Monaco languages
   monaco.languages.register({
