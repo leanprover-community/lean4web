@@ -8,7 +8,7 @@ const Tools: React.FC = () => {
   const handleClose = () => setOpen(false);
 
   return (
-    <span>
+    <>
       <span className="nav-link" onClick={handleOpen}>
         <FontAwesomeIcon icon={faHammer} /> Tools: Version
       </span>
@@ -28,7 +28,7 @@ const Tools: React.FC = () => {
             <p><code>#package_version</code></p>
           </div>
         </div> : null}
-    </span>
+    </>
   )
 }
 
