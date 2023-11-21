@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { useState, Suspense, useEffect } from 'react'
-import './editor/vscode.css'
 import './css/App.css'
-import './css/dark-theme.css'
+import './css/Topbar.css'
+import './css/Modal.css'
+//import './css/dark-theme.css'
 import PrivacyPolicy from './PrivacyPolicy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
@@ -14,7 +15,8 @@ import Tools from './Tools'
 import Examples from './Examples'
 import LoadingMenu from './LoadingMenu'
 import { config } from './config/config'
-
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import { monacoSetup } from './monacoSetup'
 
 const App: React.FC = () => {
   const [restart, setRestart] = useState()
@@ -25,6 +27,7 @@ const App: React.FC = () => {
 
   // Open a submenu. We manage submenus here so that only one submenu can be open at any time.
   const [submenu, setSubmenu] = useState<React.JSX.Element>(null)
+
   function openSubmenu(ev: React.MouseEvent, component: React.JSX.Element) {
     setNavOpen(true)
     setSubmenu(component)
@@ -60,8 +63,9 @@ const App: React.FC = () => {
     })
   }, [])
 
-  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'dark' : 'light')
+  /* Option to change themes */
+  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
 
   const [content, setContent] = useState<string>('')
   const [url, setUrl] = useState<string>(null)
@@ -126,17 +130,20 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className={`app ${theme}-theme`}>
+    <div className={'app monaco-editor'}>
       <div className='nav'>
         <Logo className='logo' />
-        <div className='menu-wrapper' ref={menuRef}>
+        <div className='menu' ref={menuRef}>
           {!config.verticalLayout && <>
             {/* Buttons for desktop version */}
             <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
             <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
           </>
           }
-          <div className={'menu dropdown' + (navOpen ? '' : ' hidden')}>
+          <span className={"nav-link nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
+            {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
+          </span>
+          <div className={'dropdown' + (navOpen ? '' : ' hidden')}>
             {config.verticalLayout && <>
               {/* Buttons for mobile version */}
               <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
@@ -160,18 +167,15 @@ const App: React.FC = () => {
             <a className="nav-link" href="https://github.com/hhu-adam/lean4web" target="_blank">
               <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> GitHub
             </a>
-            <div className="dropdown-menu" ref={submenuRef}>
+            <div className="submenu" ref={submenuRef}>
               {submenu && submenu}
             </div>
-          </div>
-          <div className={"nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
-            {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
           </div>
         </div>
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} />
+          value={content} onDidChangeContent={onDidChangeContent} theme={theme}/>
       </Suspense>
     </div>
   )

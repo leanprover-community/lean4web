@@ -4,7 +4,9 @@ import { config } from './config/config';
 import * as React from 'react'
 import { useEffect } from 'react'
 import Switch from '@mui/material/Switch';
+import Select from '@mui/material/Select';
 import { useWindowDimensions } from './window_width';
+import { FormControl, InputLabel, MenuItem } from '@mui/material';
 
 const Settings: React.FC<{closeNav, theme, setTheme}> =
     ({closeNav, theme, setTheme}) => {
@@ -73,14 +75,6 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
   //  ev.stopPropagation()
   }
 
-  const handleThemeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    if (theme == 'dark') {
-      setTheme('light')
-    } else {
-      setTheme('dark')
-    }
-  }
-
   return <>
     <span className="nav-link" onClick={handleOpen}>
       <FontAwesomeIcon icon={faGear} /> Settings
@@ -98,16 +92,27 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
                 onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
             </p>
             <p>
+              <label htmlFor="theme">Theme: </label>
+              <select
+                  id="theme"
+                  name="theme"
+                  value={theme}
+                  onChange={(ev) => {setTheme(ev.target.value)}} >
+                <option value="lightPlus">light+</option>
+                <option value="GithubDark">github dark</option>
+                <option value="Amy">amy</option>
+                <option value="Cobalt">cobalt</option>
+              </select>
+            </p>
+            <p>
               <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
               <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
             </p>
             <p>
-              <Switch id="theme" onChange={handleThemeChange} checked={theme == 'dark'} />
-              <label htmlFor="theme">Dark theme</label>
-            </p>
-            <p>
               <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
               <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
+            </p>
+            <p>
               <input type="submit" value="OK" />
             </p>
           </form>

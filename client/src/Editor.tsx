@@ -2,7 +2,6 @@ import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import './css/Editor.css'
 import './editor/infoview.css'
-import './editor/vscode.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
@@ -20,8 +19,8 @@ const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://")
 
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
-    ({setRestart, onDidChangeContent, value}) => {
+const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string}> =
+    ({setRestart, onDidChangeContent, value, theme}) => {
   const uri = monaco.Uri.parse('file:///LeanProject/LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -31,6 +30,23 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
+
+  useEffect(() => {
+    //monaco.editor.setTheme(theme)
+    fetch(`./themes/${theme}.json`,{
+      headers : {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+       }
+    })
+    .then(response => response.json())
+    .then(themeJson => {
+      monaco.editor.defineTheme('usedTheme', themeJson as any);
+      monaco.editor.setTheme('usedTheme')
+      console.log(`changed theme to ${theme}`)
+    })
+  }, [theme])
+
 
   useEffect(() => {
     const model = monaco.editor.getModel(uri) ??
@@ -59,7 +75,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
         },
         tabSize: 2,
         'semanticHighlighting.enabled': true,
-        theme: 'vs-code-theme-converted'
+        theme: 'vs'
       })
       setEditor(editor)
       new AbbreviationRewriter(new AbbreviationProvider(), model, editor)

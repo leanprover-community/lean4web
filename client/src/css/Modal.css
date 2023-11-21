@@ -1,0 +1,99 @@
+input[type="file"] {
+  display: none;
+}
+
+.modal-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--vscode-widget-shadow); /* TODO: What's the correct var? */
+  z-index: 2;
+}
+
+.modal h2 {
+  text-align: center;
+}
+
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 50%;
+  max-width: 60ch;
+  background: var(--vscode-input-background);
+  z-index: 3;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: left;
+  color: var(--vscode-input-foreground);
+}
+
+@media only screen and (max-width: 800px) {
+  .modal {
+    min-width: 90%;
+  }
+
+}
+
+
+.modal input[type="text"], .modal textarea {
+  width: 100%;
+}
+
+.modal select {
+  float: right;
+}
+
+.modal textarea {
+  height: 10em;
+}
+
+.modal .form-error {
+  color: var(--vscode-editorError-foreground);
+  font-weight: bold;
+}
+
+.modal input[type="submit"] {
+  border: none;
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+  cursor: pointer;
+  padding: .5rem 1rem;
+  border-radius: .2rem;
+  display: block;
+  margin: 1rem auto;
+}
+
+.modal-close {
+  float: right;
+  scale: 2;
+  color: var(--vscode-input-foreground);
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  float: right;
+  scale: 2;
+  color: var(--vscode-inputOption-activeForeground); /* TODO: what's the best var to use here? */
+}
+
+.modal table {
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: var(--vscode-textLink-foreground);
+}

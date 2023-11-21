@@ -1,6 +1,5 @@
 import { Registry } from 'monaco-textmate' // peer dependency
 import { wireTmGrammars } from 'monaco-editor-textmate'
-import * as lightPlusTheme from './css/theme/lightPlus.json'
 import * as leanSyntax from './syntaxes/lean.json'
 import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
 import * as codeblockSyntax from './syntaxes/codeblock.json'
@@ -12,6 +11,10 @@ import { StandaloneServices } from 'vscode/services';
 import getMessageServiceOverride from 'vscode/service-override/messages';
 //@ts-ignore
 import onigasmUrl from 'onigasm/lib/onigasm.wasm?url'
+
+// import * as lightPlusTheme from './css/theme/lightPlus.json'
+// import * as githubDarkTheme from './css/theme/GitHubDark.json'
+
 
 export function monacoSetup () {
 
@@ -26,7 +29,10 @@ export function monacoSetup () {
   const grammars = new Map()
   grammars.set('lean4', 'source.lean')
 
-  monaco.editor.defineTheme('vs-code-theme-converted', lightPlusTheme as any);
+  //monaco.editor.defineTheme('lightPlus', lightPlusTheme as any);
+  // monaco.editor.defineTheme('GithubDark', githubDarkTheme as any);
+
+  // monaco.editor.setTheme('GithubDark')
 
   // register Monaco languages
   monaco.languages.register({
