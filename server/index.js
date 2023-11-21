@@ -13,7 +13,7 @@ const crtFile = process.env.SSL_CRT_FILE
 const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
-app.use(express.static(path.join(__dirname, '../dist/')))
+app.use(express.static(path.join(__dirname, '../client/dist/')))
 app.use(nocache())
 
 let server;
