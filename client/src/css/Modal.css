@@ -52,10 +52,6 @@ input[type="file"] {
   width: 100%;
 }
 
-.modal select {
-  float: right;
-}
-
 .modal textarea {
   height: 10em;
 }
@@ -65,15 +61,28 @@ input[type="file"] {
   font-weight: bold;
 }
 
-.modal input[type="submit"] {
+.modal input[type="submit"], .modal .file-upload-button {
   border: none;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
   cursor: pointer;
   padding: .5rem 1rem;
   border-radius: .2rem;
+}
+
+.modal input[type="submit"]{
   display: block;
   margin: 1rem auto;
+}
+
+.modal .flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal .flex label {
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .modal-close {

@@ -29,8 +29,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   useEffect(() => {
-    if (theme == 'lightPlus') {
-      monaco.editor.setTheme('lightPlus')
+    if (['lightPlus', 'custom'].includes(theme)) {
+      monaco.editor.setTheme(theme)
     } else {
       //monaco.editor.setTheme(theme)
       fetch(`./themes/${theme}.json`,{
