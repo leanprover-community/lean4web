@@ -3,7 +3,9 @@
 You can use monaco themes to style the lean webeditor. Take a look at these
 [sample monaco themes](https://github.com/brijeshb42/monaco-themes/tree/master/themes).
 
-To add a theme, you need two steps:
+You can directly load custom themes in the settings. The upload expects a valid JSON monaco theme.
+
+To add a theme to the editor permanently, you need two steps:
 
 1. Add the json file here (in the `themes` folder)
 2. Add an `option` to the `select` in `Settings.tsx`. Make sure that the `value` of the `option` matches the filename (without '.json')!
