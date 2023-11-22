@@ -12,6 +12,8 @@ running on a web server, and not in the browser.
 If you experience any problems, or have feature requests, please open an issue here!
 PRs are welcome as well.
 
+To add new themes, please read [Adding Themes](client/public/themes/README.md).
+
 ## Security
 Providing the use access to a Lean instance running on the server is a severe security risk. That is why we start the Lean server
 using [Bubblewrap](https://github.com/containers/bubblewrap).
