@@ -1,9 +1,7 @@
 # Themes
 
 You can use monaco themes to style the lean webeditor. Take a look at these
-[sample monaco themes](https://github.com/brijeshb42/monaco-themes/tree/master/themes).
-
-You can directly load custom themes in the settings. The upload expects a valid JSON monaco theme.
+[sample monaco themes](https://github.com/brijeshb42/monaco-themes/tree/master/themes). For testing, you can upload your custom theme directly in the settings of the webeditor. The upload expects a valid JSON monaco theme.
 
 To add a theme to the editor permanently, you need two steps:
 
