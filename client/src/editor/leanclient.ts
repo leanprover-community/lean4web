@@ -3,8 +3,8 @@
 import {
   TextDocument, EventEmitter, Diagnostic,
   DocumentHighlight, Range, DocumentHighlightKind,
-  Disposable, Uri, ConfigurationChangeEvent, DiagnosticCollection,
-  WorkspaceFolder, window
+  Disposable, Uri, DiagnosticCollection,
+  WorkspaceFolder
 } from 'vscode'
 import {
   DidChangeTextDocumentParams,
@@ -13,11 +13,10 @@ import {
   MonacoLanguageClient as LanguageClient,
   LanguageClientOptions,
   PublishDiagnosticsParams,
-  CloseAction, ErrorAction,
+  CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
-import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 
 import { getElaborationDelay } from './config'
 import { LeanFileProgressParams, LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
@@ -76,9 +75,10 @@ export class LeanClient implements Disposable {
   /** Files which are open. */
   private readonly isOpen: Map<string, TextDocument> = new Map()
 
-  constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri,
+  constructor (
+    private readonly connectionProvider: IConnectionProvider,
     public readonly showRestartMessage: () => void) {
-    this.folderUri = folderUri
+
   }
 
   dispose (): void {
@@ -189,29 +189,7 @@ export class LeanClient implements Disposable {
         id: 'lean4',
         name: 'Lean 4',
         clientOptions,
-        connectionProvider: {
-          get: async () => {
-            return await new Promise((resolve, reject) => {
-              console.log(`connecting ${this.socketUrl}`)
-              const websocket = new WebSocket(this.socketUrl)
-              websocket.addEventListener('error', (ev) => {
-                reject(ev)
-              })
-              websocket.addEventListener('message', (msg) => {
-                // console.log(msg.data)
-              })
-              websocket.addEventListener('open', () => {
-                const socket = toSocket(websocket)
-                const reader = new WebSocketMessageReader(socket)
-                const writer = new WebSocketMessageWriter(socket)
-                resolve({
-                  reader,
-                  writer
-                })
-              })
-            })
-          }
-        }
+        connectionProvider: this.connectionProvider
       })
     } else {
       await this.client.start()

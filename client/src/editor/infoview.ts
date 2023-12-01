@@ -51,8 +51,6 @@ export class InfoProvider implements Disposable {
   private readonly subscriptions: Disposable[] = []
   private readonly clientSubscriptions: Disposable[] = []
 
-  private readonly stylesheet: string = ''
-  private readonly autoOpened: boolean = false
   public readonly client?: LeanClient
   // private readonly clientProvider: LeanClientProvider
 
@@ -61,9 +59,6 @@ export class InfoProvider implements Disposable {
   private readonly clientNotifSubscriptions: Map<string, [number, Disposable[]]> = new Map()
 
   private rpcSessions: Map<string, RpcSessionAtPos> = new Map()
-
-  // the key is the LeanClient.getWorkspaceFolder()
-  private readonly clientsFailed: Map<string, any> = new Map()
 
   // the key is the uri of the file who's worker has failed.
   private readonly workersFailed: Map<string, any> = new Map()
@@ -201,8 +196,7 @@ export class InfoProvider implements Disposable {
       }
     },
     copyToClipboard: async (text) => {
-      await window.clipboard.writeText(text)
-      await window.showInformationMessage(`Copied to clipboard: ${text}`)
+      navigator.clipboard.writeText(text)
     },
     insertText: async (text, kind, tdpp) => {
       let uri: Uri | undefined
@@ -488,29 +482,19 @@ export class InfoProvider implements Disposable {
     const editor = this.editor
     if (editor == null) return
     const loc = this.getLocation(editor)
-    // if (languages.match(this.leanDocs, editor.document) === 0) {
-    //   // language is not yet 'lean4', but the LeanClient will fire the didSetLanguage event
-    //   // in openLean4Document and that's when we can send the position to update the
-    //   // InfoView for the newly opened document.
-    //   return
-    // }
-    // actual editor
-    if (this.clientsFailed.size > 0 || this.workersFailed.size > 0) {
-      const client = this.client // this.clientProvider.findClient(editor.document.uri.toString())
-      if (client != null) {
-        const uri = window.activeTextEditor?.document.uri.toString() ?? ''
-        let reason: any | undefined
-        if (this.workersFailed.has(uri)) {
-          reason = this.workersFailed.get(uri)
-        }
-        if (reason) {
-          // send stopped event
-          await this.infoviewApi?.serverStopped(reason)
-        } else {
-          await this.updateStatus(loc)
-        }
+    if (!this.client.running){
+      await this.infoviewApi?.serverStopped(undefined)
+    } else if (this.workersFailed.size > 0) {
+      const uri = window.activeTextEditor?.document.uri.toString() ?? ''
+      let reason: any | undefined
+      if (this.workersFailed.has(uri)) {
+        reason = this.workersFailed.get(uri)
+      }
+      if (reason) {
+        // send stopped event
+        await this.infoviewApi?.serverStopped(reason)
       } else {
-        console.log('[InfoProvider] ### what does it mean to have sendPosition but no LeanClient for this document???')
+        await this.updateStatus(loc)
       }
     } else {
       await this.updateStatus(loc)

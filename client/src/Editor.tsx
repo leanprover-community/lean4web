@@ -15,6 +15,8 @@ import Split from 'react-split'
 import Notification from './Notification'
 import { monacoSetup } from './monacoSetup'
 import { config } from './config/config'
+import { IConnectionProvider } from 'monaco-languageclient'
+import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
@@ -65,8 +67,32 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
       new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
     }
 
+    const connectionProvider : IConnectionProvider = {
+      get: async () => {
+        return await new Promise((resolve, reject) => {
+          console.log(`connecting ${socketUrl}`)
+          const websocket = new WebSocket(socketUrl)
+          websocket.addEventListener('error', (ev) => {
+            reject(ev)
+          })
+          websocket.addEventListener('message', (msg) => {
+            // console.log(msg.data)
+          })
+          websocket.addEventListener('open', () => {
+            const socket = toSocket(websocket)
+            const reader = new WebSocketMessageReader(socket)
+            const writer = new WebSocketMessageWriter(socket)
+            resolve({
+              reader,
+              writer
+            })
+          })
+        })
+      }
+    }
+
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
+    const client = new LeanClient(connectionProvider, showRestartMessage)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
     const imports = {
