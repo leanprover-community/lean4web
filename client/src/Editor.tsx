@@ -16,7 +16,8 @@ import Notification from './Notification'
 import { monacoSetup } from './monacoSetup'
 import { config } from './config/config'
 import { IConnectionProvider } from 'monaco-languageclient'
-import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
+import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
+import { DisposingWebSocketMessageReader } from './reader'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
@@ -35,37 +36,34 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   useEffect(() => {
-    const model = monaco.editor.getModel(uri) ??
-      monaco.editor.createModel(value ?? '', 'lean4', uri)
-    if (!model.isAttachedToEditor()) {
-      if (onDidChangeContent) {
-        model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
-      }
-      const editor = monaco.editor.create(codeviewRef.current!, {
-        model,
-        glyphMargin: true,
-        lineDecorationsWidth: 5,
-        folding: false,
-        lineNumbers: 'on',
-        lineNumbersMinChars: 1,
-        // rulers: [100],
-        lightbulb: {
-          enabled: true
-        },
-        unicodeHighlight: {
-            ambiguousCharacters: false,
-        },
-        automaticLayout: true,
-        minimap: {
-          enabled: false
-        },
-        tabSize: 2,
-        'semanticHighlighting.enabled': true,
-        theme: 'vs-code-theme-converted'
-      })
-      setEditor(editor)
-      new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
+    const model = monaco.editor.createModel(value ?? '', 'lean4', uri)
+    if (onDidChangeContent) {
+      model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
     }
+    const editor = monaco.editor.create(codeviewRef.current!, {
+      model,
+      glyphMargin: true,
+      lineDecorationsWidth: 5,
+      folding: false,
+      lineNumbers: 'on',
+      lineNumbersMinChars: 1,
+      // rulers: [100],
+      lightbulb: {
+        enabled: true
+      },
+      unicodeHighlight: {
+          ambiguousCharacters: false,
+      },
+      automaticLayout: true,
+      minimap: {
+        enabled: false
+      },
+      tabSize: 2,
+      'semanticHighlighting.enabled': true,
+      theme: 'vs-code-theme-converted'
+    })
+    setEditor(editor)
+    const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
 
     const connectionProvider : IConnectionProvider = {
       get: async () => {
@@ -80,7 +78,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
           })
           websocket.addEventListener('open', () => {
             const socket = toSocket(websocket)
-            const reader = new WebSocketMessageReader(socket)
+            const reader = new DisposingWebSocketMessageReader(socket)
             const writer = new WebSocketMessageWriter(socket)
             resolve({
               reader,
@@ -105,6 +103,13 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
     setInfoProvider(infoProvider)
     client.restart()
+    return () => {
+      editor.dispose();
+      model.dispose();
+      abbrevRewriter.dispose();
+      infoProvider.dispose();
+      client.dispose();
+    }
   }, [])
 
   const showRestartMessage = () => {
@@ -112,9 +117,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   }
 
   const restart = async () => {
-    await infoProvider.client.stop();
-    await infoProvider.client.start();
-    infoProvider.openPreview(editor, infoviewApi)
+    await infoProvider.client.restart();
   }
 
   useEffect(() => {

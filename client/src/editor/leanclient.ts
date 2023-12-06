@@ -4,7 +4,7 @@ import {
   TextDocument, EventEmitter, Diagnostic,
   DocumentHighlight, Range, DocumentHighlightKind,
   Disposable, Uri, DiagnosticCollection,
-  WorkspaceFolder
+  WorkspaceFolder, workspace
 } from 'vscode'
 import {
   DidChangeTextDocumentParams,
@@ -15,6 +15,7 @@ import {
   PublishDiagnosticsParams,
   CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
 
@@ -72,9 +73,6 @@ export class LeanClient implements Disposable {
   private readonly serverFailedEmitter = new EventEmitter<string>()
   serverFailed = this.serverFailedEmitter.event
 
-  /** Files which are open. */
-  private readonly isOpen: Map<string, TextDocument> = new Map()
-
   constructor (
     private readonly connectionProvider: IConnectionProvider,
     public readonly showRestartMessage: () => void) {
@@ -82,7 +80,17 @@ export class LeanClient implements Disposable {
   }
 
   dispose (): void {
-    if (this.isStarted()) void this.stop()
+    if (this.client.isRunning()) {
+      this.client.dispose()
+    } else {
+      this.client.onDidChangeState((ev) => {
+        if (ev.newState == State.Running) {
+          setTimeout(() => { // Wait for client to send `initialized` before `shutdown`
+            this.client.dispose()
+          }, 0)
+        }
+      })
+    }
   }
 
   async restart (): Promise<void> {
@@ -107,7 +115,7 @@ export class LeanClient implements Disposable {
       },
       // disable the default error handler
       errorHandler: {
-        error: () => ({ action: ErrorAction.Continue }),
+        error: () => { this.showRestartMessage(); return { action: ErrorAction.Continue }},
         closed: () => ({ action: CloseAction.DoNotRestart })
       },
       middleware: {
@@ -125,34 +133,11 @@ export class LeanClient implements Disposable {
           this.diagnosticsEmitter.fire({ uri: uri_, diagnostics: diagnostics_ })
         },
 
-        // didOpen: async () => {
-        //   // Note: as per the LSP spec: An open notification must not be sent more than once
-        //   // without a corresponding close notification send before. This means open and close
-        //   // notification must be balanced and the max open count for a particular textDocument
-        //   // is one.  So this even does nothing the notification is handled by the
-        //   // openLean4Document method below after the 'lean4' languageId is established and
-        //   // it has weeded out documents opened to invisible editors (like 'git:' schemes and
-        //   // invisible editors created for Ctrl+Hover events.  A side effect of unbalanced
-        //   // open/close notification is leaking 'lean --worker' processes.
-        //   // See https://github.com/microsoft/vscode/issues/78453).
-
-        // },
-
         didChange: async (data, next) => {
           await next(data)
           if (!this.running || (this.client == null)) return // there was a problem starting lean server.
           const params = c2pConverter.asChangeTextDocumentParams(data)
           this.didChangeEmitter.fire(params)
-        },
-
-        didClose: async (doc, next) => {
-          if (!this.isOpen.delete(doc.uri.toString())) {
-            return
-          }
-          await next(doc)
-          if (!this.running || (this.client == null)) return // there was a problem starting lean server.
-          const params = c2pConverter.asCloseTextDocumentParams(doc)
-          this.didCloseEmitter.fire(params)
         },
 
         provideDocumentHighlights: async (doc, pos, ctok, next) => {
@@ -191,10 +176,7 @@ export class LeanClient implements Disposable {
         clientOptions,
         connectionProvider: this.connectionProvider
       })
-    } else {
-      await this.client.start()
     }
-
 
     // HACK: Prevent monaco from panicking when the Lean server crashes
     this.client.handleFailedRequest = (type, token: any, error: any, defaultValue, showNotification?: boolean) => {
@@ -222,7 +204,6 @@ export class LeanClient implements Disposable {
             // only raise this event and show the message if we are not the ones
             // who called the stop() method.
             this.stoppedEmitter.fire({ message: 'Lean server has stopped.', reason: '' })
-            await this.showRestartMessage()
           }
         }
       })
@@ -256,32 +237,6 @@ export class LeanClient implements Disposable {
 
     this.restartedEmitter.fire(undefined)
     insideRestart = false
-  }
-
-  async openLean4Document (doc: TextDocument) {
-    if (this.isOpen.has(doc.uri.toString())) return
-
-    this.isOpen.set(doc.uri.toString(), doc)
-
-    if (!this.running) return // there was a problem starting lean server.
-
-    // didOpenEditor may have also changed the language, so we fire the
-    // event here because the InfoView should be wired up to receive it now.
-    this.didSetLanguageEmitter.fire(doc.languageId)
-
-    this.notifyDidOpen(doc)
-  }
-
-  notifyDidOpen (doc: TextDocument) {
-    // BUG: was `DidOpenTextDocumentNotification.type` instead of the string, but that failed
-    void this.client?.sendNotification('textDocument/didOpen', {
-      textDocument: {
-        uri: doc.uri.toString(),
-        languageId: doc.languageId,
-        version: 1,
-        text: doc.getText()
-      }
-    })
   }
 
   async start (): Promise<void> {
