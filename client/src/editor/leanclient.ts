@@ -2,42 +2,24 @@
 
 import {
   TextDocument, EventEmitter, Diagnostic,
-  DocumentHighlight, Range, DocumentHighlightKind, workspace,
-  Disposable, Uri, ConfigurationChangeEvent, OutputChannel, DiagnosticCollection,
-  WorkspaceFolder, window
+  DocumentHighlight, Range, DocumentHighlightKind,
+  Disposable, Uri, DiagnosticCollection,
+  WorkspaceFolder
 } from 'vscode'
 import {
   DidChangeTextDocumentParams,
   DidCloseTextDocumentParams,
-  DidOpenTextDocumentNotification,
-  DocumentFilter,
   InitializeResult,
   MonacoLanguageClient as LanguageClient,
   LanguageClientOptions,
   PublishDiagnosticsParams,
-  CloseAction, ErrorAction,
-  RevealOutputChannelOn,
+  CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
-import { toSocket, WebSocketMessageReader, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 
-import {
-  // toolchainPath, lakePath, addServerEnvPaths, serverArgs, serverLoggingEnabled, serverLoggingPath, shouldAutofocusOutput,
-  getElaborationDelay
-  // lakeEnabled
-} from './config'
-// import { assert } from './utils/assert'
+import { getElaborationDelay } from './config'
 import { LeanFileProgressParams, LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
-// import { LocalStorageService } from './utils/localStorage'
-// import { batchExecute } from './utils/batch'
-// import { readLeanVersion } from './utils/projectInfo'
-import * as fs from 'fs'
-import { URL } from 'url'
-import { join } from 'path'
-// import { logger } from './utils/logger'
-import { SemVer } from 'semver'
-// import { fileExists, isFileInFolder } from './utils/fsHelper'
 import { c2pConverter, p2cConverter, patchConverters } from './utils/converters'
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -51,15 +33,7 @@ export function getFullRange (diag: Diagnostic): Range {
 export class LeanClient implements Disposable {
   running: boolean = false
   private client: LanguageClient | undefined
-  // private toolchainPath: string
-  // private readonly outputChannel: OutputChannel
-  // private readonly storageManager: LocalStorageService
-  private readonly workspaceFolder: WorkspaceFolder | undefined
-  private readonly folderUri: Uri
-  private readonly subscriptions: Disposable[] = []
   private noPrompt: boolean = false
-  private showingRestartMessage: boolean = false
-  // private readonly elanDefaultToolchain: string
 
   private readonly didChangeEmitter = new EventEmitter<DidChangeTextDocumentParams>()
   didChange = this.didChangeEmitter.event
@@ -101,45 +75,15 @@ export class LeanClient implements Disposable {
   /** Files which are open. */
   private readonly isOpen: Map<string, TextDocument> = new Map()
 
-  constructor (private readonly socketUrl: string, workspaceFolder: WorkspaceFolder | undefined, folderUri: Uri,
+  constructor (
+    private readonly connectionProvider: IConnectionProvider,
     public readonly showRestartMessage: () => void) {
-    // this.storageManager = storageManager
-    // this.outputChannel = outputChannel
-    this.workspaceFolder = workspaceFolder // can be null when opening adhoc files.
-    this.folderUri = folderUri
-    // this.elanDefaultToolchain = elanDefaultToolchain
-    // this.subscriptions.push(workspace.onDidChangeConfiguration((e) => this.configChanged(e)))
+
   }
 
   dispose (): void {
-    this.subscriptions.forEach((s) => s.dispose())
     if (this.isStarted()) void this.stop()
   }
-
-  // async showRestartMessage (restartFile: boolean = false): Promise<void> {
-  //   // if (!this.showingRestartMessage) {
-  //   //   this.showingRestartMessage = true
-  //   //   let restartItem: string
-  //   //   let messageTitle: string
-  //   //   if (!restartFile) {
-  //   //     restartItem = 'Restart Lean Server'
-  //   //     messageTitle = 'Lean Server has stopped unexpectedly.'
-  //   //   } else {
-  //   //     restartItem = 'Restart Lean Server on this file'
-  //   //     messageTitle = 'The Lean Server has stopped processing this file.'
-  //   //   }
-  //   //   const item = await this.showErrorMessage(messageTitle, restartItem)
-  //   //   this.showingRestartMessage = false
-  //   //   if (item === restartItem) {
-  //   //     void this.start()
-  //   //     // if (restartFile && (window.activeTextEditor != null)) {
-  //   //     //   await this.restartFile(window.activeTextEditor.document)
-  //   //     // } else {
-  //   //     //   void this.start()
-  //   //     // }
-  //   //   }
-  //   // }
-  // }
 
   async restart (): Promise<void> {
     const startTime = Date.now()
@@ -150,71 +94,6 @@ export class LeanClient implements Disposable {
     }
 
     this.restartingEmitter.fire(undefined)
-    // this.toolchainPath = this.storageManager.getLeanPath()
-    // if (!this.toolchainPath) this.toolchainPath = toolchainPath()
-    // let version = this.storageManager.getLeanVersion()
-    // const env = addServerEnvPaths(process.env)
-    // if (serverLoggingEnabled()) {
-    //   env.LEAN_SERVER_LOG_DIR = serverLoggingPath()
-    // }
-
-    // let executable = lakePath() ||
-    //       (this.toolchainPath ? join(this.toolchainPath, 'bin', 'lake') : 'lake')
-
-    // check if the lake process will start (skip it on scheme: 'untitled' files)
-    // let useLake = lakeEnabled() && this.folderUri && this.folderUri.scheme === 'file'
-    // if (useLake) {
-    //   let knownDate = false
-    //   const lakefile = Uri.joinPath(this.folderUri, 'lakefile.lean')
-    //   if (!await fileExists(new URL(lakefile.toString()))) {
-    //     useLake = false
-    //   } else {
-    //     // see if we can avoid the more expensive checkLakeVersion call.
-    //     const date = await this.checkToolchainVersion(this.folderUri)
-    //     if (date != null) {
-    //       // Feb 16 2022 is when the 3.1.0.pre was released.
-    //       useLake = date >= new Date(2022, 1, 16)
-    //       knownDate = true
-    //     }
-    //     if (useLake && !knownDate) {
-    //       useLake = await this.checkLakeVersion(executable, version)
-    //     }
-    //   }
-    // }
-
-    // if (!useLake) {
-    //   executable = (this.toolchainPath) ? join(this.toolchainPath, 'bin', 'lean') : 'lean'
-    // }
-
-    // const cwd = this.folderUri?.fsPath
-    // if (!cwd && !version) {
-    //   // Fixes issue #227, for adhoc files it would pick up the cwd from the open folder
-    //   // which is not what we want.  For adhoc files we want the (default) toolchain instead.
-    //   version = this.elanDefaultToolchain
-    // }
-
-    // let options = version ? ['+' + version] : []
-    // if (useLake) {
-    //   options = options.concat(['serve', '--'])
-    // } else {
-    //   options = options.concat(['--server'])
-    // }
-
-    // Add folder name to command-line so that it shows up in `ps aux`.
-    // if (cwd) {
-    //   options.push('' + cwd)
-    // } else {
-    //   options.push('untitled')
-    // }
-
-    // const serverOptions: ServerOptions = {
-    //   command: executable,
-    //   args: options.concat(serverArgs()),
-    //   options: {
-    //     cwd,
-    //     env
-    //   }
-    // }
 
     const clientOptions: LanguageClientOptions = {
       // use a language id as a document selector
@@ -310,29 +189,7 @@ export class LeanClient implements Disposable {
         id: 'lean4',
         name: 'Lean 4',
         clientOptions,
-        connectionProvider: {
-          get: async () => {
-            return await new Promise((resolve, reject) => {
-              console.log(`connecting ${this.socketUrl}`)
-              const websocket = new WebSocket(this.socketUrl)
-              websocket.addEventListener('error', (ev) => {
-                reject(ev)
-              })
-              websocket.addEventListener('message', (msg) => {
-                // console.log(msg.data)
-              })
-              websocket.addEventListener('open', () => {
-                const socket = toSocket(websocket)
-                const reader = new WebSocketMessageReader(socket)
-                const writer = new WebSocketMessageWriter(socket)
-                resolve({
-                  reader,
-                  writer
-                })
-              })
-            })
-          }
-        }
+        connectionProvider: this.connectionProvider
       })
     } else {
       await this.client.start()
@@ -370,12 +227,6 @@ export class LeanClient implements Disposable {
         }
       })
       await this.client.start()
-      // tell the new client about the documents that are already open!
-      // for (const key of this.isOpen.keys()) {
-      //   const doc = this.isOpen.get(key)
-      //   if (doc != null) this.notifyDidOpen(doc)
-      // }
-      // if we got this far then the client is happy so we are running!
       this.running = true
     } catch (error) {
       console.log(error)
@@ -403,33 +254,12 @@ export class LeanClient implements Disposable {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.client.onNotification(starHandler as any, () => {})
 
-    // Reveal the standard error output channel when the server prints something to stderr.
-    // The vscode-languageclient library already takes care of writing it to the output channel.
-    // let stderrMsgBoxVisible = false;
-    // (this.client)._serverProcess.stderr.on('data', async (chunk: Buffer) => {
-    //   if (shouldAutofocusOutput()) {
-    //     this.client?.outputChannel.show(true)
-    //   } else if (!stderrMsgBoxVisible) {
-    //     stderrMsgBoxVisible = true
-    //     const outputItem = 'Show stderr output'
-    //     const outPrompt = `Lean server printed an error:\n${chunk.toString()}`
-    //     if (await window.showErrorMessage(outPrompt, outputItem) === outputItem) {
-    //       this.outputChannel.show(false)
-    //     }
-    //     stderrMsgBoxVisible = false
-    //   }
-    // })
-
     this.restartedEmitter.fire(undefined)
     insideRestart = false
   }
 
   async openLean4Document (doc: TextDocument) {
     if (this.isOpen.has(doc.uri.toString())) return
-    if (!await this.isSameWorkspace(doc.uri)) {
-      // skip it, this file belongs to a different workspace...
-      return
-    }
 
     this.isOpen.set(doc.uri.toString(), doc)
 
@@ -452,26 +282,6 @@ export class LeanClient implements Disposable {
         text: doc.getText()
       }
     })
-  }
-
-  async isSameWorkspace (uri: Uri): Promise<boolean> {
-    // if (this.folderUri) {
-    //   if (this.folderUri.scheme !== uri.scheme) return false
-    //   if (this.folderUri.scheme === 'file') {
-    //     const realPath1 = await fs.promises.realpath(this.folderUri.fsPath)
-    //     const realPath2 = await fs.promises.realpath(uri.fsPath)
-    //     return isFileInFolder(realPath2, realPath1)
-    //   } else {
-    //     return uri.toString().startsWith(this.folderUri.toString())
-    //   }
-    // } else {
-    //   return uri.scheme === 'untitled'
-    // }
-    return false
-  }
-
-  getWorkspaceFolder (): string {
-    return this.folderUri?.toString()
   }
 
   async start (): Promise<void> {
@@ -508,23 +318,9 @@ export class LeanClient implements Disposable {
     this.running = false
   }
 
-  configChanged (e: ConfigurationChangeEvent): void {
-    // let newToolchainPath = this.storageManager.getLeanPath()
-    // if (!newToolchainPath) newToolchainPath = toolchainPath()
-    // if (this.toolchainPath !== newToolchainPath) {
-    //  void this.restart()
-    // }
-  }
-
   async restartFile (doc: TextDocument): Promise<void> {
     if (!this.running) return // there was a problem starting lean server.
 
-    // assert(() => this.isStarted())
-
-    if (!await this.isSameWorkspace(doc.uri)) {
-      // skip it, this file belongs to a different workspace...
-      return
-    }
     const uri = doc.uri.toString()
     console.log(`[LeanClient] Restarting File: ${uri}`)
     // This causes a text document version number discontinuity. In
@@ -577,45 +373,4 @@ export class LeanClient implements Disposable {
     return this.running ? this.client?.initializeResult : undefined
   }
 
-  private async checkToolchainVersion (folderUri: Uri): Promise<Date | undefined> {
-    // see if we have a well known toolchain label that corresponds
-    // to a known date like 'leanprover/lean4:nightly-2022-02-01'
-    // const toolchainVersion = await readLeanVersion(folderUri)
-    // if (toolchainVersion) {
-    //   const match = /^leanprover\/lean4:nightly-(\d+)-(\d+)-(\d+)$/.exec(toolchainVersion)
-    //   if (match != null) {
-    //     return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]))
-    //   }
-    //   if (toolchainVersion === 'leanprover/lean4:stable') {
-    //     return new Date(2022, 2, 1)
-    //   }
-    // }
-    return undefined
-  }
-
-  // async checkLakeVersion (executable: string, version: string): Promise<boolean> {
-  //   // Check that the Lake version is high enough to support "lake serve" option.
-  //   const versionOptions = version ? ['+' + version, '--version'] : ['--version']
-  //   const start = Date.now()
-  //   const lakeVersion = await batchExecute(executable, versionOptions, this.folderUri?.fsPath, undefined)
-  //   logger.log(`[LeanClient] Ran '${executable} ${versionOptions.join(' ')}' in ${Date.now() - start} ms`)
-  //   const actual = this.extractVersion(lakeVersion)
-  //   if (actual.compare('3.0.0') > 0) {
-  //     return true
-  //   }
-  //   return false
-  // }
-
-  // private extractVersion (v: string | undefined): SemVer {
-  //   if (!v) return new SemVer('0.0.0')
-  //   const prefix = 'Lake version'
-  //   if (v.startsWith(prefix)) v = v.slice(prefix.length).trim()
-  //   const pos = v.indexOf('(')
-  //   if (pos > 0) v = v.slice(0, pos).trim()
-  //   try {
-  //     return new SemVer(v)
-  //   } catch {
-  //     return new SemVer('0.0.0')
-  //   }
-  // }
 }
