@@ -15,10 +15,7 @@ import Tools from './Tools'
 import Examples from './Examples'
 import LoadingMenu from './LoadingMenu'
 import { config } from './config/config'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import { monacoSetup } from './monacoSetup'
 
-monacoSetup()
 
 const App: React.FC = () => {
   const [restart, setRestart] = useState()

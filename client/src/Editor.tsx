@@ -16,8 +16,11 @@ import { config } from './config/config'
 import { IConnectionProvider } from 'monaco-languageclient'
 import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 import { DisposingWebSocketMessageReader } from './reader'
+import { monacoSetup } from './monacoSetup'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
+
+monacoSetup()
 
 const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string}> =
     ({setRestart, onDidChangeContent, value, theme}) => {
