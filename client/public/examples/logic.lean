@@ -12,5 +12,5 @@ example : ¬ (P ∧ Q) ↔ ¬ P ∨ ¬ Q := by
 
 -- Here is another basic result in logic
 example : ¬ (P ∨ Q) ↔ ¬ P ∧ ¬ Q := by
-  library_search -- we can search for the proof in the library
-  -- we can also replace `library_search` with its output
+  apply? -- we can search for the proof in the library
+  -- we can also replace `apply?` with its output
