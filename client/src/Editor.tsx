@@ -52,7 +52,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
         console.log(`changed theme to ${theme}`)
       })
     }
-  }, [theme])
+  }, [theme, editor])
 
   useEffect(() => {
     const model = monaco.editor.createModel(value ?? '', 'lean4', uri)
