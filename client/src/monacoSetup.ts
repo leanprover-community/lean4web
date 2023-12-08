@@ -36,9 +36,11 @@ export function monacoSetup () {
   })
 
   let config: any = { ...languageConfig }
-  config.autoClosingPairs = config.autoClosingPairs.map(
+  const translateBrackets = (f) => f.map(
     pair => { return {'open': pair[0], 'close': pair[1]} }
   )
+  config.autoClosingPairs = translateBrackets(config.autoClosingPairs)
+  config.surroundingPairs = translateBrackets(config.surroundingPairs)
   monaco.languages.setLanguageConfiguration('lean4', config);
 
   const registry = new Registry({
