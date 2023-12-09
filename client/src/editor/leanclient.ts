@@ -133,6 +133,9 @@ export class LeanClient implements Disposable {
           this.diagnosticsEmitter.fire({ uri: uri_, diagnostics: diagnostics_ })
         },
 
+        // Closing does not work properly, so we deactivate it here:
+        didClose: async (data, next) => {},
+
         didChange: async (data, next) => {
           await next(data)
           if (!this.running || (this.client == null)) return // there was a problem starting lean server.
