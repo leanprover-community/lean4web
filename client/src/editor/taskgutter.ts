@@ -3,6 +3,7 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { LeanFileProgressKind, LeanFileProgressProcessingInfo } from '@leanprover/infoview-api';
 import { LeanClient } from './leanclient';
+import { fromLanguageServerRange } from './utils/converters';
 
 class LeanFileTaskGutter {
     private timeout?: NodeJS.Timeout
@@ -44,7 +45,7 @@ class LeanFileTaskGutter {
         this.processed
           .map(info => ({
             options: this.decorations.get(info.kind === undefined ? LeanFileProgressKind.Processing : info.kind),
-            range : new monaco.Range(info.range.start.line, 0, info.range.end.line, 0)
+            range : fromLanguageServerRange(info.range)
           }))
       )
     }

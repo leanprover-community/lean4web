@@ -3,7 +3,7 @@
 import { computed } from 'mobx';
 // import { Disposable } from 'vscode';
 // import { autorunDisposable } from '../utils/autorunDisposable';
-import * as abbreviations from 'lean4/src/abbreviation/abbreviations.json';
+import abbreviations from 'lean4/src/abbreviation/abbreviations.json';
 import { config } from '../../config/config';
 
 export interface SymbolsByAbbreviation {
@@ -28,7 +28,6 @@ export class AbbreviationProvider {
 		// );
 	}
 
-	@computed
 	private get symbolsByAbbreviation(): SymbolsByAbbreviation {
 		// There are only like 1000 symbols. Building an index is not required yet.
 		return {

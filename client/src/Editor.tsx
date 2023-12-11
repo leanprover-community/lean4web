@@ -13,15 +13,18 @@ import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
-import { monacoSetup } from './monacoSetup'
 import { config } from './config/config'
+import { IConnectionProvider } from 'monaco-languageclient'
+import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
+import { DisposingWebSocketMessageReader } from './reader'
+import { monacoSetup } from './monacoSetup'
 
 const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
 
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
-    ({setRestart, onDidChangeContent, value}) => {
+const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string}> =
+    ({setRestart, onDidChangeContent, value, theme}) => {
   const uri = monaco.Uri.parse('file:///LeanProject.lean')
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -33,40 +36,81 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   useEffect(() => {
-    const model = monaco.editor.getModel(uri) ??
-      monaco.editor.createModel(value ?? '', 'lean4', uri)
-    if (!model.isAttachedToEditor()) {
-      if (onDidChangeContent) {
-        model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
-      }
-      const editor = monaco.editor.create(codeviewRef.current!, {
-        model,
-        glyphMargin: true,
-        lineDecorationsWidth: 5,
-        folding: false,
-        lineNumbers: 'on',
-        lineNumbersMinChars: 1,
-        // rulers: [100],
-        lightbulb: {
-          enabled: true
-        },
-        unicodeHighlight: {
-            ambiguousCharacters: false,
-        },
-        automaticLayout: true,
-        minimap: {
-          enabled: false
-        },
-        tabSize: 2,
-        'semanticHighlighting.enabled': true,
-        theme: 'vs-code-theme-converted'
+    if (['lightPlus', 'custom'].includes(theme)) {
+      monaco.editor.setTheme(theme)
+    } else {
+      //monaco.editor.setTheme(theme)
+      fetch(`./themes/${theme}.json`,{
+        headers : {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
       })
-      setEditor(editor)
-      new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
+      .then(response => response.json())
+      .then(themeJson => {
+        monaco.editor.defineTheme('usedTheme', themeJson as any);
+        monaco.editor.setTheme('usedTheme')
+        console.log(`changed theme to ${theme}`)
+      })
+    }
+  }, [theme, editor])
+
+  useEffect(() => {
+    const model = monaco.editor.createModel(value ?? '', 'lean4', uri)
+    if (onDidChangeContent) {
+      model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
+    }
+    const editor = monaco.editor.create(codeviewRef.current!, {
+      model,
+      glyphMargin: true,
+      lineDecorationsWidth: 5,
+      folding: false,
+      lineNumbers: 'on',
+      lineNumbersMinChars: 1,
+      // rulers: [100],
+      lightbulb: {
+        enabled: true
+      },
+      unicodeHighlight: {
+          ambiguousCharacters: false,
+      },
+      automaticLayout: true,
+      minimap: {
+        enabled: false
+      },
+      tabSize: 2,
+      'semanticHighlighting.enabled': true,
+      theme: 'vs'
+    })
+    setEditor(editor)
+    const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
+
+    const connectionProvider : IConnectionProvider = {
+      get: async () => {
+        return await new Promise((resolve, reject) => {
+          console.log(`connecting ${socketUrl}`)
+          const websocket = new WebSocket(socketUrl)
+          websocket.addEventListener('error', (ev) => {
+            reject(ev)
+          })
+          websocket.addEventListener('message', (msg) => {
+            // console.log(msg.data)
+          })
+          websocket.addEventListener('open', () => {
+            const socket = toSocket(websocket)
+            const reader = new DisposingWebSocketMessageReader(socket)
+            const writer = new WebSocketMessageWriter(socket)
+            resolve({
+              reader,
+              writer
+            })
+          })
+        })
+      }
     }
 
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(socketUrl, undefined, uri, showRestartMessage)
+    const client = new LeanClient(connectionProvider, showRestartMessage)
     const infoProvider = new InfoProvider(client)
     const div: HTMLElement = infoviewRef.current!
     const imports = {
@@ -79,6 +123,13 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
     loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
     setInfoProvider(infoProvider)
     client.restart()
+    return () => {
+      editor.dispose();
+      model.dispose();
+      abbrevRewriter.dispose();
+      infoProvider.dispose();
+      client.dispose();
+    }
   }, [])
 
   const showRestartMessage = () => {
@@ -86,9 +137,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string}> =
   }
 
   const restart = async () => {
-    await infoProvider.client.stop();
-    await infoProvider.client.start();
-    infoProvider.openPreview(editor, infoviewApi)
+    await infoProvider.client.restart();
   }
 
   useEffect(() => {

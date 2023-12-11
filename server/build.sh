@@ -8,17 +8,18 @@ cd $(dirname $0)
 
 # Updating Mathlib: We follow the instructions at
 # https://github.com/leanprover-community/mathlib4/wiki/Using-mathlib4-as-a-dependency#updating-mathlib4
-# Additionally, we had once problems with the `lake-manifest` when a new dependency got added
-# to `mathlib`, therefore we now delete it every time for good measure.
-(cd LeanProject &&
-  rm -f ./lake-manifest.json &&
+#
+# Note: we had once problems with the `lake-manifest` when a new dependency got added
+# to `mathlib`, we may need to add `rm lake-manifest.json` again if that's still a problem.
+( cd LeanProject &&
+  # currently the mathlib post-update-hook is not good enough to update the lean-toolchain.
+  # things break if the new lakefile is not valid in the old lean version
   curl -L https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain -o lean-toolchain &&
-  lake update &&
-  lake exe cache get &&
+  # note: mathlib has now a post-update hook that modifies the `lean-toolchain`
+  # and calls `lake exe cache get`.
+  lake update -R &&
   lake build)
 
-# Copy info about new versions to the client.
-# ./copy_versions.sh
 
 duration=$SECONDS
 echo "Finished in $(($duration / 60)):$(($duration % 60)) min."

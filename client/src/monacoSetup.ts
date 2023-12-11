@@ -1,6 +1,5 @@
 import { Registry } from 'monaco-textmate' // peer dependency
 import { wireTmGrammars } from 'monaco-editor-textmate'
-import * as lightPlusTheme from './lightPlus.json'
 import * as leanSyntax from './syntaxes/lean.json'
 import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
 import * as codeblockSyntax from './syntaxes/codeblock.json'
@@ -10,6 +9,9 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { MonacoServices } from 'monaco-languageclient';
 import { StandaloneServices } from 'vscode/services';
 import getMessageServiceOverride from 'vscode/service-override/messages';
+//@ts-ignore
+import onigasmUrl from 'onigasm/lib/onigasm.wasm?url'
+import * as lightPlusTheme from './css/lightPlus.json'
 
 export function monacoSetup () {
 
@@ -24,7 +26,8 @@ export function monacoSetup () {
   const grammars = new Map()
   grammars.set('lean4', 'source.lean')
 
-  monaco.editor.defineTheme('vs-code-theme-converted', lightPlusTheme as any);
+  // define one hard-coded theme as default
+  monaco.editor.defineTheme('lightPlus', lightPlusTheme as any);
 
   // register Monaco languages
   monaco.languages.register({
@@ -33,9 +36,11 @@ export function monacoSetup () {
   })
 
   let config: any = { ...languageConfig }
-  config.autoClosingPairs = config.autoClosingPairs.map(
+  const translateBrackets = (f) => f.map(
     pair => { return {'open': pair[0], 'close': pair[1]} }
   )
+  config.autoClosingPairs = translateBrackets(config.autoClosingPairs)
+  config.surroundingPairs = translateBrackets(config.surroundingPairs)
   monaco.languages.setLanguageConfiguration('lean4', config);
 
   const registry = new Registry({
@@ -62,7 +67,7 @@ export function monacoSetup () {
   // Load onigasm
   (async () => {
     try {
-      await loadWASM('./onigasm.wasm')
+      await loadWASM(onigasmUrl)
     } catch (err) {
       // Hot module replacement can cause us to run this code twice and that's ok.
       if (!(err as Error).message?.startsWith('Onigasm#init has been called')) {

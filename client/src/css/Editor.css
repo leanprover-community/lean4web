@@ -1,3 +1,9 @@
+.editor-wrapper {
+  flex: 1;
+  min-height: 0;
+  padding-top: .5rem;
+}
+
 .editor {
   display: flex;
   height: 100%;
@@ -41,8 +47,8 @@
 .processing {
   background: linear-gradient(
     to right,
-    rgba(255, 165, 0, 1) 0%,
-    rgba(255, 165, 0, 1) 30%,
+    var(--vscode-editorOverviewRuler-warningForeground) 0%,
+    var(--vscode-editorOverviewRuler-warningForeground) 30%,
     transparent 30%,
     transparent  100%
   );
@@ -50,12 +56,15 @@
 
 /* Styling in the left margin of the editor on error */
 .monaco-editor .glyph-margin-error {
-  background: linear-gradient( to right, rgba(255, 0, 0, 1) 0%, rgba(255, 0, 0, 1) 30%, transparent 30%, transparent 100% )
+  background: linear-gradient( to right,
+  var(--vscode-editorOverviewRuler-warningForeground) 0%,
+  var(--vscode-editorOverviewRuler-warningForeground) 30%,
+    transparent 30%, transparent 100% )
 }
 
 code {
   font-family: 'Source Code Pro', 'STIX Two Math', monospace;
-  color: rgba(0, 32, 90, 0.87);
+  color: var(--vscode-textPreformat-foreground);
 }
 
 
@@ -79,7 +88,7 @@ code {
 .notification-toast {
   margin: .5em;
   background: var(--vscode-notifications-background);
-  box-shadow: rgb(0 0 0 / 16%) 0 0 .5em .1em;
+  box-shadow: var(--vscode-widget-shadow) 0 0 .5em .1em;
   width: 60ch;
   display: flex;
   flex-direction: column;

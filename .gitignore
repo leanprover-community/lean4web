@@ -2,3 +2,6 @@ node_modules
 client/dist
 server/build
 client/public/package_versions.json
+dist
+**/.DS_Store
+**/.lake

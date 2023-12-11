@@ -1,23 +1,13 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
 
-import { join } from 'path'
 import {
-  commands, Disposable, DocumentSelector,
-  ExtensionContext, languages,
-  Selection, TextEditor, TextEditorRevealType,
-  Uri, ViewColumn, WebviewPanel, window, workspace, env, Position, WorkspaceEdit
+  Disposable, Uri, window, workspace, Position
 } from 'vscode'
 import {
   EditorApi, InfoviewApi, LeanFileProgressParams, TextInsertKind,
   RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode
 } from '@leanprover/infoview-api'
 import { LeanClient } from './leanclient'
-// import {
-//   getEditorLineHeight, getInfoViewAllErrorsOnLine, getInfoViewAutoOpen, getInfoViewAutoOpenShowGoal,
-//   getInfoViewStyle, minIfProd, prodOrDev
-// } from './config'
-// import { Rpc } from './rpc'
-// import { LeanClientProvider } from './utils/clientProvider'
 import * as ls from 'vscode-languageserver-protocol'
 import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils/converters'
 // import { logger } from './utils/logger'
@@ -61,8 +51,6 @@ export class InfoProvider implements Disposable {
   private readonly subscriptions: Disposable[] = []
   private readonly clientSubscriptions: Disposable[] = []
 
-  private readonly stylesheet: string = ''
-  private readonly autoOpened: boolean = false
   public readonly client?: LeanClient
   // private readonly clientProvider: LeanClientProvider
 
@@ -71,9 +59,6 @@ export class InfoProvider implements Disposable {
   private readonly clientNotifSubscriptions: Map<string, [number, Disposable[]]> = new Map()
 
   private rpcSessions: Map<string, RpcSessionAtPos> = new Map()
-
-  // the key is the LeanClient.getWorkspaceFolder()
-  private readonly clientsFailed: Map<string, any> = new Map()
 
   // the key is the uri of the file who's worker has failed.
   private readonly workersFailed: Map<string, any> = new Map()
@@ -211,8 +196,7 @@ export class InfoProvider implements Disposable {
       }
     },
     copyToClipboard: async (text) => {
-      await window.clipboard.writeText(text)
-      await window.showInformationMessage(`Copied to clipboard: ${text}`)
+      navigator.clipboard.writeText(text)
     },
     insertText: async (text, kind, tdpp) => {
       let uri: Uri | undefined
@@ -256,48 +240,22 @@ export class InfoProvider implements Disposable {
     }
   }
 
-  constructor (private readonly myclient: LeanClient | undefined/*, private readonly leanDocs: DocumentSelector, private readonly context: ExtensionContext */) {
+  constructor (private readonly myclient: LeanClient | undefined) {
     // this.clientProvider = provider
     this.client = myclient
-    this.updateStylesheet()
 
     this.onClientAdded(this.client!)
-
-    // provider.clientAdded((client) => {
-    //   void this.onClientAdded(client)
-    // })
-
-    // provider.clientRemoved((client) => {
-    //   void this.onClientRemoved(client)
-    // })
-
-    // provider.clientStopped(([client, activeClient, reason]) => {
-    //   void this.onActiveClientStopped(client, activeClient, reason)
-    // })
 
     this.subscriptions.push(
       window.onDidChangeActiveTextEditor(async () => await this.sendPosition()),
       window.onDidChangeTextEditorSelection(async () => await this.sendPosition()),
       workspace.onDidChangeConfiguration(async (_e) => {
         // regression; changing the style needs a reload. :/
-        this.updateStylesheet()
         await this.sendConfig()
       }),
       workspace.onDidChangeTextDocument(async () => {
         await this.sendPosition()
       })
-      // commands.registerTextEditorCommand('lean4.displayGoal', async (editor) => await this.openPreview(editor, this.infoviewApi!)),
-      // commands.registerTextEditorCommand('lean4.toggleInfoview', async (editor) => await this.toggleInfoview(editor)),
-      // commands.registerTextEditorCommand('lean4.displayList', async (editor) => {
-      //   await this.openPreview(editor, this.infoviewApi!)
-      //   await this.infoviewApi?.requestedAction({ kind: 'toggleAllMessages' })
-      // }),
-      // commands.registerTextEditorCommand('lean4.infoView.copyToComment',
-      //   () => this.infoviewApi?.requestedAction({ kind: 'copyToComment' })),
-      // commands.registerCommand('lean4.infoView.toggleUpdating', () =>
-      //   this.infoviewApi?.requestedAction({ kind: 'togglePaused' })),
-      // commands.registerTextEditorCommand('lean4.infoView.toggleStickyPosition',
-      //   () => this.infoviewApi?.requestedAction({ kind: 'togglePin' }))
     )
   }
 
@@ -320,21 +278,11 @@ export class InfoProvider implements Disposable {
       }
     }
 
-    // await this.infoviewApi?.serverStopped('client restarted') // clear any server stopped state
-    const folder = client.getWorkspaceFolder()
-    for (const uri of this.workersFailed.keys()) {
-      if (uri.startsWith(folder)) {
-        this.workersFailed.delete(uri)
-      }
-    }
-    if (this.clientsFailed.has(folder)) {
-      this.clientsFailed.delete(folder)
-    }
     await this.initInfoView(this.editor, client)
   }
 
   private async onClientAdded (client: LeanClient) {
-    console.log(`[InfoProvider] Adding client for workspace: ${client.getWorkspaceFolder()}`)
+    console.log(`[InfoProvider] Adding client`)
 
     this.clientSubscriptions.push(
       client.restarted(async () => {
@@ -391,18 +339,9 @@ export class InfoProvider implements Disposable {
       await this.infoviewApi?.serverStopped(reason)
     }
 
-    console.log(`[InfoProvider] client stopped: ${client.getWorkspaceFolder()}`)
+    console.log(`[InfoProvider] client stopped`)
 
-    // remember this client is in a stopped state
-    const key = client.getWorkspaceFolder()
-    if (key) {
-      await this.sendPosition()
-      if (!this.clientsFailed.has(key)) {
-        this.clientsFailed.set(key, reason)
-      }
-      console.log(`[InfoProvider] client stopped: ${key}`)
-      await client.showRestartMessage()
-    }
+    await client.showRestartMessage()
   }
 
   dispose (): void {
@@ -443,33 +382,6 @@ export class InfoProvider implements Disposable {
     }
   }
 
-  private updateStylesheet () {
-    // // Here we add extra CSS variables which depend on the editor configuration,
-    // // but are not exposed by default.
-    // // Ref: https://code.visualstudio.com/api/extension-guides/webview#theming-webview-content
-
-    // const extraCSS = `
-    //         html {
-    //             --vscode-editor-line-height: ${getEditorLineHeight()}px;
-    //         }
-    //     `
-    // const configCSS = getInfoViewStyle()
-    // this.stylesheet = extraCSS + configCSS
-  }
-
-  private async autoOpen (): Promise<boolean> {
-    // if ((this.webviewPanel == null) && !this.autoOpened && getInfoViewAutoOpen() && (window.activeTextEditor != null)) {
-    //   // only auto-open for lean files, not for markdown.
-    //   if (languages.match(this.leanDocs, window.activeTextEditor.document)) {
-    //     // remember we've auto opened during this session so if user closes it it remains closed.
-    //     this.autoOpened = true
-    //     await this.openPreview(window.activeTextEditor)
-    //     return true
-    //   }
-    // }
-    return false
-  }
-
   private clearNotificationHandlers () {
     for (const [, [, subscriptions]] of this.clientNotifSubscriptions) { for (const h of subscriptions) h.dispose() }
     this.clientNotifSubscriptions.clear()
@@ -489,15 +401,6 @@ export class InfoProvider implements Disposable {
     this.rpcSessions = remaining
   }
 
-  private async toggleInfoview (editor: TextEditor) {
-    // if (this.webviewPanel != null) {
-    //   this.webviewPanel.dispose()
-    //   // the onDispose handler sets this.webviewPanel = undefined
-    // } else {
-    //   return await this.openPreview(editor)
-    // }
-  }
-
   getApi () {
     return this.editorApi
   }
@@ -505,55 +408,7 @@ export class InfoProvider implements Disposable {
   async openPreview (editor: monaco.editor.IStandaloneCodeEditor, infoviewApi: InfoviewApi) {
     this.infoviewApi = infoviewApi
     this.editor = editor
-    // let column = editor && editor.viewColumn ? editor.viewColumn + 1 : ViewColumn.Two
-    // if (column === 4) { column = ViewColumn.Three }
-    // if (this.webviewPanel != null) {
-    //   this.webviewPanel.reveal(column, true)
-    // } else {
-    //   const webviewPanel = window.createWebviewPanel('lean4', 'Lean Infoview',
-    //     { viewColumn: column, preserveFocus: true },
-    //     {
-    //       enableFindWidget: true,
-    //       retainContextWhenHidden: true,
-    //       enableScripts: true,
-    //       enableCommandUris: true
-    //     }) as WebviewPanel & { rpc: Rpc, api: InfoviewApi }
-
-    // Note that an extension can send data to its webviews using webview.postMessage().
-    // This method sends any JSON serializable data to the webview. The message is received
-    // inside the webview through the standard message event.
-    // The receiving of these messages is done inside webview\index.ts where it
-    // calls window.addEventListener('message',...
-    // webviewPanel.rpc = new Rpc(m => {
-    //   try {
-    //     void webviewPanel.webview.postMessage(m)
-    //   } catch (e) {
-    //     // ignore any disposed object exceptions
-    //   }
-    // })
-    // webviewPanel.rpc.register(this.editorApi)
-
-    // // Similarly, we can received data from the webview by listening to onDidReceiveMessage.
-    // webviewPanel.webview.onDidReceiveMessage(m => {
-    //   try {
-    //     webviewPanel.rpc.messageReceived(m)
-    //   } catch {
-    //     // ignore any disposed object exceptions
-    //   }
-    // })
-    // webviewPanel.api = webviewPanel.rpc.getApi()
-    // webviewPanel.onDidDispose(() => {
-    //   this.webviewPanel = undefined
-    //   this.clearNotificationHandlers()
-    //   this.clearRpcSessions(null) // should be after `webviewPanel = undefined`
-    // })
-    // this.webviewPanel = webviewPanel
-    // webviewPanel.webview.html = this.initialHtml()
-
-    // const uri = editor.document?.uri?.toString()
-    // const client = this.clientProvider.findClient(uri)
     await this.initInfoView(editor, this.client!)
-    // }
   }
 
   private async initInfoView (editor: monaco.editor.IStandaloneCodeEditor | undefined, client: LeanClient | null) {
@@ -610,10 +465,7 @@ export class InfoProvider implements Disposable {
   }
 
   private onLanguageChanged () {
-    this.autoOpen().then(async () => {
-      await this.sendPosition()
-      await this.sendConfig()
-    }).catch(() => {})
+    this.sendPosition().then(() => this.sendConfig())
   }
 
   private getLocation (editor: monaco.editor.IStandaloneCodeEditor): ls.Location | undefined {
@@ -630,32 +482,19 @@ export class InfoProvider implements Disposable {
     const editor = this.editor
     if (editor == null) return
     const loc = this.getLocation(editor)
-    // if (languages.match(this.leanDocs, editor.document) === 0) {
-    //   // language is not yet 'lean4', but the LeanClient will fire the didSetLanguage event
-    //   // in openLean4Document and that's when we can send the position to update the
-    //   // InfoView for the newly opened document.
-    //   return
-    // }
-    // actual editor
-    if (this.clientsFailed.size > 0 || this.workersFailed.size > 0) {
-      const client = this.client // this.clientProvider.findClient(editor.document.uri.toString())
-      if (client != null) {
-        const uri = window.activeTextEditor?.document.uri.toString() ?? ''
-        const folder = client.getWorkspaceFolder()
-        let reason: any | undefined
-        if (this.clientsFailed.has(folder)) {
-          reason = this.clientsFailed.get(folder)
-        } else if (this.workersFailed.has(uri)) {
-          reason = this.workersFailed.get(uri)
-        }
-        if (reason) {
-          // send stopped event
-          await this.infoviewApi?.serverStopped(reason)
-        } else {
-          await this.updateStatus(loc)
-        }
+    if (!this.client.running){
+      await this.infoviewApi?.serverStopped(undefined)
+    } else if (this.workersFailed.size > 0) {
+      const uri = window.activeTextEditor?.document.uri.toString() ?? ''
+      let reason: any | undefined
+      if (this.workersFailed.has(uri)) {
+        reason = this.workersFailed.get(uri)
+      }
+      if (reason) {
+        // send stopped event
+        await this.infoviewApi?.serverStopped(reason)
       } else {
-        console.log('[InfoProvider] ### what does it mean to have sendPosition but no LeanClient for this document???')
+        await this.updateStatus(loc)
       }
     } else {
       await this.updateStatus(loc)
@@ -663,8 +502,6 @@ export class InfoProvider implements Disposable {
   }
 
   private async updateStatus (loc: ls.Location | undefined): Promise<void> {
-    // await this.infoviewApi?.serverStopped('update status') // clear any server stopped state
-    await this.autoOpen()
     await this.infoviewApi?.changedCursorLocation(loc)
   }
 
@@ -710,13 +547,5 @@ export class InfoProvider implements Disposable {
       }
     }
     this.editor.focus()
-  }
-
-  private getLocalPath (path: string): string | undefined {
-    // if (this.webviewPanel != null) {
-    //   return this.webviewPanel.webview.asWebviewUri(
-    //     Uri.file(join(this.context.extensionPath, path))).toString()
-    // }
-    return undefined
   }
 }

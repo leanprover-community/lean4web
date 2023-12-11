@@ -4,7 +4,10 @@ import { config } from './config/config';
 import * as React from 'react'
 import { useEffect } from 'react'
 import Switch from '@mui/material/Switch';
+import Select from '@mui/material/Select';
 import { useWindowDimensions } from './window_width';
+import { Button, FormControl, InputLabel, MenuItem } from '@mui/material';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 const Settings: React.FC<{closeNav, theme, setTheme}> =
     ({closeNav, theme, setTheme}) => {
@@ -20,6 +23,7 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
     If screen width is below 800, default to vertical layout instead. */
   const {width, height} = useWindowDimensions()
   const [verticalLayout, setVerticalLayout] = React.useState(width < 800)
+  const [customTheme, setCustomTheme] = React.useState<string>('initial')
 
   // Synchronize state with initial local store
   useEffect(() => {
@@ -27,6 +31,7 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
     let _verticalLayout = window.localStorage.getItem("verticalLayout")
     let _theme = window.localStorage.getItem("theme")
     let _savingAllowed = window.localStorage.getItem("savingAllowed")
+    let _customTheme = window.localStorage.getItem("customTheme")
     if (_abbreviationCharacter) {
       setAbbreviationCharacter(_abbreviationCharacter)
       setSavingAllowed(true)
@@ -39,7 +44,18 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
       setTheme(_theme)
       setSavingAllowed(true)
     }
-
+    if (_customTheme) {
+      setCustomTheme(_customTheme)
+      setSavingAllowed(true)
+      try {
+        var loadedTheme = JSON.parse(_customTheme)
+        monaco.editor.defineTheme('custom', loadedTheme)
+      } catch (error) {
+        // invalid custom theme
+        setCustomTheme('')
+        if (_theme == 'custom') {setTheme('lightPlus')}
+      }
+    }
   }, [])
 
   /** Synchronize config and local store whenever there is a change to any of the config
@@ -53,10 +69,12 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
       window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
       window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')
       window.localStorage.setItem("theme", theme)
+      window.localStorage.setItem("customTheme", customTheme)
     } else {
       window.localStorage.removeItem("abbreviationCharacter")
       window.localStorage.removeItem("verticalLayout")
       window.localStorage.removeItem("theme")
+      window.localStorage.removeItem("customTheme")
     }
   }, [savingAllowed, abbreviationCharacter, verticalLayout, theme])
 
@@ -73,49 +91,80 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
   //  ev.stopPropagation()
   }
 
-  const handleThemeChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    if (theme == 'dark') {
-      setTheme('light')
-    } else {
-      setTheme('dark')
+  /** Load a custom monaco theme, store it in local storage and activate it */
+  function uploadTheme(ev) {
+    const fileToLoad = ev.target.files[0]
+    var fileReader = new FileReader()
+    fileReader.onload = (fileLoadedEvent) => {
+      var loadedThemeRaw = fileLoadedEvent.target.result as string
+      window.localStorage.setItem("customTheme", loadedThemeRaw)
+      try {
+        var loadedTheme = JSON.parse(loadedThemeRaw)
+      } catch (error) {
+        return
+      }
+      setTheme('custom')
+      setCustomTheme(loadedThemeRaw)
+      monaco.editor.defineTheme('custom', loadedTheme)
+      monaco.editor.setTheme('custom')
     }
+    fileReader.readAsText(fileToLoad, "UTF-8")
   }
 
-  return (
-    <span>
-      <span className="nav-link" onClick={handleOpen}>
-        <FontAwesomeIcon icon={faGear} /> Settings
-      </span>
-      {open?
-        <div className="modal-wrapper">
-          <div className="modal-backdrop" onClick={handleClose} />
-          <div className="modal">
-            <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
-            <h2>Settings</h2>
-            <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
-              <p>
-                <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
-                <input id="abbreviationCharacter" type="text"
-                  onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
-              </p>
-              <p>
-                <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
-                <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
-              </p>
-              <p>
-                <Switch id="theme" onChange={handleThemeChange} checked={theme == 'dark'} />
-                <label htmlFor="theme">Dark theme</label>
-              </p>
-              <p>
-                <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
-                <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
-                <input type="submit" value="OK" />
-              </p>
-            </form>
-          </div>
-        </div> : null}
+  return <>
+    <span className="nav-link" onClick={handleOpen}>
+      <FontAwesomeIcon icon={faGear} /> Settings
     </span>
-  )
+    {open?
+      <div className="modal-wrapper">
+        <div className="modal-backdrop" onClick={handleClose} />
+        <div className="modal">
+          <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
+          <h2>Settings</h2>
+          <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
+            <p>
+              <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
+              <input id="abbreviationCharacter" type="text"
+                onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
+            </p>
+            <p className="flex">
+              <label htmlFor="theme">Theme: </label>
+              <select
+                  id="theme"
+                  name="theme"
+                  value={theme}
+                  onChange={(ev) => {setTheme(ev.target.value)}} >
+                <option value="lightPlus">light+</option>
+                <option value="GithubDark">github dark</option>
+                <option value="Amy">amy</option>
+                <option value="Cobalt">cobalt</option>
+                <option value="custom">custom</option>
+              </select>
+
+              <label htmlFor="theme-upload" className="file-upload-button" >Load from Disk</label>
+              <input id="theme-upload" type="file" onChange={uploadTheme} />
+
+              {/* <Button variant="contained" component="label" className='file-upload-button' onClick={uploadTheme}>
+                Load from Disk
+                <input id="theme-upload" type="file" onChange={uploadTheme} />
+              </Button> */}
+            </p>
+            <p>
+              <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
+              <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
+            </p>
+            <p>
+              <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
+              <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
+            </p>
+            <p>
+              <input type="submit" value="OK" />
+            </p>
+          </form>
+        </div>
+      </div> : null
+    }
+  </>
 }
 
 export default Settings

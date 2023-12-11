@@ -7,5 +7,6 @@ export const config = {
   'inputModeCustomTranslations': {},
   'eagerReplacementEnabled': true,
   'verticalLayout': false, // value here irrelevant, will be overwritten with `width < 800` in Settings.tsx
-  'theme': 'light', // options: light, dark
+  'theme': 'lightPlus',
+  'customTheme': '',
 }

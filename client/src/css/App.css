@@ -1,14 +1,16 @@
 
-/* hack to prevent white flashing on loading in dark mode. */
+
+/* hack to prevent white flashing on loading in dark mode.
+TODO: doesnt work for me. */
 @media (prefers-color-scheme: dark) {
   .app {
-    background-color: #2B2B2B;
+    /* note: vscode theme not loaded yet, don't use `--vscode-XXX` variables */
+    background-color: #2B2B2B; /* TODO */
   }
 }
 
-/* hack to prevent white flashing on loading in dark mode. */
-.app.light-theme {
-  background-color: #fff;
+.app {
+  background-color: var(--vscode-background);
 }
 
 .app {
@@ -17,190 +19,13 @@
   height: 100%;
 }
 
-.editor-wrapper {
-  flex: 1;
-  min-height: 0;
-  padding-top: .5rem;
-}
-
-.nav {
-  box-shadow: 0 .3rem .3rem 0 rgba(0, 0, 0, 0.1);
-  background-color: var(--vscode-breadcrumb-background);
-  color: var(--vscode-breadcrumb-foreground);
-  z-index: 1;
-  position: relative;
-}
-
-
-/* The Lean logo */
-.nav .logo {
-  height: 2.2rem;
-  vertical-align: middle;
-  margin-left: .5rem;
-  margin-right: 1rem;
-}
-
-/* `nav-icon` is the menu item to toggle the dropdown */
-.nav-icon {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  padding: .5rem;
-  height: 100%;
-  float: right;
-  padding-right: 1rem;
-}
-
-/* Wrapper for the menu items */
-.nav .menu {
-  background: none;
-  border: none;
-  display: inline-block;
-}
-
-/* Wrapper if menu is dropdown */
-.nav .menu.dropdown {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  right: 0;
-  top: 2.2rem;
-  background-color: #fff;
-  z-index: 1;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: -.1rem .3rem .3rem 0 rgba(0, 0, 0, 0.1);
-}
-
-
-/* The menu items */
-.nav .nav-link {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  padding: .5rem;
-  display: inline-block;
-}
-
-/* menu items for dropdown */
-.nav .dropdown .nav-link {
-  width: 100%;
-  padding-left: .8rem;
-  padding-right: .8rem;
-  padding-top: .6rem;
-  padding-bottom: .6rem;
-}
-
-.nav .nav-link:hover, .nav-icon:hover {
-  color: var(--vscode-breadcrumb-focusForeground);
-}
-
-.nav .dropdown .nav-link:hover {
-  background-color: #f9f9f9;
-}
-
-input[type="file"] {
-  display: none;
-}
-
-.modal-wrapper {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 0;
-}
-
-.modal-backdrop {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0, 0, 0, 0.25);
-  z-index: 2;
-}
-
-.modal h2 {
-  text-align: center;
-}
-
-.modal {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 50%;
-  max-width: 60ch;
-  background: #fff;
-  z-index: 3;
-  padding: 2rem;
-  border-radius: 1rem;
-  text-align: left;
-  color: var(--vscode-breadcrumb-foreground);
-}
-
-@media only screen and (max-width: 800px) {
-  .modal {
-    min-width: 90%;
-  }
-
-}
-
-
-.modal input[type="text"] {
-  width: 100%;
-}
-
-.modal .form-error {
-  color: #a00;
-  font-weight: bold;
-}
-
-.modal input[type="submit"] {
-  border: none;
-  color: var(--vscode-button-foreground);
-  background: var(--vscode-button-background);
-  cursor: pointer;
-  padding: .5rem 1rem;
-  border-radius: .2rem;
-  display: block;
-  margin: 1rem auto;
-}
-
-.modal-close {
-  float: right;
-  scale: 2;
-  color: var(--vscode-breadcrumb-foreground);
-  cursor: pointer;
-}
-
-.modal-close:hover {
-  float: right;
-  scale: 2;
-  color: var(--vscode-breadcrumb-focusForeground);
-}
-
-.modal table {
-  width: 100%;
-}
-
-a {
-  text-decoration: none;
-  color: var(--vscode-textLink-foreground);
-}
-
 .loading-ring {
   margin: auto;
   display: inline-block;
   width: 80px;
   height: 80px;
 }
+
 .loading-ring:after {
   content: " ";
   display: block;
@@ -208,10 +33,12 @@ a {
   height: 64px;
   margin: 8px;
   border-radius: 50%;
+  /* note: vscode theme not loaded yet, don't use `--vscode-XXX` variables */
   border: 6px solid #aaa;
   border-color: #aaa transparent #aaa transparent;
   animation: loading-ring 1.2s linear infinite;
 }
+
 @keyframes loading-ring {
   0% {
     transform: rotate(0deg);
@@ -219,26 +46,6 @@ a {
   100% {
     transform: rotate(360deg);
   }
-}
-
-.dropdown-menu {
-  position: absolute;
-  width: 12rem;
-  top: 150%;
-  left: 0%;
-  /* margin-left: -60px; */
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  z-index: 1;
-}
-
-.dropdown .dropdown-menu {
-  transform: translateX(-100%);
-}
-
-.dropdown-menu .nav-link {
-  display: block;
 }
 
 .hidden {
