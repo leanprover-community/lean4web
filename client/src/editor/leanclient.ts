@@ -75,7 +75,8 @@ export class LeanClient implements Disposable {
 
   constructor (
     private readonly connectionProvider: IConnectionProvider,
-    public readonly showRestartMessage: () => void) {
+    public readonly showRestartMessage: () => void,
+    private readonly initializationOptions = {}) {
 
   }
 
@@ -106,8 +107,11 @@ export class LeanClient implements Disposable {
     const clientOptions: LanguageClientOptions = {
       // use a language id as a document selector
       documentSelector: ['lean4'],
+      workspaceFolder: {uri: "hello"},
       initializationOptions: {
-        editDelay: getElaborationDelay(), hasWidgets: true
+        editDelay: getElaborationDelay(),
+        hasWidgets: true,
+        ...this.initializationOptions
       },
       connectionOptions: {
         maxRestartCount: 0,
