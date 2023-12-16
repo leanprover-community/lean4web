@@ -1,9 +1,9 @@
 #/bin/bash
 
-ELAN_HOME=$(cd LeanProject && lake env printenv ELAN_HOME)
+ELAN_HOME=$(cd Webeditor && lake env printenv ELAN_HOME)
 
 (exec bwrap\
-  --bind ./LeanProject /LeanProject \
+  --bind $1 /project \
   --bind $ELAN_HOME /elan \
   --bind /usr /usr \
   --dev /dev \
@@ -21,6 +21,6 @@ ELAN_HOME=$(cd LeanProject && lake env printenv ELAN_HOME)
   --unshare-uts  \
   --unshare-cgroup \
   --die-with-parent \
-  --chdir "/LeanProject/" \
+  --chdir "/project/" \
   lean --server
 )

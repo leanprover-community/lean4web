@@ -16,10 +16,23 @@ import Examples from './Examples'
 import LoadingMenu from './LoadingMenu'
 import { config } from './config/config'
 
+function formatArgs(args) {
+  let out = '#' + Object.entries(args).map(([key, val]) => (val ? `${key}=${val}` : null)).filter((x) => x).join('&')
+  if (out == '#') {
+    return ' '
+  }
+  return out
+}
+
+function parseArgs() {
+  let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
+  console.log('parsed args')
+  console.log(Object.fromEntries(_args))
+  return Object.fromEntries(_args)
+}
 
 const App: React.FC = () => {
-  const [restart, setRestart] = useState()
-
+  const [restart, setRestart] = useState<(project?) => Promise<void>>()
   const [navOpen, setNavOpen] = useState(false)
   const menuRef = React.useRef<HTMLDivElement>()
   const submenuRef = React.useRef<HTMLDivElement>()
@@ -37,10 +50,54 @@ const App: React.FC = () => {
     setNavOpen(false)
   }
 
-  // Closing the dropdown menu or submenu when clicking outside it.
-  // Use `ev.stopPropagation()` or `ev.stopImmediatePropagation()` inside
-  // the menu to prevent.
+  /* Option to change themes */
+  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
+
+  const [content, setContent] = useState<string>('')
+  const [url, setUrl] = useState<string>(null)
+  const [project, setProject] = useState<string>('MathlibLatest')
+  const [contentFromUrl, setContentFromUrl] = useState<string>(null)
+
+  const readHash = () => {
+    let args = parseArgs()
+    if (args.code) {setContent(decodeURIComponent(args.code))}
+    if (args.url) {setUrl(decodeURIComponent(args.url))}
+    if (args.project) {
+      console.log(`setting project to ${args.project}`)
+      setProject(args.project)
+    }
+  }
+
+  const onDidChangeContent = (newContent) => {
+    setContent(newContent)
+  }
+
+  const save = () => {
+    var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "Lean4WebDownload.lean");
+  }
+
+  const loadFromUrl = (url: string, project=null) => {
+    setUrl((oldUrl) => {
+      if (oldUrl === url) {
+        setContent(contentFromUrl)
+      }
+      return url
+    })
+    if (project) {
+      setProject(project)
+    }
+  }
+
+
   useEffect(() => {
+    // Trigger onhashchange once in the beginning
+    readHash()
+
+    // Closing the dropdown menu or submenu when clicking outside it.
+    // Use `ev.stopPropagation()` or `ev.stopImmediatePropagation()` inside
+    // the menu to prevent.
     document.body.addEventListener("click", (ev) => {
       if (menuRef?.current) {
         if (menuRef.current.contains(ev.target as HTMLElement)) {
@@ -62,36 +119,24 @@ const App: React.FC = () => {
     })
   }, [])
 
-  /* Option to change themes */
-  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
 
-  const [content, setContent] = useState<string>('')
-  const [url, setUrl] = useState<string>(null)
-  const [contentFromUrl, setContentFromUrl] = useState<string>(null)
-
-  const readHash = () => {
-    if (window.location.hash.startsWith('#code=')) {
-      setContent(decodeURIComponent(window.location.hash.substring(6)));
-    }
-    if (window.location.hash.startsWith('#url=')) {
-      setUrl(decodeURIComponent(window.location.hash.substring(5)));
-    }
-  }
-  if ("onhashchange" in window) // does the browser support the hashchange event?
-    window.addEventListener('hashchange', readHash)
-
-  useEffect(() => { readHash(); }, []) // Trigger onhashchange once in the beginning
+  // // if ("onhashchange" in window) // does the browser support the hashchange event?
+  // //   window.addEventListener('hashchange', readHash)
 
   useEffect(() => {
-    if (contentFromUrl === content) {
-      history.replaceState(undefined, undefined, '#url=' + encodeURIComponent(url));
+    //let args = parseArgs()
+    let _project = (project == 'MathlibLatest' ? null : project)
+    if (content === contentFromUrl) {
+      let args = {project: _project, url: encodeURIComponent(url), code: null}
+      history.replaceState(undefined, undefined, formatArgs(args))
     } else if (content === "") {
-      history.replaceState(undefined, undefined, ' ');
+      let args = {project: _project, url: null, code: null}
+      history.replaceState(undefined, undefined, formatArgs(args))
     } else {
-      history.replaceState(undefined, undefined, '#code=' + encodeURIComponent(content));
+      let args = {project: _project, url: null, code: encodeURIComponent(content)}
+      history.replaceState(undefined, undefined, formatArgs(args))
     }
-  }, [content])
+  }, [project, content])
 
   useEffect(() => {
     if (url !== null) {
@@ -110,23 +155,12 @@ const App: React.FC = () => {
     }
   }, [url])
 
-  const onDidChangeContent = (newContent) => {
-    setContent(newContent)
-  }
-
-  const save = () => {
-    var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "Lean4WebDownload.lean");
-  }
-
-  const loadFromUrl = (url: string) => {
-    setUrl((oldUrl) => {
-      if (oldUrl === url) {
-        setContent(contentFromUrl)
-      }
-      return url
-    })
-  }
+  useEffect(() => {
+    if (restart) {
+      console.log(`changing Lean version to ${project}`)
+      restart(project)
+    }
+  }, [project])
 
   return (
     <div className={'app monaco-editor'}>
@@ -148,7 +182,8 @@ const App: React.FC = () => {
               <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
               <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
             </>}
-            <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}/>
+            <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}
+              project={project} setProject={setProject}/>
             <span className="nav-link" onClick={restart}>
               <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
             </span>
@@ -174,7 +209,7 @@ const App: React.FC = () => {
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} theme={theme}/>
+          value={content} onDidChangeContent={onDidChangeContent} theme={theme} project={project}/>
       </Suspense>
     </div>
   )
