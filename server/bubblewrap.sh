@@ -1,6 +1,6 @@
 #/bin/bash
 
-ELAN_HOME=$(cd Webeditor && lake env printenv ELAN_HOME)
+ELAN_HOME=$(cd $1 && lake env printenv ELAN_HOME)
 
 (exec bwrap\
   --bind $1 /project \
