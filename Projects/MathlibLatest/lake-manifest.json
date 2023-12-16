@@ -54,12 +54,6 @@
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",
    "inherited": false,
-   "configFile": "lakefile.lean"},
-  {"type": "path",
-   "name": "webeditor",
-   "manifestFile": "lake-manifest.json",
-   "inherited": false,
-   "dir": "./../Webeditor",
    "configFile": "lakefile.lean"}],
  "name": "mathlibLatest",
  "lakeDir": ".lake"}
