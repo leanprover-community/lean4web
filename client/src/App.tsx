@@ -26,8 +26,6 @@ function formatArgs(args) {
 
 function parseArgs() {
   let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
-  console.log('parsed args')
-  console.log(Object.fromEntries(_args))
   return Object.fromEntries(_args)
 }
 
