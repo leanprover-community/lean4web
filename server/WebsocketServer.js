@@ -107,8 +107,8 @@ class ClientConnection {
       cwd = __dirname;
     } else{
       console.warn("Running without Bubblewrap container!")
-      cmd = "lean";
-      cmdArgs = ["--server"];
+      cmd = "lake";
+      cmdArgs = ["serve", "--"];
       cwd = path
     }
 

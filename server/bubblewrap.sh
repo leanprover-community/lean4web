@@ -22,5 +22,5 @@ ELAN_HOME=$(cd $1 && lake env printenv ELAN_HOME)
   --unshare-cgroup \
   --die-with-parent \
   --chdir "/project/" \
-  lean --server
+  lake serve --
 )
