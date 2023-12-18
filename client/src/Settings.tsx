@@ -133,7 +133,7 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
                     setProject(ev.target.value)
                     console.log(`set Lean project to: ${ev.target.value}`)
                     }} >
-                <option value="plain">No imports</option>
+                <option value="plain">Stable Lean</option>
                 <option value="MathlibLatest">Latest Mathlib</option>
                 <option value="DuperDemo">Latest Duper</option>
               </select>
