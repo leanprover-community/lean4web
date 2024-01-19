@@ -203,7 +203,7 @@ class WebsocketServer {
             return
         }
         //path = urlParts.slice(4, urlParts.length-1).join("/")
-        fileName = urlParts[urlParts.length-1]
+        fileName = urlParts.slice(4, urlParts.length).join("/")
         console.log("...fileName: " + fileName)
       }
       console.log("...url: " + url)
