@@ -135,8 +135,7 @@ class ClientConnection {
         const endLine = end["line"]
         const endChar = end["character"]
         // apply the change to the file
-        this.file.replace(Range(this.get_char_pos(startLine, startChar), this.get_char_pos(endLine, endChar)), text)
-        console.log("...file: " + this.file)
+        this.file = this.file.slice(0, this.get_char_pos(startLine, startChar)) + text + this.file.slice(this.get_char_pos(endLine, endChar), this.file.length)
     }
   }
   }
