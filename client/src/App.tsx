@@ -146,6 +146,7 @@ const App: React.FC = () => {
       .then((content) => {
         setContent(content)
         setContentFromUrl(content)
+        console.log(`loaded from ${url}`)
       })
       .catch( err => {
         setContent(err.toString())

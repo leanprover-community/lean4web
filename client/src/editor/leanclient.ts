@@ -148,6 +148,7 @@ export class LeanClient implements Disposable {
           await next(data)
           if (!this.running || (this.client == null)) return // there was a problem starting lean server.
           const params = c2pConverter.asChangeTextDocumentParams(data)
+          console.log("++++++++++++++++++++++++++didChange", params)
           this.didChangeEmitter.fire(params)
         },
 
@@ -203,7 +204,7 @@ export class LeanClient implements Disposable {
           console.log('[LeanClient] starting')
         } else if (s.newState === State.Running) {
           const end = Date.now()
-          console.log(`[LeanClient] running, started in ${end - startTime} ms`)
+          console.log(`[LeanClient] running, started in ${end - startTime} ms `)
           this.running = true // may have been auto restarted after it failed.
           if (!insideRestart) {
             this.restartedEmitter.fire()

@@ -90,9 +90,26 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
   }, [])
 
   useEffect(() => {
-    const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
-    console.log(`socket url: ${socketUrl}`)
+    // in the url of the page (window.location.href), there might be a value url=
+    // if there is, then we want to append it to the socket url
 
+    let socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
+
+    function parseArgs() {
+      let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
+      return Object.fromEntries(_args)
+    }
+    const url = new URL(window.location.href)
+    const urlParam = parseArgs().url
+    if (urlParam) {
+      console.log(`url param: ${urlParam}`)
+      socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project + "/" + urlParam
+    }
+    else {
+      console.log(`no url param`)
+    }
+
+    console.log(`socket url: ${socketUrl}`)
     const connectionProvider : IConnectionProvider = {
       get: async () => {
         return await new Promise((resolve, reject) => {
@@ -166,6 +183,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       infoProvider.openPreview(editor, infoviewApi)
       const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
+
     setRestart((project?) => restart)
   }, [editor, infoviewApi, infoProvider])
 

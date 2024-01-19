@@ -125,7 +125,9 @@ class WebsocketServer {
     this.socketCounter = 0;
 
     this.wss.on('connection', (ws, req) => {
+      console.log("...url: " + req.url)
       const reRes = urlRegEx.exec(req.url)
+      console.log("...reRes: " + reRes)
       if (!reRes) { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
       const project = reRes[1]
 
