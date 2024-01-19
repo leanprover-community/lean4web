@@ -16,14 +16,18 @@ class ClientConnection {
 
   re = /Content-Length: (\d+)\r\n/i
 
-  constructor (ws, useBubblewrap, project) {
+  constructor (ws, useBubblewrap, project, fileName) {
     this.useBubblewrap = useBubblewrap
+    this.fileName = fileName
+    this.absolutePath = __dirname + `/../Projects/` + project + "/" + fileName
+    this.file = null
+    this.init_file()
 
     this.startProcess(project)
 
     this.ws = ws
     ws.on('message', (msg) => {
-      console.log(`[client] ${msg}`)
+      //console.log(`[client] ${msg}`)
       this.send(JSON.parse(msg.toString('utf8')))
     })
 
@@ -85,7 +89,59 @@ class ClientConnection {
     }
   }
 
+  get_char_pos(line, char){
+    // get the character position in the file
+    const lines = this.file.split("\n")
+    let pos = 0
+    for (let i = 0; i < line; i++) {
+      pos += lines[i].length + 1
+    }
+    pos += char
+    return pos
+  }
+
+  init_file(){
+    // TODO make async
+    const fs = require('fs');
+    const path = this.absolutePath
+    console.log("...path: " + path)
+    console.log("...fileName: " + this.fileName)
+    fs.readFile(path, 'utf8' , (err, data) => {
+      if (err) {
+        console.error(err)
+        return
+      }
+      console.log("...Filedata: " + data)
+      this.file = data
+    })
+  }
+
+  check_update(data){
+    // check if the data updates the file TODO make async
+    // if this is the case, update the file on disk
+    if (data["method"] === "textDocument/didChange"){
+      console.log("...data: ")
+        console.log(data["params"]["contentChanges"])
+      console.log(data["params"]["contentChanges"][0]["range"])
+      // apply the change to the file
+      for (let i = 0; i < data["params"]["contentChanges"].length; i++) {
+        const change = data["params"]["contentChanges"][i]
+        const range = change["range"]
+        const text = change["text"]
+        const start = range["start"]
+        const end = range["end"]
+        const startLine = start["line"]
+        const startChar = start["character"]
+        const endLine = end["line"]
+        const endChar = end["character"]
+        // apply the change to the file
+        this.file.replace(Range(this.get_char_pos(startLine, startChar), this.get_char_pos(endLine, endChar)), text)
+        console.log("...file: " + this.file)
+    }
+  }
+  }
   send (data) {
+    this.check_update(data)
     const str = JSON.stringify(data) + '\r\n'
     const byteLength = Buffer.byteLength(str, 'utf-8')
     if (this.lean === null || this.lean.stdin === null) { throw Error('Lean not running yet.') }
@@ -116,7 +172,7 @@ class ClientConnection {
   }
 }
 
-const urlRegEx = /^\/websocket\/([\w.-]+)$/
+const urlRegEx = /^\/websocket\/([\w.-]+\/)$/
 
 class WebsocketServer {
 
@@ -126,10 +182,31 @@ class WebsocketServer {
 
     this.wss.on('connection', (ws, req) => {
       console.log("...url: " + req.url)
-      const reRes = urlRegEx.exec(req.url)
+      const reRes = req.url.split("/")
       console.log("...reRes: " + reRes)
-      if (!reRes) { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
-      const project = reRes[1]
+      if (!reRes || reRes[1] !== "websocket") { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
+      const project = reRes[2]
+
+      const url = reRes[3] || null
+      //let path = null
+      let fileName = null
+      if (url){
+        let urlParts = url.split("%2F")
+        urlParts = urlParts.slice(2, urlParts.length)
+        const github = "raw.githubusercontent.com"
+        const user = "Bergschaf"
+        const repo = "banach-tarski"
+        const branch = "development"
+
+        if (urlParts[0] !== github || urlParts[1] !== user || urlParts[2] !== repo || urlParts[3] !== branch) {
+            console.error(`Connection refused because of invalid URL: ${req.url}`)
+            return
+        }
+        //path = urlParts.slice(4, urlParts.length-1).join("/")
+        fileName = urlParts[urlParts.length-1]
+        console.log("...fileName: " + fileName)
+      }
+      console.log("...url: " + url)
 
       console.log(`Open with project: ${project}`)
 
@@ -138,7 +215,7 @@ class WebsocketServer {
       console.log(`[${new Date()}] Socket opened - ${ip}`)
       this.logStats()
 
-      new ClientConnection(ws, useBubblewrap, project)
+      new ClientConnection(ws, useBubblewrap, project, fileName)
       ws.on('close', () => {
         console.log(`[${new Date()}] Socket closed - ${ip}`)
         this.socketCounter -= 1;
