@@ -21,8 +21,17 @@ class ClientConnection {
         this.fileName = fileName
         this.absolutePath = __dirname + `/../Projects/` + project + "/" + fileName
         this.file = null
-        this.init_file()
 
+        this.updateCount = 0
+        this.updateThreshold = 10
+
+        if (project === "banach-tarski") {
+            this.init_banach_tarski()
+            console.log("...project initialized: " + project)
+        } else {
+            console.log("...project not banach tarski: " + project)
+        }
+        this.init_file()
         this.startProcess(project)
 
         this.ws = ws
@@ -39,6 +48,7 @@ class ClientConnection {
                     this.lean?.kill()
                 } else {
                     // Simply kill the Lean process
+                    this.commit_banach_tarski(this.fileName)
                     this.lean?.kill()
                 }
             }
@@ -94,6 +104,39 @@ class ClientConnection {
         }
     }
 
+    init_banach_tarski() {
+        // run the init_banch_tarski.sh script
+        const {execSync} = require("child_process");
+        const path = __dirname + `/../Projects`
+        console.log("...path: " + path)
+        try {
+            execSync(`./init_banach_tarski.sh`, {cwd: path, stdio: 'inherit'})
+        }
+        catch (e) {
+            console.log("Error while initializing banach-tarski ", e)
+        }
+    }
+
+    async commit_banach_tarski(filename) {
+        // add the file to the git repository
+        const {execSync} = require("child_process");
+        const path = __dirname + `/../Projects/banach-tarski`
+        await this.write_file_to_disk()
+        // add commit and push the file
+        // wait for each command to finish before executing the next by using await
+        try {
+            await execSync(`git add ${filename}`, {cwd: path, stdio: 'inherit'})
+            console.log("Added file to git repository")
+            await execSync(`git commit -m "Update ${filename}"`, {cwd: path, stdio: 'inherit'})
+            console.log("Committed file to git repository")
+            await execSync(`git push`, {cwd: path, stdio: 'inherit'})
+            console.log("Pushed file to git repository")
+        } catch (e) {
+            console.log("Error while committing to git repository: ",e)
+        }
+
+    }
+
     get_char_pos(line, char) {
         // get the character position in the file
         const lines = this.file.split("\n")
@@ -116,15 +159,26 @@ class ClientConnection {
                 console.error(err)
                 return
             }
-            console.log("...Filedata: " + data)
+            //console.log("...Filedata: " + data)
             this.file = data
         })
+        console.log("Read file")
     }
 
-    check_update(data) {
+    async check_update(data) {
         // check if the data updates the file TODO make async
         // if this is the case, update the file on disk
         if (data["method"] === "textDocument/didChange") {
+            let i = 0
+            while (this.file === null) {
+                // wait until the file is initialized
+                console.log("Waiting for file to be initialized")
+                i += 1
+                if (i >= 100) {
+                    console.error("File could not be initialized")
+                    return
+                }
+            }
             console.log("...data: ")
             console.log(data["params"]["contentChanges"])
             console.log(data["params"]["contentChanges"][0]["range"])
@@ -141,8 +195,28 @@ class ClientConnection {
                 const endChar = end["character"]
                 // apply the change to the file
                 this.file = this.file.slice(0, this.get_char_pos(startLine, startChar)) + text + this.file.slice(this.get_char_pos(endLine, endChar), this.file.length)
+                this.updateCount += 1
+                if (this.updateCount >= this.updateThreshold) {
+                    await this.write_file_to_disk()
+                    this.updateCount = 0
+                }
             }
         }
+    }
+
+    async write_file_to_disk() {
+        // TODO make async
+        const fs = require('fs');
+        const path = this.absolutePath
+        console.log("...path: " + path)
+        console.log("...fileName: " + this.fileName)
+        await fs.writeFileSync(path, this.file, (err) => {
+            if (err) {
+                console.error(err)
+                return
+            }
+        })
+        console.log("Wrote file to disk", this.file)
     }
 
     send(data) {
@@ -202,18 +276,7 @@ class WebsocketServer {
             let fileName = null
             if (url) {
                 let urlParts = url.split("%2F")
-                urlParts = urlParts.slice(2, urlParts.length)
-                const github = "raw.githubusercontent.com"
-                const user = "Bergschaf"
-                const repo = "banach-tarski"
-                const branch = "development"
-
-                if (urlParts[0] !== github || urlParts[1] !== user || urlParts[2] !== repo || urlParts[3] !== branch) {
-                    console.error(`Connection refused because of invalid URL: ${req.url}`)
-                    return
-                }
-                //path = urlParts.slice(4, urlParts.length-1).join("/")
-                fileName = urlParts.slice(4, urlParts.length).join("/")
+                fileName = urlParts.join("/")
                 console.log("...fileName: " + fileName)
             }
             console.log("...url: " + url)

@@ -100,13 +100,13 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       return Object.fromEntries(_args)
     }
     const url = new URL(window.location.href)
-    const urlParam = parseArgs().url
-    if (urlParam) {
-      console.log(`url param: ${urlParam}`)
-      socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project + "/" + urlParam
+    const fileParam = parseArgs().file
+    if (fileParam) {
+      console.log(`fileParam param: ${fileParam}`)
+      socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project + "/" + fileParam
     }
     else {
-      console.log(`no url param`)
+      console.log(`no fileParam param`)
     }
 
     console.log(`socket url: ${socketUrl}`)

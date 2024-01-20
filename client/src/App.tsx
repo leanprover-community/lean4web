@@ -60,8 +60,11 @@ const App: React.FC = () => {
   const readHash = () => {
     let args = parseArgs()
     console.log("-----------------args", args)
-    if (args.code) {setContent(decodeURIComponent(args.code))}
-    if (args.url) {setUrl(decodeURIComponent(args.url))}
+    //if (args.code) {setContent(decodeURIComponent(args.code))}
+    //if (args.url) {setUrl(decodeURIComponent(args.url))}
+    if (args.file) {loadFromFile(decodeURIComponent(args.file))}
+    loadFromUrl(decodeURIComponent(args.url), args.project)
+    console.log("Setting url to",  decodeURIComponent(args.url))
     if (args.project) {
       console.log(`setting project to ${args.project}`)
       setProject(args.project)
@@ -78,15 +81,49 @@ const App: React.FC = () => {
   }
 
   const loadFromUrl = (url: string, project=null) => {
-    setUrl((oldUrl) => {
-      if (oldUrl === url) {
-        setContent(contentFromUrl)
-      }
-      return url
-    })
+    //setUrl((oldUrl) => {
+      //if (oldUrl === url) {
+      //  setContent(contentFromUrl)
+      //}
+      //return url
+    //})
+    //console.log("Loading from url", url)
+    //setUrl(url)
+    //load_content_from_url(url)
     if (project) {
       setProject(project)
     }
+  }
+
+  const loadFromFile = (fileName : string) => {
+    // file in public folder
+    if (fileName != null) {
+      fetch(window.location.origin + "/project/" + fileName)
+          .then((response) => response.text())
+          .then((content) => {
+            setContent(content)
+            setContentFromUrl(content)
+            console.log(`loaded file fr from ${fileName}`, content)
+          })
+          .catch(err => {
+            setContent(err.toString())
+            setContentFromUrl(err.toString())
+          })
+    }
+  }
+
+  const load_content_from_url = (url: string) => {
+    fetch(url)
+      .then((response) => response.text())
+      .then((content) => {
+        setContent(content)
+        setContentFromUrl(content)
+        console.log(`loaded fr from ${url}`, content)
+      })
+      .catch( err => {
+        setContent(err.toString())
+        setContentFromUrl(err.toString())
+      })
   }
 
 
@@ -123,21 +160,24 @@ const App: React.FC = () => {
   // //   window.addEventListener('hashchange', readHash)
 
   useEffect(() => {
-    //let args = parseArgs()
+    /*/let args = parseArgs()
     let _project = (project == 'MathlibLatest' ? null : project)
+    console.log("weird use effect: url: ", url, encodeURIComponent(url))
     if (content === contentFromUrl) {
       let args = {project: _project, url: encodeURIComponent(url), code: null}
       history.replaceState(undefined, undefined, formatArgs(args))
     } else if (content === "") {
-      let args = {project: _project, url: null, code: null}
+      let args = {project: _project, url: encodeURIComponent(url), code: null}
       history.replaceState(undefined, undefined, formatArgs(args))
     } else {
-      let args = {project: _project, url: null, code: encodeURIComponent(content)}
+      let args = {project: _project, url: encodeURIComponent(url), code: encodeURIComponent(content)}
       history.replaceState(undefined, undefined, formatArgs(args))
-    }
+    }*/
   }, [project, content])
 
   useEffect(() => {
+    console.log(`url changed to ${url}`)
+    /*
     if (url !== null) {
       setContent("Loading...")
       setContentFromUrl("Loading...")
@@ -152,7 +192,7 @@ const App: React.FC = () => {
         setContent(err.toString())
         setContentFromUrl(err.toString())
       })
-    }
+    }*/
   }, [url])
 
   useEffect(() => {
