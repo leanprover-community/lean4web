@@ -8,5 +8,5 @@ cd banach-tarski || exit
 git checkout development
 git pull
 # initialize the lean project
-lake update mathlib
+lake update -R
 lake build
