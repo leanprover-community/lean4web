@@ -278,6 +278,19 @@ class WebsocketServer {
                 let urlParts = url.split("%2F")
                 fileName = urlParts.join("/")
                 console.log("...fileName: " + fileName)
+                // check if the file exists
+                const fs = require('fs');
+                const path = __dirname + `/../Projects/` + project + "/" + fileName
+                fs.access(path, fs.F_OK, (err) => {
+                    if (err) {
+                        console.error(err)
+                        return
+                    }
+                    console.log("File exists")
+                })
+            }
+            else{
+                throw Error("No file name provided")
             }
             console.log("...url: " + url)
 

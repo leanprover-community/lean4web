@@ -177,6 +177,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log(`url changed to ${url}`)
+    readHash()
     /*
     if (url !== null) {
       setContent("Loading...")
@@ -209,8 +210,7 @@ const App: React.FC = () => {
         <div className='menu' ref={menuRef}>
           {!config.verticalLayout && <>
             {/* Buttons for desktop version */}
-            <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-            <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
+            <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav} setUrl={setUrl}/>
           </>
           }
           <span className={"nav-link nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
@@ -220,7 +220,7 @@ const App: React.FC = () => {
             {config.verticalLayout && <>
               {/* Buttons for mobile version */}
               <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-              <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
+              <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav} setUrl={setUrl}/>
             </>}
             <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}
               project={project} setProject={setProject}/>
