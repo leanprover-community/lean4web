@@ -21,8 +21,8 @@ import { monacoSetup } from './monacoSetup'
 
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string, project: string}> =
-    ({setRestart, onDidChangeContent, value, theme, project}) => {
+const Editor: React.FC<{setRestart?, onDidChangeContent?, setContent?, value: string, theme: string, project: string}> =
+    ({setRestart, onDidChangeContent, setContent, value, theme, project}) => {
   const uri = monaco.Uri.parse(`file:///project/${project}.lean`)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
@@ -107,6 +107,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
     }
     else {
       console.log(`no fileParam param`)
+      setContent("Select a file")
       return
     }
 

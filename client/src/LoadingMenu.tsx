@@ -8,13 +8,11 @@ import {TreeItem} from '@mui/x-tree-view/TreeItem';
 import {useEffect} from 'react';
 import {LoadUrl, LoadZulipMessage} from './LoadUrl';
 
-const LoadingMenu: ({loadFromUrl, setContent, openSubmenu, closeNav, setUrl}: {
-    loadFromUrl: any;
-    setContent: any;
+const LoadingMenu: ({setContent, openSubmenu, closeNav, setUrl}: {
     openSubmenu: any;
     closeNav: any;
     setUrl: any;
-}) => void = ({loadFromUrl, setContent, openSubmenu, closeNav, setUrl}) => {
+}) => void = ({openSubmenu, closeNav, setUrl}) => {
     const [fileTree, setFileTree] = React.useState(null)
 
     useEffect(() => {
