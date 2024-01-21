@@ -107,6 +107,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
     }
     else {
       console.log(`no fileParam param`)
+      return
     }
 
     console.log(`socket url: ${socketUrl}`)

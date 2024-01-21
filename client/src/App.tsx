@@ -219,7 +219,6 @@ const App: React.FC = () => {
           <div className={'dropdown' + (navOpen ? '' : ' hidden')}>
             {config.verticalLayout && <>
               {/* Buttons for mobile version */}
-              <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
               <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav} setUrl={setUrl}/>
             </>}
             <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}

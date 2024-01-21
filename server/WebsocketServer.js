@@ -48,8 +48,8 @@ class ClientConnection {
                     this.lean?.kill()
                 } else {
                     // Simply kill the Lean process
-                    this.commit_banach_tarski(this.fileName)
                     this.lean?.kill()
+                    this.commit_banach_tarski(this.fileName)
                 }
             }
         })
@@ -108,7 +108,6 @@ class ClientConnection {
         // run the init_banch_tarski.sh script
         const {execSync} = require("child_process");
         const path = __dirname + `/../Projects`
-        console.log("...path: " + path)
         try {
             execSync(`./init_banach_tarski.sh`, {cwd: path, stdio: 'inherit'})
         }
@@ -152,7 +151,6 @@ class ClientConnection {
         // TODO make async
         const fs = require('fs');
         const path = this.absolutePath
-        console.log("...path: " + path)
         console.log("...fileName: " + this.fileName)
         fs.readFile(path, 'utf8', (err, data) => {
             if (err) {
@@ -179,9 +177,6 @@ class ClientConnection {
                     return
                 }
             }
-            console.log("...data: ")
-            console.log(data["params"]["contentChanges"])
-            console.log(data["params"]["contentChanges"][0]["range"])
             // apply the change to the file
             for (let i = 0; i < data["params"]["contentChanges"].length; i++) {
                 const change = data["params"]["contentChanges"][i]
@@ -208,15 +203,14 @@ class ClientConnection {
         // TODO make async
         const fs = require('fs');
         const path = this.absolutePath
-        console.log("...path: " + path)
-        console.log("...fileName: " + this.fileName)
+
         await fs.writeFileSync(path, this.file, (err) => {
             if (err) {
                 console.error(err)
                 return
             }
         })
-        console.log("Wrote file to disk", this.file)
+        console.log("Wrote file to disk")
     }
 
     send(data) {
