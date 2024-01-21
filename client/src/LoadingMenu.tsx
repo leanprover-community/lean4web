@@ -45,7 +45,8 @@ const LoadingMenu: ({loadFromUrl, setContent, openSubmenu, closeNav, setUrl}: {
             for (var key in file_structure) {
                 if (file_structure[key] == null) {
                     console.log("file: ", key)
-                    fileTree.push(<TreeItem nodeId={key} label={key} onClick={onclick(parent + "%2F" + key)}/>)
+                    fileTree.push(<TreeItem
+                        nodeId={key} label={key} onClick={onclick(parent + "%2F" + key)}/>)
                 } else {
                     console.log("folder: ", key)
                     fileTree.push(<TreeItem nodeId={key}
@@ -57,8 +58,8 @@ const LoadingMenu: ({loadFromUrl, setContent, openSubmenu, closeNav, setUrl}: {
     }, []);
 
 
-
     const submenu = <TreeView
+        // shift the tree to the left
         aria-label="file system navigator"
         defaultCollapseIcon={<ExpandMoreIcon/>}
         defaultExpandIcon={<ChevronRightIcon/>}

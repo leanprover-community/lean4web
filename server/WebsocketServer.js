@@ -49,7 +49,9 @@ class ClientConnection {
                 } else {
                     // Simply kill the Lean process
                     this.lean?.kill()
-                    this.commit_banach_tarski(this.fileName)
+                    if (this.updateCount > 0) {
+                        this.commit_banach_tarski(this.fileName)
+                    }
                 }
             }
         })
@@ -193,7 +195,7 @@ class ClientConnection {
                 this.updateCount += 1
                 if (this.updateCount >= this.updateThreshold) {
                     await this.write_file_to_disk()
-                    this.updateCount = 0
+                    this.updateCount = 1
                 }
             }
         }
