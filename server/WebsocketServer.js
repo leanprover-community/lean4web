@@ -2,6 +2,8 @@ const WebSocket = require("ws");
 const {spawn} = require('child_process');
 const os = require('os');
 const anonymize = require('ip-anonymize')
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+
 
 // TODO: Use server-side connection forwarding
 // https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
@@ -16,7 +18,15 @@ class ClientConnection {
 
     re = /Content-Length: (\d+)\r\n/i
 
-    constructor(ws, useBubblewrap, project, fileName) {
+    authenticationToken = null
+    authenticated = false
+    user = null
+
+    constructor(ws, useBubblewrap, project, fileName, loginCode) {
+        this.ws = ws
+
+        this.loginCode = loginCode
+
         this.useBubblewrap = useBubblewrap
         this.fileName = fileName
         this.absolutePath = __dirname + `/../Projects/` + project + "/" + fileName
@@ -24,6 +34,7 @@ class ClientConnection {
 
         this.updateCount = 0
         this.updateThreshold = 10
+        this.num_sent = 0
 
         if (project === "banach-tarski") {
             this.init_banach_tarski()
@@ -34,7 +45,6 @@ class ClientConnection {
         this.init_file()
         this.startProcess(project)
 
-        this.ws = ws
         ws.on('message', (msg) => {
             //console.log(`[client] ${msg}`)
             this.send(JSON.parse(msg.toString('utf8')))
@@ -50,6 +60,7 @@ class ClientConnection {
                     // Simply kill the Lean process
                     this.lean?.kill()
                     if (this.updateCount > 0) {
+
                         this.commit_banach_tarski(this.fileName)
                     }
                 }
@@ -64,7 +75,49 @@ class ClientConnection {
             console.error('stderr: ')
             console.error(data.toString('utf8'))
         })
+
     }
+
+    async authenticate(loginCode) {
+        const data = new FormData();
+        const client_id = "Iv1.c5ca1b845a9814d5"
+        const redirect_uri = "http://localhost:3000/login"
+        const client_secret = "2d5d60d01fd246858e18d9dfb4b08258460e8350"
+
+        data.append("client_id", client_id);
+        data.append("client_secret", client_secret);
+        data.append("code", loginCode);
+        data.append("redirect_uri", redirect_uri);
+
+        const response = fetch(`https://github.com/login/oauth/access_token`, {
+            method: "POST",
+            body: data,
+        })
+            .then((response) => response.text())
+            .then((paramsString) => {
+                let params = new URLSearchParams(paramsString);
+
+                this.access_token = params.get("access_token");
+
+                console.log("fetching, access_token", this.access_token);
+
+                // Request to return data of a user that has been authenticated
+                return fetch(`https://api.github.com/user`, {
+                    headers: {
+                        Authorization: `token ${this.access_token}`,
+                    },
+                });
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                this.user = response;
+                console.log("Ready state: ", this.ws.readyState)
+                this.ws?.send(JSON.stringify({method: "$/authenticated", params: {information: response},"jsonrpc":"2.0"}))
+                console.log("sent: ", JSON.stringify({method: "$/authenticated", params: {information: response},"jsonrpc":"2.0"}))
+            })
+
+    }
+
 
     read() {
         if (this.headerMode) {
@@ -95,8 +148,9 @@ class ClientConnection {
                 this.content += (str.toString('utf8'))
                 if (this.contentLength <= 0) {
                     if (this.ws?.readyState === WebSocket.OPEN) { // check if client is ready
-                        // console.log(`[server] ${this.content}`)
+                        console.log(`[server] (${this.num_sent} ${this.content}`)
                         this.ws?.send(this.content)
+                        this.num_sent += 1
                     }
                     this.headerMode = true
                     this.header = ''
@@ -112,8 +166,7 @@ class ClientConnection {
         const path = __dirname + `/../Projects`
         try {
             execSync(`./init_banach_tarski.sh`, {cwd: path, stdio: 'inherit'})
-        }
-        catch (e) {
+        } catch (e) {
             console.log("Error while initializing banach-tarski ", e)
         }
     }
@@ -133,7 +186,7 @@ class ClientConnection {
             await execSync(`git push`, {cwd: path, stdio: 'inherit'})
             console.log("Pushed file to git repository")
         } catch (e) {
-            console.log("Error while committing to git repository: ",e)
+            console.log("Error while committing to git repository: ", e)
         }
 
     }
@@ -168,6 +221,25 @@ class ClientConnection {
     async check_update(data) {
         // check if the data updates the file TODO make async
         // if this is the case, update the file on disk
+        // print method
+        console.log("...method: " + data["method"])
+        if (data["method"] === "initialized") {
+            console.log("...initialized, loginCode: ", this.loginCode)
+            if (this.loginCode) {
+                this.authenticate(this.loginCode)
+            }
+        }
+
+        if (data["params"] !== undefined) {
+            console.log("...information: " + data["params"]["information"])
+            //if (this.user) {
+            //    console.log("user: ", this.user)
+            //}
+        }
+        if (data["method"] === "authenticate") {
+            console.log("...authenticate", data["params"])
+        }
+
         if (data["method"] === "textDocument/didChange") {
             let i = 0
             while (this.file === null) {
@@ -284,20 +356,26 @@ class WebsocketServer {
                     }
                     console.log("File exists")
                 })
-            }
-            else{
+            } else {
                 throw Error("No file name provided")
             }
             console.log("...url: " + url)
 
             console.log(`Open with project: ${project}`)
 
+            const loginCodeParam = reRes[4];
+            var loginCode = null;
+            if (loginCodeParam) {
+                loginCode = loginCodeParam.split("=")[1]
+                console.log(`Login code: ${loginCode}`)
+            }
+
             this.socketCounter += 1;
             const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
             console.log(`[${new Date()}] Socket opened - ${ip}`)
             this.logStats()
 
-            new ClientConnection(ws, useBubblewrap, project, fileName)
+            new ClientConnection(ws, useBubblewrap, project, fileName, loginCode)
             ws.on('close', () => {
                 console.log(`[${new Date()}] Socket closed - ${ip}`)
                 this.socketCounter -= 1;

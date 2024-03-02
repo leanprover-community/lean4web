@@ -23,6 +23,9 @@ import {getElaborationDelay} from './config'
 import {LeanFileProgressParams, LeanFileProgressProcessingInfo} from '@leanprover/infoview-api'
 import {c2pConverter, p2cConverter, patchConverters} from './utils/converters'
 
+import {AuthContext} from "../App";
+import React, {useContext} from "react";
+
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 export type ServerProgress = Map<Uri, LeanFileProgressProcessingInfo[]>
@@ -73,9 +76,11 @@ export class LeanClient implements Disposable {
     private readonly serverFailedEmitter = new EventEmitter<string>()
     serverFailed = this.serverFailedEmitter.event
 
+
     constructor(
         private readonly connectionProvider: IConnectionProvider,
         public readonly showRestartMessage: () => void,
+        public readonly setUser: (user: any) => void,
         private readonly initializationOptions = {}) {
 
     }
@@ -237,6 +242,12 @@ export class LeanClient implements Disposable {
         // which fires on any LSP notifications not in the standard, for example the `$/lean/..` ones.
         // However this mechanism is not exposed in vscode-languageclient, so we hack around its implementation.
         const starHandler = (method: string, params_: any) => {
+            console.log("starHandler", method, params_)
+            if (method === "$/authenticated") {
+                console.log("authenticated as ", params_.information.login)
+                this.setUser(params_.information)
+            }
+
             if (method === '$/lean/fileProgress' && (this.client != null)) {
                 const params = params_ as LeanFileProgressParams
                 const uri = p2cConverter.asUri(params.textDocument.uri)

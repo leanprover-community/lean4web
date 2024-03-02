@@ -16,7 +16,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 const keepAlivePeriodMs = 10000
 
 async function rpcConnect (client: LeanClient, uri: ls.DocumentUri): Promise<string> {
-  const connParams: RpcConnectParams = { uri }
+  const connParams = { uri, "information":"Hello World" } // : RpcConnectParams
   const result: RpcConnected = await client.sendRequest('$/lean/rpc/connect', connParams)
   return result.sessionId
 }
@@ -28,7 +28,7 @@ class RpcSessionAtPos implements Disposable {
   constructor (client: LeanClient, public sessionId: string, public uri: ls.DocumentUri) {
     this.client = client
     this.keepAliveInterval = setInterval(async () => {
-      const params: RpcKeepAliveParams = { uri, sessionId }
+      const params = { uri, sessionId, "information":"Hello World22"  } // : RpcKeepAliveParams
       try {
         await client.sendNotification('$/lean/rpc/keepAlive', params)
       } catch (e) {

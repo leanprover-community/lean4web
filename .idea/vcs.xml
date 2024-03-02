@@ -3,6 +3,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/client/public/project" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/server/banach-tarski" vcs="Git" />
   </component>
 </project>
