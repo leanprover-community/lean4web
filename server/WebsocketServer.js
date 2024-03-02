@@ -112,8 +112,16 @@ class ClientConnection {
             .then((response) => {
                 this.user = response;
                 console.log("Ready state: ", this.ws.readyState)
-                this.ws?.send(JSON.stringify({method: "$/authenticated", params: {information: response},"jsonrpc":"2.0"}))
-                console.log("sent: ", JSON.stringify({method: "$/authenticated", params: {information: response},"jsonrpc":"2.0"}))
+                this.ws?.send(JSON.stringify({
+                    method: "$/authenticated",
+                    params: {information: response},
+                    "jsonrpc": "2.0"
+                }))
+                console.log("sent: ", JSON.stringify({
+                    method: "$/authenticated",
+                    params: {information: response},
+                    "jsonrpc": "2.0"
+                }))
             })
 
     }
@@ -222,6 +230,7 @@ class ClientConnection {
         // check if the data updates the file TODO make async
         // if this is the case, update the file on disk
         // print method
+        // TODO dont send the data to lean if it is not needed
         console.log("...method: " + data["method"])
         if (data["method"] === "initialized") {
             console.log("...initialized, loginCode: ", this.loginCode)
@@ -230,16 +239,23 @@ class ClientConnection {
             }
         }
 
+        if (data["method"] === "commit") {
+            console.log("...commit")
+            var id = data["id"]
+            console.log("...id: ", id)
+            await this.commit_banach_tarski(this.fileName)
+            this.ws?.send(JSON.stringify({"result": ["ok"], "jsonrpc": "2.0", "id": id}))
+        }
+
         if (data["params"] !== undefined) {
             console.log("...information: " + data["params"]["information"])
-            //if (this.user) {
-            //    console.log("user: ", this.user)
-            //}
         }
+        //if (this.user) {
+        //    console.log("user: ", this.user)
+        //}
         if (data["method"] === "authenticate") {
             console.log("...authenticate", data["params"])
         }
-
         if (data["method"] === "textDocument/didChange") {
             let i = 0
             while (this.file === null) {
@@ -289,6 +305,10 @@ class ClientConnection {
 
     send(data) {
         this.check_update(data)
+        if ((data["method"]) === "commit") {
+            return
+        }
+
         const str = JSON.stringify(data) + '\r\n'
         const byteLength = Buffer.byteLength(str, 'utf-8')
         if (this.lean === null || this.lean.stdin === null) {

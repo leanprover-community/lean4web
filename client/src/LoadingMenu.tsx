@@ -30,7 +30,7 @@ const UserBadge = ({user}) => {
 
 const CommitButton = ({dispatch}) => {
     // a simple button to commit the current file to the repo
-    return <span className="nav-link" onClick={dispatch({type:"COMMIT_NOW"})}>
+    return <span className="nav-link" onClick={dispatch}>
         <FontAwesomeIcon icon={faCodeCommit}/> Commit File
         </span>
 }
@@ -106,10 +106,13 @@ const LoadingMenu: ({setContent, openSubmenu, closeNav, setUrl}: {
     <LoadZulipMessage setContent={setContent} closeNav={closeNav} />
     <input id="file-upload" type="file" onChange={loadFileFromDisk} />
     </>*/
+    const press_commit_button = () => {
+        dispatch({type: "COMMIT_NOW"})
+    }
 
     return <div style={{display: "flex", flexDirection: "row"}}>
         {(state.isLoggedIn && state.committing)  ? <GreyCommitButton/> : null}
-        {(state.isLoggedIn && !state.committing) ? <CommitButton closeNav={dispatch}/> : null}
+        {(state.isLoggedIn && !state.committing) ? <CommitButton dispatch={press_commit_button}/> : null}
 
         {(!state.isLoggedIn) ? <LoginButton closeNav={closeNav}/> : <UserBadge user={state.user}/>}
         <span className="nav-link" onClick={(ev) => openSubmenu(ev, submenu)}>

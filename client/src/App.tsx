@@ -184,7 +184,7 @@ const App: React.FC = () => {
     useEffect(() => {
         console.log(`url changed to ${url}`)
         readHash()
-    }, [url])
+    }, [window.location.href])
 
     useEffect(() => {
         if (restart) {
@@ -197,9 +197,15 @@ const App: React.FC = () => {
         const url = window.location.href
         if (url.includes("login?code=")) {
             console.log("login code", url.split("login?code=")[1])
+            localStorage.setItem("loggedIn", "true")
             localStorage.setItem("loginCode", url.split("login?code=")[1])
             window.history.pushState({}, document.title, window.location.origin);
-            return
+
+            const redirect = localStorage.getItem("redirectBack")
+            if (redirect !== null) {
+                localStorage.removeItem("redirectBack");
+                window.location.href = redirect;
+            }
         } else {
             console.log("login code didnt change", localStorage.getItem("loginCode"))
         }

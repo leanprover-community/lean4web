@@ -19,6 +19,8 @@ import {toSocket, WebSocketMessageWriter} from 'vscode-ws-jsonrpc'
 import {DisposingWebSocketMessageReader} from './reader'
 import {monacoSetup} from './monacoSetup'
 
+import {AuthContext} from "./App";
+
 monacoSetup()
 
 const Editor: React.FC<{
@@ -41,6 +43,22 @@ const Editor: React.FC<{
         const [dragging, setDragging] = useState<boolean | null>(false)
         const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
         const [commitMessage, setCommitMessage] = useState<boolean | null>(false)
+
+        // @ts-ignore
+        const {state, dispatch} = React.useContext(AuthContext)
+
+        useEffect(() => {
+            if (state.committing) {
+                infoProvider.client.sendRequest("commit", {}).then(
+                    (res) => {
+                        console.log("commit response", res)
+                        setCommitMessage(true)
+                        dispatch({type: "COMMIT_DONE"})
+                    }
+                )
+            }
+
+        }, [state]);
 
 
         useEffect(() => {
@@ -115,6 +133,15 @@ const Editor: React.FC<{
             if (fileParam != null) {
                 console.log(`fileParam param: ${fileParam}`)
                 const loginCode = localStorage.getItem("loginCode")
+                if (loginCode == null && localStorage.getItem("loggedIn") === "true") {
+                    localStorage.setItem("redirectBack", window.location.href)
+                    console.log(`redirect: ${window.location.href}`)
+                    // TODO very bad, make this a function
+                    const client_id = "Iv1.c5ca1b845a9814d5"
+                    const redirect_uri = "http://localhost:3000/login"
+                    window.location.href = `https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`
+                }
+                localStorage.removeItem("loginCode")
                 console.log(`loginCode: ${loginCode}`)
                 socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project + "/" + fileParam + "/logincode=" + loginCode
             } else {
