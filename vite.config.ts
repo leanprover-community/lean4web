@@ -27,6 +27,7 @@ export default defineConfig({
     })],
   publicDir: "client/public",
   server: {
+    watch: null,
     port: 3000,
     proxy: {
       '/websocket': {
