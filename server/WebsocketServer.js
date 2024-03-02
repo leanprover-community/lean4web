@@ -113,6 +113,10 @@ class ClientConnection {
             .then((response) => {
                 this.user = response;
                 console.log("Ready state: ", this.ws.readyState)
+                if (collaborators.includes(this.user.login)) {
+                    this.authenticated = true
+                    console.log("Authenticated: ", this.user.login)
+                }
                 this.ws?.send(JSON.stringify({
                     method: "$/authenticated",
                     params: {information: response},
@@ -282,7 +286,7 @@ class ClientConnection {
                 // apply the change to the file
                 this.file = this.file.slice(0, this.get_char_pos(startLine, startChar)) + text + this.file.slice(this.get_char_pos(endLine, endChar), this.file.length)
                 this.updateCount += 1
-                if (this.updateCount >= this.updateThreshold && this.authenticated) {
+                if (this.updateCount >= this.updateThreshold) {
                     await this.write_file_to_disk()
                     this.updateCount = 1
                 }
