@@ -106,6 +106,7 @@ const App: React.FC = () => {
     function closeNav() {
         setNavOpen(false)
         setJustSubmenu(false)
+        setSubmenu(null)
     }
 
     /* Option to change themes */
@@ -188,8 +189,13 @@ const App: React.FC = () => {
                     ev.stopImmediatePropagation()
                 } else {
                     // Close Nav on clicking somewhere outside the menu
-                    setNavOpen(false)
-                    console.log('closing nav')
+                    if (submenuRef?.current && submenuRef.current.contains(ev.target as HTMLElement)) {
+                        console.log('keeping submenu open')
+                    } else {
+                        setNavOpen(false)
+                        setJustSubmenu(false)
+                        console.log('closing nav hier')
+                    }
                 }
             }
         })
@@ -282,7 +288,7 @@ const App: React.FC = () => {
                             </div>
                         </div>
                     </div>
-                    {justSubmenu && submenu}
+                    {justSubmenu && <div ref={submenuRef}> {submenu} </div>}
 
                 </div>
                 <Suspense fallback={<div className="loading-ring"></div>}>
