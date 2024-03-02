@@ -12,7 +12,7 @@ import {AuthContext} from "./App";
 
 const LoginButton = ({state}) => {
     const client_id = "Iv1.c5ca1b845a9814d5"
-    const redirect_uri = "http://localhost:3000/login"
+    const redirect_uri = "http://188.34.190.13:3000/login"
     const login = () => {
         window.location.href = `https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`
     }

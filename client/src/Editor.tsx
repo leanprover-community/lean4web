@@ -138,7 +138,7 @@ const Editor: React.FC<{
                     console.log(`redirect: ${window.location.href}`)
                     // TODO very bad, make this a function
                     const client_id = "Iv1.c5ca1b845a9814d5"
-                    const redirect_uri = "http://localhost:3000/login"
+                    const redirect_uri = "http://188.34.190.13:3000/login"
                     window.location.href = `https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`
                 }
                 localStorage.removeItem("loginCode")

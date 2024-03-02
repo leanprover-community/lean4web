@@ -81,7 +81,7 @@ class ClientConnection {
     async authenticate(loginCode) {
         const data = new FormData();
         const client_id = "Iv1.c5ca1b845a9814d5"
-        const redirect_uri = "http://localhost:3000/login"
+        const redirect_uri = "http://188.34.190.13:3000/login"; //"http://localhost:3000/login"
         const client_secret = "2d5d60d01fd246858e18d9dfb4b08258460e8350"
 
         data.append("client_id", client_id);
