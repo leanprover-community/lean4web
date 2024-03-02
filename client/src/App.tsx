@@ -38,6 +38,7 @@ function parseArgs() {
 }
 
 export const initialState = {
+    codeAcquired: false,
     isLoggedIn: false,
     user: null,
     committing: false
@@ -66,6 +67,11 @@ export const reducer = (state, action) => {
         return {
             ...state,
             committing: false
+        }
+    } else if (action.type === "LOGIN") {
+        return {
+            ...state,
+            codeAcquired: true
         }
     }
     return state
@@ -199,6 +205,7 @@ const App: React.FC = () => {
             console.log("login code", url.split("login?code=")[1])
             localStorage.setItem("loggedIn", "true")
             localStorage.setItem("loginCode", url.split("login?code=")[1])
+            dispatch({type: "LOGIN"})
             window.history.pushState({}, document.title, window.location.origin);
 
             const redirect = localStorage.getItem("redirectBack")
@@ -215,8 +222,10 @@ const App: React.FC = () => {
         localStorage.getItem("loginCode")
     }
 
+
     // @ts-ignore
     return (
+        // @ts-ignore
         <AuthContext.Provider value={{state, dispatch}}>
 
             <div className={'app monaco-editor'}>
@@ -224,7 +233,7 @@ const App: React.FC = () => {
                     <Logo className='logo'/>
                     <div className='menu' ref={menuRef}>
                         {!config.verticalLayout && <>
-                            {/* Buttons for desktop version */}
+                            {/* Buttons for desktop version/// @ts-ignore */}
                             <LoadingMenu openSubmenu={openSubmenu}
                                          closeNav={closeNav} setUrl={setUrl}/>
                         </>

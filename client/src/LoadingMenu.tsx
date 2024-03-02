@@ -10,14 +10,14 @@ import {useEffect} from 'react';
 
 import {AuthContext} from "./App";
 
-const LoginButton = ({closeNav}) => {
+const LoginButton = ({state}) => {
     const client_id = "Iv1.c5ca1b845a9814d5"
     const redirect_uri = "http://localhost:3000/login"
     const login = () => {
         window.location.href = `https://github.com/login/oauth/authorize?scope=user&client_id=${client_id}&redirect_uri=${redirect_uri}`
     }
     return <span className="nav-link" onClick={login}>
-        <FontAwesomeIcon icon={faUser}/> Login
+        <FontAwesomeIcon icon={faUser}/> {state.codeAcquired ? "Logged in" : "Log in"}
         </span>
 }
 
@@ -114,7 +114,7 @@ const LoadingMenu: ({setContent, openSubmenu, closeNav, setUrl}: {
         {(state.isLoggedIn && state.committing)  ? <GreyCommitButton/> : null}
         {(state.isLoggedIn && !state.committing) ? <CommitButton dispatch={press_commit_button}/> : null}
 
-        {(!state.isLoggedIn) ? <LoginButton closeNav={closeNav}/> : <UserBadge user={state.user}/>}
+        {(!state.isLoggedIn) ? <LoginButton state={state}/> : <UserBadge user={state.user}/>}
         <span className="nav-link" onClick={(ev) => openSubmenu(ev, submenu)}>
             <FontAwesomeIcon icon={faFolder}/> Open File from Repo
             </span>
