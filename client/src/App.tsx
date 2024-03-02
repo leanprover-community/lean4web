@@ -83,6 +83,7 @@ export const AuthContext = React.createContext(initialState)
 const App: React.FC = () => {
     const [restart, setRestart] = useState<(project?) => Promise<void>>()
     const [navOpen, setNavOpen] = useState(false)
+    const [justSubmenu, setJustSubmenu] = useState(false)
     const menuRef = React.useRef<HTMLDivElement>()
     const submenuRef = React.useRef<HTMLDivElement>()
 
@@ -95,8 +96,16 @@ const App: React.FC = () => {
         ev.stopPropagation()
     }
 
+    function openSubmenuSimple(ev: React.MouseEvent, component: React.JSX.Element) {
+        console.log('opening submenu')
+        setJustSubmenu(true)
+        setSubmenu(component)
+        ev.stopPropagation()
+    }
+
     function closeNav() {
         setNavOpen(false)
+        setJustSubmenu(false)
     }
 
     /* Option to change themes */
@@ -234,7 +243,7 @@ const App: React.FC = () => {
                     <div className='menu' ref={menuRef}>
                         {!config.verticalLayout && <>
                             {/* Buttons for desktop version/// @ts-ignore */}
-                            <LoadingMenu openSubmenu={openSubmenu}
+                            <LoadingMenu openSubmenu={openSubmenuSimple}
                                          closeNav={closeNav} setUrl={setUrl}/>
                         </>
                         }
@@ -246,7 +255,7 @@ const App: React.FC = () => {
                         <div className={'dropdown' + (navOpen ? '' : ' hidden')}>
                             {config.verticalLayout && <>
                                 {/* Buttons for mobile version */}
-                                <LoadingMenu openSubmenu={openSubmenu}
+                                <LoadingMenu openSubmenu={openSubmenuSimple}
                                              closeNav={closeNav} setUrl={setUrl}/>
                             </>}
                             <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}
@@ -273,6 +282,8 @@ const App: React.FC = () => {
                             </div>
                         </div>
                     </div>
+                    {justSubmenu && submenu}
+
                 </div>
                 <Suspense fallback={<div className="loading-ring"></div>}>
                     <Editor setRestart={setRestart} setContent={setContent}
