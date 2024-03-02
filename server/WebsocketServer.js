@@ -7,6 +7,7 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 
 // TODO: Use server-side connection forwarding
 // https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
+const collaborators = ["Bergschaf","Chma113","NoaBihlmaier"]
 
 class ClientConnection {
     header = ''
@@ -281,7 +282,7 @@ class ClientConnection {
                 // apply the change to the file
                 this.file = this.file.slice(0, this.get_char_pos(startLine, startChar)) + text + this.file.slice(this.get_char_pos(endLine, endChar), this.file.length)
                 this.updateCount += 1
-                if (this.updateCount >= this.updateThreshold) {
+                if (this.updateCount >= this.updateThreshold && this.authenticated) {
                     await this.write_file_to_disk()
                     this.updateCount = 1
                 }
@@ -291,6 +292,10 @@ class ClientConnection {
 
     async write_file_to_disk() {
         // TODO make async
+        if (!this.authenticated) {
+            console.log("Not authenticated, not writing file to disk")
+            return
+        }
         const fs = require('fs');
         const path = this.absolutePath
 
