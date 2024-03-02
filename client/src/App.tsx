@@ -284,7 +284,7 @@ const App: React.FC = () => {
                                 <FontAwesomeIcon icon={faArrowUpRightFromSquare}/> GitHub
                             </a>
                             <div className="submenu" ref={submenuRef}>
-                                {submenu && submenu}
+                                {(submenu && !justSubmenu) && submenu}
                             </div>
                         </div>
                     </div>
