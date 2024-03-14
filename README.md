@@ -106,7 +106,11 @@ you will need to modify the following files:
 
 ## Development Instructions
 
-Install [npm](https://www.npmjs.com/) and clone this repository. Inside the repository, run
-`npm install` to install dependencies, and
-then `npm start`.
+Install [npm](https://www.npmjs.com/) and clone this repository. Inside the repository, run:
+1. `npm install` to install dependencies
+2. run `npm run build_server` to build contained lean projects under `Projects/` (or run `lake build` manually inside any lean project)
+3. and then `npm start` to start the server
 The project can be accessed via http://localhost:3000. (Internally, websocket requests to `ws://localhost:3000/`websockets will be forwarded to a Lean server running on port 8080.)
+
+## Running different projects
+You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](Projects/README.md) for further instructions.
