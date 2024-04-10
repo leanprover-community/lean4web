@@ -23,12 +23,14 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     If screen width is below 800, default to vertical layout instead. */
   const {width, height} = useWindowDimensions()
   const [verticalLayout, setVerticalLayout] = React.useState(width < 800)
+  const [wordWrap, setWordWrap] = React.useState(false)
   const [customTheme, setCustomTheme] = React.useState<string>('initial')
 
   // Synchronize state with initial local store
   useEffect(() => {
     let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
     let _verticalLayout = window.localStorage.getItem("verticalLayout")
+    let _wordWrap = window.localStorage.getItem("wordWrap")
     let _theme = window.localStorage.getItem("theme")
     let _savingAllowed = window.localStorage.getItem("savingAllowed")
     let _customTheme = window.localStorage.getItem("customTheme")
@@ -42,6 +44,10 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     }
     if (_theme) {
       setTheme(_theme)
+      setSavingAllowed(true)
+    }
+    if (_wordWrap) {
+      setWordWrap(_wordWrap == "true")
       setSavingAllowed(true)
     }
     if (_customTheme) {
@@ -64,19 +70,22 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
   useEffect(() => {
     config.abbreviationCharacter = abbreviationCharacter
     config.verticalLayout = verticalLayout
+    config.wordWrap = wordWrap
     config.theme = theme
     if (savingAllowed) {
       window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
       window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')
+      window.localStorage.setItem("wordWrap", wordWrap ? 'true' : 'false')
       window.localStorage.setItem("theme", theme)
       window.localStorage.setItem("customTheme", customTheme)
     } else {
       window.localStorage.removeItem("abbreviationCharacter")
       window.localStorage.removeItem("verticalLayout")
+      window.localStorage.removeItem("wordWrap")
       window.localStorage.removeItem("theme")
       window.localStorage.removeItem("customTheme")
     }
-  }, [savingAllowed, abbreviationCharacter, verticalLayout, theme])
+  }, [savingAllowed, abbreviationCharacter, verticalLayout, wordWrap, theme])
 
   const handleChangeSaving = (ev) => {
     if (ev.target.checked) {
@@ -171,6 +180,10 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
             <p>
               <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
               <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
+            </p>
+            <p>
+              <Switch id="wordWrap" onChange={() => {setWordWrap(!wordWrap)}} checked={wordWrap} />
+              <label htmlFor="wordWrap">Wrap code</label>
             </p>
             <p>
               <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />

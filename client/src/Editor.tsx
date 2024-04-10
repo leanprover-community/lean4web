@@ -78,7 +78,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       },
       tabSize: 2,
       'semanticHighlighting.enabled': true,
-      theme: 'vs'
+      theme: 'vs',
+      wordWrap: config.wordWrap
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
@@ -87,7 +88,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       model.dispose();
       abbrevRewriter.dispose();
     }
-  }, [])
+  }, [config.wordWrap])
 
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
