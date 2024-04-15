@@ -97,14 +97,13 @@ class ClientConnection {
   }
 
   startProcess (project) {
-    let path = __dirname + `/../Projects/` + project
-
-    console.log(`The path is ${path}`)
-
-    let cmd, cmdArgs, cwd;
+    let cmd, cmdArgs;
     if (this.useBubblewrap) {
+      // the nix setup runs the server in ~,
+      // `bubblewrap.sh` is somewhere relative to the js source file
+      // and the projects are in ~/<project>
       cmd = path.join (__dirname, "bubblewrap.sh");
-      cmdArgs = [path];
+      cmdArgs = [project];
     } else{
       console.warn("Running without Bubblewrap container!")
       cmd = "lake";
