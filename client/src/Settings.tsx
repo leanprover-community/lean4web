@@ -9,8 +9,8 @@ import { useWindowDimensions } from './window_width';
 import { Button, FormControl, InputLabel, MenuItem } from '@mui/material';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-const Settings: React.FC<{closeNav, theme, setTheme}> =
-    ({closeNav, theme, setTheme}) => {
+const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
+    ({closeNav, theme, setTheme, project, setProject}) => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -23,12 +23,14 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
     If screen width is below 800, default to vertical layout instead. */
   const {width, height} = useWindowDimensions()
   const [verticalLayout, setVerticalLayout] = React.useState(width < 800)
+  const [wordWrap, setWordWrap] = React.useState(false)
   const [customTheme, setCustomTheme] = React.useState<string>('initial')
 
   // Synchronize state with initial local store
   useEffect(() => {
     let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
     let _verticalLayout = window.localStorage.getItem("verticalLayout")
+    let _wordWrap = window.localStorage.getItem("wordWrap")
     let _theme = window.localStorage.getItem("theme")
     let _savingAllowed = window.localStorage.getItem("savingAllowed")
     let _customTheme = window.localStorage.getItem("customTheme")
@@ -42,6 +44,10 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
     }
     if (_theme) {
       setTheme(_theme)
+      setSavingAllowed(true)
+    }
+    if (_wordWrap) {
+      setWordWrap(_wordWrap == "true")
       setSavingAllowed(true)
     }
     if (_customTheme) {
@@ -64,19 +70,22 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
   useEffect(() => {
     config.abbreviationCharacter = abbreviationCharacter
     config.verticalLayout = verticalLayout
+    config.wordWrap = wordWrap
     config.theme = theme
     if (savingAllowed) {
       window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
       window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')
+      window.localStorage.setItem("wordWrap", wordWrap ? 'true' : 'false')
       window.localStorage.setItem("theme", theme)
       window.localStorage.setItem("customTheme", customTheme)
     } else {
       window.localStorage.removeItem("abbreviationCharacter")
       window.localStorage.removeItem("verticalLayout")
+      window.localStorage.removeItem("wordWrap")
       window.localStorage.removeItem("theme")
       window.localStorage.removeItem("customTheme")
     }
-  }, [savingAllowed, abbreviationCharacter, verticalLayout, theme])
+  }, [savingAllowed, abbreviationCharacter, verticalLayout, wordWrap, theme])
 
   const handleChangeSaving = (ev) => {
     if (ev.target.checked) {
@@ -120,8 +129,27 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
         <div className="modal-backdrop" onClick={handleClose} />
         <div className="modal">
           <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
-          <h2>Settings</h2>
           <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
+            <h2>Project settings</h2>
+            <p><i>These settigns are stored in the URL as they change the project's setup</i></p>
+            <p>
+              <label htmlFor="leanVersion">Lean Version: </label>
+              <select
+                  id="leanVersion"
+                  name="leanVersion"
+                  value={project}
+                  onChange={(ev) => {
+                    setProject(ev.target.value)
+                    console.log(`set Lean project to: ${ev.target.value}`)
+                    }} >
+                <option value="plain">Stable Lean</option>
+                <option value="MathlibLatest">Latest Mathlib</option>
+                <option value="DuperDemo">Latest Duper</option>
+              </select>
+            </p>
+
+            <h2>User settings</h2>
+            <p><i>These settings are not preserved unless you opt-in to save them.</i></p>
             <p>
               <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
               <input id="abbreviationCharacter" type="text"
@@ -152,6 +180,10 @@ const Settings: React.FC<{closeNav, theme, setTheme}> =
             <p>
               <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
               <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
+            </p>
+            <p>
+              <Switch id="wordWrap" onChange={() => {setWordWrap(!wordWrap)}} checked={wordWrap} />
+              <label htmlFor="wordWrap">Wrap code</label>
             </p>
             <p>
               <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />

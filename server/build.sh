@@ -1,26 +1,24 @@
 #!/usr/bin/env bash
 
-SECONDS=0
-echo "Starting build." | logger -t lean4web
+cd "$(dirname $0)/../Projects"
 
-# Operate in the directory where this file is located
-cd $(dirname $0)
+# Iterate over subfolders in Projects and look for a build file `build.sh`
+for folder in "."/*; do
+  if [ -d "$folder" ]; then
+    build_script="$folder/build.sh"
+    if [ -f "$build_script" ]; then
+      SECONDS=0
+      echo "Start building $folder"
+      echo "Start building $folder" | logger -t lean4web
 
-# Updating Mathlib: We follow the instructions at
-# https://github.com/leanprover-community/mathlib4/wiki/Using-mathlib4-as-a-dependency#updating-mathlib4
-#
-# Note: we had once problems with the `lake-manifest` when a new dependency got added
-# to `mathlib`, we may need to add `rm lake-manifest.json` again if that's still a problem.
-( cd LeanProject &&
-  # currently the mathlib post-update-hook is not good enough to update the lean-toolchain.
-  # things break if the new lakefile is not valid in the old lean version
-  curl -L https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain -o lean-toolchain &&
-  # note: mathlib has now a post-update hook that modifies the `lean-toolchain`
-  # and calls `lake exe cache get`.
-  lake update -R &&
-  lake build)
+      "$build_script"
 
+      duration=$SECONDS
+      echo "Finished $folder in $(($duration / 60)):$(($duration % 60)) min"
+      echo "Finished $folder in $(($duration / 60)):$(($duration % 60)) min" | logger -t lean4web
+    else
+      echo "Skipping $folder: build.sh missing"
+    fi
 
-duration=$SECONDS
-echo "Finished in $(($duration / 60)):$(($duration % 60)) min."
-echo "Finished in $(($duration / 60)):$(($duration % 60)) min." | logger -t lean4web
+  fi
+done

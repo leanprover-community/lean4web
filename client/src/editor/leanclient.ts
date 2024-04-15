@@ -75,7 +75,8 @@ export class LeanClient implements Disposable {
 
   constructor (
     private readonly connectionProvider: IConnectionProvider,
-    public readonly showRestartMessage: () => void) {
+    public readonly showRestartMessage: () => void,
+    private readonly initializationOptions = {}) {
 
   }
 
@@ -93,10 +94,14 @@ export class LeanClient implements Disposable {
     }
   }
 
-  async restart (): Promise<void> {
+  async restart (project): Promise<void> {
     const startTime = Date.now()
 
-    console.log('[LeanClient] Restarting Lean Server')
+    if (!project) {
+      project = 'MathlibLatest'
+    }
+
+    console.log(`[LeanClient] Restarting Lean Server with project ${project}`)
     if (this.isStarted()) {
       await this.stop()
     }
@@ -106,8 +111,11 @@ export class LeanClient implements Disposable {
     const clientOptions: LanguageClientOptions = {
       // use a language id as a document selector
       documentSelector: ['lean4'],
+      workspaceFolder: {uri: "hello"},
       initializationOptions: {
-        editDelay: getElaborationDelay(), hasWidgets: true
+        editDelay: getElaborationDelay(),
+        hasWidgets: true,
+        ...this.initializationOptions
       },
       connectionOptions: {
         maxRestartCount: 0,
@@ -198,7 +206,7 @@ export class LeanClient implements Disposable {
           console.log(`[LeanClient] running, started in ${end - startTime} ms`)
           this.running = true // may have been auto restarted after it failed.
           if (!insideRestart) {
-            this.restartedEmitter.fire(undefined)
+            this.restartedEmitter.fire()
           }
         } else if (s.newState === State.Stopped) {
           this.running = false
@@ -238,13 +246,13 @@ export class LeanClient implements Disposable {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.client.onNotification(starHandler as any, () => {})
 
-    this.restartedEmitter.fire(undefined)
+    this.restartedEmitter.fire({project: project})
     insideRestart = false
   }
 
-  async start (): Promise<void> {
-    return await this.restart()
-  }
+  // async start (project): Promise<void> {
+  //   return await this.restart(project)
+  // }
 
   isStarted (): boolean {
     return this.client !== undefined

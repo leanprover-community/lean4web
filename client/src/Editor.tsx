@@ -19,13 +19,11 @@ import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 import { DisposingWebSocketMessageReader } from './reader'
 import { monacoSetup } from './monacoSetup'
 
-const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket"
-
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string}> =
-    ({setRestart, onDidChangeContent, value, theme}) => {
-  const uri = monaco.Uri.parse('file:///LeanProject.lean')
+const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string, project: string}> =
+    ({setRestart, onDidChangeContent, value, theme, project}) => {
+  const uri = monaco.Uri.parse(`file:///project/${project}.lean`)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
@@ -80,10 +78,21 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       },
       tabSize: 2,
       'semanticHighlighting.enabled': true,
-      theme: 'vs'
+      theme: 'vs',
+      wordWrap: config.wordWrap
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
+    return () => {
+      editor.dispose();
+      model.dispose();
+      abbrevRewriter.dispose();
+    }
+  }, [config.wordWrap])
+
+  useEffect(() => {
+    const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
+    console.log(`socket url: ${socketUrl}`)
 
     const connectionProvider : IConnectionProvider = {
       get: async () => {
@@ -122,22 +131,23 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
     }
     loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
     setInfoProvider(infoProvider)
-    client.restart()
+    client.restart(project)
     return () => {
-      editor.dispose();
-      model.dispose();
-      abbrevRewriter.dispose();
       infoProvider.dispose();
       client.dispose();
     }
-  }, [])
+  }, [project])
 
   const showRestartMessage = () => {
     setRestartMessage(true)
   }
 
-  const restart = async () => {
-    await infoProvider.client.restart();
+  const restart = async (project) => {
+    if (!project) {
+      project = 'MathlibLatest'
+    }
+    console.log(`project got to here! ${project}`)
+    await infoProvider.client.restart(project);
   }
 
   useEffect(() => {
@@ -157,7 +167,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       infoProvider.openPreview(editor, infoviewApi)
       const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
-    setRestart(() => restart)
+    setRestart((project?) => restart)
   }, [editor, infoviewApi, infoProvider])
 
 
@@ -190,7 +200,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       </Split>
       {restartMessage ?
         <Notification
-          restart={() => {setRestartMessage(false); restart()} }
+          restart={() => {setRestartMessage(false); restart(project)} }
           close={() => {setRestartMessage(false)}} />
         : ''}
     </div>

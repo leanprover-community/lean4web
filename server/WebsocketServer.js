@@ -17,14 +17,14 @@ class ClientConnection {
 
   re = /Content-Length: (\d+)\r\n/i
 
-  constructor (ws, useBubblewrap) {
+  constructor (ws, useBubblewrap, project) {
     this.useBubblewrap = useBubblewrap
 
-    this.startProcess()
+    this.startProcess(project)
 
     this.ws = ws
     ws.on('message', (msg) => {
-      // console.log(`[client] ${msg}`)
+      console.log(`[client] ${msg}`)
       this.send(JSON.parse(msg.toString('utf8')))
     })
 
@@ -96,20 +96,26 @@ class ClientConnection {
     this.lean.stdin.uncork()
   }
 
-  startProcess () {
-    let cmd, cmdArgs;
+  startProcess (project) {
+    let path = __dirname + `/../Projects/` + project
+
+    console.log(`The path is ${path}`)
+
+    let cmd, cmdArgs, cwd;
     if (this.useBubblewrap) {
       cmd = path.join (__dirname, "bubblewrap.sh");
-      cmdArgs = [];
+      cmdArgs = [path];
     } else{
       console.warn("Running without Bubblewrap container!")
-      cmd = "lean";
-      cmdArgs = ["--server"];
+      cmd = "lake";
+      cmdArgs = ["serve", "--"];
     }
 
     this.lean = spawn(cmd, cmdArgs, {})
   }
 }
+
+const urlRegEx = /^\/websocket\/([\w.-]+)$/
 
 class WebsocketServer {
 
@@ -118,11 +124,18 @@ class WebsocketServer {
     this.socketCounter = 0;
 
     this.wss.on('connection', (ws, req) => {
+      const reRes = urlRegEx.exec(req.url)
+      if (!reRes) { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
+      const project = reRes[1]
+
+      console.log(`Open with project: ${project}`)
+
       this.socketCounter += 1;
       const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
       console.log(`[${new Date()}] Socket opened - ${ip}`)
       this.logStats()
-      new ClientConnection(ws, useBubblewrap)
+
+      new ClientConnection(ws, useBubblewrap, project)
       ws.on('close', () => {
         console.log(`[${new Date()}] Socket closed - ${ip}`)
         this.socketCounter -= 1;
