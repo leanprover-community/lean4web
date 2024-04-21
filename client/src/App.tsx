@@ -7,10 +7,6 @@ import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './infoview'
 import { LeanClient } from './client'
-import { IConnectionProvider } from 'monaco-languageclient'
-import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
-
-import { WebSocketMessageReader } from 'vscode-ws-jsonrpc';
 
 monaco.languages.register({
   id: 'lean4',
@@ -32,23 +28,8 @@ const Editor: React.FC = () => {
     const editor = monaco.editor.create(document.body, { model, })
     setEditor(editor)
 
-    const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
-    const connectionProvider : IConnectionProvider = {
-      get: async () => {
-        return await new Promise((resolve) => {
-          const websocket = new WebSocket(socketUrl)
-          websocket.addEventListener('open', () => {
-            const socket = toSocket(websocket)
-            const reader = new WebSocketMessageReader(socket)
-            const writer = new WebSocketMessageWriter(socket)
-            resolve({ reader, writer })
-          })
-        })
-      }
-    }
-
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(connectionProvider)
+    const client = new LeanClient()
     const infoProvider = new InfoProvider(client)
     const imports = {
       '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
