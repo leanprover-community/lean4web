@@ -151,10 +151,7 @@ export class InfoProvider implements Disposable {
         console.log('[InfoProvider] got client restarted event')
         
         await this.initInfoView(this.editor, client)
-      }),
-      client.restartedWorker(async (uri) => {
-        console.log('[InfoProvider] got worker restarted event')
-      }),
+      })
     )
   }
 

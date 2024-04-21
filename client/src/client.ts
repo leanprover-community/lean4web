@@ -28,14 +28,11 @@ export class LeanClient implements Disposable {
   private readonly diagnosticsEmitter = new EventEmitter<PublishDiagnosticsParams>()
   diagnostics = this.diagnosticsEmitter.event
 
-  private readonly didCloseEmitter = new EventEmitter<DidCloseTextDocumentParams>()
-  didClose = this.didCloseEmitter.event
-
   private readonly restartedEmitter = new EventEmitter()
   restarted = this.restartedEmitter.event
 
-  private readonly restartedWorkerEmitter = new EventEmitter<string>()
-  restartedWorker = this.restartedWorkerEmitter.event
+  // private readonly restartedWorkerEmitter = new EventEmitter<string>()
+  // restartedWorker = this.restartedWorkerEmitter.event
 
   constructor (private readonly connectionProvider: IConnectionProvider) {
 
@@ -191,7 +188,7 @@ export class LeanClient implements Disposable {
         text: doc.getText()
       }
     })
-    this.restartedWorkerEmitter.fire(uri)
+    // this.restartedWorkerEmitter.fire(uri)
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
