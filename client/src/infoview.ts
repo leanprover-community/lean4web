@@ -72,9 +72,7 @@ export class InfoProvider implements Disposable {
     subscribeServerNotifications: async (method) => {
 
       if (method === 'textDocument/publishDiagnostics') {
-        for (const client of [this.client]) {
-          diagnosticsEmitter.event((params) => this.infoviewApi.gotServerNotification(method, params))
-        }
+        diagnosticsEmitter.event((params) => this.infoviewApi.gotServerNotification(method, params))
       }
     },
 
