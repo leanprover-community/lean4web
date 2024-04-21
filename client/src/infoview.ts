@@ -40,11 +40,8 @@ export class InfoProvider implements Disposable {
 
   private infoviewApi?: InfoviewApi
   private editor?: monaco.editor.IStandaloneCodeEditor
-  private readonly clientSubscriptions: Disposable[] = []
 
   public readonly client?: LeanClient
-
-  private rpcSessions: Map<string, RpcSessionAtPos> = new Map()
 
   private subscribeDiagnosticsNotification (client: LeanClient, method: string) {
     return client.diagnostics((params) => this.infoviewApi?.gotServerNotification(method, params))
@@ -76,12 +73,7 @@ export class InfoProvider implements Disposable {
     },
 
     createRpcSession: async (uri) => {
-      
       const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
-      const session = new RpcSessionAtPos(this.client, result.sessionId, uri)
-
-      this.rpcSessions.set(result.sessionId, session)
-
       return result.sessionId
     },
     unsubscribeServerNotifications: function (method: string): Promise<void> {
@@ -107,13 +99,11 @@ export class InfoProvider implements Disposable {
     }
   }
 
-  constructor (private readonly myclient: LeanClient | undefined) {
+  constructor (private readonly _client: LeanClient | undefined) {
 
-    this.client = myclient
+    this.client = _client
 
-    this.clientSubscriptions.push(
-      this.client.restarted(() => this.initInfoView(this.editor, this.client))
-    )
+    this.client.restarted(() => this.initInfoView(this.editor))
   }
 
   getApi () {
@@ -123,10 +113,10 @@ export class InfoProvider implements Disposable {
   async openPreview (editor: monaco.editor.IStandaloneCodeEditor, infoviewApi: InfoviewApi) {
     this.infoviewApi = infoviewApi
     this.editor = editor
-    await this.initInfoView(editor, this.client!)
+    await this.initInfoView(editor)
   }
 
-  private async initInfoView (editor: monaco.editor.IStandaloneCodeEditor | undefined, client: LeanClient | null) {
+  private async initInfoView (editor: monaco.editor.IStandaloneCodeEditor | undefined) {
     
     const uri = editor.getModel()?.uri
     const selection = editor.getSelection()!
