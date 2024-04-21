@@ -1,22 +1,22 @@
-/* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
 
 import { EditorApi, InfoviewApi, RpcConnected } from '@leanprover/infoview-api'
 
 import { EventEmitter, Disposable } from 'vscode'
 import * as ls from 'vscode-languageserver-protocol'
 import { createConverter } from 'vscode-languageclient/lib/common/codeConverter'
-import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode-ws-jsonrpc';
+import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode-ws-jsonrpc'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import { InitializeResult, MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
+import { MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
 
 const c2pConverter = createConverter(undefined)
+
+const diagnosticsEmitter = new EventEmitter()
+const restartedEmitter = new EventEmitter()
 
 export class LeanClient implements Disposable {
   client: MonacoLanguageClient | undefined
 
-  diagnosticsEmitter = new EventEmitter()
-  restartedEmitter = new EventEmitter()
 
   async start (project): Promise<void> {
 
@@ -27,7 +27,7 @@ export class LeanClient implements Disposable {
           next(uri, diagnostics)
 
           const diagnostics_ = diagnostics.map(d => c2pConverter.asDiagnostic(d))
-          this.diagnosticsEmitter.fire({ uri: c2pConverter.asUri(uri), diagnostics: diagnostics_ })
+          diagnosticsEmitter.fire({ uri: c2pConverter.asUri(uri), diagnostics: diagnostics_ })
         },
       }
     }
@@ -50,7 +50,7 @@ export class LeanClient implements Disposable {
     this.client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
     await this.client.start()
 
-    this.restartedEmitter.fire({ project })
+    restartedEmitter.fire({ project })
   }
 }
 
@@ -72,7 +72,7 @@ export class InfoProvider implements Disposable {
 
       if (method === 'textDocument/publishDiagnostics') {
         for (const client of [this.client]) {
-          client.diagnosticsEmitter.event((params) => this.infoviewApi.gotServerNotification(method, params))
+          diagnosticsEmitter.event((params) => this.infoviewApi.gotServerNotification(method, params))
         }
       }
     },
@@ -111,7 +111,7 @@ export class InfoProvider implements Disposable {
     this.client = client
     this.editor = editor
 
-    this.client.restartedEmitter.event(() => this.initInfoView())
+    restartedEmitter.event(() => this.initInfoView())
   }
 
   async setInfoviewApi (infoviewApi: InfoviewApi) {
