@@ -75,20 +75,6 @@ export class LeanClient implements Disposable {
 
   }
 
-  dispose (): void {
-    if (this.client.isRunning()) {
-      this.client.dispose()
-    } else {
-      this.client.onDidChangeState((ev) => {
-        if (ev.newState == State.Running) {
-          setTimeout(() => { // Wait for client to send `initialized` before `shutdown`
-            this.client.dispose()
-          }, 0)
-        }
-      })
-    }
-  }
-
   async restart (project): Promise<void> {
     const startTime = Date.now()
 

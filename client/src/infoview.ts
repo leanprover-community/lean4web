@@ -34,11 +34,6 @@ class RpcSessionAtPos implements Disposable {
       }
     }, keepAlivePeriodMs)
   }
-
-  dispose () {
-    if (this.keepAliveInterval != null) clearInterval(this.keepAliveInterval)
-    // TODO: at this point we could close the session
-  }
 }
 
 export class InfoProvider implements Disposable {
@@ -126,31 +121,18 @@ export class InfoProvider implements Disposable {
       // So we have to add a bunch of event emitters to `LeanClient.`
       if (method === 'textDocument/publishDiagnostics') {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client]/* this.clientProvider.getClients() */) {
+        for (const client of [this.client] /* this.clientProvider.getClients() */) {
           subscriptions.push(this.subscribeDiagnosticsNotification(client!, method))
         }
         this.serverNotifSubscriptions.set(method, [1, subscriptions])
       } else if (method.startsWith('$')) {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client]/* this.clientProvider.getClients() */) {
+        for (const client of [this.client] /* this.clientProvider.getClients() */) {
           subscriptions.push(this.subscribeCustomNotification(client!, method))
         }
         this.serverNotifSubscriptions.set(method, [1, subscriptions])
       } else {
         throw new Error(`subscription to ${method} server notifications not implemented`)
-      }
-    },
-    unsubscribeServerNotifications: async (method) => {
-      const el = this.serverNotifSubscriptions.get(method)
-      if (el == null) return
-      const [count, subscriptions] = el
-      if (count === 1) {
-        for (const h of subscriptions) {
-          h.dispose()
-        }
-        this.serverNotifSubscriptions.delete(method)
-      } else {
-        this.serverNotifSubscriptions.set(method, [count - 1, subscriptions])
       }
     },
 
@@ -164,36 +146,19 @@ export class InfoProvider implements Disposable {
 
       if (method === 'textDocument/didChange') {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client]/* this.clientProvider.getClients() */) {
+        for (const client of [this.client] /* this.clientProvider.getClients() */) {
           subscriptions.push(this.subscribeDidChangeNotification(client!, method))
         }
         this.clientNotifSubscriptions.set(method, [1, subscriptions])
       } else if (method === 'textDocument/didClose') {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client]/* this.clientProvider.getClients() */) {
+        for (const client of [this.client] /* this.clientProvider.getClients() */) {
           subscriptions.push(this.subscribeDidCloseNotification(client!, method))
         }
         this.clientNotifSubscriptions.set(method, [1, subscriptions])
       } else {
         throw new Error(`Subscription to '${method}' client notifications not implemented`)
       }
-    },
-
-    unsubscribeClientNotifications: async (method) => {
-      const el = this.clientNotifSubscriptions.get(method)
-      if (el == null) return
-      const [count, subscriptions] = el
-      if (count === 1) {
-        for (const d of subscriptions) {
-          d.dispose()
-        }
-        this.clientNotifSubscriptions.delete(method)
-      } else {
-        this.clientNotifSubscriptions.set(method, [count - 1, subscriptions])
-      }
-    },
-    copyToClipboard: async (text) => {
-      navigator.clipboard.writeText(text)
     },
     insertText: async (text, kind, tdpp) => {
       let uri: Uri | undefined
@@ -204,33 +169,32 @@ export class InfoProvider implements Disposable {
       }
       await this.handleInsertText(text, kind, uri, pos)
     },
-    applyEdit: async (e: ls.WorkspaceEdit) => {
-      const we = await p2cConverter.asWorkspaceEdit(e)
-      await workspace.applyEdit(we)
-    },
-    showDocument: async (show) => {
-      console.log('showDocument')
-    },
 
-    createRpcSession: async uri => {
+    createRpcSession: async (uri) => {
       const client = this.client // this.clientProvider.findClient(uri)
       if (client == null) return ''
       const sessionId = await rpcConnect(client, uri)
       const session = new RpcSessionAtPos(client, sessionId, uri)
-      // if (this.webviewPanel == null) {
-      //   session.dispose()
-      //   throw Error('infoview disconnect while connecting to RPC session')
-      // } else {
       this.rpcSessions.set(sessionId, session)
       return sessionId
-      // }
     },
-    closeRpcSession: async sessionId => {
-      const session = this.rpcSessions.get(sessionId)
-      if (session != null) {
-        this.rpcSessions.delete(sessionId)
-        session.dispose()
-      }
+    unsubscribeServerNotifications: function (method: string): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    unsubscribeClientNotifications: function (method: string): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    closeRpcSession: function (sessionId: string): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    copyToClipboard: function (text: string): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    applyEdit: function (te: ls.WorkspaceEdit): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    showDocument: function (show: ls.ShowDocumentParams): Promise<void> {
+      throw new Error('Function not implemented.')
     }
   }
 
@@ -277,11 +241,7 @@ export class InfoProvider implements Disposable {
     this.clientSubscriptions.push(
       client.restarted(async () => {
         console.log('[InfoProvider] got client restarted event')
-        // This event is triggered both the first time the server starts
-        // as well as when the server restarts.
-
-        this.clearRpcSessions(client)
-
+        
         // Need to fully re-initialize this newly restarted client with all the
         // existing subscriptions and resend position info and so on so the
         // infoview updates properly.
@@ -314,25 +274,6 @@ export class InfoProvider implements Disposable {
       this.workersFailed.set(uri, reason)
     }
     console.log(`[InfoProvider]client crashed: ${uri}`)
-  }
-
-  dispose (): void {
-    // active client is changing.
-    this.clearRpcSessions(null)
-    for (const s of this.clientSubscriptions) { s.dispose() }
-    for (const s of this.subscriptions) { s.dispose() }
-  }
-
-  private clearRpcSessions (client: LeanClient | null) {
-    const remaining = new Map()
-    for (const [sessionId, sess] of this.rpcSessions) {
-      if (client === null || sess.client === client) {
-        sess.dispose()
-      } else {
-        remaining.set(sessionId, sess)
-      }
-    }
-    this.rpcSessions = remaining
   }
 
   getApi () {
