@@ -4,11 +4,9 @@ import { Disposable, Uri, window, workspace, Position } from 'vscode'
 import * as ls from 'vscode-languageserver-protocol'
 
 import { LeanClient } from './client'
-import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils'
+import { fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils'
 
-import {
-  EditorApi, InfoviewApi, LeanFileProgressParams, TextInsertKind,
-  RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode } from '@leanprover/infoview-api'
+import { EditorApi, InfoviewApi, TextInsertKind, RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode } from '@leanprover/infoview-api'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
@@ -248,10 +246,6 @@ export class InfoProvider implements Disposable {
     this.subscriptions.push(
       window.onDidChangeActiveTextEditor(async () => await this.sendPosition()),
       window.onDidChangeTextEditorSelection(async () => await this.sendPosition()),
-      workspace.onDidChangeConfiguration(async (_e) => {
-        // regression; changing the style needs a reload. :/
-        await this.sendConfig()
-      }),
       workspace.onDidChangeTextDocument(async () => {
         await this.sendPosition()
       })
@@ -300,7 +294,7 @@ export class InfoProvider implements Disposable {
         console.log('[InfoProvider] got worker restarted event')
         await this.onWorkerRestarted(uri)
       }),
-      client.didSetLanguage(() => this.onLanguageChanged())
+      client.didSetLanguage(() => console.log('onLanguageChanged'))
     )
 
     // Note that when new client is first created it still fires client.restarted
@@ -326,10 +320,6 @@ export class InfoProvider implements Disposable {
     await client.showRestartMessage()
   }
 
-  onClientRemoved (client: LeanClient) {
-    // todo: remove subscriptions for this client...
-  }
-
   async onActiveClientStopped (client: LeanClient, activeClient: boolean, reason: any) {
     // Will show a message in case the active client stops
     // add failed client into a list (will be removed in case the client is restarted)
@@ -349,36 +339,6 @@ export class InfoProvider implements Disposable {
     this.clearRpcSessions(null)
     for (const s of this.clientSubscriptions) { s.dispose() }
     for (const s of this.subscriptions) { s.dispose() }
-  }
-
-  isOpen (): boolean {
-    return /* this.webviewPanel?.visible === */ true
-  }
-
-  async runTestScript (javaScript: string): Promise<void> {
-    if (this.infoviewApi != null) {
-      return await this.infoviewApi.runTestScript(javaScript)
-    } else {
-      throw new Error('Cannot run test script, infoview is closed.')
-    }
-  }
-
-  async getHtmlContents (): Promise<string> {
-    if (this.infoviewApi != null) {
-      return await this.infoviewApi.getInfoviewHtml()
-    } else {
-      throw new Error('Cannot retrieve infoview HTML, infoview is closed.')
-    }
-  }
-
-  async sleep (ms: number) {
-    return await new Promise((resolve) => setTimeout(resolve, ms))
-  }
-
-  async toggleAllMessages (): Promise<void> {
-    if (this.infoviewApi != null) {
-      await this.infoviewApi.requestedAction({ kind: 'toggleAllMessages' })
-    }
   }
 
   private clearNotificationHandlers () {
@@ -425,46 +385,8 @@ export class InfoProvider implements Disposable {
     if ((client?.initializeResult) != null) {
       await this.infoviewApi?.serverStopped(undefined) // clear any server stopped state
       await this.infoviewApi?.serverRestarted(client.initializeResult)
-      await this.sendDiagnostics(client)
-      await this.sendProgress(client)
       await this.sendPosition()
-      await this.sendConfig()
     }
-  }
-
-  private async sendConfig () {
-    await this.infoviewApi?.changedInfoviewConfig({
-      allErrorsOnLine: true, //getInfoViewAllErrorsOnLine(),
-      autoOpenShowsGoal: true, // getInfoViewAllErrorsOnLine(),
-      debounceTime: 50 // getInfoViewAutoOpenShowGoal()
-    })
-  }
-
-  private async sendDiagnostics (client: LeanClient) {
-    if (this.infoviewApi !== undefined) {
-      client.getDiagnostics()?.forEach(async (uri, diags) => {
-        const params = client.getDiagnosticParams(uri, diags)
-        await this.infoviewApi!.gotServerNotification('textDocument/publishDiagnostics', params)
-      })
-    }
-  }
-
-  private async sendProgress (client: LeanClient) {
-    if (this.infoviewApi == null) return
-    for (const [uri, processing] of client.progress) {
-      const params: LeanFileProgressParams = {
-        textDocument: {
-          uri: c2pConverter.asUri(uri),
-          version: 0 // HACK: The infoview ignores this
-        },
-        processing
-      }
-      await this.infoviewApi.gotServerNotification('$/lean/fileProgress', params)
-    }
-  }
-
-  private onLanguageChanged () {
-    this.sendPosition().then(() => this.sendConfig())
   }
 
   private getLocation (editor: monaco.editor.IStandaloneCodeEditor): ls.Location | undefined {

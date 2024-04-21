@@ -3,7 +3,7 @@
 import {
   TextDocument, EventEmitter, Diagnostic,
   DocumentHighlight, Range, DocumentHighlightKind,
-  Disposable, Uri, DiagnosticCollection,
+  Disposable, Uri,
 } from 'vscode'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
@@ -94,10 +94,6 @@ export class LeanClient implements Disposable {
 
   async restart (project): Promise<void> {
     const startTime = Date.now()
-
-    if (!project) {
-      project = 'MathlibLatest'
-    }
 
     console.log(`[LeanClient] Restarting Lean Server with project ${project}`)
     if (this.isStarted()) {
@@ -248,10 +244,6 @@ export class LeanClient implements Disposable {
     insideRestart = false
   }
 
-  // async start (project): Promise<void> {
-  //   return await this.restart(project)
-  // }
-
   isStarted (): boolean {
     return this.client !== undefined
   }
@@ -319,18 +311,6 @@ export class LeanClient implements Disposable {
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   sendNotification (method: string, params: any): Promise<void> | undefined {
     return this.running && (this.client != null) ? this.client.sendNotification(method, params) : undefined
-  }
-
-  async getDiagnosticParams (uri: Uri, diagnostics: readonly Diagnostic[]): Promise<PublishDiagnosticsParams> {
-    const params: PublishDiagnosticsParams = {
-      uri: c2pConverter.asUri(uri),
-      diagnostics: await c2pConverter.asDiagnostics(diagnostics as Diagnostic[])
-    }
-    return params
-  }
-
-  getDiagnostics (): DiagnosticCollection | undefined {
-    return this.running ? this.client?.diagnostics : undefined
   }
 
   get initializeResult (): InitializeResult | undefined {
