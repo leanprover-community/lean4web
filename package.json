@@ -9,13 +9,8 @@
     "build_client": "NODE_ENV=production vite build"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.11.0",
-    "@fortawesome/react-fontawesome": "^0.2.0",
     "@leanprover/infoview": "^0.4.4",
     "express": "^4.18.2",
-    "lean4": "https://gitpkg.now.sh/leanprover/vscode-lean4/vscode-lean4?8d0cc34dcfa00da8b4a48394ba1fb3a600e3f985",
-    "monaco-editor": "^0.34.1",
     "monaco-languageclient": "^4.0.1",
     "nocache": "^3.0.4",
     "react": "^18.2.0",
