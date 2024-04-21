@@ -15,8 +15,7 @@ export class InfoProvider implements Disposable {
   private editor: monaco.editor.IStandaloneCodeEditor
 
   public readonly client: LeanClient
-
-  private readonly editorApi: EditorApi = {
+  public readonly editorApi: EditorApi = {
     createRpcSession: async (uri) => {
       const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
       return result.sessionId
@@ -70,17 +69,11 @@ export class InfoProvider implements Disposable {
     this.client.restartedEmitter.event(() => this.initInfoView())
   }
 
-  getEditorApi () {
-    return this.editorApi
-  }
-
-  async openPreview (infoviewApi: InfoviewApi) {
+  async setInfoviewApi (infoviewApi: InfoviewApi) {
     this.infoviewApi = infoviewApi
-    
-    await this.initInfoView()
   }
 
-  private async initInfoView () {
+  async initInfoView () {
     
     const uri = this.editor.getModel().uri.toString()
     const selection = this.editor.getSelection()!

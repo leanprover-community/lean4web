@@ -35,7 +35,7 @@ const Editor: React.FC = () => {
       'react-dom': `${window.location.origin}/react-dom.production.min.js`,
       'react-popper': `${window.location.origin}/react-popper.production.min.js`
     }
-    loadRenderInfoview(imports, [infoProvider.getEditorApi(), infoviewRef.current!], (api) => {
+    loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current!], (api) => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
     })
@@ -44,7 +44,8 @@ const Editor: React.FC = () => {
 
   useEffect(() => {
     if (infoProvider !== null && infoviewApi !== null) {
-      infoProvider.openPreview(infoviewApi)
+      infoProvider.setInfoviewApi(infoviewApi)
+      infoProvider.initInfoView()
     }
   }, [infoviewApi, infoProvider])
 
