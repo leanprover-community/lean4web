@@ -21,7 +21,7 @@ export class InfoProvider implements Disposable {
       const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
       return result.sessionId
     },
-    sendClientRequest: async (uri: string, method: string, params: any): Promise<any> => {
+    sendClientRequest: async (_uri: string, method: string, params: any): Promise<any> => {
       return await this.client.sendRequest(method, params)
     },
     subscribeServerNotifications: async (method) => {
@@ -33,38 +33,38 @@ export class InfoProvider implements Disposable {
       }
     },
 
-    subscribeClientNotifications: async (method) => {
+    subscribeClientNotifications: async (_method) => {
       throw new Error('Function not implemented.')
     },
-    insertText: async (text, kind, tdpp) => {
+    insertText: async (_text, _kind, _tdpp) => {
       throw new Error('Function not implemented.')
     },
-    unsubscribeServerNotifications: function (method: string): Promise<void> {
+    unsubscribeServerNotifications: function (_method: string): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    unsubscribeClientNotifications: function (method: string): Promise<void> {
+    unsubscribeClientNotifications: function (_method: string): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    copyToClipboard: function (text: string): Promise<void> {
+    copyToClipboard: function (_text: string): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    applyEdit: function (te: ls.WorkspaceEdit): Promise<void> {
+    applyEdit: function (_te: ls.WorkspaceEdit): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    showDocument: function (show: ls.ShowDocumentParams): Promise<void> {
+    showDocument: function (_show: ls.ShowDocumentParams): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    closeRpcSession: function (sessionId: string): Promise<void> {
+    closeRpcSession: function (_sessionId: string): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    sendClientNotification: function (uri: string, method: string, params: any): Promise<void> {
+    sendClientNotification: function (_uri: string, _method: string, _params: any): Promise<void> {
       throw new Error('Function not implemented.')
     }
   }
 
-  constructor (private readonly _client: LeanClient | undefined, editor: monaco.editor.IStandaloneCodeEditor) {
+  constructor (client: LeanClient, editor: monaco.editor.IStandaloneCodeEditor) {
 
-    this.client = _client
+    this.client = client
     this.editor = editor
 
     this.client.restarted(() => this.initInfoView())
