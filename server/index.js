@@ -99,7 +99,7 @@ class ClientConnection {
   }
 
   startProcess (project) {
-    let path = __dirname + `/../Projects/` + project
+    let path = __dirname + `/../projects/` + project
 
     console.log(`The path is ${path}`)
 
