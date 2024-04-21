@@ -52,19 +52,6 @@ export class LeanClient implements Disposable {
 
     this.restartedEmitter.fire({ project })
   }
-
-  sendRequest (method: string, params: any): Promise<any> {
-    return this.client.sendRequest(method, params)
-  }
-
-  sendNotification (method: string, params: any): Promise<void> | undefined {
-    return this.client.sendNotification(method, params)
-  }
-
-  get initializeResult (): InitializeResult | undefined {
-    return this.client.initializeResult
-  }
-
 }
 
 export class InfoProvider implements Disposable {
@@ -75,11 +62,11 @@ export class InfoProvider implements Disposable {
   public readonly client: LeanClient
   public readonly editorApi: EditorApi = {
     createRpcSession: async (uri) => {
-      const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
+      const result: RpcConnected = await this.client.client.sendRequest('$/lean/rpc/connect', { uri })
       return result.sessionId
     },
     sendClientRequest: async (_uri: string, method: string, params: any): Promise<any> => {
-      return await this.client.sendRequest(method, params)
+      return await this.client.client.sendRequest(method, params)
     },
     subscribeServerNotifications: async (method) => {
 
@@ -136,6 +123,6 @@ export class InfoProvider implements Disposable {
     const uri = this.editor.getModel().uri.toString()
     const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
     await this.infoviewApi.initialize({ uri, range })
-    await this.infoviewApi.serverRestarted(this.client.initializeResult)
+    await this.infoviewApi.serverRestarted(this.client.client.initializeResult)
   }
 }
