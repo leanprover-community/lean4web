@@ -1,8 +1,8 @@
 
-const express = require("express")
-const path = require("path")
-const nocache = require("nocache")
-const WebSocket = require("ws");
+const express = require('express')
+const path = require('path')
+const nocache = require('nocache')
+const WebSocket = require('ws');
 const { spawn } = require('child_process');
 
 const app = express()
@@ -10,9 +10,7 @@ app.use(express.static(path.join(__dirname, '../client/dist/')))
 app.use(nocache())
 
 const PORT = process.env.PORT ?? 8080
-const server = app.listen(PORT, () => console.log(`HTTP on port ${PORT}`))
-
-
+const server = app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
 
 // TODO: Use server-side connection forwarding
 // https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
@@ -103,8 +101,8 @@ class ClientConnection {
 
     console.log(`The path is ${path}`)
 
-    const cmd = "lake";
-    const cmdArgs = ["serve", "--"];
+    const cmd = 'lake';
+    const cmdArgs = ['serve', '--'];
     const cwd = path
 
     this.lean = spawn(cmd, cmdArgs, { cwd })
