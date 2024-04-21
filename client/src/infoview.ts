@@ -1,18 +1,14 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
 
-import * as ls from 'vscode-languageserver-protocol'
-
 import { EditorApi, InfoviewApi, RpcConnected } from '@leanprover/infoview-api'
 
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-
 import { EventEmitter, Disposable } from 'vscode'
-
-import { InitializeResult, MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
-
+import * as ls from 'vscode-languageserver-protocol'
+import { createConverter } from 'vscode-languageclient/lib/common/codeConverter'
 import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode-ws-jsonrpc';
 
-import { createConverter } from 'vscode-languageclient/lib/common/codeConverter'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import { InitializeResult, MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
 
 const c2pConverter = createConverter(undefined)
 
