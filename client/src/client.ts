@@ -1,13 +1,10 @@
 /* This file is based on `vscode-lean4/src/leanclient.ts` */
 
 import { EventEmitter, Disposable } from 'vscode'
-import * as ls from 'vscode-languageserver-protocol'
 
 import { DidChangeTextDocumentParams, InitializeResult, MonacoLanguageClient, LanguageClientOptions, PublishDiagnosticsParams, IConnectionProvider } from 'monaco-languageclient'
 
 import { c2pConverter, patchConverters } from './utils'
-
-const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 export class LeanClient implements Disposable {
   private client: MonacoLanguageClient | undefined
@@ -30,22 +27,17 @@ export class LeanClient implements Disposable {
     console.log(`[LeanClient] Restarting Lean Server with project ${project}`)
 
     const clientOptions: LanguageClientOptions = {
-      // use a language id as a document selector
       documentSelector: ['lean4'],
-      workspaceFolder: {uri: "hello"},
+      // workspaceFolder: {uri: "hello"},
       middleware: {
         handleDiagnostics: (uri, diagnostics, next) => {
           next(uri, diagnostics)
-          if (this.client == null) return
-          const uri_ = c2pConverter.asUri(uri)
+
           const diagnostics_ = []
           for (const d of diagnostics) {
-            const d_: ls.Diagnostic = {
-              ...c2pConverter.asDiagnostic(d)
-            }
-            diagnostics_.push(d_)
+            diagnostics_.push(c2pConverter.asDiagnostic(d))
           }
-          this.diagnosticsEmitter.fire({ uri: uri_, diagnostics: diagnostics_ })
+          this.diagnosticsEmitter.fire({ uri: c2pConverter.asUri(uri), diagnostics: diagnostics_ })
         },
       }
     }
