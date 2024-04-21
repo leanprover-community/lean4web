@@ -32,7 +32,6 @@ export function getFullRange (diag: Diagnostic): Range {
 export class LeanClient implements Disposable {
   running: boolean = false
   private client: LanguageClient | undefined
-  private noPrompt: boolean = false
 
   private readonly didChangeEmitter = new EventEmitter<DidChangeTextDocumentParams>()
   didChange = this.didChangeEmitter.event
@@ -52,9 +51,6 @@ export class LeanClient implements Disposable {
   private readonly restartedEmitter = new EventEmitter()
   restarted = this.restartedEmitter.event
 
-  private readonly restartingEmitter = new EventEmitter()
-  restarting = this.restartingEmitter.event
-
   private readonly restartedWorkerEmitter = new EventEmitter<string>()
   restartedWorker = this.restartedWorkerEmitter.event
 
@@ -69,8 +65,6 @@ export class LeanClient implements Disposable {
     if (this.isStarted()) {
       await this.stop()
     }
-
-    this.restartingEmitter.fire(undefined)
 
     const clientOptions: LanguageClientOptions = {
       // use a language id as a document selector
@@ -174,11 +168,6 @@ export class LeanClient implements Disposable {
         } else if (s.newState === State.Stopped) {
           this.running = false
           console.log('[LeanClient] has stopped or it failed to start')
-          if (!this.noPrompt) {
-            // only raise this event and show the message if we are not the ones
-            // who called the stop() method.
-            this.stoppedEmitter.fire({ message: 'Lean server has stopped.', reason: '' })
-          }
         }
       })
       await this.client.start()
@@ -224,7 +213,6 @@ export class LeanClient implements Disposable {
   async stop (): Promise<void> {
     // assert(() => this.isStarted())
     if ((this.client != null) && this.running) {
-      this.noPrompt = true
       try {
         // some timing conditions can happen while running unit tests that cause
         // this to throw an exception which then causes those tests to fail.
@@ -234,7 +222,6 @@ export class LeanClient implements Disposable {
       }
     }
 
-    this.noPrompt = false
     this.progress = new Map()
     this.client = undefined
     this.running = false

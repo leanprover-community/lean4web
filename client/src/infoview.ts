@@ -4,7 +4,7 @@ import { Disposable, Uri, window, workspace, Position } from 'vscode'
 import * as ls from 'vscode-languageserver-protocol'
 
 import { LeanClient } from './client'
-import { fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils'
+import { fromLanguageServerPosition, p2cConverter, toLanguageServerRange } from './utils'
 
 import { EditorApi, InfoviewApi, TextInsertKind, RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode } from '@leanprover/infoview-api'
 
@@ -44,11 +44,9 @@ export class InfoProvider implements Disposable {
   private readonly clientSubscriptions: Disposable[] = []
 
   public readonly client?: LeanClient
-  // private readonly clientProvider: LeanClientProvider
 
   // Subscriptions are counted and only disposed of when count becomes 0.
   private readonly serverNotifSubscriptions: Map<string, [number, Disposable[]]> = new Map()
-  private readonly clientNotifSubscriptions: Map<string, [number, Disposable[]]> = new Map()
 
   private rpcSessions: Map<string, RpcSessionAtPos> = new Map()
 
@@ -67,11 +65,7 @@ export class InfoProvider implements Disposable {
           const result = await client.sendRequest(method, params)
           return result
         } catch (ex: any) {
-          if (ex.code === RpcErrorCode.WorkerCrashed) {
-            // ex codes related with worker exited or crashed
-            console.log(`[InfoProvider]The Lean Server has stopped processing this file: ${ex.message}`)
-          }
-          throw ex
+          console.log(`[InfoProvider]The Lean Server has stopped processing this file: ${ex.message}`)
         }
       }
       return undefined
@@ -93,11 +87,6 @@ export class InfoProvider implements Disposable {
           subscriptions.push(this.subscribeDiagnosticsNotification(client!, method))
         }
         this.serverNotifSubscriptions.set(method, [1, subscriptions])
-      } else if (method.startsWith('$')) {
-        const subscriptions: Disposable[] = []
-        this.serverNotifSubscriptions.set(method, [1, subscriptions])
-      } else {
-        throw new Error(`subscription to ${method} server notifications not implemented`)
       }
     },
 
