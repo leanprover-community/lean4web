@@ -1,8 +1,8 @@
-import { Registry } from 'monaco-textmate' // peer dependency
-import { wireTmGrammars } from 'monaco-editor-textmate'
-import * as leanSyntax from './syntaxes/lean.json'
-import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
-import * as codeblockSyntax from './syntaxes/codeblock.json'
+// import { Registry } from 'monaco-textmate' // peer dependency
+// import { wireTmGrammars } from 'monaco-editor-textmate'
+// import * as leanSyntax from './syntaxes/lean.json'
+// import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
+// import * as codeblockSyntax from './syntaxes/codeblock.json'
 import languageConfig from 'lean4/language-configuration.json';
 import { loadWASM } from 'onigasm'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
@@ -43,26 +43,26 @@ export function monacoSetup () {
   config.surroundingPairs = translateBrackets(config.surroundingPairs)
   monaco.languages.setLanguageConfiguration('lean4', config);
 
-  const registry = new Registry({
-    getGrammarDefinition: async (scopeName) => {
-      if (scopeName === 'source.lean') {
-        return {
-            format: 'json',
-            content: JSON.stringify(leanSyntax)
-        }
-      } else if (scopeName === 'source.lean.markdown') {
-        return {
-            format: 'json',
-            content: JSON.stringify(leanMarkdownSyntax)
-        }
-      } else {
-        return {
-            format: 'json',
-            content: JSON.stringify(codeblockSyntax)
-        }
-      }
-    }
-  });
+  // const registry = new Registry({
+  //   getGrammarDefinition: async (scopeName) => {
+  //     if (scopeName === 'source.lean') {
+  //       return {
+  //           format: 'json',
+  //           content: JSON.stringify(leanSyntax)
+  //       }
+  //     } else if (scopeName === 'source.lean.markdown') {
+  //       return {
+  //           format: 'json',
+  //           content: JSON.stringify(leanMarkdownSyntax)
+  //       }
+  //     } else {
+  //       return {
+  //           format: 'json',
+  //           content: JSON.stringify(codeblockSyntax)
+  //       }
+  //     }
+  //   }
+  // });
 
   // Load onigasm
   (async () => {
@@ -74,6 +74,6 @@ export function monacoSetup () {
         throw err
       }
     }
-    wireTmGrammars(monaco, registry, grammars)
+    // wireTmGrammars(monaco, registry, grammars)
   })()
 }

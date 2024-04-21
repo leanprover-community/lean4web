@@ -12,8 +12,8 @@ import { AbbreviationRewriter } from './editor/abbreviation/rewriter/Abbreviatio
 import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
-import Notification from './Notification'
-import { config } from './config/config'
+// import Notification from './Notification'
+// import { config } from './config/config'
 import { IConnectionProvider } from 'monaco-languageclient'
 import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 import { DisposingWebSocketMessageReader } from './reader'
@@ -21,74 +21,27 @@ import { monacoSetup } from './monacoSetup'
 
 monacoSetup()
 
-const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: string, project: string}> =
-    ({setRestart, onDidChangeContent, value, theme, project}) => {
+const Editor: React.FC<{onDidChangeContent?, value: string, project: string}> =
+    ({onDidChangeContent, value, project}) => {
   const uri = monaco.Uri.parse(`file:///project/${project}.lean`)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
-  // const [editorApi, setEditorApi] = useState<MyEditorApi | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
-  const [dragging, setDragging] = useState<boolean | null>(false)
-  const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
-
-  useEffect(() => {
-    if (['lightPlus', 'custom'].includes(theme)) {
-      monaco.editor.setTheme(theme)
-    } else {
-      //monaco.editor.setTheme(theme)
-      fetch(`./themes/${theme}.json`,{
-        headers : {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(themeJson => {
-        monaco.editor.defineTheme('usedTheme', themeJson as any);
-        monaco.editor.setTheme('usedTheme')
-        console.log(`changed theme to ${theme}`)
-      })
-    }
-  }, [theme, editor])
 
   useEffect(() => {
     const model = monaco.editor.createModel(value ?? '', 'lean4', uri)
     if (onDidChangeContent) {
       model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
     }
-    const editor = monaco.editor.create(codeviewRef.current!, {
-      model,
-      glyphMargin: true,
-      lineDecorationsWidth: 5,
-      folding: false,
-      lineNumbers: 'on',
-      lineNumbersMinChars: 1,
-      // rulers: [100],
-      lightbulb: {
-        enabled: true
-      },
-      unicodeHighlight: {
-          ambiguousCharacters: false,
-      },
-      automaticLayout: true,
-      minimap: {
-        enabled: false
-      },
-      tabSize: 2,
-      'semanticHighlighting.enabled': true,
-      theme: 'vs',
-      wordWrap: config.wordWrap
-    })
+    const editor = monaco.editor.create(codeviewRef.current!, { model, })
     setEditor(editor)
-    const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
     return () => {
       editor.dispose();
       model.dispose();
-      abbrevRewriter.dispose();
     }
-  }, [config.wordWrap])
+  }, [])
 
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
@@ -99,20 +52,11 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
         return await new Promise((resolve, reject) => {
           console.log(`connecting ${socketUrl}`)
           const websocket = new WebSocket(socketUrl)
-          websocket.addEventListener('error', (ev) => {
-            reject(ev)
-          })
-          websocket.addEventListener('message', (msg) => {
-            // console.log(msg.data)
-          })
           websocket.addEventListener('open', () => {
             const socket = toSocket(websocket)
             const reader = new DisposingWebSocketMessageReader(socket)
             const writer = new WebSocketMessageWriter(socket)
-            resolve({
-              reader,
-              writer
-            })
+            resolve({ reader, writer })
           })
         })
       }
@@ -139,70 +83,23 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
   }, [project])
 
   const showRestartMessage = () => {
-    setRestartMessage(true)
+    // setRestartMessage(true)
   }
-
-  const restart = async (project) => {
-    if (!project) {
-      project = 'MathlibLatest'
-    }
-    console.log(`project got to here! ${project}`)
-    await infoProvider.client.restart(project);
-  }
-
-  useEffect(() => {
-    if (editor){
-      if (editor.getModel().getValue() != value) {
-        editor.pushUndoStop()
-        editor.executeEdits("component", [
-          { range: editor.getModel().getFullModelRange(), text: value }
-        ]);
-        editor.setSelection(new monaco.Range(1,1,1,1))
-      }
-    }
-  }, [value])
 
   useEffect(() => {
     if (infoProvider !== null && editor !== null && infoviewApi !== null) {
       infoProvider.openPreview(editor, infoviewApi)
-      const taskgutter = new LeanTaskGutter(infoProvider.client, editor)
     }
-    setRestart((project?) => restart)
   }, [editor, infoviewApi, infoProvider])
-
 
   return (
     <div className='editor-wrapper'>
-      <Split className={`editor ${ dragging? 'dragging':''}`}
-        gutter={(index,direction) => {
-          const gutter = document.createElement('div')
-          gutter.className = `gutter` // no `gutter-${direction}` as it might change
-          return gutter
-        }}
-        gutterStyle={(dimension, gutterSize, index) => {
-          return {
-            'width': config.verticalLayout ? '100%' : `${gutterSize}px`,
-            'height': config.verticalLayout ? `${gutterSize}px` : '100%',
-            'cursor': config.verticalLayout ? 'row-resize' : 'col-resize',
-            'margin-left': config.verticalLayout ? 0 : `-${gutterSize}px`,
-            'margin-top': config.verticalLayout ? `-${gutterSize}px` : 0,
-            'z-index': 0,
-          }}}
-        gutterSize={5}
-        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
-        sizes={config.verticalLayout ? [50, 50] : [70, 30]}
-        direction={config.verticalLayout ? "vertical" : "horizontal"}
-        style={{flexDirection: config.verticalLayout ? "column" : "row"}}>
+      <Split>
         <div ref={codeviewRef} className="codeview"
-          style={config.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+          style={false ? {width : '100%'} : {height: '100%'}}></div>
         <div ref={infoviewRef} className="vscode-light infoview"
-          style={config.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+          style={false ? {width : '100%'} : {height: '100%'}}></div>
       </Split>
-      {restartMessage ?
-        <Notification
-          restart={() => {setRestartMessage(false); restart(project)} }
-          close={() => {setRestartMessage(false)}} />
-        : ''}
     </div>
   )
 }

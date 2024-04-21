@@ -1,5 +1,7 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
 
+// http://localhost:8080/#code=%0A%23eval%203%20%2B%201%0A%23eval%20IO.println%20%22hello%22%0A
+
 import {
   Disposable, Uri, window, workspace, Position
 } from 'vscode'
