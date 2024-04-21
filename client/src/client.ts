@@ -18,7 +18,6 @@ import { c2pConverter, patchConverters } from './utils'
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 export class LeanClient implements Disposable {
-  running: boolean = false
   private client: LanguageClient | undefined
 
   private readonly didChangeEmitter = new EventEmitter<DidChangeTextDocumentParams>()
@@ -29,9 +28,6 @@ export class LeanClient implements Disposable {
 
   private readonly restartedEmitter = new EventEmitter()
   restarted = this.restartedEmitter.event
-
-  // private readonly restartedWorkerEmitter = new EventEmitter<string>()
-  // restartedWorker = this.restartedWorkerEmitter.event
 
   constructor (private readonly connectionProvider: IConnectionProvider) {
 
@@ -79,7 +75,7 @@ export class LeanClient implements Disposable {
 
         didChange: async (data, next) => {
           await next(data)
-          if (!this.running || (this.client == null)) return // there was a problem starting lean server.
+          if (this.client == null) return // there was a problem starting lean server.
           const params = c2pConverter.asChangeTextDocumentParams(data)
           this.didChangeEmitter.fire(params)
         },
@@ -122,12 +118,8 @@ export class LeanClient implements Disposable {
       })
     }
 
-    // HACK: Prevent monaco from panicking when the Lean server crashes
-    this.client.handleFailedRequest = (type, token: any, error: any, defaultValue, showNotification?: boolean) => {
-      return defaultValue
-    }
-
     patchConverters(this.client.protocol2CodeConverter, this.client.code2ProtocolConverter)
+
     try {
       this.client.onDidChangeState(async (s) => {
         // see https://github.com/microsoft/vscode-languageserver-node/issues/825
@@ -136,14 +128,11 @@ export class LeanClient implements Disposable {
         } else if (s.newState === State.Running) {
           const end = Date.now()
           console.log(`[LeanClient] running, started in ${end - startTime} ms`)
-          this.running = true // may have been auto restarted after it failed.
         } else if (s.newState === State.Stopped) {
-          this.running = false
           console.log('[LeanClient] has stopped or it failed to start')
         }
       })
       await this.client.start()
-      this.running = true
     } catch (error) {
       console.log(error)
       return
@@ -152,31 +141,20 @@ export class LeanClient implements Disposable {
     this.restartedEmitter.fire({project: project})
   }
 
-  isStarted (): boolean {
-    return this.client !== undefined
-  }
-
-  isRunning (): boolean {
-    if (this.client != null) {
-      return this.running
-    }
-    return false
-  }
-
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   async sendRequest (method: string, params: any): Promise<any> {
-    return this.running && (this.client != null)
+    return this.client != null
       ? await this.client.sendRequest(method, params)
       : await new Promise<any>((_, reject) => { reject('Client is not running') })
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   sendNotification (method: string, params: any): Promise<void> | undefined {
-    return this.running && (this.client != null) ? this.client.sendNotification(method, params) : undefined
+    return this.client.sendNotification(method, params)
   }
 
   get initializeResult (): InitializeResult | undefined {
-    return this.running ? this.client?.initializeResult : undefined
+    return this.client?.initializeResult
   }
 
 }

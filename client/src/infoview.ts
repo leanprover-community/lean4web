@@ -1,12 +1,12 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
 
-import { Disposable, Uri, window, workspace, Position } from 'vscode'
+import { Disposable } from 'vscode'
 import * as ls from 'vscode-languageserver-protocol'
 
 import { LeanClient } from './client'
-import { fromLanguageServerPosition, p2cConverter, toLanguageServerRange } from './utils'
+import { toLanguageServerRange } from './utils'
 
-import { EditorApi, InfoviewApi, TextInsertKind, RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode } from '@leanprover/infoview-api'
+import { EditorApi, InfoviewApi, RpcConnectParams, RpcConnected, RpcKeepAliveParams } from '@leanprover/infoview-api'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
@@ -34,7 +34,6 @@ export class InfoProvider implements Disposable {
   /** Instance of the panel, if it is open. Otherwise `undefined`. */
   private infoviewApi?: InfoviewApi
   private editor?: monaco.editor.IStandaloneCodeEditor
-  private readonly subscriptions: Disposable[] = []
   private readonly clientSubscriptions: Disposable[] = []
 
   public readonly client?: LeanClient
@@ -53,10 +52,9 @@ export class InfoProvider implements Disposable {
 
   private readonly editorApi: EditorApi = {
     sendClientRequest: async (uri: string, method: string, params: any): Promise<any> => {
-      const client = this.client // clientProvider.findClient(uri)
-      if (client != null) {
+      if (this.client != null) {
         try {
-          const result = await client.sendRequest(method, params)
+          const result = await this.client.sendRequest(method, params)
           return result
         } catch (ex: any) {
           console.log(`[InfoProvider]The Lean Server has stopped processing this file: ${ex.message}`)
@@ -154,7 +152,7 @@ export class InfoProvider implements Disposable {
 
     // The infoview gets information about file progress, diagnostics, etc. by listening to notifications.
     // Send these notifications when the infoview starts so that it has up-to-date information.
-    await this.infoviewApi?.serverRestarted(client.initializeResult)
+    await this.infoviewApi?.serverRestarted(this.client?.initializeResult)
   }
 
   private getLocation (editor: monaco.editor.IStandaloneCodeEditor): ls.Location | undefined {
