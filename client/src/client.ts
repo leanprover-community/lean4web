@@ -45,9 +45,6 @@ export class LeanClient implements Disposable {
   /** saved progress info in case infoview is opened, it needs to get all of it. */
   progress: ServerProgress = new Map()
 
-  private readonly stoppedEmitter = new EventEmitter()
-  stopped = this.stoppedEmitter.event
-
   private readonly restartedEmitter = new EventEmitter()
   restarted = this.restartedEmitter.event
 

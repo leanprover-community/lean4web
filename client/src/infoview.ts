@@ -187,7 +187,6 @@ export class InfoProvider implements Disposable {
     // by listening to notifications.  Send these notifications when the infoview starts
     // so that it has up-to-date information.
     if ((client?.initializeResult) != null) {
-      await this.infoviewApi?.serverStopped(undefined) // clear any server stopped state
       await this.infoviewApi?.serverRestarted(client.initializeResult)
       await this.sendPosition()
     }
@@ -207,9 +206,7 @@ export class InfoProvider implements Disposable {
     const editor = this.editor
     if (editor == null) return
     const loc = this.getLocation(editor)
-    if (!this.client.running){
-      await this.infoviewApi?.serverStopped(undefined)
-    } else {
+    if (this.client.running){
       await this.updateStatus(loc)
     }
   }
