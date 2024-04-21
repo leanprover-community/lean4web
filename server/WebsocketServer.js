@@ -14,8 +14,7 @@ class ClientConnection {
 
   re = /Content-Length: (\d+)\r\n/i
 
-  constructor (ws, useBubblewrap, project) {
-    this.useBubblewrap = useBubblewrap
+  constructor (ws, project) {
 
     this.startProcess(project)
 
@@ -27,14 +26,7 @@ class ClientConnection {
 
     ws.on('close', () => {
       if (this.lean) {
-        if (this.useBubblewrap) {
-          // We need to shut down the Docker container. Simply killing the process does not cut it.
-          console.log(this.lean.pid)
-          this.lean?.kill()
-        } else {
-          // Simply kill the Lean process
-          this.lean?.kill()
-        }
+        this.lean?.kill()
       }
     })
 
@@ -98,17 +90,9 @@ class ClientConnection {
 
     console.log(`The path is ${path}`)
 
-    let cmd, cmdArgs, cwd;
-    if (this.useBubblewrap) {
-      cmd = "./bubblewrap.sh";
-      cmdArgs = [path];
-      cwd = __dirname;
-    } else{
-      console.warn("Running without Bubblewrap container!")
-      cmd = "lake";
-      cmdArgs = ["serve", "--"];
-      cwd = path
-    }
+    const cmd = "lake";
+    const cmdArgs = ["serve", "--"];
+    const cwd = path
 
     this.lean = spawn(cmd, cmdArgs, { cwd })
   }
@@ -118,7 +102,7 @@ const urlRegEx = /^\/websocket\/([\w.-]+)$/
 
 class WebsocketServer {
 
-  constructor(server, useBubblewrap) {
+  constructor(server) {
     this.wss = new WebSocket.Server({ server })
     this.socketCounter = 0;
 
@@ -131,7 +115,7 @@ class WebsocketServer {
 
       this.socketCounter += 1;
 
-      new ClientConnection(ws, useBubblewrap, project)
+      new ClientConnection(ws, project)
       ws.on('close', () => {
         this.socketCounter -= 1;
       })
