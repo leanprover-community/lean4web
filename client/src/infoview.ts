@@ -71,12 +71,6 @@ export class InfoProvider implements Disposable {
       return undefined
     },
     subscribeServerNotifications: async (method) => {
-      const el = this.serverNotifSubscriptions.get(method)
-      if (el != null) {
-        const [count, h] = el
-        this.serverNotifSubscriptions.set(method, [count + 1, h])
-        return
-      }
 
       // NOTE(WN): For non-custom notifications we cannot call LanguageClient.onNotification
       // here because that *overwrites* the notification handler rather than registers an extra one.
@@ -207,12 +201,8 @@ export class InfoProvider implements Disposable {
     if (editor == null) return
     const loc = this.getLocation(editor)
     if (this.client.running){
-      await this.updateStatus(loc)
+      await this.infoviewApi?.changedCursorLocation(loc)
     }
-  }
-
-  private async updateStatus (loc: ls.Location | undefined): Promise<void> {
-    await this.infoviewApi?.changedCursorLocation(loc)
   }
 
   private async handleInsertText (text: string, kind: TextInsertKind, uri?: Uri, pos?: monaco.Position) {
