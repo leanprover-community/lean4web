@@ -17,7 +17,7 @@ import { createConverter as createC2PConverter } from 'vscode-languageclient/lib
 import * as ls from 'vscode-languageserver-protocol'
 import * as code from 'vscode'
 import { Code2ProtocolConverter, Protocol2CodeConverter } from 'vscode-languageclient'
-import { MonacoLanguageClient} from 'monaco-languageclient/.'
+
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 interface Lean4Diagnostic extends ls.Diagnostic {

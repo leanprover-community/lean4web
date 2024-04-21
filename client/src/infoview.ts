@@ -9,9 +9,9 @@ import {
   EditorApi, InfoviewApi, LeanFileProgressParams, TextInsertKind,
   RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode
 } from '@leanprover/infoview-api'
-import { LeanClient } from './leanclient'
+import { LeanClient } from './client'
 import * as ls from 'vscode-languageserver-protocol'
-import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './converters'
+import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 const keepAlivePeriodMs = 10000

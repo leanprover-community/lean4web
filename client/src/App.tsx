@@ -6,7 +6,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './infoview'
-import { LeanClient } from './leanclient'
+import { LeanClient } from './client'
 import { IConnectionProvider } from 'monaco-languageclient'
 import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 
@@ -32,7 +32,7 @@ const Editor: React.FC = () => {
     const editor = monaco.editor.create(document.body, { model, })
     setEditor(editor)
 
-    const socketUrl = "ws://" + window.location.host + "/websocket" + "/" + project
+    const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
     const connectionProvider : IConnectionProvider = {
       get: async () => {
         return await new Promise((resolve) => {

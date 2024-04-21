@@ -5,6 +5,9 @@ import {
   DocumentHighlight, Range, DocumentHighlightKind,
   Disposable, Uri, DiagnosticCollection,
 } from 'vscode'
+import { State } from 'vscode-languageclient'
+import * as ls from 'vscode-languageserver-protocol'
+
 import {
   DidChangeTextDocumentParams,
   DidCloseTextDocumentParams,
@@ -14,11 +17,9 @@ import {
   PublishDiagnosticsParams,
   CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
-import { State } from 'vscode-languageclient'
-import * as ls from 'vscode-languageserver-protocol'
 
 import { LeanFileProgressParams, LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
-import { c2pConverter, p2cConverter, patchConverters } from './converters'
+import { c2pConverter, p2cConverter, patchConverters } from './utils'
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
