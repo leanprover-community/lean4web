@@ -5,25 +5,22 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
-import { InfoProvider } from './infoview'
-import { LeanClient } from './client'
-
-monaco.languages.register({
-  id: 'lean4',
-  extensions: ['.lean']
-})
+import { InfoProvider, LeanClient } from './infoview'
 
 const project = 'MathlibLatest'
 
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
 const Editor: React.FC = () => {
-  
+
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+
+    monaco.languages.register({ id: 'lean4', extensions: ['.lean'] })
+
     const model = monaco.editor.createModel(code, 'lean4')
     const editor = monaco.editor.create(document.body, { model, })
 
