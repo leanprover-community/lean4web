@@ -102,12 +102,6 @@ export class InfoProvider implements Disposable {
       }
       return undefined
     },
-    sendClientNotification: async (uri: string, method: string, params: any): Promise<void> => {
-      const client = this.client // this.clientProvider.findClient(uri)
-      if (client != null) {
-        await client.sendNotification(method, params)
-      }
-    },
     subscribeServerNotifications: async (method) => {
       const el = this.serverNotifSubscriptions.get(method)
       if (el != null) {
@@ -184,9 +178,6 @@ export class InfoProvider implements Disposable {
     unsubscribeClientNotifications: function (method: string): Promise<void> {
       throw new Error('Function not implemented.')
     },
-    closeRpcSession: function (sessionId: string): Promise<void> {
-      throw new Error('Function not implemented.')
-    },
     copyToClipboard: function (text: string): Promise<void> {
       throw new Error('Function not implemented.')
     },
@@ -194,6 +185,12 @@ export class InfoProvider implements Disposable {
       throw new Error('Function not implemented.')
     },
     showDocument: function (show: ls.ShowDocumentParams): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    closeRpcSession: function (sessionId: string): Promise<void> {
+      throw new Error('Function not implemented.')
+    },
+    sendClientNotification: function (uri: string, method: string, params: any): Promise<void> {
       throw new Error('Function not implemented.')
     }
   }
@@ -249,22 +246,13 @@ export class InfoProvider implements Disposable {
       }),
       client.restartedWorker(async (uri) => {
         console.log('[InfoProvider] got worker restarted event')
-        await this.onWorkerRestarted(uri)
+        // await this.onWorkerRestarted(uri)
       }),
       client.didSetLanguage(() => console.log('onLanguageChanged'))
     )
 
     // Note that when new client is first created it still fires client.restarted
     // event, so all onClientRestarted can happen there so we don't do it twice.
-  }
-
-  async onWorkerRestarted (uri: string): Promise<void> {
-    await this.infoviewApi?.serverStopped(undefined) // clear any server stopped state
-    if (this.workersFailed.has(uri)) {
-      this.workersFailed.delete(uri)
-      console.log('[InfoProvider] Restarting worker for file: ' + uri)
-    }
-    await this.sendPosition()
   }
 
   async onWorkerStopped (uri: string, client: LeanClient, reason: any) {
