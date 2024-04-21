@@ -40,7 +40,7 @@ const Editor: React.FC = () => {
     }
     loadRenderInfoview(imports, [infoProvider.getApi(), infoviewRef.current!], (api) => setInfoviewApi(api))
     setInfoProvider(infoProvider)
-    client.restart(project)
+    client.start(project)
   }, [])
 
   useEffect(() => {

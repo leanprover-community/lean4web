@@ -19,7 +19,7 @@ export class LeanClient implements Disposable {
   private readonly restartedEmitter = new EventEmitter()
   restarted = this.restartedEmitter.event
 
-  async restart (project): Promise<void> {
+  async start (project): Promise<void> {
 
     const clientOptions: LanguageClientOptions = {
       documentSelector: ['lean4'],

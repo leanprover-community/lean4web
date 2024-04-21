@@ -16,26 +16,6 @@ function toLanguageServerRange (range: monaco.Range): ls.Range {
   }
 }
 
-const keepAlivePeriodMs = 10_000
-
-class RpcSessionAtPos implements Disposable {
-  keepAliveInterval?: NodeJS.Timeout
-  client: LeanClient
-
-  constructor (client: LeanClient, public sessionId: string, public uri: ls.DocumentUri) {
-    this.client = client
-    this.keepAliveInterval = setInterval(async () => {
-      const params: RpcKeepAliveParams = { uri, sessionId }
-      try {
-        await client.sendNotification('$/lean/rpc/keepAlive', params)
-      } catch (e) {
-        console.log(`[InfoProvider] failed to send keepalive for ${uri}: ${e}`)
-        if (this.keepAliveInterval != null) clearInterval(this.keepAliveInterval)
-      }
-    }, keepAlivePeriodMs)
-  }
-}
-
 export class InfoProvider implements Disposable {
 
   private infoviewApi?: InfoviewApi
