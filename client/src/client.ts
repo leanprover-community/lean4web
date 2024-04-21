@@ -1,10 +1,6 @@
 /* This file is based on `vscode-lean4/src/leanclient.ts` */
 
-import {
-  TextDocument, EventEmitter, Diagnostic,
-  DocumentHighlight, Range, DocumentHighlightKind,
-  Disposable, Uri,
-} from 'vscode'
+import { TextDocument, EventEmitter, DocumentHighlight, Range, DocumentHighlightKind, Disposable } from 'vscode'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
 
@@ -18,16 +14,9 @@ import {
   CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
 
-import { LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
 import { c2pConverter, patchConverters } from './utils'
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-export type ServerProgress = Map<Uri, LeanFileProgressProcessingInfo[]>
-
-export function getFullRange (diag: Diagnostic): Range {
-  return (diag as any)?.fullRange || diag.range
-}
 
 export class LeanClient implements Disposable {
   running: boolean = false
@@ -56,9 +45,6 @@ export class LeanClient implements Disposable {
     const startTime = Date.now()
 
     console.log(`[LeanClient] Restarting Lean Server with project ${project}`)
-    if (this.isStarted()) {
-      await this.stop()
-    }
 
     const clientOptions: LanguageClientOptions = {
       // use a language id as a document selector
@@ -179,22 +165,6 @@ export class LeanClient implements Disposable {
       return this.running
     }
     return false
-  }
-
-  async stop (): Promise<void> {
-    // assert(() => this.isStarted())
-    if ((this.client != null) && this.running) {
-      try {
-        // some timing conditions can happen while running unit tests that cause
-        // this to throw an exception which then causes those tests to fail.
-        await this.client.stop()
-      } catch (e) {
-        console.log(`[LeanClient] Error stopping language client: ${e}`)
-      }
-    }
-
-    this.client = undefined
-    this.running = false
   }
 
   async restartFile (doc: TextDocument): Promise<void> {
