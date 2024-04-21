@@ -18,7 +18,6 @@ const project = 'MathlibLatest'
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
 const Editor: React.FC = () => {
-  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
@@ -26,9 +25,7 @@ const Editor: React.FC = () => {
   useEffect(() => {
     const model = monaco.editor.createModel(code, 'lean4')
     const editor = monaco.editor.create(document.body, { model, })
-    setEditor(editor)
 
-    // Following `vscode-lean4/webview/index.ts`
     const client = new LeanClient()
     const infoProvider = new InfoProvider(client, editor)
     const imports = {
@@ -38,8 +35,10 @@ const Editor: React.FC = () => {
       'react-dom': `${window.location.origin}/react-dom.production.min.js`,
       'react-popper': `${window.location.origin}/react-popper.production.min.js`
     }
-    loadRenderInfoview(imports, [infoProvider.getApi(), infoviewRef.current!], (api) => setInfoviewApi(api))
-    setInfoProvider(infoProvider)
+    loadRenderInfoview(imports, [infoProvider.getEditorApi(), infoviewRef.current!], (api) => {
+      setInfoviewApi(api)
+      setInfoProvider(infoProvider)
+    })
     client.start(project)
   }, [])
 

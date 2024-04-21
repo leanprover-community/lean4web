@@ -21,7 +21,7 @@ export class InfoProvider implements Disposable {
   private infoviewApi: InfoviewApi
   private editor: monaco.editor.IStandaloneCodeEditor
 
-  public readonly client?: LeanClient
+  public readonly client: LeanClient
 
   private readonly editorApi: EditorApi = {
     createRpcSession: async (uri) => {
@@ -34,7 +34,7 @@ export class InfoProvider implements Disposable {
     subscribeServerNotifications: async (method) => {
 
       if (method === 'textDocument/publishDiagnostics') {
-        for (const client of [this.client] /* this.clientProvider.getClients() */) {
+        for (const client of [this.client]) {
           client.diagnostics((params) => this.infoviewApi?.gotServerNotification(method, params))
         }
       }
@@ -77,7 +77,7 @@ export class InfoProvider implements Disposable {
     this.client.restarted(() => this.initInfoView())
   }
 
-  getApi () {
+  getEditorApi () {
     return this.editorApi
   }
 
