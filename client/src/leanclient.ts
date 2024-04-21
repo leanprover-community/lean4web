@@ -4,7 +4,6 @@ import {
   TextDocument, EventEmitter, Diagnostic,
   DocumentHighlight, Range, DocumentHighlightKind,
   Disposable, Uri, DiagnosticCollection,
-  WorkspaceFolder, workspace
 } from 'vscode'
 import {
   DidChangeTextDocumentParams,
