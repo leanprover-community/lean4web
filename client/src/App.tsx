@@ -12,6 +12,8 @@ import { WebSocketMessageReader } from 'vscode-ws-jsonrpc';
 
 const project = 'MathlibLatest'
 
+const code = '#eval 3+1 \n #eval IO.println "hello" \n'
+
 class DisposingWebSocketMessageReader extends WebSocketMessageReader {
     dispose() {
       super.dispose();
@@ -23,8 +25,6 @@ monaco.languages.register({
   id: 'lean4',
   extensions: ['.lean']
 })
-
-const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
 const Editor: React.FC = () => {
   const uri = monaco.Uri.parse(`file:///project/${project}.lean`)
