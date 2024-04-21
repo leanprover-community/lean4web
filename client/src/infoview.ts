@@ -9,13 +9,6 @@ import { EditorApi, InfoviewApi, RpcConnected } from '@leanprover/infoview-api'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-function toLanguageServerRange (range: monaco.Range): ls.Range {
-  return {
-    start: { line: range.startLineNumber - 1, character: range.startColumn - 1},
-    end: { line: range.endLineNumber - 1, character: range.endColumn - 1}
-  }
-}
-
 export class InfoProvider implements Disposable {
 
   private infoviewApi: InfoviewApi
@@ -91,7 +84,11 @@ export class InfoProvider implements Disposable {
     
     const uri = this.editor.getModel()?.uri
     const selection = this.editor.getSelection()!
-    const loc = { uri: uri!.toString(), range: toLanguageServerRange(selection) }
+    const range = {
+      start: { line: selection.startLineNumber - 1, character: selection.startColumn - 1},
+      end: { line: selection.endLineNumber - 1, character: selection.endColumn - 1}
+    }
+    const loc = { uri: uri!.toString(), range }
 
     await this.infoviewApi?.initialize(loc)
 
