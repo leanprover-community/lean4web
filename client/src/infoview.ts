@@ -76,14 +76,6 @@ export class InfoProvider implements Disposable {
     return h
   }
 
-  private subscribeCustomNotification (client: LeanClient, method: string) {
-    const h = client.customNotification(({ method: thisMethod, params }) => {
-      if (thisMethod !== method) return
-      void this.infoviewApi?.gotServerNotification(method, params)
-    })
-    return h
-  }
-
   private readonly editorApi: EditorApi = {
     sendClientRequest: async (uri: string, method: string, params: any): Promise<any> => {
       const client = this.client // clientProvider.findClient(uri)
@@ -121,9 +113,6 @@ export class InfoProvider implements Disposable {
         this.serverNotifSubscriptions.set(method, [1, subscriptions])
       } else if (method.startsWith('$')) {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client] /* this.clientProvider.getClients() */) {
-          subscriptions.push(this.subscribeCustomNotification(client!, method))
-        }
         this.serverNotifSubscriptions.set(method, [1, subscriptions])
       } else {
         throw new Error(`subscription to ${method} server notifications not implemented`)
@@ -221,14 +210,6 @@ export class InfoProvider implements Disposable {
       }
     }
 
-    for (const [method, [count, subscriptions]] of this.serverNotifSubscriptions) {
-      if (method === 'textDocument/publishDiagnostics') {
-        subscriptions.push(this.subscribeDiagnosticsNotification(client, method))
-      } else if (method.startsWith('$')) {
-        subscriptions.push(this.subscribeCustomNotification(client, method))
-      }
-    }
-
     await this.initInfoView(this.editor, client)
   }
 
@@ -246,13 +227,9 @@ export class InfoProvider implements Disposable {
       }),
       client.restartedWorker(async (uri) => {
         console.log('[InfoProvider] got worker restarted event')
-        // await this.onWorkerRestarted(uri)
       }),
       client.didSetLanguage(() => console.log('onLanguageChanged'))
     )
-
-    // Note that when new client is first created it still fires client.restarted
-    // event, so all onClientRestarted can happen there so we don't do it twice.
   }
 
   async onWorkerStopped (uri: string, client: LeanClient, reason: any) {
