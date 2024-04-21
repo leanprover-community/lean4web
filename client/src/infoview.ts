@@ -209,10 +209,7 @@ export class InfoProvider implements Disposable {
       await workspace.applyEdit(we)
     },
     showDocument: async (show) => {
-      void this.revealEditorSelection(
-        Uri.parse(show.uri),
-        fromLanguageServerRange(show.selection)
-      )
+      console.log('showDocument')
     },
 
     createRpcSession: async uri => {
@@ -319,30 +316,11 @@ export class InfoProvider implements Disposable {
     console.log(`[InfoProvider]client crashed: ${uri}`)
   }
 
-  async onActiveClientStopped (client: LeanClient, activeClient: boolean, reason: any) {
-    // Will show a message in case the active client stops
-    // add failed client into a list (will be removed in case the client is restarted)
-    if (activeClient) {
-      // means that client and active client are the same and just show the error message
-      await this.infoviewApi?.serverStopped(reason)
-    }
-
-    console.log(`[InfoProvider] client stopped`)
-  }
-
   dispose (): void {
     // active client is changing.
-    this.clearNotificationHandlers()
     this.clearRpcSessions(null)
     for (const s of this.clientSubscriptions) { s.dispose() }
     for (const s of this.subscriptions) { s.dispose() }
-  }
-
-  private clearNotificationHandlers () {
-    for (const [, [, subscriptions]] of this.clientNotifSubscriptions) { for (const h of subscriptions) h.dispose() }
-    this.clientNotifSubscriptions.clear()
-    for (const [, [, subscriptions]] of this.serverNotifSubscriptions) { for (const h of subscriptions) h.dispose() }
-    this.serverNotifSubscriptions.clear()
   }
 
   private clearRpcSessions (client: LeanClient | null) {
@@ -421,19 +399,6 @@ export class InfoProvider implements Disposable {
 
   private async updateStatus (loc: ls.Location | undefined): Promise<void> {
     await this.infoviewApi?.changedCursorLocation(loc)
-  }
-
-  private async revealEditorSelection (uri: Uri, selection?: monaco.Range) {
-    if (this.editor == null) {
-      console.error("Editor not set")
-      return
-    }
-    if (selection !== undefined) {
-      this.editor.revealRange(selection)//TextEditorRevealType.InCenterIfOutsideViewport
-      this.editor.setSelection(selection)
-      // ensure the text document has the keyboard focus.
-      this.editor.focus()
-    }
   }
 
   private async handleInsertText (text: string, kind: TextInsertKind, uri?: Uri, pos?: monaco.Position) {
