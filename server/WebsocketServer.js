@@ -1,7 +1,5 @@
 const WebSocket = require("ws");
 const { spawn } = require('child_process');
-const os = require('os');
-const anonymize = require('ip-anonymize')
 
 // TODO: Use server-side connection forwarding
 // https://github.com/TypeFox/monaco-languageclient/tree/main/packages/vscode-ws-jsonrpc
@@ -132,21 +130,12 @@ class WebsocketServer {
       console.log(`Open with project: ${project}`)
 
       this.socketCounter += 1;
-      const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
-      console.log(`[${new Date()}] Socket opened - ${ip}`)
-      this.logStats()
 
       new ClientConnection(ws, useBubblewrap, project)
       ws.on('close', () => {
-        console.log(`[${new Date()}] Socket closed - ${ip}`)
         this.socketCounter -= 1;
       })
     })
-  }
-
-  logStats() {
-    console.log(`[${new Date()}] Number of open sockets - ${this.socketCounter}`)
-    console.log(`[${new Date()}] Free RAM - ${Math.round(os.freemem() / 1024 / 1024)} / ${Math.round(os.totalmem() / 1024 / 1024)} MB`)
   }
 }
 
