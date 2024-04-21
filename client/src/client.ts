@@ -43,10 +43,6 @@ export class LeanClient implements Disposable {
   private readonly didCloseEmitter = new EventEmitter<DidCloseTextDocumentParams>()
   didClose = this.didCloseEmitter.event
 
-  private readonly customNotificationEmitter = new EventEmitter<{ method: string, params: any }>()
-  /** Fires whenever a custom notification (i.e. one not defined in LSP) is received. */
-  customNotification = this.customNotificationEmitter.event
-
   /** saved progress info in case infoview is opened, it needs to get all of it. */
   progress: ServerProgress = new Map()
 
@@ -206,7 +202,6 @@ export class LeanClient implements Disposable {
         this.progress.set(uri, params.processing)
       }
 
-      this.customNotificationEmitter.fire({ method, params: params_ })
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     this.client.onNotification(starHandler as any, () => {})
