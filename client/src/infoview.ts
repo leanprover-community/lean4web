@@ -62,13 +62,6 @@ export class InfoProvider implements Disposable {
     return h
   }
 
-  private subscribeDidCloseNotification (client: LeanClient, method: string) {
-    const h = client.didClose((params) => {
-      void this.infoviewApi?.sentClientNotification(method, params)
-    })
-    return h
-  }
-
   private subscribeDiagnosticsNotification (client: LeanClient, method: string) {
     const h = client.diagnostics((params) => {
       void this.infoviewApi?.gotServerNotification(method, params)
@@ -135,9 +128,6 @@ export class InfoProvider implements Disposable {
         this.clientNotifSubscriptions.set(method, [1, subscriptions])
       } else if (method === 'textDocument/didClose') {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client] /* this.clientProvider.getClients() */) {
-          subscriptions.push(this.subscribeDidCloseNotification(client!, method))
-        }
         this.clientNotifSubscriptions.set(method, [1, subscriptions])
       } else {
         throw new Error(`Subscription to '${method}' client notifications not implemented`)
@@ -205,8 +195,6 @@ export class InfoProvider implements Disposable {
     for (const [method, [count, subscriptions]] of this.clientNotifSubscriptions) {
       if (method === 'textDocument/didChange') {
         subscriptions.push(this.subscribeDidChangeNotification(client, method))
-      } else if (method === 'textDocument/didClose') {
-        subscriptions.push(this.subscribeDidCloseNotification(client, method))
       }
     }
 
