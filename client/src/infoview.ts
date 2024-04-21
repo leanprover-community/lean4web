@@ -14,39 +14,40 @@ const c2pConverter = createConverter(undefined)
 const diagnosticsEmitter = new EventEmitter()
 const restartedEmitter = new EventEmitter()
 
+const project = 'MathlibLatest'
+
+const clientOptions: LanguageClientOptions = {
+  documentSelector: ['lean4'],
+  middleware: {
+    handleDiagnostics: (uri, diagnostics, next) => {
+      next(uri, diagnostics)
+
+      const diagnostics_ = diagnostics.map(d => c2pConverter.asDiagnostic(d))
+      diagnosticsEmitter.fire({ uri: c2pConverter.asUri(uri), diagnostics: diagnostics_ })
+    },
+  }
+}
+
+const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
+const connectionProvider : IConnectionProvider = {
+  get: async () => {
+    return await new Promise((resolve) => {
+      const websocket = new WebSocket(socketUrl)
+      websocket.addEventListener('open', () => {
+        const socket = toSocket(websocket)
+        const reader = new WebSocketMessageReader(socket)
+        const writer = new WebSocketMessageWriter(socket)
+        resolve({ reader, writer })
+      })
+    })
+  }
+}
+
 export class LeanClient implements Disposable {
   client: MonacoLanguageClient | undefined
 
-
   async start (project): Promise<void> {
 
-    const clientOptions: LanguageClientOptions = {
-      documentSelector: ['lean4'],
-      middleware: {
-        handleDiagnostics: (uri, diagnostics, next) => {
-          next(uri, diagnostics)
-
-          const diagnostics_ = diagnostics.map(d => c2pConverter.asDiagnostic(d))
-          diagnosticsEmitter.fire({ uri: c2pConverter.asUri(uri), diagnostics: diagnostics_ })
-        },
-      }
-    }
-
-    const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
-    const connectionProvider : IConnectionProvider = {
-      get: async () => {
-        return await new Promise((resolve) => {
-          const websocket = new WebSocket(socketUrl)
-          websocket.addEventListener('open', () => {
-            const socket = toSocket(websocket)
-            const reader = new WebSocketMessageReader(socket)
-            const writer = new WebSocketMessageWriter(socket)
-            resolve({ reader, writer })
-          })
-        })
-      }
-    }
-    
     this.client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
     await this.client.start()
 
