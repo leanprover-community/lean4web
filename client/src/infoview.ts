@@ -52,15 +52,8 @@ export class InfoProvider implements Disposable {
 
   private readonly editorApi: EditorApi = {
     sendClientRequest: async (uri: string, method: string, params: any): Promise<any> => {
-      if (this.client != null) {
-        try {
-          const result = await this.client.sendRequest(method, params)
-          return result
-        } catch (ex: any) {
-          console.log(`[InfoProvider]The Lean Server has stopped processing this file: ${ex.message}`)
-        }
-      }
-      return undefined
+      const result = await this.client.sendRequest(method, params)
+      return result
     },
     subscribeServerNotifications: async (method) => {
 
@@ -120,17 +113,13 @@ export class InfoProvider implements Disposable {
     // this.clientProvider = provider
     this.client = myclient
 
-    this.onClientAdded(this.client!)
-  }
-
-  private async onClientAdded (client: LeanClient) {
     console.log(`[InfoProvider] Adding client`)
 
     this.clientSubscriptions.push(
-      client.restarted(async () => {
+      this.client.restarted(async () => {
         console.log('[InfoProvider] got client restarted event')
         
-        await this.initInfoView(this.editor, client)
+        await this.initInfoView(this.editor, this.client)
       })
     )
   }
@@ -147,22 +136,15 @@ export class InfoProvider implements Disposable {
 
   private async initInfoView (editor: monaco.editor.IStandaloneCodeEditor | undefined, client: LeanClient | null) {
     
-    const loc = this.getLocation(editor)
+    const uri = editor.getModel()?.uri
+    const selection = editor.getSelection()!
+    const loc = { uri: uri!.toString(), range: toLanguageServerRange(selection) }
+
     await this.infoviewApi?.initialize(loc)
 
     // The infoview gets information about file progress, diagnostics, etc. by listening to notifications.
     // Send these notifications when the infoview starts so that it has up-to-date information.
     await this.infoviewApi?.serverRestarted(this.client?.initializeResult)
-  }
-
-  private getLocation (editor: monaco.editor.IStandaloneCodeEditor): ls.Location | undefined {
-    if (!editor) return undefined
-    const uri = editor.getModel()?.uri
-    const selection = editor.getSelection()!
-    return {
-      uri: uri!.toString(),
-      range: toLanguageServerRange(selection)
-    }
   }
 
 }
