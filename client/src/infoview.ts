@@ -317,7 +317,6 @@ export class InfoProvider implements Disposable {
       this.workersFailed.set(uri, reason)
     }
     console.log(`[InfoProvider]client crashed: ${uri}`)
-    await client.showRestartMessage()
   }
 
   async onActiveClientStopped (client: LeanClient, activeClient: boolean, reason: any) {
@@ -329,8 +328,6 @@ export class InfoProvider implements Disposable {
     }
 
     console.log(`[InfoProvider] client stopped`)
-
-    await client.showRestartMessage()
   }
 
   dispose (): void {

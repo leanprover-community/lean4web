@@ -71,10 +71,7 @@ export class LeanClient implements Disposable {
   private readonly serverFailedEmitter = new EventEmitter<string>()
   serverFailed = this.serverFailedEmitter.event
 
-  constructor (
-    private readonly connectionProvider: IConnectionProvider,
-    public readonly showRestartMessage: () => void,
-    private readonly initializationOptions = {}) {
+  constructor (private readonly connectionProvider: IConnectionProvider) {
 
   }
 
@@ -109,7 +106,6 @@ export class LeanClient implements Disposable {
       initializationOptions: {
         editDelay: 200,
         hasWidgets: true,
-        ...this.initializationOptions
       },
       connectionOptions: {
         maxRestartCount: 0,
@@ -117,7 +113,7 @@ export class LeanClient implements Disposable {
       },
       // disable the default error handler
       errorHandler: {
-        error: () => { this.showRestartMessage(); return { action: ErrorAction.Continue }},
+        error: () => ({ action: ErrorAction.Continue }),
         closed: () => ({ action: CloseAction.DoNotRestart })
       },
       middleware: {

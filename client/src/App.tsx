@@ -36,7 +36,6 @@ const Editor: React.FC = () => {
     const connectionProvider : IConnectionProvider = {
       get: async () => {
         return await new Promise((resolve) => {
-          console.log(`connecting ${socketUrl}`)
           const websocket = new WebSocket(socketUrl)
           websocket.addEventListener('open', () => {
             const socket = toSocket(websocket)
@@ -49,9 +48,8 @@ const Editor: React.FC = () => {
     }
 
     // Following `vscode-lean4/webview/index.ts`
-    const client = new LeanClient(connectionProvider, () => {})
+    const client = new LeanClient(connectionProvider)
     const infoProvider = new InfoProvider(client)
-    const div: HTMLElement = infoviewRef.current!
     const imports = {
       '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
       'react': `${window.location.origin}/react.production.min.js`,
@@ -59,7 +57,7 @@ const Editor: React.FC = () => {
       'react-dom': `${window.location.origin}/react-dom.production.min.js`,
       'react-popper': `${window.location.origin}/react-popper.production.min.js`
     }
-    loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
+    loadRenderInfoview(imports, [infoProvider.getApi(), infoviewRef.current!], (api) => setInfoviewApi(api))
     setInfoProvider(infoProvider)
     client.restart(project)
   }, [])
