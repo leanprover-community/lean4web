@@ -70,7 +70,6 @@ export class InfoProvider implements Disposable {
           if (ex.code === RpcErrorCode.WorkerCrashed) {
             // ex codes related with worker exited or crashed
             console.log(`[InfoProvider]The Lean Server has stopped processing this file: ${ex.message}`)
-            await this.onWorkerStopped(uri, client, { message: 'The Lean Server has stopped processing this file: ', reason: ex.message as string })
           }
           throw ex
         }
@@ -103,22 +102,7 @@ export class InfoProvider implements Disposable {
     },
 
     subscribeClientNotifications: async (method) => {
-      const el = this.clientNotifSubscriptions.get(method)
-      if (el != null) {
-        const [count, d] = el
-        this.clientNotifSubscriptions.set(method, [count + 1, d])
-        return
-      }
-
-      if (method === 'textDocument/didChange') {
-        const subscriptions: Disposable[] = []
-        this.clientNotifSubscriptions.set(method, [1, subscriptions])
-      } else if (method === 'textDocument/didClose') {
-        const subscriptions: Disposable[] = []
-        this.clientNotifSubscriptions.set(method, [1, subscriptions])
-      } else {
-        throw new Error(`Subscription to '${method}' client notifications not implemented`)
-      }
+      throw new Error('Function not implemented.')
     },
     insertText: async (text, kind, tdpp) => {
       let uri: Uri | undefined
@@ -176,13 +160,6 @@ export class InfoProvider implements Disposable {
     )
   }
 
-  private async onClientRestarted (client: LeanClient) {
-    // if we already have subscriptions for a previous client, we need to also
-    // subscribe to the same things on this new client.
-
-    await this.initInfoView(this.editor, client)
-  }
-
   private async onClientAdded (client: LeanClient) {
     console.log(`[InfoProvider] Adding client`)
 
@@ -190,21 +167,12 @@ export class InfoProvider implements Disposable {
       client.restarted(async () => {
         console.log('[InfoProvider] got client restarted event')
         
-        // Need to fully re-initialize this newly restarted client with all the
-        // existing subscriptions and resend position info and so on so the
-        // infoview updates properly.
-        await this.onClientRestarted(client)
+        await this.initInfoView(this.editor, client)
       }),
       client.restartedWorker(async (uri) => {
         console.log('[InfoProvider] got worker restarted event')
       }),
     )
-  }
-
-  async onWorkerStopped (uri: string, client: LeanClient, reason: any) {
-    await this.infoviewApi?.serverStopped(reason)
-
-    console.log(`[InfoProvider]client crashed: ${uri}`)
   }
 
   getApi () {
