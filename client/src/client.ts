@@ -18,8 +18,8 @@ import {
   CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
 
-import { LeanFileProgressParams, LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
-import { c2pConverter, p2cConverter, patchConverters } from './utils'
+import { LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
+import { c2pConverter, patchConverters } from './utils'
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -41,9 +41,6 @@ export class LeanClient implements Disposable {
 
   private readonly didCloseEmitter = new EventEmitter<DidCloseTextDocumentParams>()
   didClose = this.didCloseEmitter.event
-
-  /** saved progress info in case infoview is opened, it needs to get all of it. */
-  progress: ServerProgress = new Map()
 
   private readonly restartedEmitter = new EventEmitter()
   restarted = this.restartedEmitter.event
@@ -148,7 +145,6 @@ export class LeanClient implements Disposable {
       return defaultValue
     }
 
-    let insideRestart = true
     patchConverters(this.client.protocol2CodeConverter, this.client.code2ProtocolConverter)
     try {
       this.client.onDidChangeState(async (s) => {
@@ -159,9 +155,6 @@ export class LeanClient implements Disposable {
           const end = Date.now()
           console.log(`[LeanClient] running, started in ${end - startTime} ms`)
           this.running = true // may have been auto restarted after it failed.
-          if (!insideRestart) {
-            this.restartedEmitter.fire()
-          }
         } else if (s.newState === State.Stopped) {
           this.running = false
           console.log('[LeanClient] has stopped or it failed to start')
@@ -171,29 +164,10 @@ export class LeanClient implements Disposable {
       this.running = true
     } catch (error) {
       console.log(error)
-      insideRestart = false
       return
     }
 
-    // HACK(WN): Register a default notification handler to fire on custom notifications.
-    // A mechanism to do this is provided in vscode-jsonrpc. One can register a `StarNotificationHandler`
-    // here: https://github.com/microsoft/vscode-languageserver-node/blob/b2fc85d28a1a44c22896559ee5f4d3ba37a02ef5/jsonrpc/src/common/connection.ts#L497
-    // which fires on any LSP notifications not in the standard, for example the `$/lean/..` ones.
-    // However this mechanism is not exposed in vscode-languageclient, so we hack around its implementation.
-    const starHandler = (method: string, params_: any) => {
-      if (method === '$/lean/fileProgress' && (this.client != null)) {
-        const params = params_ as LeanFileProgressParams
-        const uri = p2cConverter.asUri(params.textDocument.uri)
-        // save the latest progress on this Uri in case infoview needs it later.
-        this.progress.set(uri, params.processing)
-      }
-
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    this.client.onNotification(starHandler as any, () => {})
-
     this.restartedEmitter.fire({project: project})
-    insideRestart = false
   }
 
   isStarted (): boolean {
@@ -219,7 +193,6 @@ export class LeanClient implements Disposable {
       }
     }
 
-    this.progress = new Map()
     this.client = undefined
     this.running = false
   }
