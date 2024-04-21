@@ -9,12 +9,12 @@ import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
 
-const c2pConverter = createConverter(undefined)
-
 const diagnosticsEmitter = new EventEmitter()
 const restartedEmitter = new EventEmitter()
 
 const project = 'MathlibLatest'
+
+const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
 
 const clientOptions: LanguageClientOptions = {
   documentSelector: ['lean4'],
@@ -22,13 +22,11 @@ const clientOptions: LanguageClientOptions = {
     handleDiagnostics: (uri, diagnostics, next) => {
       next(uri, diagnostics)
 
-      const diagnostics_ = diagnostics.map(d => c2pConverter.asDiagnostic(d))
-      diagnosticsEmitter.fire({ uri: c2pConverter.asUri(uri), diagnostics: diagnostics_ })
+      diagnosticsEmitter.fire({ uri: createConverter().asUri(uri), diagnostics })
     },
   }
 }
 
-const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
 const connectionProvider : IConnectionProvider = {
   get: async () => {
     return await new Promise((resolve) => {
