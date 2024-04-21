@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
-import svgr from "vite-plugin-svgr"
+// import svgr from "vite-plugin-svgr"
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,11 +12,6 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    svgr({
-      svgrOptions: {
-        // svgr options
-      },
-    }),
     viteStaticCopy({
       targets: [
         {
@@ -37,7 +32,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      path: "path-browserify",
+      // path: "path-browserify",
     },
   },
 })
