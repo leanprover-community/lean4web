@@ -18,6 +18,7 @@ const project = 'MathlibLatest'
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
 const Editor: React.FC = () => {
+  
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
@@ -49,7 +50,7 @@ const Editor: React.FC = () => {
     }
   }, [infoviewApi, infoProvider])
 
-  return <div ref={infoviewRef} style={{height: '100%'}}></div>
+  return <div ref={infoviewRef}></div>
 }
 
 export default Editor

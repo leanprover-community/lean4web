@@ -76,11 +76,7 @@ export class InfoProvider implements Disposable {
   async initInfoView () {
     
     const uri = this.editor.getModel().uri.toString()
-    const selection = this.editor.getSelection()!
-    const range = {
-      start: { line: selection.startLineNumber - 1, character: selection.startColumn - 1},
-      end: { line: selection.endLineNumber - 1, character: selection.endColumn - 1}
-    }
+    const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
     await this.infoviewApi.initialize({ uri, range })
     await this.infoviewApi.serverRestarted(this.client.initializeResult)
   }

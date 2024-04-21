@@ -11,7 +11,7 @@ import { createConverter } from 'vscode-languageclient/lib/common/codeConverter'
 const c2pConverter = createConverter(undefined)
 
 export class LeanClient implements Disposable {
-  private client: MonacoLanguageClient | undefined
+  client: MonacoLanguageClient | undefined
 
   diagnosticsEmitter = new EventEmitter()
   restartedEmitter = new EventEmitter()
@@ -51,8 +51,8 @@ export class LeanClient implements Disposable {
     this.restartedEmitter.fire({ project })
   }
 
-  async sendRequest (method: string, params: any): Promise<any> {
-    return await this.client.sendRequest(method, params)
+  sendRequest (method: string, params: any): Promise<any> {
+    return this.client.sendRequest(method, params)
   }
 
   sendNotification (method: string, params: any): Promise<void> | undefined {
