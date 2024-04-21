@@ -43,24 +43,19 @@ export class InfoProvider implements Disposable {
 
   public readonly client?: LeanClient
 
-  private subscribeDiagnosticsNotification (client: LeanClient, method: string) {
-    return client.diagnostics((params) => this.infoviewApi?.gotServerNotification(method, params))
-  }
-
   private readonly editorApi: EditorApi = {
+    createRpcSession: async (uri) => {
+      const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
+      return result.sessionId
+    },
     sendClientRequest: async (uri: string, method: string, params: any): Promise<any> => {
-      const result = await this.client.sendRequest(method, params)
-      return result
+      return await this.client.sendRequest(method, params)
     },
     subscribeServerNotifications: async (method) => {
 
-      // NOTE(WN): For non-custom notifications we cannot call LanguageClient.onNotification
-      // here because that *overwrites* the notification handler rather than registers an extra one.
-      // So we have to add a bunch of event emitters to `LeanClient.`
       if (method === 'textDocument/publishDiagnostics') {
-        const subscriptions: Disposable[] = []
         for (const client of [this.client] /* this.clientProvider.getClients() */) {
-          subscriptions.push(this.subscribeDiagnosticsNotification(client!, method))
+          client.diagnostics((params) => this.infoviewApi?.gotServerNotification(method, params))
         }
       }
     },
@@ -70,11 +65,6 @@ export class InfoProvider implements Disposable {
     },
     insertText: async (text, kind, tdpp) => {
       throw new Error('Function not implemented.')
-    },
-
-    createRpcSession: async (uri) => {
-      const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
-      return result.sessionId
     },
     unsubscribeServerNotifications: function (method: string): Promise<void> {
       throw new Error('Function not implemented.')
