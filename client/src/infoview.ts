@@ -1,17 +1,15 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/infoview.ts ` */
 
-// http://localhost:8080/#code=%0A%23eval%203%20%2B%201%0A%23eval%20IO.println%20%22hello%22%0A
+import { Disposable, Uri, window, workspace, Position } from 'vscode'
+import * as ls from 'vscode-languageserver-protocol'
+
+import { LeanClient } from './client'
+import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils'
 
 import {
-  Disposable, Uri, window, workspace, Position
-} from 'vscode'
-import {
   EditorApi, InfoviewApi, LeanFileProgressParams, TextInsertKind,
-  RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode
-} from '@leanprover/infoview-api'
-import { LeanClient } from './client'
-import * as ls from 'vscode-languageserver-protocol'
-import { c2pConverter, fromLanguageServerPosition, fromLanguageServerRange, p2cConverter, toLanguageServerRange } from './utils'
+  RpcConnectParams, RpcConnected, RpcKeepAliveParams, RpcErrorCode } from '@leanprover/infoview-api'
+
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 const keepAlivePeriodMs = 10000
