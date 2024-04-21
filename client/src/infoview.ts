@@ -228,7 +228,6 @@ export class InfoProvider implements Disposable {
       client.restartedWorker(async (uri) => {
         console.log('[InfoProvider] got worker restarted event')
       }),
-      client.didSetLanguage(() => console.log('onLanguageChanged'))
     )
   }
 

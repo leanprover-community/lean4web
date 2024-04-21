@@ -40,9 +40,6 @@ export class LeanClient implements Disposable {
   private readonly diagnosticsEmitter = new EventEmitter<PublishDiagnosticsParams>()
   diagnostics = this.diagnosticsEmitter.event
 
-  private readonly didSetLanguageEmitter = new EventEmitter<string>()
-  didSetLanguage = this.didSetLanguageEmitter.event
-
   private readonly didCloseEmitter = new EventEmitter<DidCloseTextDocumentParams>()
   didClose = this.didCloseEmitter.event
 
@@ -52,9 +49,6 @@ export class LeanClient implements Disposable {
 
   /** saved progress info in case infoview is opened, it needs to get all of it. */
   progress: ServerProgress = new Map()
-
-  private readonly progressChangedEmitter = new EventEmitter<[string, LeanFileProgressProcessingInfo[]]>()
-  progressChanged = this.progressChangedEmitter.event
 
   private readonly stoppedEmitter = new EventEmitter()
   stopped = this.stoppedEmitter.event
@@ -67,9 +61,6 @@ export class LeanClient implements Disposable {
 
   private readonly restartedWorkerEmitter = new EventEmitter<string>()
   restartedWorker = this.restartedWorkerEmitter.event
-
-  private readonly serverFailedEmitter = new EventEmitter<string>()
-  serverFailed = this.serverFailedEmitter.event
 
   constructor (private readonly connectionProvider: IConnectionProvider) {
 
@@ -198,7 +189,6 @@ export class LeanClient implements Disposable {
       this.running = true
     } catch (error) {
       console.log(error)
-      this.serverFailedEmitter.fire('' + error)
       insideRestart = false
       return
     }
@@ -212,7 +202,6 @@ export class LeanClient implements Disposable {
       if (method === '$/lean/fileProgress' && (this.client != null)) {
         const params = params_ as LeanFileProgressParams
         const uri = p2cConverter.asUri(params.textDocument.uri)
-        this.progressChangedEmitter.fire([uri.toString(), params.processing])
         // save the latest progress on this Uri in case infoview needs it later.
         this.progress.set(uri, params.processing)
       }
