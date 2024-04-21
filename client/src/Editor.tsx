@@ -1,25 +1,28 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import './css/Editor.css'
-import './editor/infoview.css'
-import './editor/vscode.css'
+// import './editor/infoview.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider } from './editor/infoview'
 import { LeanClient } from './editor/leanclient'
-import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
-import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
-import { LeanTaskGutter } from './editor/taskgutter'
-import Split from 'react-split'
-// import Notification from './Notification'
-// import { config } from './config/config'
 import { IConnectionProvider } from 'monaco-languageclient'
 import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
-import { DisposingWebSocketMessageReader } from './reader'
-import { monacoSetup } from './monacoSetup'
+// import { DisposingWebSocketMessageReader } from './reader'
 
-monacoSetup()
+import { WebSocketMessageReader } from 'vscode-ws-jsonrpc';
+
+class DisposingWebSocketMessageReader extends WebSocketMessageReader {
+    dispose() {
+      super.dispose();
+      this.socket.dispose();
+    }
+}
+
+monaco.languages.register({
+  id: 'lean4',
+  extensions: ['.lean']
+})
 
 const Editor: React.FC<{onDidChangeContent?, value: string, project: string}> =
     ({onDidChangeContent, value, project}) => {
@@ -93,13 +96,9 @@ const Editor: React.FC<{onDidChangeContent?, value: string, project: string}> =
   }, [editor, infoviewApi, infoProvider])
 
   return (
-    <div className='editor-wrapper'>
-      <Split>
-        <div ref={codeviewRef} className="codeview"
-          style={false ? {width : '100%'} : {height: '100%'}}></div>
-        <div ref={infoviewRef} className="vscode-light infoview"
-          style={false ? {width : '100%'} : {height: '100%'}}></div>
-      </Split>
+    <div>
+        <div ref={codeviewRef} style={{height: '100%'}}></div>
+        <div ref={infoviewRef} style={{height: '100%'}}></div>
     </div>
   )
 }

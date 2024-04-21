@@ -15,13 +15,11 @@ import {
   PublishDiagnosticsParams,
   CloseAction, ErrorAction, IConnectionProvider,
 } from 'monaco-languageclient'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
 
-import { getElaborationDelay } from './config'
 import { LeanFileProgressParams, LeanFileProgressProcessingInfo } from '@leanprover/infoview-api'
-import { c2pConverter, p2cConverter, patchConverters } from './utils/converters'
+import { c2pConverter, p2cConverter, patchConverters } from './converters'
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
@@ -113,7 +111,7 @@ export class LeanClient implements Disposable {
       documentSelector: ['lean4'],
       workspaceFolder: {uri: "hello"},
       initializationOptions: {
-        editDelay: getElaborationDelay(),
+        editDelay: 200,
         hasWidgets: true,
         ...this.initializationOptions
       },
