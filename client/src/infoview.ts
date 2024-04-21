@@ -28,7 +28,7 @@ export class InfoProvider implements Disposable {
 
       if (method === 'textDocument/publishDiagnostics') {
         for (const client of [this.client]) {
-          client.diagnostics((params) => this.infoviewApi?.gotServerNotification(method, params))
+          client.diagnostics((params) => this.infoviewApi.gotServerNotification(method, params))
         }
       }
     },
@@ -82,19 +82,13 @@ export class InfoProvider implements Disposable {
 
   private async initInfoView () {
     
-    const uri = this.editor.getModel()?.uri
+    const uri = this.editor.getModel().uri.toString()
     const selection = this.editor.getSelection()!
     const range = {
       start: { line: selection.startLineNumber - 1, character: selection.startColumn - 1},
       end: { line: selection.endLineNumber - 1, character: selection.endColumn - 1}
     }
-    const loc = { uri: uri!.toString(), range }
-
-    await this.infoviewApi?.initialize(loc)
-
-    // The infoview gets information about file progress, diagnostics, etc. by listening to notifications.
-    // Send these notifications when the infoview starts so that it has up-to-date information.
-    await this.infoviewApi?.serverRestarted(this.client?.initializeResult)
+    await this.infoviewApi.initialize({ uri, range })
+    await this.infoviewApi.serverRestarted(this.client.initializeResult)
   }
-
 }

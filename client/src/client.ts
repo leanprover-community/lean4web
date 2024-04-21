@@ -63,7 +63,7 @@ export class LeanClient implements Disposable {
   }
 
   get initializeResult (): InitializeResult | undefined {
-    return this.client?.initializeResult
+    return this.client.initializeResult
   }
 
 }
