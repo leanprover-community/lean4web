@@ -6,11 +6,11 @@ import * as ls from 'vscode-languageserver-protocol'
 import { LeanClient } from './client'
 import { toLanguageServerRange } from './utils'
 
-import { EditorApi, InfoviewApi, RpcConnectParams, RpcConnected, RpcKeepAliveParams } from '@leanprover/infoview-api'
+import { EditorApi, InfoviewApi, RpcConnected, RpcKeepAliveParams } from '@leanprover/infoview-api'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-const keepAlivePeriodMs = 10000
+const keepAlivePeriodMs = 10_000
 
 class RpcSessionAtPos implements Disposable {
   keepAliveInterval?: NodeJS.Timeout
@@ -31,23 +31,17 @@ class RpcSessionAtPos implements Disposable {
 }
 
 export class InfoProvider implements Disposable {
-  /** Instance of the panel, if it is open. Otherwise `undefined`. */
+
   private infoviewApi?: InfoviewApi
   private editor?: monaco.editor.IStandaloneCodeEditor
   private readonly clientSubscriptions: Disposable[] = []
 
   public readonly client?: LeanClient
 
-  // Subscriptions are counted and only disposed of when count becomes 0.
-  private readonly serverNotifSubscriptions: Map<string, [number, Disposable[]]> = new Map()
-
   private rpcSessions: Map<string, RpcSessionAtPos> = new Map()
 
   private subscribeDiagnosticsNotification (client: LeanClient, method: string) {
-    const h = client.diagnostics((params) => {
-      void this.infoviewApi?.gotServerNotification(method, params)
-    })
-    return h
+    return client.diagnostics((params) => this.infoviewApi?.gotServerNotification(method, params))
   }
 
   private readonly editorApi: EditorApi = {
@@ -65,7 +59,6 @@ export class InfoProvider implements Disposable {
         for (const client of [this.client] /* this.clientProvider.getClients() */) {
           subscriptions.push(this.subscribeDiagnosticsNotification(client!, method))
         }
-        this.serverNotifSubscriptions.set(method, [1, subscriptions])
       }
     },
 
@@ -77,13 +70,12 @@ export class InfoProvider implements Disposable {
     },
 
     createRpcSession: async (uri) => {
-      if (this.client == null) return ''
-
-      const connParams: RpcConnectParams = { uri }
-      const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', connParams)
-
+      
+      const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', { uri })
       const session = new RpcSessionAtPos(this.client, result.sessionId, uri)
+
       this.rpcSessions.set(result.sessionId, session)
+
       return result.sessionId
     },
     unsubscribeServerNotifications: function (method: string): Promise<void> {
@@ -110,17 +102,11 @@ export class InfoProvider implements Disposable {
   }
 
   constructor (private readonly myclient: LeanClient | undefined) {
-    // this.clientProvider = provider
+
     this.client = myclient
 
-    console.log(`[InfoProvider] Adding client`)
-
     this.clientSubscriptions.push(
-      this.client.restarted(async () => {
-        console.log('[InfoProvider] got client restarted event')
-        
-        await this.initInfoView(this.editor, this.client)
-      })
+      this.client.restarted(() => this.initInfoView(this.editor, this.client))
     )
   }
 
