@@ -28,7 +28,7 @@ export class InfoProvider implements Disposable {
 
       if (method === 'textDocument/publishDiagnostics') {
         for (const client of [this.client]) {
-          client.diagnostics((params) => this.infoviewApi.gotServerNotification(method, params))
+          client.diagnosticsEmitter.event((params) => this.infoviewApi.gotServerNotification(method, params))
         }
       }
     },
@@ -67,7 +67,7 @@ export class InfoProvider implements Disposable {
     this.client = client
     this.editor = editor
 
-    this.client.restarted(() => this.initInfoView())
+    this.client.restartedEmitter.event(() => this.initInfoView())
   }
 
   getEditorApi () {

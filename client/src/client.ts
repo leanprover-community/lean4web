@@ -2,7 +2,7 @@
 
 import { EventEmitter, Disposable } from 'vscode'
 
-import { InitializeResult, MonacoLanguageClient, LanguageClientOptions, PublishDiagnosticsParams, IConnectionProvider } from 'monaco-languageclient'
+import { InitializeResult, MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
 
 import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode-ws-jsonrpc';
 
@@ -13,11 +13,8 @@ const c2pConverter = createConverter(undefined)
 export class LeanClient implements Disposable {
   private client: MonacoLanguageClient | undefined
 
-  private readonly diagnosticsEmitter = new EventEmitter<PublishDiagnosticsParams>()
-  diagnostics = this.diagnosticsEmitter.event
-
-  private readonly restartedEmitter = new EventEmitter()
-  restarted = this.restartedEmitter.event
+  diagnosticsEmitter = new EventEmitter()
+  restartedEmitter = new EventEmitter()
 
   async start (project): Promise<void> {
 
