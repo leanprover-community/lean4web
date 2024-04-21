@@ -82,13 +82,7 @@ export class InfoProvider implements Disposable {
       throw new Error('Function not implemented.')
     },
     insertText: async (text, kind, tdpp) => {
-      let uri: Uri | undefined
-      let pos: Position | undefined
-      if (tdpp != null) {
-        uri = p2cConverter.asUri(tdpp.textDocument.uri)
-        pos = fromLanguageServerPosition(tdpp.position)
-      }
-      await this.handleInsertText(text, kind, uri, pos)
+      throw new Error('Function not implemented.')
     },
 
     createRpcSession: async (uri) => {
@@ -129,14 +123,6 @@ export class InfoProvider implements Disposable {
     this.client = myclient
 
     this.onClientAdded(this.client!)
-
-    this.subscriptions.push(
-      window.onDidChangeActiveTextEditor(async () => await this.sendPosition()),
-      window.onDidChangeTextEditorSelection(async () => await this.sendPosition()),
-      workspace.onDidChangeTextDocument(async () => {
-        await this.sendPosition()
-      })
-    )
   }
 
   private async onClientAdded (client: LeanClient) {
@@ -162,21 +148,13 @@ export class InfoProvider implements Disposable {
   }
 
   private async initInfoView (editor: monaco.editor.IStandaloneCodeEditor | undefined, client: LeanClient | null) {
-    if (editor != null) {
-      const loc = this.getLocation(editor)
-      if (loc != null) {
-        console.log('initialize infoview api')
-        await this.infoviewApi?.initialize(loc)
-      }
-    }
+    
+    const loc = this.getLocation(editor)
+    await this.infoviewApi?.initialize(loc)
 
-    // The infoview gets information about file progress, diagnostics, etc.
-    // by listening to notifications.  Send these notifications when the infoview starts
-    // so that it has up-to-date information.
-    if ((client?.initializeResult) != null) {
-      await this.infoviewApi?.serverRestarted(client.initializeResult)
-      await this.sendPosition()
-    }
+    // The infoview gets information about file progress, diagnostics, etc. by listening to notifications.
+    // Send these notifications when the infoview starts so that it has up-to-date information.
+    await this.infoviewApi?.serverRestarted(client.initializeResult)
   }
 
   private getLocation (editor: monaco.editor.IStandaloneCodeEditor): ls.Location | undefined {
@@ -189,43 +167,4 @@ export class InfoProvider implements Disposable {
     }
   }
 
-  private async sendPosition () {
-    const editor = this.editor
-    if (editor == null) return
-    const loc = this.getLocation(editor)
-    if (this.client.running){
-      await this.infoviewApi?.changedCursorLocation(loc)
-    }
-  }
-
-  private async handleInsertText (text: string, kind: TextInsertKind, uri?: Uri, pos?: monaco.Position) {
-    if (this.editor == null) {
-      return
-    }
-    pos = (pos != null) ? pos : this.editor.getSelection().getStartPosition()
-    if (kind === 'above') {
-      // in this case, assume that we actually want to insert at the same
-      // indentation level as the neighboring text
-      const spaces =  this.editor.getModel().getLineFirstNonWhitespaceColumn(pos.lineNumber) - 1
-      const margin_str = [...Array(spaces).keys()].map(x => ' ').join('')
-      let new_command = text.replace(/\n/g, '\n' + margin_str)
-      new_command = `${margin_str}${new_command}\n`
-      const insertPosition = monaco.Range.fromPositions({lineNumber: pos.lineNumber, column: 0})
-
-      await this.editor.pushUndoStop()
-      await this.editor.executeEdits(
-        "infoview",
-        [{ range: insertPosition, text: new_command, forceMoveMarkers: true }],
-      )
-    } else {
-      if (pos != null) {
-        await this.editor.pushUndoStop()
-        await this.editor.executeEdits(
-          "infoview",
-          [{ range: monaco.Range.fromPositions(pos), text: text, forceMoveMarkers: true }],
-        )
-      }
-    }
-    this.editor.focus()
-  }
 }
