@@ -12,12 +12,6 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 const keepAlivePeriodMs = 10000
 
-async function rpcConnect (client: LeanClient, uri: ls.DocumentUri): Promise<string> {
-  const connParams: RpcConnectParams = { uri }
-  const result: RpcConnected = await client.sendRequest('$/lean/rpc/connect', connParams)
-  return result.sessionId
-}
-
 class RpcSessionAtPos implements Disposable {
   keepAliveInterval?: NodeJS.Timeout
   client: LeanClient
@@ -98,12 +92,14 @@ export class InfoProvider implements Disposable {
     },
 
     createRpcSession: async (uri) => {
-      const client = this.client // this.clientProvider.findClient(uri)
-      if (client == null) return ''
-      const sessionId = await rpcConnect(client, uri)
-      const session = new RpcSessionAtPos(client, sessionId, uri)
-      this.rpcSessions.set(sessionId, session)
-      return sessionId
+      if (this.client == null) return ''
+
+      const connParams: RpcConnectParams = { uri }
+      const result: RpcConnected = await this.client.sendRequest('$/lean/rpc/connect', connParams)
+
+      const session = new RpcSessionAtPos(this.client, result.sessionId, uri)
+      this.rpcSessions.set(result.sessionId, session)
+      return result.sessionId
     },
     unsubscribeServerNotifications: function (method: string): Promise<void> {
       throw new Error('Function not implemented.')

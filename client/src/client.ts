@@ -1,12 +1,11 @@
 /* This file is based on `vscode-lean4/src/leanclient.ts` */
 
-import { TextDocument, EventEmitter, DocumentHighlight, Range, DocumentHighlightKind, Disposable } from 'vscode'
+import { EventEmitter, DocumentHighlight, Range, DocumentHighlightKind, Disposable } from 'vscode'
 import { State } from 'vscode-languageclient'
 import * as ls from 'vscode-languageserver-protocol'
 
 import {
   DidChangeTextDocumentParams,
-  DidCloseTextDocumentParams,
   InitializeResult,
   MonacoLanguageClient as LanguageClient,
   LanguageClientOptions,
@@ -162,33 +161,6 @@ export class LeanClient implements Disposable {
       return this.running
     }
     return false
-  }
-
-  async restartFile (doc: TextDocument): Promise<void> {
-    if (!this.running) return // there was a problem starting lean server.
-
-    const uri = doc.uri.toString()
-    console.log(`[LeanClient] Restarting File: ${uri}`)
-    // This causes a text document version number discontinuity. In
-    // (didChange (oldVersion) => restartFile => didChange (newVersion))
-    // the client emits newVersion = oldVersion + 1, despite the fact that the
-    // didOpen packet emitted below initializes the version number to be 1.
-    // This is not a problem though, since both client and server are fine
-    // as long as the version numbers are monotonous.
-    void this.client?.sendNotification('textDocument/didClose', {
-      textDocument: {
-        uri
-      }
-    })
-    void this.client?.sendNotification('textDocument/didOpen', {
-      textDocument: {
-        uri,
-        languageId: 'lean4',
-        version: 1,
-        text: doc.getText()
-      }
-    })
-    // this.restartedWorkerEmitter.fire(uri)
   }
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
