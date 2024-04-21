@@ -5,7 +5,7 @@ import * as ls from 'vscode-languageserver-protocol'
 
 import { LeanClient } from './client'
 
-import { EditorApi, InfoviewApi, RpcConnected, RpcKeepAliveParams } from '@leanprover/infoview-api'
+import { EditorApi, InfoviewApi, RpcConnected } from '@leanprover/infoview-api'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
@@ -18,8 +18,8 @@ function toLanguageServerRange (range: monaco.Range): ls.Range {
 
 export class InfoProvider implements Disposable {
 
-  private infoviewApi?: InfoviewApi
-  private editor?: monaco.editor.IStandaloneCodeEditor
+  private infoviewApi: InfoviewApi
+  private editor: monaco.editor.IStandaloneCodeEditor
 
   public readonly client?: LeanClient
 
@@ -69,27 +69,28 @@ export class InfoProvider implements Disposable {
     }
   }
 
-  constructor (private readonly _client: LeanClient | undefined) {
+  constructor (private readonly _client: LeanClient | undefined, editor: monaco.editor.IStandaloneCodeEditor) {
 
     this.client = _client
+    this.editor = editor
 
-    this.client.restarted(() => this.initInfoView(this.editor))
+    this.client.restarted(() => this.initInfoView())
   }
 
   getApi () {
     return this.editorApi
   }
 
-  async openPreview (editor: monaco.editor.IStandaloneCodeEditor, infoviewApi: InfoviewApi) {
+  async openPreview (infoviewApi: InfoviewApi) {
     this.infoviewApi = infoviewApi
-    this.editor = editor
-    await this.initInfoView(editor)
+    
+    await this.initInfoView()
   }
 
-  private async initInfoView (editor: monaco.editor.IStandaloneCodeEditor | undefined) {
+  private async initInfoView () {
     
-    const uri = editor.getModel()?.uri
-    const selection = editor.getSelection()!
+    const uri = this.editor.getModel()?.uri
+    const selection = this.editor.getSelection()!
     const loc = { uri: uri!.toString(), range: toLanguageServerRange(selection) }
 
     await this.infoviewApi?.initialize(loc)

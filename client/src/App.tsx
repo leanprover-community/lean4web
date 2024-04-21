@@ -30,7 +30,7 @@ const Editor: React.FC = () => {
 
     // Following `vscode-lean4/webview/index.ts`
     const client = new LeanClient()
-    const infoProvider = new InfoProvider(client)
+    const infoProvider = new InfoProvider(client, editor)
     const imports = {
       '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
       'react': `${window.location.origin}/react.production.min.js`,
@@ -44,10 +44,10 @@ const Editor: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (infoProvider !== null && editor !== null && infoviewApi !== null) {
-      infoProvider.openPreview(editor, infoviewApi)
+    if (infoProvider !== null && infoviewApi !== null) {
+      infoProvider.openPreview(infoviewApi)
     }
-  }, [editor, infoviewApi, infoProvider])
+  }, [infoviewApi, infoProvider])
 
   return <div ref={infoviewRef} style={{height: '100%'}}></div>
 }
