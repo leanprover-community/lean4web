@@ -4,7 +4,9 @@ import { EventEmitter, Disposable } from 'vscode'
 
 import { InitializeResult, MonacoLanguageClient, LanguageClientOptions, PublishDiagnosticsParams, IConnectionProvider } from 'monaco-languageclient'
 
-import { c2pConverter } from './utils'
+import { createConverter } from 'vscode-languageclient/lib/common/codeConverter'
+
+const c2pConverter = createConverter(undefined)
 
 export class LeanClient implements Disposable {
   private client: MonacoLanguageClient | undefined

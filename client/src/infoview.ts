@@ -4,11 +4,17 @@ import { Disposable } from 'vscode'
 import * as ls from 'vscode-languageserver-protocol'
 
 import { LeanClient } from './client'
-import { toLanguageServerRange } from './utils'
 
 import { EditorApi, InfoviewApi, RpcConnected, RpcKeepAliveParams } from '@leanprover/infoview-api'
 
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+
+function toLanguageServerRange (range: monaco.Range): ls.Range {
+  return {
+    start: { line: range.startLineNumber - 1, character: range.startColumn - 1},
+    end: { line: range.endLineNumber - 1, character: range.endColumn - 1}
+  }
+}
 
 const keepAlivePeriodMs = 10_000
 
