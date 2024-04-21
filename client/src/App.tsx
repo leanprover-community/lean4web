@@ -12,33 +12,30 @@ import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 
 import { WebSocketMessageReader } from 'vscode-ws-jsonrpc';
 
-const project = 'MathlibLatest'
-
-const code = '#eval 3+1 \n #eval IO.println "hello" \n'
-
 monaco.languages.register({
   id: 'lean4',
   extensions: ['.lean']
 })
 
+const project = 'MathlibLatest'
+
+const code = '#eval 3+1 \n #eval IO.println "hello" \n'
+
 const Editor: React.FC = () => {
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null)
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
-  const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const model = monaco.editor.createModel(code, 'lean4')
-    const editor = monaco.editor.create(codeviewRef.current!, { model, })
+    const editor = monaco.editor.create(document.body, { model, })
     setEditor(editor)
 
-    const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
-    console.log(`socket url: ${socketUrl}`)
-
+    const socketUrl = "ws://" + window.location.host + "/websocket" + "/" + project
     const connectionProvider : IConnectionProvider = {
       get: async () => {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
           console.log(`connecting ${socketUrl}`)
           const websocket = new WebSocket(socketUrl)
           websocket.addEventListener('open', () => {
@@ -65,7 +62,6 @@ const Editor: React.FC = () => {
     loadRenderInfoview(imports, [infoProvider.getApi(), div], setInfoviewApi)
     setInfoProvider(infoProvider)
     client.restart(project)
-
   }, [])
 
   useEffect(() => {
@@ -74,12 +70,7 @@ const Editor: React.FC = () => {
     }
   }, [editor, infoviewApi, infoProvider])
 
-  return (
-    <div>
-        <div ref={codeviewRef} style={{height: '100%'}}></div>
-        <div ref={infoviewRef} style={{height: '100%'}}></div>
-    </div>
-  )
+  return <div ref={infoviewRef} style={{height: '100%'}}></div>
 }
 
 export default Editor
