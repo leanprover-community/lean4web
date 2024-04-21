@@ -52,16 +52,6 @@ export class InfoProvider implements Disposable {
 
   private rpcSessions: Map<string, RpcSessionAtPos> = new Map()
 
-  // the key is the uri of the file who's worker has failed.
-  private readonly workersFailed: Map<string, any> = new Map()
-
-  private subscribeDidChangeNotification (client: LeanClient, method: string) {
-    const h = client.didChange((params) => {
-      void this.infoviewApi?.sentClientNotification(method, params)
-    })
-    return h
-  }
-
   private subscribeDiagnosticsNotification (client: LeanClient, method: string) {
     const h = client.diagnostics((params) => {
       void this.infoviewApi?.gotServerNotification(method, params)
@@ -122,9 +112,6 @@ export class InfoProvider implements Disposable {
 
       if (method === 'textDocument/didChange') {
         const subscriptions: Disposable[] = []
-        for (const client of [this.client] /* this.clientProvider.getClients() */) {
-          subscriptions.push(this.subscribeDidChangeNotification(client!, method))
-        }
         this.clientNotifSubscriptions.set(method, [1, subscriptions])
       } else if (method === 'textDocument/didClose') {
         const subscriptions: Disposable[] = []
@@ -192,11 +179,6 @@ export class InfoProvider implements Disposable {
   private async onClientRestarted (client: LeanClient) {
     // if we already have subscriptions for a previous client, we need to also
     // subscribe to the same things on this new client.
-    for (const [method, [count, subscriptions]] of this.clientNotifSubscriptions) {
-      if (method === 'textDocument/didChange') {
-        subscriptions.push(this.subscribeDidChangeNotification(client, method))
-      }
-    }
 
     await this.initInfoView(this.editor, client)
   }
@@ -222,9 +204,6 @@ export class InfoProvider implements Disposable {
   async onWorkerStopped (uri: string, client: LeanClient, reason: any) {
     await this.infoviewApi?.serverStopped(reason)
 
-    if (!this.workersFailed.has(uri)) {
-      this.workersFailed.set(uri, reason)
-    }
     console.log(`[InfoProvider]client crashed: ${uri}`)
   }
 
@@ -273,18 +252,6 @@ export class InfoProvider implements Disposable {
     const loc = this.getLocation(editor)
     if (!this.client.running){
       await this.infoviewApi?.serverStopped(undefined)
-    } else if (this.workersFailed.size > 0) {
-      const uri = window.activeTextEditor?.document.uri.toString() ?? ''
-      let reason: any | undefined
-      if (this.workersFailed.has(uri)) {
-        reason = this.workersFailed.get(uri)
-      }
-      if (reason) {
-        // send stopped event
-        await this.infoviewApi?.serverStopped(reason)
-      } else {
-        await this.updateStatus(loc)
-      }
     } else {
       await this.updateStatus(loc)
     }
