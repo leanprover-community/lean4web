@@ -46,12 +46,12 @@ const connectionProvider : IConnectionProvider = {
 export class LeanClient implements Disposable {
   client: MonacoLanguageClient | undefined
 
-  async start (project): Promise<void> {
+  async start (): Promise<void> {
 
     this.client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
     await this.client.start()
 
-    restartedEmitter.fire({ project })
+    restartedEmitter.fire()
   }
 }
 

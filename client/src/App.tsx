@@ -7,8 +7,6 @@ import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider, LeanClient } from './infoview'
 
-const project = 'MathlibLatest'
-
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
 const Editor: React.FC = () => {
@@ -38,7 +36,7 @@ const Editor: React.FC = () => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
     })
-    client.start(project)
+    client.start()
   }, [])
 
   useEffect(() => {
