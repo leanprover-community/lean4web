@@ -12,10 +12,11 @@ const project = 'MathlibLatest'
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
 const Editor: React.FC = () => {
+  
+  const infoviewRef = useRef<HTMLDivElement>(null)
 
   const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
   const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
-  const infoviewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
 
