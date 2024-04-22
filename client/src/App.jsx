@@ -134,10 +134,11 @@ const Editor = () => {
       'react-dom': `${window.location.origin}/react-dom.production.min.js`,
       'react-popper': `${window.location.origin}/react-popper.production.min.js`
     }
-    loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current], (api) => {
+    loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current], async (api) => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
-      client.start().then(() => infoProvider.initInfoView(editor))
+      await client.start()
+      infoProvider.initInfoView(editor)
     })
   }, [])
 
