@@ -4,17 +4,16 @@ import { useEffect, useRef, useState } from 'react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
-import { InfoviewApi } from '@leanprover/infoview-api'
 import { InfoProvider, LeanClient } from './infoview'
 
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
-const Editor: React.FC = () => {
+const Editor = () => {
   
-  const infoviewRef = useRef<HTMLDivElement>(null)
+  const infoviewRef = useRef(null)
 
-  const [infoviewApi, setInfoviewApi] = useState<InfoviewApi | null>(null)
-  const [infoProvider, setInfoProvider] = useState<InfoProvider | null>(null)
+  const [infoviewApi, setInfoviewApi] = useState(null)
+  const [infoProvider, setInfoProvider] = useState(null)
 
   useEffect(() => {
 
@@ -32,7 +31,7 @@ const Editor: React.FC = () => {
       'react-dom': `${window.location.origin}/react-dom.production.min.js`,
       'react-popper': `${window.location.origin}/react-popper.production.min.js`
     }
-    loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current!], (api) => {
+    loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current], (api) => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
     })

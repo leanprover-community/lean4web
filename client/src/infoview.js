@@ -1,22 +1,18 @@
 
-import { EditorApi, InfoviewApi, RpcConnected } from '@leanprover/infoview-api'
-
-import { EventEmitter, Disposable } from 'vscode'
-import * as ls from 'vscode-languageserver-protocol'
+import { EventEmitter } from 'vscode'
 import { createConverter } from 'vscode-languageclient/lib/common/codeConverter'
 import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode-ws-jsonrpc'
 
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import { MonacoLanguageClient, LanguageClientOptions, IConnectionProvider } from 'monaco-languageclient'
+import { MonacoLanguageClient } from 'monaco-languageclient'
 
 const diagnosticsEmitter = new EventEmitter()
 const restartedEmitter = new EventEmitter()
 
 const project = 'MathlibLatest'
 
-const socketUrl = 'ws://' + window.location.host + '/websocket' + '/' + project
+const socketUrl = `ws://${window.location.host}/websocket/${project}`
 
-const clientOptions: LanguageClientOptions = {
+const clientOptions = {
   documentSelector: ['lean4'],
   middleware: {
     handleDiagnostics: (uri, diagnostics, next) => {
@@ -27,7 +23,7 @@ const clientOptions: LanguageClientOptions = {
   }
 }
 
-const connectionProvider : IConnectionProvider = {
+const connectionProvider = {
   get: async () => {
     return await new Promise((resolve) => {
       const websocket = new WebSocket(socketUrl)
@@ -41,10 +37,9 @@ const connectionProvider : IConnectionProvider = {
   }
 }
 
-export class LeanClient implements Disposable {
-  client: MonacoLanguageClient | undefined
-
-  async start (): Promise<void> {
+export class LeanClient {
+  
+  async start () {
 
     this.client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
     await this.client.start()
@@ -53,18 +48,14 @@ export class LeanClient implements Disposable {
   }
 }
 
-export class InfoProvider implements Disposable {
+export class InfoProvider {
 
-  private infoviewApi: InfoviewApi
-  private editor: monaco.editor.IStandaloneCodeEditor
-
-  public readonly client: LeanClient
-  public readonly editorApi: EditorApi = {
+  editorApi = {
     createRpcSession: async (uri) => {
-      const result: RpcConnected = await this.client.client.sendRequest('$/lean/rpc/connect', { uri })
+      const result = await this.client.client.sendRequest('$/lean/rpc/connect', { uri })
       return result.sessionId
     },
-    sendClientRequest: async (_uri: string, method: string, params: any): Promise<any> => {
+    sendClientRequest: async (_uri, method, params) => {
       return await this.client.client.sendRequest(method, params)
     },
     subscribeServerNotifications: async (method) => {
@@ -80,30 +71,30 @@ export class InfoProvider implements Disposable {
     insertText: async (_text, _kind, _tdpp) => {
       throw new Error('Function not implemented.')
     },
-    unsubscribeServerNotifications: function (_method: string): Promise<void> {
+    unsubscribeServerNotifications: function (_method) {
       throw new Error('Function not implemented.')
     },
-    unsubscribeClientNotifications: function (_method: string): Promise<void> {
+    unsubscribeClientNotifications: function (_method) {
       throw new Error('Function not implemented.')
     },
-    copyToClipboard: function (_text: string): Promise<void> {
+    copyToClipboard: function (_text) {
       throw new Error('Function not implemented.')
     },
-    applyEdit: function (_te: ls.WorkspaceEdit): Promise<void> {
+    applyEdit: function (_te) {
       throw new Error('Function not implemented.')
     },
-    showDocument: function (_show: ls.ShowDocumentParams): Promise<void> {
+    showDocument: function (_show) {
       throw new Error('Function not implemented.')
     },
-    closeRpcSession: function (_sessionId: string): Promise<void> {
+    closeRpcSession: function (_sessionId) {
       throw new Error('Function not implemented.')
     },
-    sendClientNotification: function (_uri: string, _method: string, _params: any): Promise<void> {
+    sendClientNotification: function (_uri, _method, _params) {
       throw new Error('Function not implemented.')
     }
   }
 
-  constructor (client: LeanClient, editor: monaco.editor.IStandaloneCodeEditor) {
+  constructor (client, editor) {
 
     this.client = client
     this.editor = editor
@@ -111,7 +102,7 @@ export class InfoProvider implements Disposable {
     restartedEmitter.event(() => this.initInfoView())
   }
 
-  async setInfoviewApi (infoviewApi: InfoviewApi) {
+  async setInfoviewApi (infoviewApi) {
     this.infoviewApi = infoviewApi
   }
 
