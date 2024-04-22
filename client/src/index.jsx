@@ -103,6 +103,7 @@ const imports = {
   'react-popper': `${window.location.origin}/react-popper.production.min.js`
 }
 
+// https://github.com/leanprover/vscode-lean4/blob/master/lean4-infoview/src/loader.ts#L22
 loadRenderInfoview(imports, [editorApi, document.body], async (api) => {
   
   await client.start()
