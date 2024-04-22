@@ -126,26 +126,14 @@ const imports = {
   'react-popper': `${window.location.origin}/react-popper.production.min.js`
 }
 
+loadRenderInfoview(imports, [infoProvider.editorApi, document.body], async (api) => {
+  // setInfoviewApi(api)
+  infoProvider.setInfoviewApi(api)
+  await client.start()
+  infoProvider.initInfoView(editor)
+})
+
 const Editor = () => {
-  
-  const [infoviewApi, setInfoviewApi] = useState(null)
-
-  useEffect(() => {
-
-    loadRenderInfoview(imports, [infoProvider.editorApi, document.body], async (api) => {
-      setInfoviewApi(api)
-      await client.start()
-      infoProvider.initInfoView(editor)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (infoProvider !== null && infoviewApi !== null) {
-      infoProvider.setInfoviewApi(infoviewApi)
-      // infoProvider.initInfoView()
-    }
-  }, [infoviewApi, infoProvider])
-
   return <div/>
 }
 
