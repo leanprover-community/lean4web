@@ -138,14 +138,14 @@ const Editor = () => {
     loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current], (api) => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
+      client.start().then(() => infoProvider.initInfoView())
     })
-    client.start().then(() => infoProvider.initInfoView())
   }, [])
 
   useEffect(() => {
     if (infoProvider !== null && infoviewApi !== null) {
       infoProvider.setInfoviewApi(infoviewApi)
-      infoProvider.initInfoView()
+      // infoProvider.initInfoView()
     }
   }, [infoviewApi, infoProvider])
 
