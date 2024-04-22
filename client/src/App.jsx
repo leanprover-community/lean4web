@@ -43,26 +43,15 @@ const connectionProvider = {
   }
 }
 
-export class LeanClient {
-  
-  async start () {
-
-    this.client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
-    await this.client.start()
-
-    restartedEmitter.fire()
-  }
-}
-
 export class InfoProvider {
 
   editorApi = {
     createRpcSession: async (uri) => {
-      const result = await this.client.client.sendRequest('$/lean/rpc/connect', { uri })
+      const result = await this.client.sendRequest('$/lean/rpc/connect', { uri })
       return result.sessionId
     },
     sendClientRequest: async (_uri, method, params) => {
-      return await this.client.client.sendRequest(method, params)
+      return await this.client.sendRequest(method, params)
     },
     subscribeServerNotifications: async (method) => {
 
@@ -117,7 +106,14 @@ export class InfoProvider {
     const uri = this.editor.getModel().uri.toString()
     const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
     await this.infoviewApi.initialize({ uri, range })
-    await this.infoviewApi.serverRestarted(this.client.client.initializeResult)
+    await this.infoviewApi.serverRestarted(this.client.initializeResult)
+  }
+
+  async start () {
+
+    await this.client.start()
+
+    restartedEmitter.fire()
   }
 }
 
@@ -138,7 +134,7 @@ const Editor = () => {
     const model = monaco.editor.createModel(code, 'lean4')
     const editor = monaco.editor.create(document.body, { model, })
 
-    const client = new LeanClient()
+    const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
     const infoProvider = new InfoProvider(client, editor)
     const imports = {
       '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
@@ -151,7 +147,7 @@ const Editor = () => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
     })
-    client.start()
+    infoProvider.start()
   }, [])
 
   useEffect(() => {
