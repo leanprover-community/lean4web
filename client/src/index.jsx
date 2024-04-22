@@ -95,13 +95,6 @@ const editorApi = {
   }
 }
 
-const initInfoView = async (uri) => {
-  
-  const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
-  await infoviewApi.initialize({ uri, range })
-  await infoviewApi.serverRestarted(client.initializeResult)
-}
-
 const imports = {
   '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
   'react': `${window.location.origin}/react.production.min.js`,
@@ -112,10 +105,13 @@ const imports = {
 
 loadRenderInfoview(imports, [editorApi, document.body], async (api) => {
   
-  infoviewApi = api
-
   await client.start()
 
   const uri = editor.getModel().uri.toString()
-  initInfoView(uri)
+  const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
+  await api.initialize({ uri, range })
+  await api.serverRestarted(client.initializeResult)
+
+  infoviewApi = api
+
 })
