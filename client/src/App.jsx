@@ -88,20 +88,19 @@ export class InfoProvider {
     }
   }
 
-  constructor (client, editor) {
+  constructor (client) {
 
     this.client = client
-    this.editor = editor
 
   }
 
-  async setInfoviewApi (infoviewApi) {
+  setInfoviewApi (infoviewApi) {
     this.infoviewApi = infoviewApi
   }
 
-  async initInfoView () {
+  async initInfoView (editor) {
     
-    const uri = this.editor.getModel().uri.toString()
+    const uri = editor.getModel().uri.toString()
     const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
     await this.infoviewApi.initialize({ uri, range })
     await this.infoviewApi.serverRestarted(this.client.initializeResult)
@@ -138,7 +137,7 @@ const Editor = () => {
     loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current], (api) => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
-      client.start().then(() => infoProvider.initInfoView())
+      client.start().then(() => infoProvider.initInfoView(editor))
     })
   }, [])
 
