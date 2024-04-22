@@ -49,6 +49,8 @@ const editor = monaco.editor.create(document.body, { model, })
 
 const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
 
+let infoviewApi = null
+
 class InfoProvider {
 
   editorApi = {
@@ -62,7 +64,7 @@ class InfoProvider {
     subscribeServerNotifications: async (method) => {
 
       if (method === 'textDocument/publishDiagnostics') {
-        diagnosticsEmitter.event((params) => this.infoviewApi.gotServerNotification(method, params))
+        diagnosticsEmitter.event((params) => infoviewApi.gotServerNotification(method, params))
       }
     },
 
@@ -95,15 +97,11 @@ class InfoProvider {
     }
   }
 
-  setInfoviewApi (infoviewApi) {
-    this.infoviewApi = infoviewApi
-  }
-
   async initInfoView (uri) {
     
     const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
-    await this.infoviewApi.initialize({ uri, range })
-    await this.infoviewApi.serverRestarted(client.initializeResult)
+    await infoviewApi.initialize({ uri, range })
+    await infoviewApi.serverRestarted(client.initializeResult)
   }
 
 }
@@ -119,7 +117,8 @@ const imports = {
 
 loadRenderInfoview(imports, [infoProvider.editorApi, document.body], async (api) => {
   
-  infoProvider.setInfoviewApi(api)
+  infoviewApi = api
+  
   await client.start()
 
   const uri = editor.getModel().uri.toString()
