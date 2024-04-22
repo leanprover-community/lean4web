@@ -51,62 +51,57 @@ const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOpt
 
 let infoviewApi = null
 
-class InfoProvider {
+const editorApi = {
+  createRpcSession: async (uri) => {
+    const result = await client.sendRequest('$/lean/rpc/connect', { uri })
+    return result.sessionId
+  },
+  sendClientRequest: async (_uri, method, params) => {
+    return await client.sendRequest(method, params)
+  },
+  subscribeServerNotifications: async (method) => {
 
-  editorApi = {
-    createRpcSession: async (uri) => {
-      const result = await client.sendRequest('$/lean/rpc/connect', { uri })
-      return result.sessionId
-    },
-    sendClientRequest: async (_uri, method, params) => {
-      return await client.sendRequest(method, params)
-    },
-    subscribeServerNotifications: async (method) => {
-
-      if (method === 'textDocument/publishDiagnostics') {
-        diagnosticsEmitter.event((params) => infoviewApi.gotServerNotification(method, params))
-      }
-    },
-
-    subscribeClientNotifications: async (_method) => {
-      throw new Error('Function not implemented.')
-    },
-    insertText: async (_text, _kind, _tdpp) => {
-      throw new Error('Function not implemented.')
-    },
-    unsubscribeServerNotifications: function (_method) {
-      throw new Error('Function not implemented.')
-    },
-    unsubscribeClientNotifications: function (_method) {
-      throw new Error('Function not implemented.')
-    },
-    copyToClipboard: function (_text) {
-      throw new Error('Function not implemented.')
-    },
-    applyEdit: function (_te) {
-      throw new Error('Function not implemented.')
-    },
-    showDocument: function (_show) {
-      throw new Error('Function not implemented.')
-    },
-    closeRpcSession: function (_sessionId) {
-      throw new Error('Function not implemented.')
-    },
-    sendClientNotification: function (_uri, _method, _params) {
-      throw new Error('Function not implemented.')
+    if (method === 'textDocument/publishDiagnostics') {
+      diagnosticsEmitter.event((params) => infoviewApi.gotServerNotification(method, params))
     }
-  }
+  },
 
-  async initInfoView (uri) {
-    
-    const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
-    await infoviewApi.initialize({ uri, range })
-    await infoviewApi.serverRestarted(client.initializeResult)
+  subscribeClientNotifications: async (_method) => {
+    throw new Error('Function not implemented.')
+  },
+  insertText: async (_text, _kind, _tdpp) => {
+    throw new Error('Function not implemented.')
+  },
+  unsubscribeServerNotifications: function (_method) {
+    throw new Error('Function not implemented.')
+  },
+  unsubscribeClientNotifications: function (_method) {
+    throw new Error('Function not implemented.')
+  },
+  copyToClipboard: function (_text) {
+    throw new Error('Function not implemented.')
+  },
+  applyEdit: function (_te) {
+    throw new Error('Function not implemented.')
+  },
+  showDocument: function (_show) {
+    throw new Error('Function not implemented.')
+  },
+  closeRpcSession: function (_sessionId) {
+    throw new Error('Function not implemented.')
+  },
+  sendClientNotification: function (_uri, _method, _params) {
+    throw new Error('Function not implemented.')
   }
-
 }
 
-const infoProvider = new InfoProvider()
+const initInfoView = async (uri) => {
+  
+  const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
+  await infoviewApi.initialize({ uri, range })
+  await infoviewApi.serverRestarted(client.initializeResult)
+}
+
 const imports = {
   '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
   'react': `${window.location.origin}/react.production.min.js`,
@@ -115,12 +110,12 @@ const imports = {
   'react-popper': `${window.location.origin}/react-popper.production.min.js`
 }
 
-loadRenderInfoview(imports, [infoProvider.editorApi, document.body], async (api) => {
+loadRenderInfoview(imports, [editorApi, document.body], async (api) => {
   
   infoviewApi = api
-  
+
   await client.start()
 
   const uri = editor.getModel().uri.toString()
-  infoProvider.initInfoView(uri)
+  initInfoView(uri)
 })
