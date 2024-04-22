@@ -116,27 +116,24 @@ monaco.languages.register({ id: 'lean4', extensions: ['.lean'] })
 const model = monaco.editor.createModel(code, 'lean4')
 const editor = monaco.editor.create(document.body, { model, })
 
+const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
+const infoProvider = new InfoProvider(client)
+const imports = {
+  '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
+  'react': `${window.location.origin}/react.production.min.js`,
+  'react/jsx-runtime': `${window.location.origin}/react-jsx-runtime.production.min.js`,
+  'react-dom': `${window.location.origin}/react-dom.production.min.js`,
+  'react-popper': `${window.location.origin}/react-popper.production.min.js`
+}
+
 const Editor = () => {
   
-  const infoviewRef = useRef(null)
-
   const [infoviewApi, setInfoviewApi] = useState(null)
-  const [infoProvider, setInfoProvider] = useState(null)
 
   useEffect(() => {
 
-    const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
-    const infoProvider = new InfoProvider(client)
-    const imports = {
-      '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
-      'react': `${window.location.origin}/react.production.min.js`,
-      'react/jsx-runtime': `${window.location.origin}/react-jsx-runtime.production.min.js`,
-      'react-dom': `${window.location.origin}/react-dom.production.min.js`,
-      'react-popper': `${window.location.origin}/react-popper.production.min.js`
-    }
-    loadRenderInfoview(imports, [infoProvider.editorApi, infoviewRef.current], async (api) => {
+    loadRenderInfoview(imports, [infoProvider.editorApi, document.body], async (api) => {
       setInfoviewApi(api)
-      setInfoProvider(infoProvider)
       await client.start()
       infoProvider.initInfoView(editor)
     })
@@ -149,7 +146,7 @@ const Editor = () => {
     }
   }, [infoviewApi, infoProvider])
 
-  return <div ref={infoviewRef}></div>
+  return <div/>
 }
 
 export default Editor
