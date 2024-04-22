@@ -99,9 +99,8 @@ class InfoProvider {
     this.infoviewApi = infoviewApi
   }
 
-  async initInfoView (editor) {
+  async initInfoView (uri) {
     
-    const uri = editor.getModel().uri.toString()
     const range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } }
     await this.infoviewApi.initialize({ uri, range })
     await this.infoviewApi.serverRestarted(client.initializeResult)
@@ -119,8 +118,10 @@ const imports = {
 }
 
 loadRenderInfoview(imports, [infoProvider.editorApi, document.body], async (api) => {
-  // setInfoviewApi(api)
+  
   infoProvider.setInfoviewApi(api)
   await client.start()
-  infoProvider.initInfoView(editor)
+
+  const uri = editor.getModel().uri.toString()
+  infoProvider.initInfoView(uri)
 })
