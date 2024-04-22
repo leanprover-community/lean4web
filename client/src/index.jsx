@@ -40,7 +40,14 @@ const connectionProvider = {
   }
 }
 
-export class InfoProvider {
+const code = '#eval 3+1 \n #eval IO.println "hello" \n'
+
+monaco.languages.register({ id: 'lean4', extensions: ['.lean'] })
+
+const model = monaco.editor.createModel(code, 'lean4')
+const editor = monaco.editor.create(document.body, { model, })
+
+class InfoProvider {
 
   editorApi = {
     createRpcSession: async (uri) => {
@@ -105,14 +112,6 @@ export class InfoProvider {
   }
 
 }
-
-
-const code = '#eval 3+1 \n #eval IO.println "hello" \n'
-
-monaco.languages.register({ id: 'lean4', extensions: ['.lean'] })
-
-const model = monaco.editor.createModel(code, 'lean4')
-const editor = monaco.editor.create(document.body, { model, })
 
 const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
 const infoProvider = new InfoProvider(client)
