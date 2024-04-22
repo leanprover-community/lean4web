@@ -109,12 +109,6 @@ export class InfoProvider {
     await this.infoviewApi.serverRestarted(this.client.initializeResult)
   }
 
-  async start () {
-
-    await this.client.start()
-
-    restartedEmitter.fire()
-  }
 }
 
 
@@ -147,7 +141,7 @@ const Editor = () => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
     })
-    infoProvider.start()
+    client.start().then(() => restartedEmitter.fire())
   }, [])
 
   useEffect(() => {
