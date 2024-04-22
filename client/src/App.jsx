@@ -111,6 +111,11 @@ export class InfoProvider {
 
 const code = '#eval 3+1 \n #eval IO.println "hello" \n'
 
+monaco.languages.register({ id: 'lean4', extensions: ['.lean'] })
+
+const model = monaco.editor.createModel(code, 'lean4')
+const editor = monaco.editor.create(document.body, { model, })
+
 const Editor = () => {
   
   const infoviewRef = useRef(null)
@@ -120,13 +125,8 @@ const Editor = () => {
 
   useEffect(() => {
 
-    monaco.languages.register({ id: 'lean4', extensions: ['.lean'] })
-
-    const model = monaco.editor.createModel(code, 'lean4')
-    const editor = monaco.editor.create(document.body, { model, })
-
     const client = new MonacoLanguageClient({ id: 'lean4', name: 'Lean 4', clientOptions, connectionProvider })
-    const infoProvider = new InfoProvider(client, editor)
+    const infoProvider = new InfoProvider(client)
     const imports = {
       '@leanprover/infoview': `${window.location.origin}/index.production.min.js`,
       'react': `${window.location.origin}/react.production.min.js`,
