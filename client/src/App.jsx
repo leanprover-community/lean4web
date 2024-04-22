@@ -12,7 +12,6 @@ import { toSocket, WebSocketMessageWriter, WebSocketMessageReader } from 'vscode
 import { MonacoLanguageClient } from 'monaco-languageclient'
 
 const diagnosticsEmitter = new EventEmitter()
-const restartedEmitter = new EventEmitter()
 
 const project = 'MathlibLatest'
 
@@ -94,7 +93,6 @@ export class InfoProvider {
     this.client = client
     this.editor = editor
 
-    restartedEmitter.event(() => this.initInfoView())
   }
 
   async setInfoviewApi (infoviewApi) {
@@ -141,7 +139,7 @@ const Editor = () => {
       setInfoviewApi(api)
       setInfoProvider(infoProvider)
     })
-    client.start().then(() => restartedEmitter.fire())
+    client.start().then(() => infoProvider.initInfoView())
   }, [])
 
   useEffect(() => {
