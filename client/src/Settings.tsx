@@ -143,6 +143,7 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
                     console.log(`set Lean project to: ${ev.target.value}`)
                     }} >
                 <option value="MathlibLatest">Latest Mathlib</option>
+                <option value="LeanNightly">Lean nightly (without mathlib)</option>
               </select>
             </p>
 
