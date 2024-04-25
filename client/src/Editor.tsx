@@ -79,7 +79,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       tabSize: 2,
       'semanticHighlighting.enabled': true,
       theme: 'vs',
-      wordWrap: config.wordWrap
+      wordWrap: config.wordWrap ? "on" : "off",
+      fontFamily: "JuliaMono",
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)

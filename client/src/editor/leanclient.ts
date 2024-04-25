@@ -103,6 +103,7 @@ export class LeanClient implements Disposable {
 
     console.log(`[LeanClient] Restarting Lean Server with project ${project}`)
     if (this.isStarted()) {
+      // TODO: This times out in lean4game...
       await this.stop()
     }
 

@@ -8,3 +8,8 @@ body {
 #root {
   height: 100vh;
 }
+
+@font-face {
+  font-family: 'JuliaMono';
+  src: local('JuliaMono'), url('/fonts/JuliaMono-Regular.ttf') format('truetype');
+}
