@@ -1,11 +1,5 @@
 {
   "projects": [
-    { "folder": "lean4web-tools",
-      "name": "Stable Lean",
-      "examples": [
-        {"file": "Webeditor.lean", "name": "Test"}
-      ]
-    },
     { "folder": "mathlib-demo",
       "name": "Latest Mathlib",
       "examples": [
@@ -17,6 +11,13 @@
           "name": "Ring"},
         { "file": "MathlibLatest/Rational.lean",
           "name": "Rational"}
-      ]}
+      ]
+    },
+    { "folder": "lean4web-tools",
+      "name": "Stable Lean",
+      "examples": [
+        {"file": "Webeditor.lean", "name": "Test"}
+      ]
+    }
   ]
 }
