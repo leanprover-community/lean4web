@@ -14,10 +14,7 @@
       ]
     },
     { "folder": "lean4web-tools",
-      "name": "Stable Lean",
-      "examples": [
-        {"file": "Webeditor.lean", "name": "Test"}
-      ]
+      "name": "Stable Lean"
     }
   ]
 }
