@@ -144,7 +144,7 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
                     console.log(`set Lean project to: ${ev.target.value}`)
                     }} >
                 {lean4webConfig.projects.map(proj =>
-                  <option key={proj.folder} value={proj.folder}>{proj.name}</option>
+                  <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
                 )}
               </select>
             </p>

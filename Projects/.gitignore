@@ -2,5 +2,6 @@
 
 # But not these files...
 !.gitignore
-!Wededitor/
-!MathlibLatest/
+!lean4web-tools/
+!mathlib-demo/
+!README.md

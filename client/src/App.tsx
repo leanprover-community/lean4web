@@ -54,7 +54,7 @@ const App: React.FC = () => {
 
   const [content, setContent] = useState<string>('')
   const [url, setUrl] = useState<string>(null)
-  const [project, setProject] = useState<string>('MathlibLatest')
+  const [project, setProject] = useState<string>('mathlib-demo')
   const [contentFromUrl, setContentFromUrl] = useState<string>(null)
 
   const readHash = () => {
@@ -123,7 +123,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     //let args = parseArgs()
-    let _project = (project == 'MathlibLatest' ? null : project)
+    let _project = (project == 'mathlib-demo' ? null : project)
     if (content === contentFromUrl) {
       let args = {project: _project, url: encodeURIComponent(url), code: null}
       history.replaceState(undefined, undefined, formatArgs(args))
