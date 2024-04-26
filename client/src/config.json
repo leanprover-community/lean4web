@@ -1,0 +1,6 @@
+{
+  "projects": [
+    {"folder": "lean4web-tools", "name": "Stable Lean"},
+    {"folder": "MathlibLatest", "name": "Latest Mathlib"}
+  ]
+}

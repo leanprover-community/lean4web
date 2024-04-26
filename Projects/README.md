@@ -12,4 +12,6 @@ Projects can be any Lean projects.
         "https://github.com/hhu-adam/lean4web-tools.git" @ "main"
     ```
     in its `lakefile.lean`. This package adds some simple tools like `#package_version`.
-3. For a project to appear in the settings, you need to modify `Settings.tsx` and add a new option with value `ProjectName`.
+3. For a project to appear in the settings, you need to add it to `config.json`:
+  add a new entry `{folder: "_", name: "_"}` to `projects`, where "folder" is the
+  folder name inside `Projects/` and "name" is the free-text display name.
