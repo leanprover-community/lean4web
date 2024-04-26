@@ -4,17 +4,14 @@
       "name": "Latest Mathlib",
       "examples": [
         { "file": "MathlibLatest/Bijection.lean",
-          "name": "Bijection"},
+          "name": "Bijection" },
         { "file": "MathlibLatest/Logic.lean",
-          "name": "Logic"},
+          "name": "Logic" },
         { "file": "MathlibLatest/Ring.lean",
-          "name": "Ring"},
+          "name": "Ring" },
         { "file": "MathlibLatest/Rational.lean",
-          "name": "Rational"}
-      ]
-    },
+          "name": "Rational" }]},
     { "folder": "lean4web-tools",
-      "name": "Stable Lean"
-    }
+      "name": "Stable Lean" }
   ]
 }
