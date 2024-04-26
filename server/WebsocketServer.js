@@ -58,6 +58,7 @@ class ClientConnection {
         if (chr === null) { break }
         this.header += (chr.toString('ascii'))
         if (this.header.endsWith('\r\n\r\n')) {
+          console.log(`[server header] ${this.header}`)
           const found = this.header.match(this.re)
           if (found == null) { throw Error(`Invalid header: ${this.header}`) }
           this.contentLength = parseInt(found[1])
@@ -75,7 +76,7 @@ class ClientConnection {
         this.content += (str.toString('utf8'))
         if (this.contentLength <= 0) {
           if (this.ws?.readyState === WebSocket.OPEN) { // check if client is ready
-            // console.log(`[server] ${this.content}`)
+            console.log(`[server] ${this.content}`)
             this.ws?.send(this.content)
           }
           this.headerMode = true
