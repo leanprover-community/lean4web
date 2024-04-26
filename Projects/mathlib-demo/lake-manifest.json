@@ -67,7 +67,7 @@
   {"url": "https://github.com/hhu-adam/lean4web-tools.git",
    "type": "git",
    "subDir": null,
-   "rev": "9e6468e250c05450eedf4aff6e30290fb409af2b",
+   "rev": "0bf7f2dd6861b0be4c7f0e761a50ae03e6fb2d6b",
    "name": "webeditor",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",

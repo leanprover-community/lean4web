@@ -36,7 +36,7 @@ sudo apt-get install git
 git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
 ```
 
-note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`.
+note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
 
 Install Bubblewrap:
 ```
