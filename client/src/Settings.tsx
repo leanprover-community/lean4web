@@ -8,6 +8,7 @@ import Select from '@mui/material/Select';
 import { useWindowDimensions } from './window_width';
 import { Button, FormControl, InputLabel, MenuItem } from '@mui/material';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as lean4webConfig from './config.json'
 
 const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     ({closeNav, theme, setTheme, project, setProject}) => {
@@ -142,8 +143,9 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
                     setProject(ev.target.value)
                     console.log(`set Lean project to: ${ev.target.value}`)
                     }} >
-                <option value="MathlibLatest">Latest Mathlib</option>
-                <option value="LeanNightly">Lean nightly (without mathlib)</option>
+                {lean4webConfig.projects.map(proj =>
+                  <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
+                )}
               </select>
             </p>
 

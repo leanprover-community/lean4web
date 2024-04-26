@@ -1,5 +1,4 @@
 import Mathlib.Logic.Basic -- basic facts in logic
-import Mathlib.Tactic.LibrarySearch -- a tactic which searches for
 -- theorems in Lean's mathematics library
 
 -- Let P and Q be true-false statements

@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import * as lean4webConfig from './config.json'
 
 const Examples: React.FC<{loadFromUrl:(url: string, project?: string|null) => void, openSubmenu: (ev: React.MouseEvent, component: React.JSX.Element) => void, closeNav: any}> = ({loadFromUrl, openSubmenu, closeNav}) => {
 
@@ -10,11 +11,10 @@ const Examples: React.FC<{loadFromUrl:(url: string, project?: string|null) => vo
   }
 
   const exampleMenu = <>
-    <span className="nav-link" onClick={() => load("logic.lean", "MathlibLatest")}>Logic</span>
-    <span className="nav-link" onClick={() => load("bijection.lean", "MathlibLatest")}>Bijections</span>
-    <span className="nav-link" onClick={() => load("rational.lean", "MathlibLatest")}>Rational numbers</span>
-    <span className="nav-link" onClick={() => load("ring.lean", "MathlibLatest")}>Commutative rings</span>
-    <span className="nav-link" onClick={() => {loadFromUrl("https://raw.githubusercontent.com/JOSHCLUNE/DuperDemo/main/DuperDemo.lean", "DuperDemo"); closeNav()}}>Duper</span>
+    {lean4webConfig.projects.map(proj => proj.examples?.map(example =>
+      <span key={`${proj.name}-${example.name}`} className="nav-link" onClick={() => load(`${proj.folder}/${example.file}`, proj.folder)}>{example.name}</span>
+
+    ))}
   </>
 
   return <span className="nav-link" onClick={(ev) => {openSubmenu(ev, exampleMenu)}}>

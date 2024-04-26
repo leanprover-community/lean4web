@@ -98,7 +98,7 @@ export class LeanClient implements Disposable {
     const startTime = Date.now()
 
     if (!project) {
-      project = 'MathlibLatest'
+      project = 'mathlib-demo'
     }
 
     console.log(`[LeanClient] Restarting Lean Server with project ${project}`)

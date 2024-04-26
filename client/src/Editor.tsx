@@ -145,7 +145,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
 
   const restart = async (project) => {
     if (!project) {
-      project = 'MathlibLatest'
+      project = 'mathlib-demo'
     }
     console.log(`project got to here! ${project}`)
     await infoProvider.client.restart(project);
