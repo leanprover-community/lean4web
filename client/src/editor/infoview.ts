@@ -217,7 +217,28 @@ export class InfoProvider implements Disposable {
         fromLanguageServerRange(show.selection)
       )
     },
+    restartFile: async uri => {
 
+      return // TODO!
+
+
+      // const extUri = parseExtUri(uri)
+      // if (extUri === undefined) {
+      //     return
+      // }
+
+      // const client = this.clientProvider.findClient(extUri)
+      // if (!client) {
+      //     return
+      // }
+
+      // const document = workspace.textDocuments.find(doc => extUri.equalsUri(doc.uri))
+      // if (!document || document.isClosed) {
+      //     return
+      // }
+
+      // await client.restartFile(document)
+  },
     createRpcSession: async uri => {
       const client = this.client // this.clientProvider.findClient(uri)
       if (client == null) return ''
@@ -437,7 +458,15 @@ export class InfoProvider implements Disposable {
     await this.infoviewApi?.changedInfoviewConfig({
       allErrorsOnLine: true, //getInfoViewAllErrorsOnLine(),
       autoOpenShowsGoal: true, // getInfoViewAllErrorsOnLine(),
-      debounceTime: 50 // getInfoViewAutoOpenShowGoal()
+      debounceTime: 50, // getInfoViewAutoOpenShowGoal()
+
+      // TODO: I set all of these to false to get things working,
+      // but what would be correct?
+      showExpectedType: false,
+      showGoalNames: false,
+      emphasizeFirstGoal: false,
+      reverseTacticState: false,
+      showTooltipOnHover: false,
     })
   }
 
