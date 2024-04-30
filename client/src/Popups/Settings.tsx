@@ -1,21 +1,21 @@
-import { faGear } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { config } from './config/config';
 import * as React from 'react'
 import { useEffect } from 'react'
+import { config } from '../config/config';
 import Switch from '@mui/material/Switch';
-import Select from '@mui/material/Select';
-import { useWindowDimensions } from './window_width';
-import { Button, FormControl, InputLabel, MenuItem } from '@mui/material';
+import { useWindowDimensions } from '../window_width';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import * as lean4webConfig from './config.json'
-import { NavButton, Popup } from './Navigation';
+import * as lean4webConfig from '../config.json'
+import { Popup } from '../Navigation';
 
-const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
-    ({closeNav, theme, setTheme, project, setProject}) => {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+const SettingsPopup: React.FC<{
+  open: boolean
+  handleClose: () => void
+  closeNav: () => void
+  theme
+  setTheme
+  project
+  setProject
+}> = ({open, handleClose, closeNav, theme, setTheme, project, setProject}) => {
 
   const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(config.abbreviationCharacter)
 
@@ -131,79 +131,76 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     fileReader.readAsText(fileToLoad, "UTF-8")
   }
 
-  return <>
-    <NavButton icon={faGear} text="Settings" onClick={handleOpen} />
-    <Popup open={open} handleClose={handleClose}>
-      <form onSubmit={(ev) => {ev.preventDefault(); setOpen(false); closeNav()}}>
-        <h2>Project settings</h2>
-        <p><i>These settigns are stored in the URL as they change the project's setup</i></p>
-        <p>
-          <label htmlFor="leanVersion">Lean Version: </label>
-          <select
-              id="leanVersion"
-              name="leanVersion"
-              value={project}
-              onChange={(ev) => {
-                setProject(ev.target.value)
-                console.log(`set Lean project to: ${ev.target.value}`)
-                }} >
-            {lean4webConfig.projects.map(proj =>
-              <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
-            )}
-          </select>
-        </p>
+  return <Popup open={open} handleClose={handleClose}>
+    <form onSubmit={(ev) => {ev.preventDefault(); handleClose(); closeNav()}}>
+      <h2>Project settings</h2>
+      <p><i>These settigns are stored in the URL as they change the project's setup</i></p>
+      <p>
+        <label htmlFor="leanVersion">Lean Version: </label>
+        <select
+            id="leanVersion"
+            name="leanVersion"
+            value={project}
+            onChange={(ev) => {
+              setProject(ev.target.value)
+              console.log(`set Lean project to: ${ev.target.value}`)
+              }} >
+          {lean4webConfig.projects.map(proj =>
+            <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
+          )}
+        </select>
+      </p>
 
-        <h2>User settings</h2>
-        <p><i>These settings are not preserved unless you opt-in to save them.</i></p>
-        <p>
-          <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
-          <input id="abbreviationCharacter" type="text"
-            onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
-        </p>
-        <p className="flex">
-          <label htmlFor="theme">Theme: </label>
-          <select
-              id="theme"
-              name="theme"
-              value={theme}
-              onChange={(ev) => {setTheme(ev.target.value)}} >
-            <option value="lightPlus">light+</option>
-            <option value="GithubDark">github dark</option>
-            <option value="Amy">amy</option>
-            <option value="Cobalt">cobalt</option>
-            <option value="custom">custom</option>
-          </select>
+      <h2>User settings</h2>
+      <p><i>These settings are not preserved unless you opt-in to save them.</i></p>
+      <p>
+        <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
+        <input id="abbreviationCharacter" type="text"
+          onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
+      </p>
+      <p className="flex">
+        <label htmlFor="theme">Theme: </label>
+        <select
+            id="theme"
+            name="theme"
+            value={theme}
+            onChange={(ev) => {setTheme(ev.target.value)}} >
+          <option value="lightPlus">light+</option>
+          <option value="GithubDark">github dark</option>
+          <option value="Amy">amy</option>
+          <option value="Cobalt">cobalt</option>
+          <option value="custom">custom</option>
+        </select>
 
-          <label htmlFor="theme-upload" className="file-upload-button" >Load from Disk</label>
+        <label htmlFor="theme-upload" className="file-upload-button" >Load from Disk</label>
+        <input id="theme-upload" type="file" onChange={uploadTheme} />
+
+        {/* <Button variant="contained" component="label" className='file-upload-button' onClick={uploadTheme}>
+          Load from Disk
           <input id="theme-upload" type="file" onChange={uploadTheme} />
-
-          {/* <Button variant="contained" component="label" className='file-upload-button' onClick={uploadTheme}>
-            Load from Disk
-            <input id="theme-upload" type="file" onChange={uploadTheme} />
-          </Button> */}
-        </p>
-        <p>
-          <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
-          <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
-        </p>
-        <p>
-          <Switch id="wordWrap" onChange={() => {setWordWrap(!wordWrap)}} checked={wordWrap} />
-          <label htmlFor="wordWrap">Wrap code</label>
-        </p>
-        <p>
-          <Switch id="acceptSuggestionOnEnter" onChange={() => {setAcceptSuggestionOnEnter(!acceptSuggestionOnEnter)}} checked={acceptSuggestionOnEnter} />
-          <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
-        </p>
-        <p>
-          <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
-          <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
-        </p>
-        <p>
-          <input type="submit" value="OK" />
-        </p>
-      </form>
-    </Popup>
-  </>
+        </Button> */}
+      </p>
+      <p>
+        <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
+        <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
+      </p>
+      <p>
+        <Switch id="wordWrap" onChange={() => {setWordWrap(!wordWrap)}} checked={wordWrap} />
+        <label htmlFor="wordWrap">Wrap code</label>
+      </p>
+      <p>
+        <Switch id="acceptSuggestionOnEnter" onChange={() => {setAcceptSuggestionOnEnter(!acceptSuggestionOnEnter)}} checked={acceptSuggestionOnEnter} />
+        <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
+      </p>
+      <p>
+        <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
+        <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
+      </p>
+      <p>
+        <input type="submit" value="OK" />
+      </p>
+    </form>
+  </Popup>
 }
 
-export default Settings
+export default SettingsPopup

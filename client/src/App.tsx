@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useState, Suspense, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, IconDefinition, faShield, faHammer } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, IconDefinition, faShield, faHammer, faGear } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver';
 
 import './css/App.css'
@@ -11,10 +11,11 @@ import { ReactComponent as Logo } from './assets/logo.svg'
 
 import Examples from './Examples'
 import LoadingMenu from './LoadingMenu'
-import Settings from './Settings'
 import { config } from './config/config'
 import { NavButton } from './Navigation';
-import { PrivacyPopup, ToolsPopup } from './Popups';
+import SettingsPopup from './Popups/Settings'
+import PrivacyPopup from './Popups/PrivacyPolicy';
+import ToolsPopup from './Popups/Tools';
 
 const Editor = React.lazy(() => import('./Editor'))
 
@@ -201,8 +202,7 @@ const App: React.FC = () => {
               <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
               <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
             </>}
-            <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}
-              project={project} setProject={setProject}/>
+            <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
             <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
             <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
             <NavButton icon={faDownload} text="Save file" onClick={save} />
@@ -217,6 +217,8 @@ const App: React.FC = () => {
         </div>
         <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
         <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
+        <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={closeNav}
+          theme={theme} setTheme={setTheme} project={project} setProject={setProject}/>
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
