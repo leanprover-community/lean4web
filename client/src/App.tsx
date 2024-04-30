@@ -1,30 +1,47 @@
 import * as React from 'react'
 import { useState, Suspense, useEffect } from 'react'
-import './css/App.css'
-import './css/Topbar.css'
-import './css/Modal.css'
-//import './css/dark-theme.css'
-import PrivacyPolicy from './PrivacyPolicy'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
-const Editor = React.lazy(() => import('./Editor'))
-import { ReactComponent as Logo } from './assets/logo.svg'
+import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, IconDefinition, faShield, faHammer } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver';
-import Settings from './Settings'
-import Tools from './Tools'
+
+import './css/App.css'
+import './css/Modal.css'
+import './css/Topbar.css'
+import { ReactComponent as Logo } from './assets/logo.svg'
+
 import Examples from './Examples'
 import LoadingMenu from './LoadingMenu'
+import Settings from './Settings'
 import { config } from './config/config'
+import { NavButton } from './Navigation';
+import { PrivacyPopup, ToolsPopup } from './Popups';
 
-function formatArgs(args) {
-  let out = '#' + Object.entries(args).map(([key, val]) => (val ? `${key}=${val}` : null)).filter((x) => x).join('&')
+const Editor = React.lazy(() => import('./Editor'))
+
+/** Expected arguments which can be provided in the URL. */
+interface UrlArgs {
+  project: string | null
+  url: string | null
+  code: string | null
+}
+
+/**
+ * Format the arguments for displaying in the URL, i.e. join them
+ * in the form `#project=Mathlib&url=...`
+ */
+function formatArgs(args: UrlArgs): string {
+  let out = '#' +
+    Object.entries(args).filter(([key, val]) => (val !== null && val.trim().length > 0)).map(([key, val]) => (`${key}=${val}`)).join('&')
   if (out == '#') {
     return ' '
   }
   return out
 }
 
-function parseArgs() {
+/**
+ * Parse arguments from URL. These are of the form `#project=Mathlib&url=...`
+ */
+function parseArgs(): UrlArgs {
   let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
   return Object.fromEntries(_args)
 }
@@ -34,6 +51,10 @@ const App: React.FC = () => {
   const [navOpen, setNavOpen] = useState(false)
   const menuRef = React.useRef<HTMLDivElement>()
   const submenuRef = React.useRef<HTMLDivElement>()
+
+  const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   // Open a submenu. We manage submenus here so that only one submenu can be open at any time.
   const [submenu, setSubmenu] = useState<React.JSX.Element>(null)
@@ -171,9 +192,9 @@ const App: React.FC = () => {
             <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
           </>
           }
-          <span className={"nav-link nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
+          <a className={"nav-link nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
             {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
-          </span>
+          </a>
           <div className={'dropdown' + (navOpen ? '' : ' hidden')}>
             {config.verticalLayout && <>
               {/* Buttons for mobile version */}
@@ -182,28 +203,20 @@ const App: React.FC = () => {
             </>}
             <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}
               project={project} setProject={setProject}/>
-            <span className="nav-link" onClick={restart}>
-              <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
-            </span>
-            <Tools />
-            <span className="nav-link" onClick={save}>
-              <FontAwesomeIcon icon={faDownload} /> Save file
-            </span>
-            <PrivacyPolicy />
-            <a className="nav-link" href="https://leanprover-community.github.io/" target="_blank">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean community
-            </a>
-            <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
-            </a>
-            <a className="nav-link" href="https://github.com/hhu-adam/lean4web" target="_blank">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> GitHub
-            </a>
+            <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
+            <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
+            <NavButton icon={faDownload} text="Save file" onClick={save} />
+            <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
+            <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
+            <NavButton icon={faArrowUpRightFromSquare} text="Lean documentation" href="https://leanprover.github.io/lean4/doc/" />
+            <NavButton icon={faArrowUpRightFromSquare} text="GitHub" href="https://github.com/hhu-adam/lean4web" />
             <div className="submenu" ref={submenuRef}>
               {submenu && submenu}
             </div>
           </div>
         </div>
+        <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
+        <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
       </div>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
