@@ -4,8 +4,8 @@
 import { Disposable } from 'vscode';
 import { assert } from '../../../../vscode-lean4/vscode-lean4/src/utils/assert';
 import { AbbreviationProvider } from '../AbbreviationProvider';
-import { config } from '../../../config/config';
 import { Range } from '../../../../vscode-lean4/vscode-lean4/src/abbreviation/rewriter/Range';
+import settings from '../../../config/settings';
 import { TrackedAbbreviation } from './TrackedAbbreviation';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {IRange, Range as MonacoRange} from 'monaco-editor'
@@ -54,7 +54,7 @@ export class AbbreviationRewriter {
 				[...this.trackedAbbreviations].filter(
 					(abbr) =>
 						abbr.finished ||
-						(config.eagerReplacementEnabled &&
+						(settings.eagerReplacementEnabled &&
 							abbr.isAbbreviationUniqueAndComplete)
 				)
 			);
@@ -240,7 +240,7 @@ export class AbbreviationRewriter {
 		}
 
 		if (
-			text === config.abbreviationCharacter &&
+			text === settings.abbreviationCharacter &&
 			!affectedAbbr &&
 			!this.dontTrackNewAbbr
 		) {

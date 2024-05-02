@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useEffect } from 'react'
-import { config } from '../config/config';
+import settings from '../config/settings';
 import Switch from '@mui/material/Switch';
 import { useWindowDimensions } from '../window_width';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
-import * as lean4webConfig from '../config.json'
+import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
 
 const SettingsPopup: React.FC<{
@@ -17,7 +17,7 @@ const SettingsPopup: React.FC<{
   setProject
 }> = ({open, handleClose, closeNav, theme, setTheme, project, setProject}) => {
 
-  const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(config.abbreviationCharacter)
+  const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(settings.abbreviationCharacter)
 
   const [savingAllowed, setSavingAllowed] = React.useState(false)
 
@@ -76,11 +76,11 @@ const SettingsPopup: React.FC<{
    * variables (state)
    */
   useEffect(() => {
-    config.abbreviationCharacter = abbreviationCharacter
-    config.verticalLayout = verticalLayout
-    config.wordWrap = wordWrap
-    config.acceptSuggestionOnEnter = acceptSuggestionOnEnter
-    config.theme = theme
+    settings.abbreviationCharacter = abbreviationCharacter
+    settings.verticalLayout = verticalLayout
+    settings.wordWrap = wordWrap
+    settings.acceptSuggestionOnEnter = acceptSuggestionOnEnter
+    settings.theme = theme
     if (savingAllowed) {
       window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
       window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')

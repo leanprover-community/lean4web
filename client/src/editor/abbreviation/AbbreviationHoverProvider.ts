@@ -1,7 +1,7 @@
 /* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/AbbreviationHoverProvider.ts` */
 
 import { AbbreviationProvider } from './AbbreviationProvider';
-import { config } from '../../config/config';
+import settings from '../../config/settings';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 /**
@@ -28,7 +28,7 @@ export class AbbreviationHoverProvider implements monaco.languages.HoverProvider
 			return undefined;
 		}
 
-		const leader = config.abbreviationCharacter;
+		const leader = settings.abbreviationCharacter;
 
 		const hoverMarkdown = allAbbrevs
 			.map(

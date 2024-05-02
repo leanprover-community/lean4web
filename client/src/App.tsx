@@ -11,8 +11,8 @@ import ToolsPopup from './Popups/Tools';
 import LoadUrlPopup from './Popups/LoadUrl';
 import LoadZulipPopup from './Popups/LoadZulip';
 
-import * as lean4webConfig from './config.json'
-import { config } from './config/config'
+import lean4webConfig from './config/config'
+import settings from './config/settings'
 
 import { ReactComponent as Logo } from './assets/logo.svg'
 import { ReactComponent as ZulipIcon } from './assets/zulip.svg'
@@ -56,8 +56,8 @@ const save = (content: string) => {
   saveAs(blob, "Lean4WebDownload.lean");
 }
 
+/** The main application */
 const App: React.FC = () => {
-  const [restart, setRestart] = useState<(project?) => Promise<void>>()
 
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
@@ -71,18 +71,18 @@ const App: React.FC = () => {
   const [loadUrlOpen, setLoadUrlOpen] = useState(false)
   const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
+  // the restart function is only available once the editor is loaded
+  const [restart, setRestart] = useState<(project?) => Promise<void>>()
+
   /* Option to change themes */
   const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
   const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
 
+  // the data
   const [content, setContent] = useState<string>('')
-  const [url, setUrl] = useState<string>(null)
   const [project, setProject] = useState<string>('mathlib-demo')
+  const [url, setUrl] = useState<string>(null)
   const [contentFromUrl, setContentFromUrl] = useState<string>(null)
-
-  const onDidChangeContent = (newContent) => {
-    setContent(newContent)
-  }
 
   const loadFromUrl = (url: string, project=null) => {
     setUrl((oldUrl) => {
@@ -96,12 +96,7 @@ const App: React.FC = () => {
     }
   }
 
-  const load = (file, project=null) => {
-    loadFromUrl(`${window.location.origin}/examples/${file}`, project)
-    setOpenNav(false)
-  }
-
-  const loadFileFromDisk = (event) => {
+  const loadFileFromDisk = (event: React.ChangeEvent<HTMLInputElement>) => {
     const fileToLoad = event.target.files[0]
     var fileReader = new FileReader();
     fileReader.onload = (fileLoadedEvent) => {
@@ -112,6 +107,7 @@ const App: React.FC = () => {
     setOpenNav(false)
   }
 
+  // keep url updated on changes
   useEffect(() => {
     let _project = (project == 'mathlib-demo' ? null : project)
     if (content === contentFromUrl) {
@@ -126,6 +122,7 @@ const App: React.FC = () => {
     }
   }, [project, content])
 
+  // load content from url
   useEffect(() => {
     if (url !== null) {
       setContent("Loading...")
@@ -143,6 +140,7 @@ const App: React.FC = () => {
     }
   }, [url])
 
+  // load different project
   useEffect(() => {
     if (restart) {
       console.log(`changing Lean version to ${project}`)
@@ -150,6 +148,7 @@ const App: React.FC = () => {
     }
   }, [project])
 
+  /** The menu items either appearing inside the dropdown or outside */
   function flexibleMenu (isDropdown = false) { return <>
     <Dropdown open={openExample} setOpen={setOpenExample} icon={faStar} text="Examples"
         onClick={() => {setOpenLoad(false); (!isDropdown && setOpenNav(false))}}>
@@ -157,7 +156,10 @@ const App: React.FC = () => {
         <NavButton
           key={`${proj.name}-${example.name}`}
           icon={faStar} text={example.name}
-          onClick={() => {load(`${proj.folder}/${example.file}`, proj.folder); setOpenExample(false)}} />
+          onClick={() => {
+            loadFromUrl(`${window.location.origin}/examples/${proj.folder}/${example.file}`, proj.folder);
+            setOpenExample(false)
+          }} />
       ))}
     </Dropdown>
     <Dropdown open={openLoad} setOpen={setOpenLoad} icon={faUpload} text="Load"
@@ -176,11 +178,11 @@ const App: React.FC = () => {
       <nav>
         <Logo className='logo' />
         <div className='menu'>
-          {!config.verticalLayout && flexibleMenu(false)}
+          {!settings.verticalLayout && flexibleMenu(false)}
           <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
-            {config.verticalLayout && flexibleMenu(true)}
+            {settings.verticalLayout && flexibleMenu(true)}
             <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
-            <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
+            {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />}
             <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
             <NavButton icon={faDownload} text="Save file" onClick={() => save(content)} />
             <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
@@ -190,15 +192,15 @@ const App: React.FC = () => {
           </Dropdown>
           <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
           <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
-          <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
-            theme={theme} setTheme={setTheme} project={project} setProject={setProject} />
           <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
           <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setContent={setContent} />
+          <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
+            theme={theme} setTheme={setTheme} project={project} setProject={setProject} />
         </div>
       </nav>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} theme={theme} project={project}/>
+          value={content} onDidChangeContent={setContent} theme={theme} project={project}/>
       </Suspense>
     </div>
   )

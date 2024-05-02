@@ -1,6 +1,6 @@
-/* This file is based on `vscode-lean4/vscode-lean4/src/abbreviation/config.ts` */
+/* This file contains the default settings. */
 
-export const config = {
+const settings = {
   'inputModeEnabled': true,
   'abbreviationCharacter': '\\',
   'languages': ['lean4', 'lean'],
@@ -12,3 +12,5 @@ export const config = {
   'theme': 'lightPlus',
   'customTheme': '',
 }
+
+export default settings

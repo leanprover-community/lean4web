@@ -1,8 +1,5 @@
 import * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import './css/Editor.css'
-import './editor/infoview.css'
-import './editor/vscode.css'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
@@ -13,11 +10,16 @@ import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider
 import { LeanTaskGutter } from './editor/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
-import { config } from './config/config'
+import settings from './config/settings'
 import { IConnectionProvider } from 'monaco-languageclient'
 import { toSocket, WebSocketMessageWriter } from 'vscode-ws-jsonrpc'
 import { DisposingWebSocketMessageReader } from './reader'
 import { monacoSetup } from './monacoSetup'
+
+import './css/Editor.css'
+import './editor/infoview.css'
+import './editor/vscode.css'
+import { render } from '@testing-library/react'
 
 monacoSetup()
 
@@ -88,8 +90,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       tabSize: 2,
       'semanticHighlighting.enabled': true,
       theme: 'vs',
-      wordWrap: config.wordWrap ? "on" : "off",
-      acceptSuggestionOnEnter: config.acceptSuggestionOnEnter ? "on" : "off",
+      wordWrap: settings.wordWrap ? "on" : "off",
+      acceptSuggestionOnEnter: settings.acceptSuggestionOnEnter ? "on" : "off",
       fontFamily: "JuliaMono",
       wrappingStrategy: "advanced",
     })
@@ -100,7 +102,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       model.dispose();
       abbrevRewriter.dispose();
     }
-  }, [config, config.wordWrap, config.acceptSuggestionOnEnter])
+  }, [settings, settings.wordWrap, settings.acceptSuggestionOnEnter])
 
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
@@ -193,22 +195,22 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
         }}
         gutterStyle={(dimension, gutterSize, index) => {
           return {
-            'width': config.verticalLayout ? '100%' : `${gutterSize}px`,
-            'height': config.verticalLayout ? `${gutterSize}px` : '100%',
-            'cursor': config.verticalLayout ? 'row-resize' : 'col-resize',
-            'margin-left': config.verticalLayout ? 0 : `-${gutterSize}px`,
-            'margin-top': config.verticalLayout ? `-${gutterSize}px` : 0,
+            'width': settings.verticalLayout ? '100%' : `${gutterSize}px`,
+            'height': settings.verticalLayout ? `${gutterSize}px` : '100%',
+            'cursor': settings.verticalLayout ? 'row-resize' : 'col-resize',
+            'margin-left': settings.verticalLayout ? 0 : `-${gutterSize}px`,
+            'margin-top': settings.verticalLayout ? `-${gutterSize}px` : 0,
             'z-index': 0,
           }}}
         gutterSize={5}
         onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
-        sizes={config.verticalLayout ? [50, 50] : [70, 30]}
-        direction={config.verticalLayout ? "vertical" : "horizontal"}
-        style={{flexDirection: config.verticalLayout ? "column" : "row"}}>
+        sizes={settings.verticalLayout ? [50, 50] : [70, 30]}
+        direction={settings.verticalLayout ? "vertical" : "horizontal"}
+        style={{flexDirection: settings.verticalLayout ? "column" : "row"}}>
         <div ref={codeviewRef} className="codeview"
-          style={config.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+          style={settings.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
         <div ref={infoviewRef} className="vscode-light infoview"
-          style={config.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+          style={settings.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
       </Split>
       {restartMessage ?
         <Notification

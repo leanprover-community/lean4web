@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Popup } from '../Navigation'
-import { text } from '../config/text'
+import lean4webConfig from '../config/config'
 
 /** The popup with the privacy policy. */
 const PrivacyPopup: React.FC<{
@@ -20,14 +20,14 @@ const PrivacyPopup: React.FC<{
       by activating the option in the settings.
     </p>
 
-    { text.serverCountry &&
-      <p>Our server is located in {text.serverCountry}.</p>
+    { lean4webConfig.serverCountry &&
+      <p>Our server is located in {lean4webConfig.serverCountry}.</p>
     }
 
-    { text.contactInformation &&
+    { lean4webConfig.contactInformation &&
       <p>
         <strong>Contact information:</strong><br/>
-        {text.contactInformation}
+        {lean4webConfig.contactInformation}
       </p>
     }
   </Popup>
