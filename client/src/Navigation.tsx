@@ -4,16 +4,47 @@ import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
 export const NavButton: React.FC<{
-  icon: IconDefinition
+  icon?: IconDefinition
+  iconElement?: JSX.Element
   text: string
-  onClick?: React.MouseEventHandler<HTMLSpanElement>
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>
   href?: string
-}> = ({icon, text, onClick=()=>{}, href=null}) => {
+}> = ({icon, iconElement, text, onClick=()=>{}, href=null}) => {
+
   // note: it seems that we can just leave the `target="_blank"` and it has no
   // effect on links without a `href`. If not, add `if (href)` statement here...
   return <a className="nav-link" onClick={onClick} href={href} target="_blank">
-    <FontAwesomeIcon icon={icon} />&nbsp;{text}
+    {iconElement ?? <FontAwesomeIcon icon={icon} />}&nbsp;{text}
   </a>
+}
+
+/** A button to appear in the hamburger menu or to navigation bar. */
+export const Dropdown: React.FC<{
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  icon?: IconDefinition
+  text?: string
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>
+  children?: React.ReactNode
+}> = ({open, setOpen, icon, text, onClick, children}) => {
+  // note: it seems that we can just leave the `target="_blank"` and it has no
+  // effect on links without a `href`. If not, add `if (href)` statement here...
+
+  return <div className='dropdown'>
+    <NavButton icon={icon} text={text} onClick={(ev) => {setOpen(!open); onClick(ev); ev.stopPropagation()}} />
+    {open &&
+      <div className='dropdown-content' onClick={() => setOpen(false)}>
+      {children}
+      </div>}
+  </div>
+
+  if (open) {
+    return <div className='dropdown'>
+      {children}
+    </div>
+  } else {
+    return <></>
+  }
 }
 
 /** A popup which overlays the entire screen. */

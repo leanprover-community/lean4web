@@ -1,14 +1,13 @@
-.nav {
+nav {
   /* box-shadow: 0 .3rem .3rem 0 var(--vscode-menu-separatorBackground); */
   border-bottom: 1px solid var(--vscode-menu-separatorBackground);
   background-color: var(--vscode-menu-background);
   color: var(--vscode-menu-foreground);
   z-index: 1;
-  position: relative;
 }
 
 /* The Lean logo */
-.nav .logo {
+nav .logo {
   height: 2.2rem;
   width: unset;
   vertical-align: middle;
@@ -18,61 +17,75 @@
   mix-blend-mode: difference;
 }
 
-.nav .menu {
+nav .menu {
   float: right;
 }
 
-.nav .dropdown {
-  background: none;
-  border: none;
+nav .dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+nav .dropdown-content {
+  /* background: none; */
   position: absolute;
+  right: 0;
   display: flex;
   flex-direction: column;
-  right: 0;
+  white-space: nowrap;
   background-color: var(--vscode-menu-background);
   z-index: 1;
+  border: none;
   border-top: 1px solid var(--vscode-menu-separatorBackground);
   border-bottom: 1px solid var(--vscode-menu-separatorBackground);
   box-shadow: -.1rem .3rem .3rem 0 var(--vscode-menu-separatorBackground);
 }
 
-.nav .submenu {
-  position: absolute;
+
+nav .submenu {
+  /* position: absolute;
   right: 100%;
   width: 100%;
   display: flex;
   flex-direction: column;
   background-color: var(--vscode-menu-background);
   z-index: 1;
-  box-shadow: -0.1rem 0.3rem 0.3rem 0 var(--vscode-menu-separatorBackground);
+  box-shadow: -0.1rem 0.3rem 0.3rem 0 var(--vscode-menu-separatorBackground); */
 }
 
 /* The menu items */
-.nav .nav-link {
+nav .nav-link {
   background: none;
   border: none;
   color: inherit;
   cursor: pointer;
   text-decoration: none;
-  padding: .5rem;
   display: inline-block;
-}
-
-/* menu items for dropdown */
-.nav .nav-link {
-  /* width: 100%; */
   padding-left: .8rem;
   padding-right: .8rem;
   padding-top: .6rem;
   padding-bottom: .6rem;
 }
 
-.nav .nav-link:hover {
+nav .nav-link svg {
+  width: 1.4rem;
+}
+
+/* menu items for dropdown */
+nav .nav-link {
+  width: 100%;
+  padding-left: .8rem;
+  padding-right: .8rem;
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+}
+
+nav .nav-link:hover {
   color: var(--vscode-menu-selectionForeground);
   background-color: var(--vscode-menu-selectionBackground);
 }
 
-/* `nav-icon` is the burger for the dropdown menu */
+/* `.nav-icon` is the burger for the dropdown menu */
 /* .nav-icon {
   background: none;
   border: none;

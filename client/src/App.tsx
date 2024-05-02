@@ -1,21 +1,25 @@
 import * as React from 'react'
 import { useState, Suspense, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, IconDefinition, faShield, faHammer, faGear } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver';
 
-import './css/App.css'
-import './css/Modal.css'
-import './css/Topbar.css'
-import { ReactComponent as Logo } from './assets/logo.svg'
-
-import Examples from './Examples'
-import LoadingMenu from './LoadingMenu'
-import { config } from './config/config'
-import { NavButton } from './Navigation';
+import { Dropdown, NavButton } from './Navigation';
 import SettingsPopup from './Popups/Settings'
 import PrivacyPopup from './Popups/PrivacyPolicy';
 import ToolsPopup from './Popups/Tools';
+import LoadUrlPopup from './Popups/LoadUrl';
+import LoadZulipPopup from './Popups/LoadZulip';
+
+import * as lean4webConfig from './config.json'
+import { config } from './config/config'
+
+import { ReactComponent as Logo } from './assets/logo.svg'
+import { ReactComponent as ZulipIcon } from './assets/zulip.svg'
+
+import './css/App.css'
+import './css/Modal.css'
+import './css/Navigation.css'
 
 const Editor = React.lazy(() => import('./Editor'))
 
@@ -47,28 +51,25 @@ function parseArgs(): UrlArgs {
   return Object.fromEntries(_args)
 }
 
+const save = (content: string) => {
+  var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+  saveAs(blob, "Lean4WebDownload.lean");
+}
+
 const App: React.FC = () => {
   const [restart, setRestart] = useState<(project?) => Promise<void>>()
-  const [navOpen, setNavOpen] = useState(false)
-  const menuRef = React.useRef<HTMLDivElement>()
-  const submenuRef = React.useRef<HTMLDivElement>()
 
+  // state for handling the dropdown menus
+  const [openNav, setOpenNav] = useState(false)
+  const [openExample, setOpenExample] = useState(false)
+  const [openLoad, setOpenLoad] = useState(false)
+
+  // state for the popups
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-
-  // Open a submenu. We manage submenus here so that only one submenu can be open at any time.
-  const [submenu, setSubmenu] = useState<React.JSX.Element>(null)
-
-  function openSubmenu(ev: React.MouseEvent, component: React.JSX.Element) {
-    setNavOpen(true)
-    setSubmenu(component)
-    ev.stopPropagation()
-  }
-
-  function closeNav() {
-    setNavOpen(false)
-  }
+  const [loadUrlOpen, setLoadUrlOpen] = useState(false)
+  const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
   /* Option to change themes */
   const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -79,23 +80,8 @@ const App: React.FC = () => {
   const [project, setProject] = useState<string>('mathlib-demo')
   const [contentFromUrl, setContentFromUrl] = useState<string>(null)
 
-  const readHash = () => {
-    let args = parseArgs()
-    if (args.code) {setContent(decodeURIComponent(args.code))}
-    if (args.url) {setUrl(decodeURIComponent(args.url))}
-    if (args.project) {
-      console.log(`setting project to ${args.project}`)
-      setProject(args.project)
-    }
-  }
-
   const onDidChangeContent = (newContent) => {
     setContent(newContent)
-  }
-
-  const save = () => {
-    var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "Lean4WebDownload.lean");
   }
 
   const loadFromUrl = (url: string, project=null) => {
@@ -110,41 +96,23 @@ const App: React.FC = () => {
     }
   }
 
+  const load = (file, project=null) => {
+    loadFromUrl(`${window.location.origin}/examples/${file}`, project)
+    setOpenNav(false)
+  }
+
+  const loadFileFromDisk = (event) => {
+    const fileToLoad = event.target.files[0]
+    var fileReader = new FileReader();
+    fileReader.onload = (fileLoadedEvent) => {
+        var textFromFileLoaded = fileLoadedEvent.target.result as string;
+        setContent(textFromFileLoaded)
+    }
+    fileReader.readAsText(fileToLoad, "UTF-8")
+    setOpenNav(false)
+  }
 
   useEffect(() => {
-    // Trigger onhashchange once in the beginning
-    readHash()
-
-    // Closing the dropdown menu or submenu when clicking outside it.
-    // Use `ev.stopPropagation()` or `ev.stopImmediatePropagation()` inside
-    // the menu to prevent.
-    document.body.addEventListener("click", (ev) => {
-      if (menuRef?.current) {
-        if (menuRef.current.contains(ev.target as HTMLElement)) {
-
-          if(submenuRef?.current && submenuRef.current.contains(ev.target as HTMLElement)) {
-            console.log('keeping submenu open')
-          } else {
-            // Close submenu when clicking inside the menu
-            setSubmenu(null)
-            console.log('closing submenu')
-          }
-          ev.stopImmediatePropagation()
-        } else {
-          // Close Nav on clicking somewhere outside the menu
-          setNavOpen(false)
-          console.log('closing nav')
-        }
-      }
-    })
-  }, [])
-
-
-  // // if ("onhashchange" in window) // does the browser support the hashchange event?
-  // //   window.addEventListener('hashchange', readHash)
-
-  useEffect(() => {
-    //let args = parseArgs()
     let _project = (project == 'mathlib-demo' ? null : project)
     if (content === contentFromUrl) {
       let args = {project: _project, url: encodeURIComponent(url), code: null}
@@ -182,44 +150,52 @@ const App: React.FC = () => {
     }
   }, [project])
 
+  function flexibleMenu (isDropdown = false) { return <>
+    <Dropdown open={openExample} setOpen={setOpenExample} icon={faStar} text="Examples"
+        onClick={() => {setOpenLoad(false); (!isDropdown && setOpenNav(false))}}>
+      {lean4webConfig.projects.map(proj => proj.examples?.map(example =>
+        <NavButton
+          key={`${proj.name}-${example.name}`}
+          icon={faStar} text={example.name}
+          onClick={() => {load(`${proj.folder}/${example.file}`, proj.folder); setOpenExample(false)}} />
+      ))}
+    </Dropdown>
+    <Dropdown open={openLoad} setOpen={setOpenLoad} icon={faUpload} text="Load"
+        onClick={() => {setOpenExample(false); (!isDropdown && setOpenNav(false))}}>
+      <label htmlFor="file-upload" className="nav-link" >
+        <FontAwesomeIcon icon={faUpload} /> Load file from disk
+      </label>
+      <NavButton icon={faCloudArrowUp} text="Load from URL" onClick={() => {setLoadUrlOpen(true)}} />
+      <NavButton iconElement={<ZulipIcon />} text="Load Zulip Message" onClick={() => {setLoadZulipOpen(true)}} />
+      <input id="file-upload" type="file" onChange={loadFileFromDisk} />
+    </Dropdown>
+  </>}
+
   return (
     <div className={'app monaco-editor'}>
-      <div className='nav'>
+      <nav>
         <Logo className='logo' />
-        <div className='menu' ref={menuRef}>
-          {!config.verticalLayout && <>
-            {/* Buttons for desktop version */}
-            <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-            <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
-          </>
-          }
-          <a className={"nav-link nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
-            {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
-          </a>
-          <div className={'dropdown' + (navOpen ? '' : ' hidden')}>
-            {config.verticalLayout && <>
-              {/* Buttons for mobile version */}
-              <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-              <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
-            </>}
+        <div className='menu'>
+          {!config.verticalLayout && flexibleMenu(false)}
+          <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
+            {config.verticalLayout && flexibleMenu(true)}
             <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
             <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
             <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
-            <NavButton icon={faDownload} text="Save file" onClick={save} />
+            <NavButton icon={faDownload} text="Save file" onClick={() => save(content)} />
             <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
             <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
             <NavButton icon={faArrowUpRightFromSquare} text="Lean documentation" href="https://leanprover.github.io/lean4/doc/" />
             <NavButton icon={faArrowUpRightFromSquare} text="GitHub" href="https://github.com/hhu-adam/lean4web" />
-            <div className="submenu" ref={submenuRef}>
-              {submenu && submenu}
-            </div>
-          </div>
+          </Dropdown>
+          <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
+          <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
+          <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
+            theme={theme} setTheme={setTheme} project={project} setProject={setProject} />
+          <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
+          <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setContent={setContent} />
         </div>
-        <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
-        <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
-        <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={closeNav}
-          theme={theme} setTheme={setTheme} project={project} setProject={setProject}/>
-      </div>
+      </nav>
       <Suspense fallback={<div className="loading-ring"></div>}>
         <Editor setRestart={setRestart}
           value={content} onDidChangeContent={onDidChangeContent} theme={theme} project={project}/>
