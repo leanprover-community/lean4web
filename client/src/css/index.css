@@ -13,3 +13,8 @@ body {
   font-family: 'JuliaMono';
   src: local('JuliaMono'), url('/fonts/JuliaMono-Regular.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'NotoColorEmoji';
+  src: local('NotoColorEmoji'), url('/fonts/NotoColorEmoji-Regular.ttf') format('truetype');
+}
