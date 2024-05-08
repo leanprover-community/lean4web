@@ -11,6 +11,9 @@
           "name": "Ring" },
         { "file": "MathlibLatest/Rational.lean",
           "name": "Rational" }]},
+    { "folder": "lean-stable",
+      "name": "Latest Lean stable release (without mathlib)",
+      "examples" : []},
     { "folder": "lean-nightly",
       "name": "Lean Nightly (without mathlib)",
       "examples" : []}
