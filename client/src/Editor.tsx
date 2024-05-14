@@ -88,6 +88,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       theme: 'vs',
       wordWrap: config.wordWrap ? "on" : "off",
       fontFamily: "JuliaMono",
+      wrappingStrategy: "advanced"
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
