@@ -34,6 +34,13 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
   const [restartMessage, setRestartMessage] = useState<boolean | null>(false)
 
   useEffect(() => {
+    console.log('Font is ready, rescaling editor.')
+    document.fonts.ready.then(function () {
+      monaco.editor.remeasureFonts()
+    })
+  }, [editor])
+
+  useEffect(() => {
     if (['lightPlus', 'custom'].includes(theme)) {
       monaco.editor.setTheme(theme)
     } else {
