@@ -65,6 +65,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
     if (onDidChangeContent) {
       model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
     }
+    // see available options here:
+    // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
     const editor = monaco.editor.create(codeviewRef.current!, {
       model,
       glyphMargin: true,
@@ -88,7 +90,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       theme: 'vs',
       wordWrap: config.wordWrap ? "on" : "off",
       fontFamily: "JuliaMono",
-      wrappingStrategy: "advanced"
+      wrappingStrategy: "advanced",
+      acceptSuggestionOnEnter: "off"
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
