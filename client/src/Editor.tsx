@@ -89,9 +89,9 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       'semanticHighlighting.enabled': true,
       theme: 'vs',
       wordWrap: config.wordWrap ? "on" : "off",
+      acceptSuggestionOnEnter: config.acceptSuggestionOnEnter ? "on" : "off",
       fontFamily: "JuliaMono",
       wrappingStrategy: "advanced",
-      acceptSuggestionOnEnter: "off"
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
@@ -100,7 +100,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       model.dispose();
       abbrevRewriter.dispose();
     }
-  }, [config.wordWrap])
+  }, [config, config.wordWrap, config.acceptSuggestionOnEnter])
 
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project

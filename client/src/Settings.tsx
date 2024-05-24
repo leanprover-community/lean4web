@@ -24,7 +24,8 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     If screen width is below 800, default to vertical layout instead. */
   const {width, height} = useWindowDimensions()
   const [verticalLayout, setVerticalLayout] = React.useState(width < 800)
-  const [wordWrap, setWordWrap] = React.useState(false)
+  const [wordWrap, setWordWrap] = React.useState(true)
+  const [acceptSuggestionOnEnter, setAcceptSuggestionOnEnter] = React.useState(false)
   const [customTheme, setCustomTheme] = React.useState<string>('initial')
 
   // Synchronize state with initial local store
@@ -32,6 +33,7 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
     let _verticalLayout = window.localStorage.getItem("verticalLayout")
     let _wordWrap = window.localStorage.getItem("wordWrap")
+    let _acceptSuggestionOnEnter = window.localStorage.getItem("acceptSuggestionOnEnter")
     let _theme = window.localStorage.getItem("theme")
     let _savingAllowed = window.localStorage.getItem("savingAllowed")
     let _customTheme = window.localStorage.getItem("customTheme")
@@ -49,6 +51,10 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     }
     if (_wordWrap) {
       setWordWrap(_wordWrap == "true")
+      setSavingAllowed(true)
+    }
+    if (_acceptSuggestionOnEnter) {
+      setAcceptSuggestionOnEnter(_acceptSuggestionOnEnter == "true")
       setSavingAllowed(true)
     }
     if (_customTheme) {
@@ -72,21 +78,24 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
     config.abbreviationCharacter = abbreviationCharacter
     config.verticalLayout = verticalLayout
     config.wordWrap = wordWrap
+    config.acceptSuggestionOnEnter = acceptSuggestionOnEnter
     config.theme = theme
     if (savingAllowed) {
       window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
       window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')
       window.localStorage.setItem("wordWrap", wordWrap ? 'true' : 'false')
+      window.localStorage.setItem("acceptSuggestionOnEnter", acceptSuggestionOnEnter ? 'true' : 'false')
       window.localStorage.setItem("theme", theme)
       window.localStorage.setItem("customTheme", customTheme)
     } else {
       window.localStorage.removeItem("abbreviationCharacter")
       window.localStorage.removeItem("verticalLayout")
       window.localStorage.removeItem("wordWrap")
+      window.localStorage.removeItem("acceptSuggestionOnEnter")
       window.localStorage.removeItem("theme")
       window.localStorage.removeItem("customTheme")
     }
-  }, [savingAllowed, abbreviationCharacter, verticalLayout, wordWrap, theme])
+  }, [savingAllowed, abbreviationCharacter, verticalLayout, wordWrap, acceptSuggestionOnEnter, theme])
 
   const handleChangeSaving = (ev) => {
     if (ev.target.checked) {
@@ -185,6 +194,10 @@ const Settings: React.FC<{closeNav, theme, setTheme, project, setProject}> =
             <p>
               <Switch id="wordWrap" onChange={() => {setWordWrap(!wordWrap)}} checked={wordWrap} />
               <label htmlFor="wordWrap">Wrap code</label>
+            </p>
+            <p>
+              <Switch id="acceptSuggestionOnEnter" onChange={() => {setAcceptSuggestionOnEnter(!acceptSuggestionOnEnter)}} checked={acceptSuggestionOnEnter} />
+              <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
             </p>
             <p>
               <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
