@@ -10,7 +10,6 @@ export const NavButton: React.FC<{
   onClick?: React.MouseEventHandler<HTMLAnchorElement>
   href?: string
 }> = ({icon, iconElement, text, onClick=()=>{}, href=null}) => {
-
   // note: it seems that we can just leave the `target="_blank"` and it has no
   // effect on links without a `href`. If not, add `if (href)` statement here...
   return <a className="nav-link" onClick={onClick} href={href} target="_blank">
@@ -27,9 +26,6 @@ export const Dropdown: React.FC<{
   onClick?: React.MouseEventHandler<HTMLAnchorElement>
   children?: React.ReactNode
 }> = ({open, setOpen, icon, text, onClick, children}) => {
-  // note: it seems that we can just leave the `target="_blank"` and it has no
-  // effect on links without a `href`. If not, add `if (href)` statement here...
-
   return <div className='dropdown'>
     <NavButton icon={icon} text={text} onClick={(ev) => {setOpen(!open); onClick(ev); ev.stopPropagation()}} />
     {open &&
@@ -37,14 +33,6 @@ export const Dropdown: React.FC<{
       {children}
       </div>}
   </div>
-
-  if (open) {
-    return <div className='dropdown'>
-      {children}
-    </div>
-  } else {
-    return <></>
-  }
 }
 
 /** A popup which overlays the entire screen. */
@@ -65,5 +53,4 @@ export const Popup: React.FC<{
     // don't display closed popup
     return <></>
   }
-
 }

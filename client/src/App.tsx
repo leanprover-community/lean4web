@@ -171,6 +171,7 @@ const App: React.FC = () => {
       <NavButton iconElement={<ZulipIcon />} text="Load Zulip Message" onClick={() => {setLoadZulipOpen(true)}} />
       <input id="file-upload" type="file" onChange={loadFileFromDisk} />
     </Dropdown>
+    {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />}
   </>}
 
   return (
@@ -182,7 +183,6 @@ const App: React.FC = () => {
           <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
             {settings.verticalLayout && flexibleMenu(true)}
             <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
-            {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />}
             <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
             <NavButton icon={faDownload} text="Save file" onClick={() => save(content)} />
             <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
