@@ -3,7 +3,7 @@ import { wireTmGrammars } from 'monaco-editor-textmate'
 import * as leanSyntax from './syntaxes/lean.json'
 import * as leanMarkdownSyntax from './syntaxes/lean-markdown.json'
 import * as codeblockSyntax from './syntaxes/codeblock.json'
-import languageConfig from 'lean4/language-configuration.json';
+import languageConfig from '../vscode-lean4/vscode-lean4/language-configuration.json';
 import { loadWASM } from 'onigasm'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { MonacoServices } from 'monaco-languageclient';

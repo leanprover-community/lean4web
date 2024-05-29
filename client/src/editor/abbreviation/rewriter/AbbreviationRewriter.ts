@@ -2,10 +2,10 @@
 
 // import { Range as LineColRange } from 'vscode';
 import { Disposable } from 'vscode';
-import { assert } from 'lean4/src/utils/assert';
+import { assert } from '../../../../vscode-lean4/vscode-lean4/src/utils/assert';
 import { AbbreviationProvider } from '../AbbreviationProvider';
 import { config } from '../../../config/config';
-import { Range } from 'lean4/src/abbreviation/rewriter/Range';
+import { Range } from '../../../../vscode-lean4/vscode-lean4/src/abbreviation/rewriter/Range';
 import { TrackedAbbreviation } from './TrackedAbbreviation';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import {IRange, Range as MonacoRange} from 'monaco-editor'
