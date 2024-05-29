@@ -23,16 +23,22 @@ export const Dropdown: React.FC<{
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   icon?: IconDefinition
   text?: string
+  useOverlay?: boolean
   onClick?: React.MouseEventHandler<HTMLAnchorElement>
   children?: React.ReactNode
-}> = ({open, setOpen, icon, text, onClick, children}) => {
-  return <div className='dropdown'>
+}> = ({open, setOpen, icon, text, useOverlay=false, onClick, children}) => {
+  return <><div className='dropdown'>
     <NavButton icon={icon} text={text} onClick={(ev) => {setOpen(!open); onClick(ev); ev.stopPropagation()}} />
     {open &&
-      <div className='dropdown-content' onClick={() => setOpen(false)}>
-      {children}
-      </div>}
+      <div className={`dropdown-content${open?'': ' '}`} onClick={() => setOpen(false)}>
+        {children}
+      </div>
+    }
   </div>
+    { useOverlay && open &&
+     <div className="dropdown-overlay" onClick={(ev) => {setOpen(false); ev.stopPropagation()}}/>
+    }
+  </>
 }
 
 /** A popup which overlays the entire screen. */
@@ -41,16 +47,11 @@ export const Popup: React.FC<{
   handleClose: () => void // TODO: what's the correct type?
   children?: React.ReactNode
 }> = ({open, handleClose, children}) => {
-  if (open) {
-    return <div className="modal-wrapper">
+  return <div className={`modal-wrapper${open? '': ' hidden'}`}>
     <div className="modal-backdrop" onClick={handleClose} />
       <div className="modal">
         <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
         {children}
       </div>
     </div>
-  } else {
-    // don't display closed popup
-    return <></>
-  }
 }

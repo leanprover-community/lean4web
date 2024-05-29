@@ -17,17 +17,24 @@ nav .logo {
   mix-blend-mode: difference;
 }
 
+/* The top bar with menu items. */
 nav .menu {
   float: right;
 }
 
+/* A dropdown comprises a `nav-link` and a `dropdown-content`. The latter has absolute
+positioning to be displayed on top of things. */
 nav .dropdown {
   display: inline-block;
   position: relative;
 }
 
+/* menu items inside a dropdown */
+nav .dropdown .nav-link {
+  width: 100%;
+}
+
 nav .dropdown-content {
-  /* background: none; */
   position: absolute;
   right: 0;
   display: flex;
@@ -41,16 +48,13 @@ nav .dropdown-content {
   box-shadow: -.1rem .3rem .3rem 0 var(--vscode-menu-separatorBackground);
 }
 
-
-nav .submenu {
-  /* position: absolute;
-  right: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+/* Overlay to fade out the dropdown if a sub-dropdown is displayed on top. */
+nav .dropdown-overlay {
   background-color: var(--vscode-menu-background);
-  z-index: 1;
-  box-shadow: -0.1rem 0.3rem 0.3rem 0 var(--vscode-menu-separatorBackground); */
+  opacity: 0.7;
+  position: absolute;
+  width:100%;
+  height: 100%;
 }
 
 /* The menu items */
@@ -67,6 +71,7 @@ nav .nav-link {
   padding-bottom: .6rem;
 }
 
+/* Zulip logo (instead of font-awesome icon) */
 nav .nav-link svg {
   width: 1.4rem;
 }
@@ -83,21 +88,3 @@ nav .nav-link:hover {
   color: var(--vscode-menu-selectionForeground);
   background-color: var(--vscode-menu-selectionBackground);
 }
-
-/* `.nav-icon` is the burger for the dropdown menu */
-/* .nav-icon {
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  padding: .5rem;
-  height: 100%;
-  float: right;
-  padding-right: 1rem;
-}
-
-.nav-icon:hover {
-  color: var(--vscode-menu-selectionForeground);
-  background-color: var(--vscode-menu-selectionBackground);
-} */

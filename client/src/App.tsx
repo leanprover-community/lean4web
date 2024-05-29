@@ -149,9 +149,10 @@ const App: React.FC = () => {
   }, [project])
 
   /** The menu items either appearing inside the dropdown or outside */
-  function flexibleMenu (isDropdown = false) { return <>
+  function flexibleMenu (isInDropdown = false) { return <>
     <Dropdown open={openExample} setOpen={setOpenExample} icon={faStar} text="Examples"
-        onClick={() => {setOpenLoad(false); (!isDropdown && setOpenNav(false))}}>
+        useOverlay={isInDropdown}
+        onClick={() => {setOpenLoad(false); (!isInDropdown && setOpenNav(false))}}>
       {lean4webConfig.projects.map(proj => proj.examples?.map(example =>
         <NavButton
           key={`${proj.name}-${example.name}`}
@@ -163,7 +164,8 @@ const App: React.FC = () => {
       ))}
     </Dropdown>
     <Dropdown open={openLoad} setOpen={setOpenLoad} icon={faUpload} text="Load"
-        onClick={() => {setOpenExample(false); (!isDropdown && setOpenNav(false))}}>
+        useOverlay={isInDropdown}
+        onClick={() => {setOpenExample(false); (!isInDropdown && setOpenNav(false))}}>
       <label htmlFor="file-upload" className="nav-link" >
         <FontAwesomeIcon icon={faUpload} /> Load file from disk
       </label>
