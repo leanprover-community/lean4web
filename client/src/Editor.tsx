@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from 'react'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import { loadRenderInfoview } from '@leanprover/infoview/loader'
 import { InfoviewApi } from '@leanprover/infoview-api'
-import { InfoProvider } from './editor/infoview'
-import { LeanClient } from './editor/leanclient'
-import { AbbreviationRewriter } from './editor/abbreviation/rewriter/AbbreviationRewriter'
-import { AbbreviationProvider } from './editor/abbreviation/AbbreviationProvider'
-import { LeanTaskGutter } from './editor/taskgutter'
+import { InfoProvider } from '../monaco-lean4/vscode-lean4/src/infoview'
+import { LeanClient } from '../monaco-lean4/vscode-lean4/src/leanclient'
+import { AbbreviationRewriter } from '../monaco-lean4/vscode-lean4/src/abbreviation/rewriter/AbbreviationRewriter'
+import { AbbreviationProvider } from '../monaco-lean4/vscode-lean4/src/abbreviation/AbbreviationProvider'
+import { LeanTaskGutter } from '../monaco-lean4/vscode-lean4/src/taskgutter'
 import Split from 'react-split'
 import Notification from './Notification'
 import settings from './config/settings'
@@ -17,9 +17,10 @@ import { DisposingWebSocketMessageReader } from './reader'
 import { monacoSetup } from './monacoSetup'
 
 import './css/Editor.css'
-import './editor/infoview.css'
-import './editor/vscode.css'
+import './css/infoview.css'
+import './css/vscode.css'
 import { render } from '@testing-library/react'
+import { AbbreviationConfig } from '../monaco-lean4/vscode-lean4/src/abbreviation/config'
 
 monacoSetup()
 
@@ -96,7 +97,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       wrappingStrategy: "advanced",
     })
     setEditor(editor)
-    const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
+
+    const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(AbbreviationConfig), model, editor)
     return () => {
       editor.dispose();
       model.dispose();
@@ -183,7 +185,6 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
     }
     setRestart((project?) => restart)
   }, [editor, infoviewApi, infoProvider])
-
 
   return (
     <div className='editor-wrapper'>

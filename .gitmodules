@@ -1,6 +1,6 @@
 [submodule "Projects/lean4web-tools"]
 	path = Projects/lean4web-tools
 	url = https://github.com/hhu-adam/lean4web-tools.git
-[submodule "client/vscode-lean4"]
-	path = client/vscode-lean4
-	url = https://github.com/leanprover/vscode-lean4.git
+[submodule "client/monaco-lean4"]
+	path = client/monaco-lean4
+	url = git@github.com:hhu-adam/monaco-lean4.git
