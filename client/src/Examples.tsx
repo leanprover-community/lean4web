@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import * as lean4webConfig from './config.json'
+import lean4webConfig from './config/config'
 
 const Examples: React.FC<{loadFromUrl:(url: string, project?: string|null) => void, openSubmenu: (ev: React.MouseEvent, component: React.JSX.Element) => void, closeNav: any}> = ({loadFromUrl, openSubmenu, closeNav}) => {
 
