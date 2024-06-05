@@ -5,6 +5,7 @@ const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const nocache = require("nocache");
+const os = require("os");
 
 const environment = process.env.NODE_ENV
 const isDevelopment = environment === 'development'
@@ -17,7 +18,8 @@ app.use('/examples/*', (req, res, next) => {
   const filename = req.params[0];
   console.debug(`trying to load ${filename}`)
   req.url = filename;
-  express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
+  // the nix setup has the files in ~
+  express.static(os.homedir())(req, res, next)
   // express.static(path.join(__dirname, '..', 'Projects', filename))(req, res, next);
 })
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
