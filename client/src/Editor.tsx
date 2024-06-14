@@ -65,6 +65,8 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
     if (onDidChangeContent) {
       model.onDidChangeContent(() => onDidChangeContent(model.getValue()))
     }
+    // see available options here:
+    // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
     const editor = monaco.editor.create(codeviewRef.current!, {
       model,
       glyphMargin: true,
@@ -87,7 +89,9 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       'semanticHighlighting.enabled': true,
       theme: 'vs',
       wordWrap: config.wordWrap ? "on" : "off",
+      acceptSuggestionOnEnter: config.acceptSuggestionOnEnter ? "on" : "off",
       fontFamily: "JuliaMono",
+      wrappingStrategy: "advanced",
     })
     setEditor(editor)
     const abbrevRewriter = new AbbreviationRewriter(new AbbreviationProvider(), model, editor)
@@ -96,7 +100,7 @@ const Editor: React.FC<{setRestart?, onDidChangeContent?, value: string, theme: 
       model.dispose();
       abbrevRewriter.dispose();
     }
-  }, [config.wordWrap])
+  }, [config, config.wordWrap, config.acceptSuggestionOnEnter])
 
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
