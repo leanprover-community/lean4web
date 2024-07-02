@@ -1,14 +1,15 @@
 #/bin/bash
 
-LEAN_ROOT=$(cd $1 && lean --print-prefix)
-LEAN_PATH=$(cd $1 && lake env printenv LEAN_PATH)
+LEAN_ROOT="$(cd $1 && lean --print-prefix)"
+LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
+GLIBC_PATH="$(nix-store --query "$(patchelf --print-interpreter "$LEAN_ROOT/bin/lean")")"
 
 set -x
 
 (exec bwrap\
-  --ro-bind $1 /project \
-  --ro-bind $LEAN_ROOT /lean \
-  --ro-bind $GLIBC $GLIBC `# only dep of bin/lean` \
+  --ro-bind "$1" /project \
+  --ro-bind "$LEAN_ROOT" /lean \
+  --ro-bind "$GLIBC_PATH" "$GLIBC_PATH" `# only dep of bin/lean` \
   --dev /dev \
   --proc /proc \
   --clearenv \
