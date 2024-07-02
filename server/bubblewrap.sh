@@ -3,6 +3,8 @@
 LEAN_ROOT=$(cd $1 && lean --print-prefix)
 LEAN_PATH=$(cd $1 && lake env printenv LEAN_PATH)
 
+set -x
+
 (exec bwrap\
   --ro-bind $1 /project \
   --ro-bind $LEAN_ROOT /lean \
