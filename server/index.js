@@ -18,8 +18,8 @@ app.use('/examples/*', (req, res, next) => {
   const filename = req.params[0];
   console.debug(`trying to load ${filename}`)
   req.url = filename;
-  // the nix setup has the files in ~
-  express.static(os.homedir())(req, res, next)
+  // the nix setup has the files in ~/deploy/live
+  express.static(path.join(os.homedir(), 'deploy', 'live'))(req, res, next)
   // express.static(path.join(__dirname, '..', 'Projects', filename))(req, res, next);
 })
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
