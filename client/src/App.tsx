@@ -68,7 +68,7 @@ function App() {
     const leanMonaco = new LeanMonaco()
     const leanMonacoEditor = new LeanMonacoEditor()
     ;(async () => {
-        await leanMonaco.start(socketUrl)
+        await leanMonaco.start({websocket: {url: socketUrl}})
         leanMonaco.setInfoviewElement(infoviewRef.current!)
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
 
