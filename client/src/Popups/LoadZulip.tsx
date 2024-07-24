@@ -4,8 +4,8 @@ import { Popup } from '../Navigation'
 const LoadZulipPopup: React.FC<{
   open: boolean
   handleClose: () => void
-  setCode: React.Dispatch<React.SetStateAction<string>>
-}> = ({open, handleClose, setCode}) => {
+  setContent: React.Dispatch<React.SetStateAction<string>>
+}> = ({open, handleClose, setContent}) => {
 
   const [error, setError] = React.useState('');
   const textInputRef = React.useRef<HTMLTextAreaElement>(null)
@@ -28,7 +28,7 @@ const LoadZulipPopup: React.FC<{
         console.log(`match: ${s}`)
         return s.match(regex2)![2]}).join('\n\n-- new codeblock\n\n').trim() + '\n'
       console.log(code)
-      setCode(code)
+      setContent(code)
       //setError('')
       handleClose()
     } else {

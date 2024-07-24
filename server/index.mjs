@@ -97,6 +97,11 @@ function startServerProcess(project) {
 }
 
 wss.addListener("connection", function(ws, req) {
+  const urlRegEx = /^\/websocket\/([\w.-]+)$/
+  const reRes = urlRegEx.exec(req.url)
+  if (!reRes) { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
+  const project = reRes[1]
+
   const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
   const ps = startServerProcess(project)
 

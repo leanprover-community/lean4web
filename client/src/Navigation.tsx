@@ -83,20 +83,22 @@ const FlexibleMenu: React.FC <{
   openLoad: any,
   setOpenLoad: any,
   loadFromUrl: any,
-  setCode: any,
+  setContent: any,
 }> = ({isInDropdown = false, setOpenNav, openExample, setOpenExample, openLoad,
-  setOpenLoad, loadFromUrl, setCode
+  setOpenLoad, loadFromUrl, setContent
 }) => {
 
   const [loadUrlOpen, setLoadUrlOpen] = useState(false)
   const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
   const loadFileFromDisk = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Triggered loading')
     const fileToLoad = event.target.files![0]
     var fileReader = new FileReader();
     fileReader.onload = (fileLoadedEvent) => {
         var textFromFileLoaded = fileLoadedEvent.target!.result as string;
-        // setContent(textFromFileLoaded)
+        console.log(`Loaded file! Content: ${textFromFileLoaded}`)
+        setContent(textFromFileLoaded)
     }
     fileReader.readAsText(fileToLoad, "UTF-8")
     setOpenNav(false)
@@ -120,7 +122,6 @@ const FlexibleMenu: React.FC <{
         useOverlay={isInDropdown}
         onClick={() => {setOpenExample(false); (!isInDropdown && setOpenNav(false))}}>
       <label htmlFor="file-upload" className="nav-link" >
-        
         <FontAwesomeIcon icon={faUpload} /> Load file from disk
       </label>
       <NavButton icon={faCloudArrowUp} text="Load from URL" onClick={() => {setLoadUrlOpen(true)}} />
@@ -129,14 +130,14 @@ const FlexibleMenu: React.FC <{
     </Dropdown>
     {/* {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />} */}
     <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
-    <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setCode={setCode} />
+    <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setContent={setContent} />
   </>
 }
 
 /** The Navigation menu */
 export const Menu: React.FC <{
   code: string,
-  setCode: any,
+  setContent: any,
   project: any,
   setProject: any,
   theme: any,
@@ -144,7 +145,7 @@ export const Menu: React.FC <{
   setUrl: any,
   contentFromUrl: any,
   settings: any,
-}> = ({code, setCode, project, setProject, theme, setTheme, setUrl, contentFromUrl, settings}) => {
+}> = ({code, setContent, project, setProject, theme, setTheme, setUrl, contentFromUrl, settings}) => {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
@@ -159,7 +160,7 @@ export const Menu: React.FC <{
     console.debug('load code from url')
     setUrl((oldUrl: string) => {
       if (oldUrl === url) {
-        setCode(contentFromUrl)
+        setContent(contentFromUrl)
       }
       return url
     })
@@ -177,7 +178,7 @@ export const Menu: React.FC <{
         openLoad={openLoad}
         setOpenLoad={setOpenLoad}
         loadFromUrl={loadFromUrl}
-        setCode={setCode} />
+        setContent={setContent} />
     }
     <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
       { settings.verticalLayout &&
@@ -188,7 +189,7 @@ export const Menu: React.FC <{
           openLoad={openLoad}
           setOpenLoad={setOpenLoad}
           loadFromUrl={loadFromUrl}
-          setCode={setCode} />
+          setContent={setContent} />
       }
       <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
       <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />

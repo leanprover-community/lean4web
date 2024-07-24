@@ -55,14 +55,22 @@ function App() {
   const [url, setUrl] = useState<string|null>(null)
   const [contentFromUrl, setContentFromUrl] = useState<string>('')
 
+  function setContent (code: string) {
+    editor?.getModel()?.setValue(code)
+    setCode(code)
+  }
+
   // Setting up the editor and infoview
   useEffect(() => {
+    const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
+    console.log(`socket url: ${socketUrl}`)
+
     const leanMonaco = new LeanMonaco()
     const leanMonacoEditor = new LeanMonacoEditor()
     ;(async () => {
-        await leanMonaco.start('ws://localhost:8080/')
+        await leanMonaco.start(socketUrl)
         leanMonaco.setInfoviewElement(infoviewRef.current!)
-        await leanMonacoEditor.start(codeviewRef.current!, `/project/leanweb.lean`, '')
+        await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
 
         setEditor(leanMonacoEditor.editor)
 
@@ -76,7 +84,7 @@ function App() {
         leanMonacoEditor.dispose()
         leanMonaco.dispose()
     }
-  }, [])
+  }, [project])
 
   // Read the URL once
   useEffect(() => {
@@ -88,8 +96,7 @@ function App() {
     console.debug(args)
     if (args.code) {
       let _code = decodeURIComponent(args.code)
-      editor.getModel()!.setValue(_code)
-      setCode(_code)
+      setContent(_code)
     }
     if (args.url) {setUrl(decodeURIComponent(args.url))}
     if (args.project) {
@@ -103,20 +110,17 @@ function App() {
     if (!(editor && url)) { return }
     console.debug(`Loading from ${url}`)
     let txt = "Loading…"
-    setCode(txt)
-    editor.getModel()!.setValue(txt)
+    setContent(txt)
     setContentFromUrl(txt)
     fetch(url)
     .then((response) => response.text())
     .then((code) => {
-      setCode(code)
-      editor.getModel()!.setValue(code)
+      setContent(code)
       setContentFromUrl(code)
     })
     .catch( err => {
       let errorTxt = `ERROR: ${err.toString()}`
-      setCode(errorTxt)
-      editor.getModel()!.setValue(errorTxt)
+      setContent(errorTxt)
       setContentFromUrl(errorTxt)
     })
   }, [editor, url])
@@ -148,7 +152,7 @@ function App() {
         <LeanLogo />
         <Menu
           code={code}
-          setCode={setCode}
+          setContent={setContent}
           project={project}
           setProject={setProject}
           theme={theme}
