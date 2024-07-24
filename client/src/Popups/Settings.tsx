@@ -1,140 +1,128 @@
 import * as React from 'react'
-import { useEffect } from 'react'
-import settings from '../config/settings';
+import { useContext, useEffect } from 'react'
+// import settings from '../config/settings';
 import Switch from '@mui/material/Switch';
 import { useWindowDimensions } from '../utils/window_width';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
+import defaultSettings from '../config/settings'
+
+export interface IPreferencesContext {
+  // lean4web
+  mobile: boolean
+  saveInLocalStore: boolean
+  // editor
+  acceptSuggestionOnEnter: boolean
+  wordWrap: boolean,
+  theme: string,
+  // lean4
+  abbreviationCharacter: string
+}
+
+export const PreferencesContext = React.createContext<{
+  preferences: IPreferencesContext,
+  setPreferences: React.Dispatch<React.SetStateAction<IPreferencesContext>>
+}>({
+  preferences: defaultSettings,
+  setPreferences: () => {}
+})
 
 const SettingsPopup: React.FC<{
   open: boolean
   handleClose: () => void
   closeNav: () => void
-  theme: any
-  setTheme: any
   project: any
   setProject: any
-}> = ({open, handleClose, closeNav, theme, setTheme, project, setProject}) => {
+}> = ({open, handleClose, closeNav, project, setProject}) => {
 
-  const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(settings.abbreviationCharacter)
-
-  const [savingAllowed, setSavingAllowed] = React.useState(false)
+  const { preferences, setPreferences } = useContext(PreferencesContext)
+  // const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(preferences.abbreviationCharacter)
 
   /* Vertical layout is changeable in the settings.
     If screen width is below 800, default to vertical layout instead. */
-  const {width, height} = useWindowDimensions()
-  const [verticalLayout, setVerticalLayout] = React.useState(width < 800)
-  const [wordWrap, setWordWrap] = React.useState(true)
-  const [acceptSuggestionOnEnter, setAcceptSuggestionOnEnter] = React.useState(false)
-  const [customTheme, setCustomTheme] = React.useState<string>('initial')
+  // const {width, height} = useWindowDimensions()
+  // const [mobile, setVerticalLayout] = React.useState(width < 800)
+  // const [wordWrap, setWordWrap] = React.useState(true)
+  // const [acceptSuggestionOnEnter, setAcceptSuggestionOnEnter] = React.useState(false)
 
   // Synchronize state with initial local store
   useEffect(() => {
-    let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
-    let _verticalLayout = window.localStorage.getItem("verticalLayout")
-    let _wordWrap = window.localStorage.getItem("wordWrap")
-    let _acceptSuggestionOnEnter = window.localStorage.getItem("acceptSuggestionOnEnter")
-    let _theme = window.localStorage.getItem("theme")
-    let _savingAllowed = window.localStorage.getItem("savingAllowed")
-    let _customTheme = window.localStorage.getItem("customTheme")
-    if (_abbreviationCharacter) {
-      setAbbreviationCharacter(_abbreviationCharacter)
-      setSavingAllowed(true)
-    }
-    if (_verticalLayout) {
-      setVerticalLayout(_verticalLayout == 'true')
-      setSavingAllowed(true)
-    }
-    if (_theme) {
-      setTheme(_theme)
-      setSavingAllowed(true)
-    }
-    if (_wordWrap) {
-      setWordWrap(_wordWrap == "true")
-      setSavingAllowed(true)
-    }
-    if (_acceptSuggestionOnEnter) {
-      setAcceptSuggestionOnEnter(_acceptSuggestionOnEnter == "true")
-      setSavingAllowed(true)
-    }
-    if (_customTheme) {
-      setCustomTheme(_customTheme)
-      setSavingAllowed(true)
-      try {
-        var loadedTheme = JSON.parse(_customTheme)
-        monaco.editor.defineTheme('custom', loadedTheme)
-      } catch (error) {
-        // invalid custom theme
-        setCustomTheme('')
-        if (_theme == 'custom') {setTheme('lightPlus')}
-      }
-    }
+
+
+
+    // let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
+    // let _mobile = window.localStorage.getItem("mobile")
+    // let _wordWrap = window.localStorage.getItem("wordWrap")
+    // let _acceptSuggestionOnEnter = window.localStorage.getItem("acceptSuggestionOnEnter")
+    // let _theme = window.localStorage.getItem("theme")
+    // let _savingAllowed = window.localStorage.getItem("savingAllowed")
+    // let _customTheme = window.localStorage.getItem("customTheme")
+    // if (_abbreviationCharacter) {
+    //   setAbbreviationCharacter(_abbreviationCharacter)
+    //   setSavingAllowed(true)
+    // }
+    // if (_mobile) {
+    //   setVerticalLayout(_mobile == 'true')
+    //   setSavingAllowed(true)
+    // }
+    // if (_theme) {
+    //   setTheme(_theme)
+    //   setSavingAllowed(true)
+    // }
+    // if (_wordWrap) {
+    //   setWordWrap(_wordWrap == "true")
+    //   setSavingAllowed(true)
+    // }
+    // if (_acceptSuggestionOnEnter) {
+    //   setAcceptSuggestionOnEnter(_acceptSuggestionOnEnter == "true")
+    //   setSavingAllowed(true)
+    // }
+    // if (_customTheme) {
+    //   setCustomTheme(_customTheme)
+    //   setSavingAllowed(true)
+    //   try {
+    //     var loadedTheme = JSON.parse(_customTheme)
+    //     monaco.editor.defineTheme('custom', loadedTheme)
+    //   } catch (error) {
+    //     // invalid custom theme
+    //     setCustomTheme('')
+    //     if (_theme == 'custom') {setTheme('lightPlus')}
+    //   }
+    // }
   }, [])
 
-  /** Synchronize config and local store whenever there is a change to any of the config
-   * variables (state)
-   */
+  function modifyPreferences(key: keyof IPreferencesContext, value: any) {
+    let newPreferences: any = { ...preferences }
+    newPreferences[key] = value
+    setPreferences(newPreferences)
+  }
+
+  /** Store preferences to local storage whenever there are modifications */
   useEffect(() => {
-    settings.abbreviationCharacter = abbreviationCharacter
-    settings.verticalLayout = verticalLayout
-    settings.wordWrap = wordWrap
-    settings.acceptSuggestionOnEnter = acceptSuggestionOnEnter
-    settings.theme = theme
-    if (savingAllowed) {
-      window.localStorage.setItem("abbreviationCharacter", abbreviationCharacter)
-      window.localStorage.setItem("verticalLayout", verticalLayout ? 'true' : 'false')
-      window.localStorage.setItem("wordWrap", wordWrap ? 'true' : 'false')
-      window.localStorage.setItem("acceptSuggestionOnEnter", acceptSuggestionOnEnter ? 'true' : 'false')
-      window.localStorage.setItem("theme", theme)
-      window.localStorage.setItem("customTheme", customTheme)
-    } else {
-      window.localStorage.removeItem("abbreviationCharacter")
-      window.localStorage.removeItem("verticalLayout")
-      window.localStorage.removeItem("wordWrap")
-      window.localStorage.removeItem("acceptSuggestionOnEnter")
-      window.localStorage.removeItem("theme")
-      window.localStorage.removeItem("customTheme")
-    }
-  }, [savingAllowed, abbreviationCharacter, verticalLayout, wordWrap, acceptSuggestionOnEnter, theme])
-
-  const handleChangeSaving = (ev: any) => {
-    if (ev.target.checked) {
-      setSavingAllowed(true)
-    } else {
-      setSavingAllowed(false)
-    }
-  }
-
-  const handleLayoutChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    setVerticalLayout(!verticalLayout)
-  //  ev.stopPropagation()
-  }
-
-  /** Load a custom monaco theme, store it in local storage and activate it */
-  function uploadTheme(ev: any) {
-    const fileToLoad = ev.target.files[0]
-    var fileReader = new FileReader()
-    fileReader.onload = (fileLoadedEvent) => {
-      var loadedThemeRaw = fileLoadedEvent?.target?.result as string
-      window.localStorage.setItem("customTheme", loadedThemeRaw)
-      try {
-        var loadedTheme = JSON.parse(loadedThemeRaw)
-      } catch (error) {
-        return
+    if (preferences.saveInLocalStore) {
+      for (const [key, value] of Object.entries(preferences)) {
+        if (typeof value === 'string') {
+          window.localStorage.setItem(key, value)
+        } else if (typeof value === 'boolean') {
+          // Boolean values
+          window.localStorage.setItem(key, value ? 'true' : 'false')
+        } else {
+          // other values aren't implemented yet.
+          console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
+        }
       }
-      setTheme('custom')
-      setCustomTheme(loadedThemeRaw)
-      monaco.editor.defineTheme('custom', loadedTheme)
-      monaco.editor.setTheme('custom')
+    } else {
+      for (const key in preferences) {
+        window.localStorage.removeItem(key)
+      }
     }
-    fileReader.readAsText(fileToLoad, "UTF-8")
-  }
+  }, [preferences])
 
   return <Popup open={open} handleClose={handleClose}>
     <form onSubmit={(ev) => {ev.preventDefault(); handleClose(); closeNav()}}>
       <h2>Project settings</h2>
-      <p><i>These settigns are stored in the URL as they change the project's setup</i></p>
+      <p><i>These settings are stored in the URL as they change the project's setup</i></p>
       <p>
         <label htmlFor="leanVersion">Lean Version: </label>
         <select
@@ -156,44 +144,54 @@ const SettingsPopup: React.FC<{
       <p>
         <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
         <input id="abbreviationCharacter" type="text"
-          onChange={(ev) => {setAbbreviationCharacter(ev.target.value)}} value={abbreviationCharacter} />
+          onChange={(ev) => {modifyPreferences("abbreviationCharacter", ev.target.value)}}
+          value={preferences.abbreviationCharacter} />
       </p>
       <p className="flex">
         <label htmlFor="theme">Theme: </label>
         <select
             id="theme"
             name="theme"
-            value={theme}
-            onChange={(ev) => {setTheme(ev.target.value)}} >
-          <option value="lightPlus">light+</option>
-          <option value="GithubDark">github dark</option>
-          <option value="Amy">amy</option>
+            value={preferences.theme}
+            onChange={(ev) => {modifyPreferences("theme", ev.target.value)}}
+            >
+          <option value="Default Light+">light+</option>
+          {/* <option value="Default Light Modern">light modern</option> */}
+          <option value="Default Dark+">dark+</option>
+          <option value="Default High Contrast">high contrast</option>
           <option value="Cobalt">cobalt</option>
-          <option value="custom">custom</option>
+          {/* <option value="Visual Studio Light">visual studio light</option> */}
+          {/* <option value="Visual Studio Dark">visual studio dark</option> */}
         </select>
 
-        <label htmlFor="theme-upload" className="file-upload-button" >Load from Disk</label>
-        <input id="theme-upload" type="file" onChange={uploadTheme} />
+        {/* <label htmlFor="theme-upload" className="file-upload-button" >Load from Disk</label>
+        <input id="theme-upload" type="file" onChange={uploadTheme} /> */}
 
         {/* <Button variant="contained" component="label" className='file-upload-button' onClick={uploadTheme}>
-          Load from Disk
+          Load from DisksetTheme
           <input id="theme-upload" type="file" onChange={uploadTheme} />
         </Button> */}
       </p>
       <p>
-        <Switch id="verticalLayout" onChange={handleLayoutChange} checked={verticalLayout} />
-        <label htmlFor="verticalLayout">Mobile layout (vertical)</label>
+        <Switch id="mobile" onChange={() => {
+          modifyPreferences("mobile", !preferences.mobile)
+          // ev.stopPropagation()
+        }} checked={preferences.mobile}
+        />
+        <label htmlFor="mobile">Mobile layout (vertical)</label>
       </p>
       <p>
-        <Switch id="wordWrap" onChange={() => {setWordWrap(!wordWrap)}} checked={wordWrap} />
+        <Switch id="wordWrap" onChange={() => {modifyPreferences("wordWrap", !preferences.wordWrap)}}
+        checked={preferences.wordWrap} />
         <label htmlFor="wordWrap">Wrap code</label>
       </p>
       <p>
-        <Switch id="acceptSuggestionOnEnter" onChange={() => {setAcceptSuggestionOnEnter(!acceptSuggestionOnEnter)}} checked={acceptSuggestionOnEnter} />
+        <Switch id="acceptSuggestionOnEnter" onChange={() => {modifyPreferences("acceptSuggestionOnEnter", !preferences.acceptSuggestionOnEnter)}}
+        checked={preferences.acceptSuggestionOnEnter} />
         <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
       </p>
       <p>
-        <Switch id="savingAllowed" onChange={handleChangeSaving} checked={savingAllowed} />
+        <Switch id="savingAllowed" onChange={() => {modifyPreferences("saveInLocalStore", !preferences.saveInLocalStore)}} checked={preferences.saveInLocalStore} />
         <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
       </p>
       <p>

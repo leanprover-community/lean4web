@@ -29,11 +29,6 @@ nav .dropdown {
   position: relative;
 }
 
-/* menu items inside a dropdown */
-nav .dropdown-content .nav-link {
-  width: 100%;
-}
-
 nav .dropdown-content {
   position: absolute;
   right: 0;
@@ -46,6 +41,17 @@ nav .dropdown-content {
   border-top: 1px solid var(--vscode-menu-separatorBackground);
   border-bottom: 1px solid var(--vscode-menu-separatorBackground);
   box-shadow: -.1rem .3rem .3rem 0 var(--vscode-menu-separatorBackground);
+}
+
+/* Second level dropdowns */
+nav .dropdown-content .dropdown .dropdown-content {
+  z-index: 2;
+  left: 0;
+}
+/* Second level dropdowns */
+nav .dropdown-content .dropdown > .nav-link {
+  /* Don't know why but apparently that yields the correct width. */
+  display: block;
 }
 
 /* Overlay to fade out the dropdown if a sub-dropdown is displayed on top. */
@@ -74,14 +80,6 @@ nav .nav-link {
 /* Zulip logo (instead of font-awesome icon) */
 nav .nav-link svg {
   width: 1.4rem;
-}
-
-/* menu items for dropdown */
-nav .nav-link {
-  padding-left: .8rem;
-  padding-right: .8rem;
-  padding-top: .6rem;
-  padding-bottom: .6rem;
 }
 
 nav .nav-link:hover {

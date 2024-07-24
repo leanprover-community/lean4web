@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver'
 
-import SettingsPopup from './Popups/Settings'
+import SettingsPopup, { PreferencesContext } from './Popups/Settings'
 import PrivacyPopup from './Popups/PrivacyPolicy';
 import ToolsPopup from './Popups/Tools';
 import LoadUrlPopup from './Popups/LoadUrl';
@@ -140,12 +140,9 @@ export const Menu: React.FC <{
   setContent: any,
   project: any,
   setProject: any,
-  theme: any,
-  setTheme: any,
   setUrl: any,
   contentFromUrl: any,
-  settings: any,
-}> = ({code, setContent, project, setProject, theme, setTheme, setUrl, contentFromUrl, settings}) => {
+}> = ({code, setContent, project, setProject, setUrl, contentFromUrl}) => {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
@@ -155,6 +152,8 @@ export const Menu: React.FC <{
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+
+  const { preferences } = useContext(PreferencesContext)
 
   const loadFromUrl = (url: string, project:string|undefined=undefined) => {
     console.debug('load code from url')
@@ -170,7 +169,7 @@ export const Menu: React.FC <{
   }
 
   return  <div className='menu'>
-    { !settings.verticalLayout &&
+    { !preferences.mobile &&
       <FlexibleMenu isInDropdown={false}
         setOpenNav={setOpenNav}
         openExample={openExample}
@@ -181,7 +180,7 @@ export const Menu: React.FC <{
         setContent={setContent} />
     }
     <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
-      { settings.verticalLayout &&
+      { preferences.mobile &&
         <FlexibleMenu isInDropdown={true}
           setOpenNav={setOpenNav}
           openExample={openExample}
@@ -202,6 +201,6 @@ export const Menu: React.FC <{
     <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
     <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
     <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
-      theme={theme} setTheme={setTheme} project={project} setProject={setProject} />
+      project={project} setProject={setProject} />
   </div>
 }

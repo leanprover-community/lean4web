@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import LeanLogo from './assets/logo.svg'
 import * as monaco from 'monaco-editor'
 import { LeanMonaco, LeanMonacoEditor } from 'lean4monaco'
-import settings from './config/settings'
+import defaultSettings from './config/settings'
 import Split from 'react-split'
 import { Menu } from './Navigation'
 
 import './css/App.css'
 import './css/Editor.css'
+import { IPreferencesContext, PreferencesContext } from './Popups/Settings'
 
 /** Expected arguments which can be provided in the URL. */
 interface UrlArgs {
@@ -44,10 +45,12 @@ function App() {
 
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
 
+  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
+
 
   /* Option to change themes */
-  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-  const [theme, setTheme] = useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
+  // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+  // const [theme, setTheme] = useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
 
   // the data
   const [code, setCode] = useState<string>('')
@@ -60,15 +63,81 @@ function App() {
     setCode(code)
   }
 
+  // Load preferences from store in the beginning
+  useEffect(() => {
+    let saveInLocalStore = false;
+    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
+    for (const [key, value] of Object.entries(preferences)) {
+      let storedValue = window.localStorage.getItem(key)
+      if (storedValue) {
+        saveInLocalStore = true
+        console.debug(`Found stored config for ${key}: ${storedValue}`)
+        if (typeof value === 'string') {
+          newPreferences[key] = storedValue
+        } else if (typeof value === 'boolean') {
+          // Boolean values
+          newPreferences[key] = (storedValue === "true")
+        } else {
+          // other values aren't implemented yet.
+          console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
+        }
+      }
+      newPreferences['saveInLocalStore'] = saveInLocalStore
+      setPreferences(newPreferences)
+    }
+  }, [])
+
   // Setting up the editor and infoview
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
     console.log(`socket url: ${socketUrl}`)
 
+    // see available options here:
+    // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
+    const editorOptions = {
+      // glyphMargin: true,
+      // lineDecorationsWidth: 5,
+      // folding: false,
+      // lineNumbers: 'on',
+      // lineNumbersMinChars: 1,
+      // "editor.rulers": [100],
+      // lightbulb: {
+      //   enabled: true
+      // },
+      // unicodeHighlight: {
+      //     ambiguousCharacters: false,
+      // },
+      // automaticLayout: true,
+      // minimap: {
+      //   enabled: false
+      // },
+      // theme: 'vs',
+      // fontFamily: "JuliaMono",
+    }
+    // 'inputModeEnabled': true,
+    // 'inputModeCustomTranslations': {},
+    // 'eagerReplacementEnabled': true,
+    // 'customTheme': '',
+
     const leanMonaco = new LeanMonaco()
     const leanMonacoEditor = new LeanMonacoEditor()
     ;(async () => {
-        await leanMonaco.start({websocket: {url: socketUrl}})
+        await leanMonaco.start({websocket: {url: socketUrl}, vscode: {
+          // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
+          "editor.tabSize": 2,
+          // "editor.rulers": [100],
+          "editor.lightbulb": {enabled: true},
+          "editor.wordWrap": preferences.wordWrap ? "on" : "off",
+          "editor.wrappingStrategy": "advanced",
+
+          "editor.semanticHighlighting.enabled": true,
+          "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off", // nope?
+          "editor.theme": preferences.theme,
+
+
+          "lean4.input.leader": preferences.abbreviationCharacter
+
+        }})
         leanMonaco.setInfoviewElement(infoviewRef.current!)
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
 
@@ -84,8 +153,12 @@ function App() {
         leanMonacoEditor.dispose()
         leanMonaco.dispose()
     }
-  }, [project])
+  }, [project, preferences])
 
+  useEffect(() => {
+    console.log(`Settings changed`)
+    console.log(preferences)
+  }, [preferences])
   // Read the URL once
   useEffect(() => {
     if (!editor) { return }
@@ -147,46 +220,45 @@ function App() {
   }, [editor, project, code, contentFromUrl])
 
   return (
-    <div className="app monaco-editor">
-      <nav>
-        <LeanLogo />
-        <Menu
-          code={code}
-          setContent={setContent}
-          project={project}
-          setProject={setProject}
-          theme={theme}
-          setTheme={setTheme}
-          setUrl={setUrl}
-          contentFromUrl={contentFromUrl}
-          settings={settings}/>
-      </nav>
-      <Split className={`editor ${ dragging? 'dragging':''}`}
-        gutter={(index, direction) => {
-          const gutter = document.createElement('div')
-          gutter.className = `gutter` // no `gutter-${direction}` as it might change
-          return gutter
-        }}
-        gutterStyle={(dimension, gutterSize, index) => {
-          return {
-            'width': settings.verticalLayout ? '100%' : `${gutterSize}px`,
-            'height': settings.verticalLayout ? `${gutterSize}px` : '100%',
-            'cursor': settings.verticalLayout ? 'row-resize' : 'col-resize',
-            'margin-left': settings.verticalLayout ? 0 : `-${gutterSize}px`,
-            'margin-top': settings.verticalLayout ? `-${gutterSize}px` : 0,
-            'z-index': 0,
-          }}}
-        gutterSize={5}
-        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
-        sizes={settings.verticalLayout ? [50, 50] : [70, 30]}
-        direction={settings.verticalLayout ? "vertical" : "horizontal"}
-        style={{flexDirection: settings.verticalLayout ? "column" : "row"}}>
-        <div ref={codeviewRef} className="codeview"
-          style={settings.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
-        <div ref={infoviewRef} className="vscode-light infoview"
-          style={settings.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
-      </Split>
-    </div>
+    <PreferencesContext.Provider value={{preferences, setPreferences}}>
+      <div className="app monaco-editor">
+        <nav>
+          <LeanLogo />
+          <Menu
+            code={code}
+            setContent={setContent}
+            project={project}
+            setProject={setProject}
+            setUrl={setUrl}
+            contentFromUrl={contentFromUrl} />
+        </nav>
+        <Split className={`editor ${ dragging? 'dragging':''}`}
+          gutter={(index, direction) => {
+            const gutter = document.createElement('div')
+            gutter.className = `gutter` // no `gutter-${direction}` as it might change
+            return gutter
+          }}
+          gutterStyle={(dimension, gutterSize, index) => {
+            return {
+              'width': preferences.mobile ? '100%' : `${gutterSize}px`,
+              'height': preferences.mobile ? `${gutterSize}px` : '100%',
+              'cursor': preferences.mobile ? 'row-resize' : 'col-resize',
+              'margin-left': preferences.mobile ? 0 : `-${gutterSize}px`,
+              'margin-top': preferences.mobile ? `-${gutterSize}px` : 0,
+              'z-index': 0,
+            }}}
+          gutterSize={5}
+          onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
+          sizes={preferences.mobile ? [50, 50] : [70, 30]}
+          direction={preferences.mobile ? "vertical" : "horizontal"}
+          style={{flexDirection: preferences.mobile ? "column" : "row"}}>
+          <div ref={codeviewRef} className="codeview"
+            style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
+          <div ref={infoviewRef} className="vscode-light infoview"
+            style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
+        </Split>
+      </div>
+    </PreferencesContext.Provider>
   )
 }
 
