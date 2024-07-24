@@ -8,6 +8,7 @@ import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
 import defaultSettings from '../config/settings'
 
+/** This must be kept in sync with ../config/settings.ts */
 export interface IPreferencesContext {
   // lean4web
   mobile: boolean
@@ -20,6 +21,7 @@ export interface IPreferencesContext {
   abbreviationCharacter: string
 }
 
+/** The context holding the preferences */
 export const PreferencesContext = React.createContext<{
   preferences: IPreferencesContext,
   setPreferences: React.Dispatch<React.SetStateAction<IPreferencesContext>>
@@ -35,62 +37,7 @@ const SettingsPopup: React.FC<{
   project: any
   setProject: any
 }> = ({open, handleClose, closeNav, project, setProject}) => {
-
   const { preferences, setPreferences } = useContext(PreferencesContext)
-  // const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(preferences.abbreviationCharacter)
-
-  /* Vertical layout is changeable in the settings.
-    If screen width is below 800, default to vertical layout instead. */
-  // const {width, height} = useWindowDimensions()
-  // const [mobile, setVerticalLayout] = React.useState(width < 800)
-  // const [wordWrap, setWordWrap] = React.useState(true)
-  // const [acceptSuggestionOnEnter, setAcceptSuggestionOnEnter] = React.useState(false)
-
-  // Synchronize state with initial local store
-  useEffect(() => {
-
-
-
-    // let _abbreviationCharacter = window.localStorage.getItem("abbreviationCharacter")
-    // let _mobile = window.localStorage.getItem("mobile")
-    // let _wordWrap = window.localStorage.getItem("wordWrap")
-    // let _acceptSuggestionOnEnter = window.localStorage.getItem("acceptSuggestionOnEnter")
-    // let _theme = window.localStorage.getItem("theme")
-    // let _savingAllowed = window.localStorage.getItem("savingAllowed")
-    // let _customTheme = window.localStorage.getItem("customTheme")
-    // if (_abbreviationCharacter) {
-    //   setAbbreviationCharacter(_abbreviationCharacter)
-    //   setSavingAllowed(true)
-    // }
-    // if (_mobile) {
-    //   setVerticalLayout(_mobile == 'true')
-    //   setSavingAllowed(true)
-    // }
-    // if (_theme) {
-    //   setTheme(_theme)
-    //   setSavingAllowed(true)
-    // }
-    // if (_wordWrap) {
-    //   setWordWrap(_wordWrap == "true")
-    //   setSavingAllowed(true)
-    // }
-    // if (_acceptSuggestionOnEnter) {
-    //   setAcceptSuggestionOnEnter(_acceptSuggestionOnEnter == "true")
-    //   setSavingAllowed(true)
-    // }
-    // if (_customTheme) {
-    //   setCustomTheme(_customTheme)
-    //   setSavingAllowed(true)
-    //   try {
-    //     var loadedTheme = JSON.parse(_customTheme)
-    //     monaco.editor.defineTheme('custom', loadedTheme)
-    //   } catch (error) {
-    //     // invalid custom theme
-    //     setCustomTheme('')
-    //     if (_theme == 'custom') {setTheme('lightPlus')}
-    //   }
-    // }
-  }, [])
 
   function modifyPreferences(key: keyof IPreferencesContext, value: any) {
     let newPreferences: any = { ...preferences }
@@ -105,7 +52,7 @@ const SettingsPopup: React.FC<{
         if (typeof value === 'string') {
           window.localStorage.setItem(key, value)
         } else if (typeof value === 'boolean') {
-          // Boolean values
+          // turn boolean values into string
           window.localStorage.setItem(key, value ? 'true' : 'false')
         } else {
           // other values aren't implemented yet.
@@ -163,14 +110,6 @@ const SettingsPopup: React.FC<{
           {/* <option value="Visual Studio Light">visual studio light</option> */}
           {/* <option value="Visual Studio Dark">visual studio dark</option> */}
         </select>
-
-        {/* <label htmlFor="theme-upload" className="file-upload-button" >Load from Disk</label>
-        <input id="theme-upload" type="file" onChange={uploadTheme} /> */}
-
-        {/* <Button variant="contained" component="label" className='file-upload-button' onClick={uploadTheme}>
-          Load from DisksetTheme
-          <input id="theme-upload" type="file" onChange={uploadTheme} />
-        </Button> */}
       </p>
       <p>
         <Switch id="mobile" onChange={() => {

@@ -5,10 +5,10 @@ import { LeanMonaco, LeanMonacoEditor } from 'lean4monaco'
 import defaultSettings from './config/settings'
 import Split from 'react-split'
 import { Menu } from './Navigation'
-
+import { IPreferencesContext, PreferencesContext } from './Popups/Settings'
+import { useWindowDimensions } from './utils/window_width'
 import './css/App.css'
 import './css/Editor.css'
-import { IPreferencesContext, PreferencesContext } from './Popups/Settings'
 
 /** Expected arguments which can be provided in the URL. */
 interface UrlArgs {
@@ -57,6 +57,7 @@ function App() {
   const [project, setProject] = useState<string>('mathlib-demo')
   const [url, setUrl] = useState<string|null>(null)
   const [contentFromUrl, setContentFromUrl] = useState<string>('')
+  const {width, height} = useWindowDimensions()
 
   function setContent (code: string) {
     editor?.getModel()?.setValue(code)
@@ -87,37 +88,22 @@ function App() {
     }
   }, [])
 
+  // Use the window witdh to switch between mobile/desktop layout
+  useEffect(() => {
+    const _mobile = width < 800
+    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
+      setPreferences({ ...preferences, mobile: _mobile })
+    }
+  }, [width])
+
   // Setting up the editor and infoview
   useEffect(() => {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
     console.log(`socket url: ${socketUrl}`)
 
+    // TODO: is this link still recent?
     // see available options here:
     // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
-    const editorOptions = {
-      // glyphMargin: true,
-      // lineDecorationsWidth: 5,
-      // folding: false,
-      // lineNumbers: 'on',
-      // lineNumbersMinChars: 1,
-      // "editor.rulers": [100],
-      // lightbulb: {
-      //   enabled: true
-      // },
-      // unicodeHighlight: {
-      //     ambiguousCharacters: false,
-      // },
-      // automaticLayout: true,
-      // minimap: {
-      //   enabled: false
-      // },
-      // theme: 'vs',
-      // fontFamily: "JuliaMono",
-    }
-    // 'inputModeEnabled': true,
-    // 'inputModeCustomTranslations': {},
-    // 'eagerReplacementEnabled': true,
-    // 'customTheme': '',
 
     const leanMonaco = new LeanMonaco()
     const leanMonacoEditor = new LeanMonacoEditor()
@@ -129,14 +115,12 @@ function App() {
           "editor.lightbulb": {enabled: true},
           "editor.wordWrap": preferences.wordWrap ? "on" : "off",
           "editor.wrappingStrategy": "advanced",
-
           "editor.semanticHighlighting.enabled": true,
           "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off", // nope?
           "editor.theme": preferences.theme,
-
+          "editor.eagerReplacementEnabled": true,
 
           "lean4.input.leader": preferences.abbreviationCharacter
-
         }})
         leanMonaco.setInfoviewElement(infoviewRef.current!)
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
