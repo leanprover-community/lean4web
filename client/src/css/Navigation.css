@@ -7,7 +7,7 @@ nav {
 }
 
 /* The Lean logo */
-nav .logo {
+nav > svg {
   height: 2.2rem;
   width: unset;
   vertical-align: middle;
@@ -30,7 +30,7 @@ nav .dropdown {
 }
 
 /* menu items inside a dropdown */
-nav .dropdown .nav-link {
+nav .dropdown-content .nav-link {
   width: 100%;
 }
 

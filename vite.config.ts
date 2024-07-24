@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import { normalizePath } from 'vite'
+import path from 'node:path'
 import svgr from "vite-plugin-svgr"
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    esbuildOptions: {
+      plugins: [importMetaUrlPlugin]
+    }
+  },
   build: {
     // Relative to the root
     // Note: This has to match the path in `server/index.mjs` and in `tsconfig.json`
@@ -13,18 +23,24 @@ export default defineConfig({
   plugins: [
     react(),
     svgr({
-      svgrOptions: {
-        // svgr options
+      // svgr options: https://react-svgr.com/docs/options/
+      svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
+       include: "**/*.svg",
+      }),
+    nodePolyfills({
+      overrides: {
+        fs: 'memfs',
       },
     }),
     viteStaticCopy({
       targets: [
         {
-          src: 'node_modules/@leanprover/infoview/dist/*.production.min.js',
-          dest: '.'
+          src: normalizePath(path.resolve(__dirname, './node_modules/@leanprover/infoview/dist/*.production.min.js')),
+          dest: 'infoview'
         }
       ]
-    })],
+    })
+  ],
   publicDir: "client/public",
   server: {
     port: 3000,

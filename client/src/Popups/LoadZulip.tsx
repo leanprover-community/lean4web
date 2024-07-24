@@ -4,15 +4,15 @@ import { Popup } from '../Navigation'
 const LoadZulipPopup: React.FC<{
   open: boolean
   handleClose: () => void
-  setContent: React.Dispatch<React.SetStateAction<string>>
-}> = ({open, handleClose, setContent}) => {
+  setCode: React.Dispatch<React.SetStateAction<string>>
+}> = ({open, handleClose, setCode}) => {
 
-  const [error, setError] = React.useState(null);
-  const textInputRef = React.useRef<HTMLTextAreaElement>();
+  const [error, setError] = React.useState('');
+  const textInputRef = React.useRef<HTMLTextAreaElement>(null)
 
-  const handleLoad = (ev) => {
+  const handleLoad = (ev: any) => {
     ev.preventDefault()
-    let md = textInputRef.current.value // TODO: not a URL but text, update the var names
+    let md = textInputRef.current?.value // TODO: not a URL but text, update the var names
 
     console.log(`received: ${md}`)
 
@@ -21,14 +21,14 @@ const LoadZulipPopup: React.FC<{
     // regex 2 extracts the code from a codeblock
     let regex2 = /^(`{3,})\s*(?:lean)?\s*\n\s*(.+)\s*\1$/s
 
-    let res = md.match(regex1)
+    let res = md?.match(regex1)
 
     if (res) {
       let code = res.map(s => {
         console.log(`match: ${s}`)
-        return s.match(regex2)[2]}).join('\n\n-- new codeblock\n\n').trim() + '\n'
+        return s.match(regex2)![2]}).join('\n\n-- new codeblock\n\n').trim() + '\n'
       console.log(code)
-      setContent(code)
+      setCode(code)
       //setError('')
       handleClose()
     } else {

@@ -2,7 +2,7 @@
 module.exports = {
   apps : [{
     name   : "lean4web",
-    script : "server/index.js",
+    script : "server/index.mjs",
     env: {
        NODE_ENV: "production",
        PORT: 8001

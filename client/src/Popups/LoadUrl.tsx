@@ -7,12 +7,12 @@ const LoadUrlPopup: React.FC<{
   loadFromUrl: (url: string) => void
 }> = ({open, handleClose, loadFromUrl}) => {
 
-  const [error, setError] = React.useState(null);
-  const urlRef = React.useRef<HTMLInputElement>();
+  const [error, setError] = React.useState('');
+  const urlRef = React.useRef<HTMLInputElement>(null);
 
-  const handleLoad = (ev) => {
+  const handleLoad = (ev: any) => {
     ev.preventDefault()
-    let url = urlRef.current.value
+    let url = urlRef.current?.value
     if (!url) {
       setError(`Please specify a URL.`)
       return

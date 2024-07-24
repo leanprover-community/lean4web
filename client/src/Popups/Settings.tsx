@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useEffect } from 'react'
 import settings from '../config/settings';
 import Switch from '@mui/material/Switch';
-import { useWindowDimensions } from '../window_width';
+import { useWindowDimensions } from '../utils/window_width';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
@@ -11,10 +11,10 @@ const SettingsPopup: React.FC<{
   open: boolean
   handleClose: () => void
   closeNav: () => void
-  theme
-  setTheme
-  project
-  setProject
+  theme: any
+  setTheme: any
+  project: any
+  setProject: any
 }> = ({open, handleClose, closeNav, theme, setTheme, project, setProject}) => {
 
   const [abbreviationCharacter, setAbbreviationCharacter] = React.useState(settings.abbreviationCharacter)
@@ -98,7 +98,7 @@ const SettingsPopup: React.FC<{
     }
   }, [savingAllowed, abbreviationCharacter, verticalLayout, wordWrap, acceptSuggestionOnEnter, theme])
 
-  const handleChangeSaving = (ev) => {
+  const handleChangeSaving = (ev: any) => {
     if (ev.target.checked) {
       setSavingAllowed(true)
     } else {
@@ -112,11 +112,11 @@ const SettingsPopup: React.FC<{
   }
 
   /** Load a custom monaco theme, store it in local storage and activate it */
-  function uploadTheme(ev) {
+  function uploadTheme(ev: any) {
     const fileToLoad = ev.target.files[0]
     var fileReader = new FileReader()
     fileReader.onload = (fileLoadedEvent) => {
-      var loadedThemeRaw = fileLoadedEvent.target.result as string
+      var loadedThemeRaw = fileLoadedEvent?.target?.result as string
       window.localStorage.setItem("customTheme", loadedThemeRaw)
       try {
         var loadedTheme = JSON.parse(loadedThemeRaw)

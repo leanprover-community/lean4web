@@ -1,27 +1,13 @@
-import * as React from 'react'
-import { useState, Suspense, useEffect } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { saveAs } from 'file-saver';
-
-import { Dropdown, NavButton } from './Navigation';
-import SettingsPopup from './Popups/Settings'
-import PrivacyPopup from './Popups/PrivacyPolicy';
-import ToolsPopup from './Popups/Tools';
-import LoadUrlPopup from './Popups/LoadUrl';
-import LoadZulipPopup from './Popups/LoadZulip';
-
-import lean4webConfig from './config/config'
+import { useEffect, useRef, useState } from 'react'
+import LeanLogo from './assets/logo.svg'
+import * as monaco from 'monaco-editor'
+import { LeanMonaco, LeanMonacoEditor } from 'lean4monaco'
 import settings from './config/settings'
-
-import { ReactComponent as Logo } from './assets/logo.svg'
-import { ReactComponent as ZulipIcon } from './assets/zulip.svg'
+import Split from 'react-split'
+import { Menu } from './Navigation'
 
 import './css/App.css'
-import './css/Modal.css'
-import './css/Navigation.css'
-
-const Editor = React.lazy(() => import('./Editor'))
+import './css/Editor.css'
 
 /** Expected arguments which can be provided in the URL. */
 interface UrlArgs {
@@ -51,159 +37,151 @@ function parseArgs(): UrlArgs {
   return Object.fromEntries(_args)
 }
 
-const save = (content: string) => {
-  var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-  saveAs(blob, "Lean4WebDownload.lean");
-}
+function App() {
+  const codeviewRef = useRef<HTMLDivElement>(null)
+  const infoviewRef = useRef<HTMLDivElement>(null)
+  const [dragging, setDragging] = useState<boolean | null>(false)
 
-/** The main application */
-const App: React.FC = () => {
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
 
-  // state for handling the dropdown menus
-  const [openNav, setOpenNav] = useState(false)
-  const [openExample, setOpenExample] = useState(false)
-  const [openLoad, setOpenLoad] = useState(false)
-
-  // state for the popups
-  const [privacyOpen, setPrivacyOpen] = useState(false)
-  const [toolsOpen, setToolsOpen] = useState(false)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [loadUrlOpen, setLoadUrlOpen] = useState(false)
-  const [loadZulipOpen, setLoadZulipOpen] = useState(false)
-
-  // the restart function is only available once the editor is loaded
-  const [restart, setRestart] = useState<(project?) => Promise<void>>()
 
   /* Option to change themes */
   const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
+  const [theme, setTheme] = useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
 
   // the data
-  const [content, setContent] = useState<string>('')
+  const [code, setCode] = useState<string>('')
   const [project, setProject] = useState<string>('mathlib-demo')
-  const [url, setUrl] = useState<string>(null)
-  const [contentFromUrl, setContentFromUrl] = useState<string>(null)
+  const [url, setUrl] = useState<string|null>(null)
+  const [contentFromUrl, setContentFromUrl] = useState<string>('')
 
-  const loadFromUrl = (url: string, project=null) => {
-    setUrl((oldUrl) => {
-      if (oldUrl === url) {
-        setContent(contentFromUrl)
-      }
-      return url
+  // Setting up the editor and infoview
+  useEffect(() => {
+    const leanMonaco = new LeanMonaco()
+    const leanMonacoEditor = new LeanMonacoEditor()
+    ;(async () => {
+        await leanMonaco.start('ws://localhost:8080/')
+        leanMonaco.setInfoviewElement(infoviewRef.current!)
+        await leanMonacoEditor.start(codeviewRef.current!, `/project/leanweb.lean`, '')
+
+        setEditor(leanMonacoEditor.editor)
+
+        // Setting hooks for the editor
+        leanMonacoEditor.editor.onDidChangeModelContent(() => {
+          console.log('content changed')
+          setCode(leanMonacoEditor.editor.getModel()?.getValue()!)
+        })
+    })()
+    return () => {
+        leanMonacoEditor.dispose()
+        leanMonaco.dispose()
+    }
+  }, [])
+
+  // Read the URL once
+  useEffect(() => {
+    if (!editor) { return }
+    console.debug('editor is ready')
+
+    // Parse args
+    let args = parseArgs()
+    console.debug(args)
+    if (args.code) {
+      let _code = decodeURIComponent(args.code)
+      editor.getModel()!.setValue(_code)
+      setCode(_code)
+    }
+    if (args.url) {setUrl(decodeURIComponent(args.url))}
+    if (args.project) {
+      console.log(`setting project to ${args.project}`)
+      setProject(args.project)
+    }
+  }, [editor])
+
+  // Load content from source URL
+  useEffect(() => {
+    if (!(editor && url)) { return }
+    console.debug(`Loading from ${url}`)
+    let txt = "Loading…"
+    setCode(txt)
+    editor.getModel()!.setValue(txt)
+    setContentFromUrl(txt)
+    fetch(url)
+    .then((response) => response.text())
+    .then((code) => {
+      setCode(code)
+      editor.getModel()!.setValue(code)
+      setContentFromUrl(code)
     })
-    if (project) {
-      setProject(project)
-    }
-  }
-
-  const loadFileFromDisk = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileToLoad = event.target.files[0]
-    var fileReader = new FileReader();
-    fileReader.onload = (fileLoadedEvent) => {
-        var textFromFileLoaded = fileLoadedEvent.target.result as string;
-        setContent(textFromFileLoaded)
-    }
-    fileReader.readAsText(fileToLoad, "UTF-8")
-    setOpenNav(false)
-  }
+    .catch( err => {
+      let errorTxt = `ERROR: ${err.toString()}`
+      setCode(errorTxt)
+      editor.getModel()!.setValue(errorTxt)
+      setContentFromUrl(errorTxt)
+    })
+  }, [editor, url])
 
   // keep url updated on changes
   useEffect(() => {
+    if (!editor) { return }
     let _project = (project == 'mathlib-demo' ? null : project)
-    if (content === contentFromUrl) {
-      let args = {project: _project, url: encodeURIComponent(url), code: null}
-      history.replaceState(undefined, undefined, formatArgs(args))
-    } else if (content === "") {
+    if (code === contentFromUrl) {
+      if (url !== null) {
+        let args = {project: _project, url: encodeURIComponent(url), code: null}
+        history.replaceState(undefined, undefined!, formatArgs(args))
+      } else {
+        let args = {project: _project, url: null, code: null}
+        history.replaceState(undefined, undefined!, formatArgs(args))
+      }
+    } else if (code === "") {
       let args = {project: _project, url: null, code: null}
-      history.replaceState(undefined, undefined, formatArgs(args))
+      history.replaceState(undefined, undefined!, formatArgs(args))
     } else {
-      let args = {project: _project, url: null, code: encodeURIComponent(content)}
-      history.replaceState(undefined, undefined, formatArgs(args))
+      let args = {project: _project, url: null, code: encodeURIComponent(code)}
+      history.replaceState(undefined, undefined!, formatArgs(args))
     }
-  }, [project, content])
-
-  // load content from url
-  useEffect(() => {
-    if (url !== null) {
-      setContent("Loading...")
-      setContentFromUrl("Loading...")
-      fetch(url)
-      .then((response) => response.text())
-      .then((content) => {
-        setContent(content)
-        setContentFromUrl(content)
-      })
-      .catch( err => {
-        setContent(err.toString())
-        setContentFromUrl(err.toString())
-      })
-    }
-  }, [url])
-
-  // load different project
-  useEffect(() => {
-    if (restart) {
-      console.log(`changing Lean version to ${project}`)
-      restart(project)
-    }
-  }, [project])
-
-  /** The menu items either appearing inside the dropdown or outside */
-  function flexibleMenu (isInDropdown = false) { return <>
-    <Dropdown open={openExample} setOpen={setOpenExample} icon={faStar} text="Examples"
-        useOverlay={isInDropdown}
-        onClick={() => {setOpenLoad(false); (!isInDropdown && setOpenNav(false))}}>
-      {lean4webConfig.projects.map(proj => proj.examples?.map(example =>
-        <NavButton
-          key={`${proj.name}-${example.name}`}
-          icon={faStar} text={example.name}
-          onClick={() => {
-            loadFromUrl(`${window.location.origin}/examples/${proj.folder}/${example.file}`, proj.folder);
-            setOpenExample(false)
-          }} />
-      ))}
-    </Dropdown>
-    <Dropdown open={openLoad} setOpen={setOpenLoad} icon={faUpload} text="Load"
-        useOverlay={isInDropdown}
-        onClick={() => {setOpenExample(false); (!isInDropdown && setOpenNav(false))}}>
-      <label htmlFor="file-upload" className="nav-link" >
-        <FontAwesomeIcon icon={faUpload} /> Load file from disk
-      </label>
-      <NavButton icon={faCloudArrowUp} text="Load from URL" onClick={() => {setLoadUrlOpen(true)}} />
-      <NavButton iconElement={<ZulipIcon />} text="Load Zulip Message" onClick={() => {setLoadZulipOpen(true)}} />
-      <input id="file-upload" type="file" onChange={loadFileFromDisk} />
-    </Dropdown>
-    {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />}
-  </>}
+  }, [editor, project, code, contentFromUrl])
 
   return (
-    <div className={'app monaco-editor'}>
+    <div className="app monaco-editor">
       <nav>
-        <Logo className='logo' />
-        <div className='menu'>
-          {!settings.verticalLayout && flexibleMenu(false)}
-          <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
-            {settings.verticalLayout && flexibleMenu(true)}
-            <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
-            <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
-            <NavButton icon={faDownload} text="Save file" onClick={() => save(content)} />
-            <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
-            <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
-            <NavButton icon={faArrowUpRightFromSquare} text="Lean documentation" href="https://leanprover.github.io/lean4/doc/" />
-            <NavButton icon={faArrowUpRightFromSquare} text="GitHub" href="https://github.com/hhu-adam/lean4web" />
-          </Dropdown>
-          <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
-          <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
-          <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
-          <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setContent={setContent} />
-          <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
-            theme={theme} setTheme={setTheme} project={project} setProject={setProject} />
-        </div>
+        <LeanLogo />
+        <Menu
+          code={code}
+          setCode={setCode}
+          project={project}
+          setProject={setProject}
+          theme={theme}
+          setTheme={setTheme}
+          setUrl={setUrl}
+          contentFromUrl={contentFromUrl}
+          settings={settings}/>
       </nav>
-      <Suspense fallback={<div className="loading-ring"></div>}>
-        <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={setContent} theme={theme} project={project}/>
-      </Suspense>
+      <Split className={`editor ${ dragging? 'dragging':''}`}
+        gutter={(index, direction) => {
+          const gutter = document.createElement('div')
+          gutter.className = `gutter` // no `gutter-${direction}` as it might change
+          return gutter
+        }}
+        gutterStyle={(dimension, gutterSize, index) => {
+          return {
+            'width': settings.verticalLayout ? '100%' : `${gutterSize}px`,
+            'height': settings.verticalLayout ? `${gutterSize}px` : '100%',
+            'cursor': settings.verticalLayout ? 'row-resize' : 'col-resize',
+            'margin-left': settings.verticalLayout ? 0 : `-${gutterSize}px`,
+            'margin-top': settings.verticalLayout ? `-${gutterSize}px` : 0,
+            'z-index': 0,
+          }}}
+        gutterSize={5}
+        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
+        sizes={settings.verticalLayout ? [50, 50] : [70, 30]}
+        direction={settings.verticalLayout ? "vertical" : "horizontal"}
+        style={{flexDirection: settings.verticalLayout ? "column" : "row"}}>
+        <div ref={codeviewRef} className="codeview"
+          style={settings.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+        <div ref={infoviewRef} className="vscode-light infoview"
+          style={settings.verticalLayout ? {width : '100%'} : {height: '100%'}}></div>
+      </Split>
     </div>
   )
 }
