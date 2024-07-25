@@ -12,7 +12,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background: #000;
+    background: rgb(30, 30, 30);
     color: #fff;
   }
 }

@@ -38,6 +38,8 @@ function parseArgs(): UrlArgs {
   return Object.fromEntries(_args)
 }
 
+const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+
 function App() {
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
@@ -45,8 +47,7 @@ function App() {
 
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
 
-  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
-
+  const [preferences, setPreferences] = useState<IPreferencesContext>({...defaultSettings, loaded: false})
 
   /* Option to change themes */
   // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -67,13 +68,17 @@ function App() {
   /** Load preferences from store in the beginning */
   useEffect(() => {
     console.debug('Preferences: Loading.')
+
+    // only load them once
+    if (preferences.loaded) { return }
+
     let saveInLocalStore = false;
     let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
     for (const [key, value] of Object.entries(preferences)) {
       let storedValue = window.localStorage.getItem(key)
       if (storedValue) {
         saveInLocalStore = true
-        console.debug(`Found stored config for ${key}: ${storedValue}`)
+        console.debug(`Found stored value for ${key}: ${storedValue}`)
         if (typeof value === 'string') {
           newPreferences[key] = storedValue
         } else if (typeof value === 'boolean') {
@@ -83,15 +88,29 @@ function App() {
           // other values aren't implemented yet.
           console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
         }
+      } else {
+        // no stored preferences
+        if (key == 'theme') {
+          if (isBrowserDefaultDark()) {
+            console.debug("Preferences: Set dark theme.")
+            newPreferences['theme'] = 'Visual Studio Dark'
+          } else {
+            console.debug("Preferences: Set light theme.")
+            newPreferences['theme'] = 'Visual Studio Light'
+          }
+        }
       }
-      newPreferences['saveInLocalStore'] = saveInLocalStore
-      setPreferences(newPreferences)
     }
+    newPreferences['saveInLocalStore'] = saveInLocalStore
+    newPreferences['loaded'] = true
+    setPreferences(newPreferences)
   }, [])
 
   /** Use the window witdh to switch between mobile/desktop layout */
   useEffect(() => {
-    console.debug("Preferences: Set mobile.")
+    // Wait for preferences to be loaded
+    if (!preferences.loaded) { return }
+
     const _mobile = width < 800
     if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
       setPreferences({ ...preferences, mobile: _mobile })
@@ -100,6 +119,12 @@ function App() {
 
   // Setting up the editor and infoview
   useEffect(() => {
+    // Wait for preferences to be loaded
+    if (!preferences.loaded) { return }
+
+    console.debug('Restarting Editor!')
+    console.debug(preferences)
+
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
     console.log(`socket url: ${socketUrl}`)
 
@@ -141,10 +166,6 @@ function App() {
     }
   }, [project, preferences])
 
-  useEffect(() => {
-    console.log(`Settings changed`)
-    console.log(preferences)
-  }, [preferences])
   // Read the URL once
   useEffect(() => {
     if (!editor) { return }

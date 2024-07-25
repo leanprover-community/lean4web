@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useContext } from 'react'
-// import settings from '../config/settings';
 import Switch from '@mui/material/Switch';
 import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
@@ -17,6 +16,9 @@ export interface IPreferencesContext {
   theme: string,
   // lean4
   abbreviationCharacter: string
+
+  // This isn't present in the settings; we use it for a hack to prevent multiple loading/saving
+  loaded: boolean
 }
 
 /** The context holding the preferences */
@@ -24,7 +26,7 @@ export const PreferencesContext = React.createContext<{
   preferences: IPreferencesContext,
   setPreferences: React.Dispatch<React.SetStateAction<IPreferencesContext>>
 }>({
-  preferences: defaultSettings,
+  preferences: {...defaultSettings, loaded: false},
   setPreferences: () => {}
 })
 
@@ -101,13 +103,14 @@ const SettingsPopup: React.FC<{
             value={preferences.theme}
             onChange={(ev) => {modifyPreferences("theme", ev.target.value)}}
             >
-          <option value="Default Light+">light+</option>
+          <option value="Visual Studio Light">visual studio light</option>
+          <option value="Visual Studio Dark">visual studio dark</option>
+          {/* <option value="Default Light+">light+</option> */}
+          {/* <option value="Default Dark+">dark+</option> */}
           {/* <option value="Default Light Modern">light modern</option> */}
-          <option value="Default Dark+">dark+</option>
           <option value="Default High Contrast">high contrast</option>
           <option value="Cobalt">cobalt</option>
-          {/* <option value="Visual Studio Light">visual studio light</option> */}
-          {/* <option value="Visual Studio Dark">visual studio dark</option> */}
+
         </select>
       </p>
       <p>
