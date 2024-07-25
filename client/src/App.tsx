@@ -152,7 +152,6 @@ function App() {
 
     // Parse args
     let args = parseArgs()
-    console.debug(args)
     if (args.code) {
       let _code = decodeURIComponent(args.code)
       setContent(_code)

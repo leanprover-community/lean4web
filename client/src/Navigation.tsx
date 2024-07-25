@@ -92,16 +92,16 @@ const FlexibleMenu: React.FC <{
   const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
   const loadFileFromDisk = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('Triggered loading')
+    console.debug('Loading file from disk')
     const fileToLoad = event.target.files![0]
     var fileReader = new FileReader();
     fileReader.onload = (fileLoadedEvent) => {
         var textFromFileLoaded = fileLoadedEvent.target!.result as string;
-        console.log(`Loaded file! Content: ${textFromFileLoaded}`)
         setContent(textFromFileLoaded)
     }
     fileReader.readAsText(fileToLoad, "UTF-8")
-    setOpenNav(false)
+    // Manually close the menu as we prevent it closing below.
+    setOpenLoad(false)
   }
 
   return <>
@@ -121,12 +121,14 @@ const FlexibleMenu: React.FC <{
     <Dropdown open={openLoad} setOpen={setOpenLoad} icon={faUpload} text="Load"
         useOverlay={isInDropdown}
         onClick={() => {setOpenExample(false); (!isInDropdown && setOpenNav(false))}}>
-      <label htmlFor="file-upload" className="nav-link" >
+      <input id="file-upload" type="file" onChange={loadFileFromDisk} onClick={(ev) => ev.stopPropagation()} />
+      {/* Need `ev.stopPropagation` to prevent closing until the file is loaded.
+          Otherwise the file-upload is destroyed too early. */}
+      <label htmlFor="file-upload" className="nav-link" onClick={(ev) => ev.stopPropagation()} >
         <FontAwesomeIcon icon={faUpload} /> Load file from disk
       </label>
       <NavButton icon={faCloudArrowUp} text="Load from URL" onClick={() => {setLoadUrlOpen(true)}} />
       <NavButton iconElement={<ZulipIcon />} text="Load Zulip Message" onClick={() => {setLoadZulipOpen(true)}} />
-      <input id="file-upload" type="file" onChange={loadFileFromDisk} />
     </Dropdown>
     {/* {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />} */}
     <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
