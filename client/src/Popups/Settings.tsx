@@ -30,6 +30,28 @@ export const PreferencesContext = React.createContext<{
   setPreferences: () => {}
 })
 
+/** Save preferences to local storage whenever there are modifications */
+function savePreferences(preferences: IPreferencesContext) {
+  console.debug("Preferences: Saving.")
+  if (preferences.saveInLocalStore) {
+    for (const [key, value] of Object.entries(preferences)) {
+      if (typeof value === 'string') {
+        window.localStorage.setItem(key, value)
+      } else if (typeof value === 'boolean') {
+        // turn boolean values into string
+        window.localStorage.setItem(key, value ? 'true' : 'false')
+      } else {
+        // other values aren't implemented yet.
+        console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
+      }
+    }
+  } else {
+    for (const key in preferences) {
+      window.localStorage.removeItem(key)
+    }
+  }
+}
+
 const SettingsPopup: React.FC<{
   open: boolean
   handleClose: () => void
@@ -44,27 +66,6 @@ const SettingsPopup: React.FC<{
     newPreferences[key] = value
     setPreferences(newPreferences)
   }
-
-  /** Store preferences to local storage whenever there are modifications */
-  useEffect(() => {
-    if (preferences.saveInLocalStore) {
-      for (const [key, value] of Object.entries(preferences)) {
-        if (typeof value === 'string') {
-          window.localStorage.setItem(key, value)
-        } else if (typeof value === 'boolean') {
-          // turn boolean values into string
-          window.localStorage.setItem(key, value ? 'true' : 'false')
-        } else {
-          // other values aren't implemented yet.
-          console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
-        }
-      }
-    } else {
-      for (const key in preferences) {
-        window.localStorage.removeItem(key)
-      }
-    }
-  }, [preferences])
 
   return <Popup open={open} handleClose={handleClose}>
     <form onSubmit={(ev) => {ev.preventDefault(); handleClose(); closeNav()}}>
@@ -134,7 +135,7 @@ const SettingsPopup: React.FC<{
         <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
       </p>
       <p>
-        <input type="submit" value="OK" />
+        <input type="submit" value={preferences.saveInLocalStore?"Save":"OK"} onClick={() => {savePreferences(preferences)}}/>
       </p>
     </form>
   </Popup>

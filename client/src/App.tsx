@@ -64,8 +64,9 @@ function App() {
     setCode(code)
   }
 
-  // Load preferences from store in the beginning
+  /** Load preferences from store in the beginning */
   useEffect(() => {
+    console.debug('Preferences: Loading.')
     let saveInLocalStore = false;
     let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
     for (const [key, value] of Object.entries(preferences)) {
@@ -88,8 +89,9 @@ function App() {
     }
   }, [])
 
-  // Use the window witdh to switch between mobile/desktop layout
+  /** Use the window witdh to switch between mobile/desktop layout */
   useEffect(() => {
+    console.debug("Preferences: Set mobile.")
     const _mobile = width < 800
     if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
       setPreferences({ ...preferences, mobile: _mobile })
