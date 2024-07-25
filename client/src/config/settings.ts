@@ -1,6 +1,6 @@
 /* This file contains the default settings. */
 
-const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+// const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
   
 const settings = {
   'saveInLocalStore': false,
