@@ -23,7 +23,7 @@ interface UrlArgs {
  */
 function formatArgs(args: UrlArgs): string {
   let out = '#' +
-    Object.entries(args).filter(([key, val]) => (val !== null && val.trim().length > 0)).map(([key, val]) => (`${key}=${val}`)).join('&')
+    Object.entries(args).filter(([_key, val]) => (val !== null && val.trim().length > 0)).map(([key, val]) => (`${key}=${val}`)).join('&')
   if (out == '#') {
     return ' '
   }
@@ -57,7 +57,7 @@ function App() {
   const [project, setProject] = useState<string>('mathlib-demo')
   const [url, setUrl] = useState<string|null>(null)
   const [contentFromUrl, setContentFromUrl] = useState<string>('')
-  const {width, height} = useWindowDimensions()
+  const { width } = useWindowDimensions()
 
   function setContent (code: string) {
     editor?.getModel()?.setValue(code)
@@ -130,9 +130,9 @@ function App() {
         setEditor(leanMonacoEditor.editor)
 
         // Setting hooks for the editor
-        leanMonacoEditor.editor.onDidChangeModelContent(() => {
+        leanMonacoEditor.editor?.onDidChangeModelContent(() => {
           console.log('content changed')
-          setCode(leanMonacoEditor.editor.getModel()?.getValue()!)
+          setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
         })
     })()
     return () => {
@@ -218,12 +218,12 @@ function App() {
             contentFromUrl={contentFromUrl} />
         </nav>
         <Split className={`editor ${ dragging? 'dragging':''}`}
-          gutter={(index, direction) => {
+          gutter={(_index, _direction) => {
             const gutter = document.createElement('div')
             gutter.className = `gutter` // no `gutter-${direction}` as it might change
             return gutter
           }}
-          gutterStyle={(dimension, gutterSize, index) => {
+          gutterStyle={(_dimension, gutterSize, _index) => {
             return {
               'width': preferences.mobile ? '100%' : `${gutterSize}px`,
               'height': preferences.mobile ? `${gutterSize}px` : '100%',

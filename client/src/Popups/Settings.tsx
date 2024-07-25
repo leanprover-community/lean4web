@@ -1,9 +1,7 @@
 import * as React from 'react'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 // import settings from '../config/settings';
 import Switch from '@mui/material/Switch';
-import { useWindowDimensions } from '../utils/window_width';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
 import defaultSettings from '../config/settings'

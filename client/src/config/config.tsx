@@ -1,5 +1,3 @@
-import React from "react"
-
 const lean4webConfig = {
   "projects": [
     { "folder": "mathlib-demo",
