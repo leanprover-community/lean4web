@@ -113,7 +113,7 @@ const FlexibleMenu: React.FC <{
           key={`${proj.name}-${example.name}`}
           icon={faStar} text={example.name}
           onClick={() => {
-            loadFromUrl(`${window.location.origin}/examples/${proj.folder}/${example.file}`, proj.folder);
+            loadFromUrl(`${window.location.origin}/api/examples/${proj.folder}/${example.file}`, proj.folder);
             setOpenExample(false)
           }} />
       ))}
@@ -193,7 +193,7 @@ export const Menu: React.FC <{
           setContent={setContent} />
       }
       <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
-      <NavButton icon={faHammer} text="Tools: Version" onClick={() => setToolsOpen(true)} />
+      <NavButton icon={faHammer} text="Lean Version Info" onClick={() => setToolsOpen(true)} />
       <NavButton icon={faDownload} text="Save file" onClick={() => save(code)} />
       <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
       <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
@@ -201,7 +201,7 @@ export const Menu: React.FC <{
       <NavButton icon={faArrowUpRightFromSquare} text="GitHub" href="https://github.com/hhu-adam/lean4web" />
     </Dropdown>
     <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
-    <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} />
+    <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} project={project} />
     <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
       project={project} setProject={setProject} />
   </div>

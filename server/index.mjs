@@ -35,12 +35,23 @@ const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
 
-app.use('/examples/*', (req, res, next) => {
-  const filename = req.params[0];
-  console.debug(`trying to load ${filename}`)
-  req.url = filename;
+// `*` has the form `mathlib-demo/MathlibLatest/Logic.lean`
+app.use('/api/examples/*', (req, res, next) => {
+  const filename = req.params[0]
+  req.url = filename
   express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
-  // express.static(path.join(__dirname, '..', 'Projects', filename))(req, res, next);
+})
+// `*` is the project like `mathlib-demo`
+app.use('/api/manifest/*', (req, res, next) => {
+  const project = req.params[0]
+  req.url = 'lake-manifest.json'
+  express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
+})
+// `*` is the project like `mathlib-demo`
+app.use('/api/toolchain/*', (req, res, next) => {
+  const project = req.params[0]
+  req.url = 'lean-toolchain'
+  express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 app.use(nocache())
