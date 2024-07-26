@@ -101,6 +101,12 @@ const ToolsPopup: React.FC<{
         }
       </tr>)}
     </table>
+    <h2>Tools</h2>
+    <p>
+      To see the actual Lean version implied by the toolchain above, the following can be pasted
+      into the editor:
+    </p>
+    <pre><code>#eval Lean.versionString</code></pre>
   </Popup>
 }
 

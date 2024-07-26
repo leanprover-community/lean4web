@@ -11,14 +11,8 @@ const lean4webConfig = {
           "name": "Ring" },
         { "file": "MathlibLatest/Rational.lean",
           "name": "Rational" }]},
-    { "folder": "lean4web-tools",
-      "name": "Stable Lean" },
-    { "folder": "DuperDemo",
-      "name": "Duper",
-      "examples": [
-        { "file": "DuperDemo.lean",
-          "name": "Duper" }]
-    }
+    { "folder": "stable",
+      "name": "Stable Lean" }
   ],
   "serverCountry": "Germany",
   "contactInformation": <>
