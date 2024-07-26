@@ -57,7 +57,6 @@ export default defineConfig({
   resolve: {
     alias: {
       path: "path-browserify",
-      '@leanprover/infoview/loader': path.resolve(__dirname, './node_modules/@leanprover/infoview/dist/loader.production.min.js')
     },
   },
 })
