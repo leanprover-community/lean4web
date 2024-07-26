@@ -22,6 +22,7 @@ const lean4webConfig = {
   ],
   "serverCountry": "Germany",
   "contactInformation": <>
+      Alexander Bentkamp,&nbsp;
       <a href="https://www.math.hhu.de/lehrstuehle-/-personen-/-ansprechpartner/innen/lehrstuehle-des-mathematischen-instituts/lehrstuhl-fuer-algebraische-geometrie/team/jon-eugster">Jon Eugster</a><br />
       Mathematisches Institut der Heinrich-Heine-Universität Düsseldorf<br />
       Universitätsstr. 1<br />
