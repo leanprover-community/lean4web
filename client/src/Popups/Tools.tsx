@@ -3,6 +3,7 @@ import { Popup } from '../Navigation'
 import { useEffect, useState } from 'react'
 
 // TODO: Do these interfaces exist somewhere in vscode-lean4?
+// They might need to be updated manually if changes to `lake` occur.
 interface LakePackage {
   url: string,
   type: "git",
@@ -33,7 +34,7 @@ interface LakeManifest {
   lakeDir: string
 }
 
-/** Default. Should never actually be used as it will be overwritten immediately */
+/** Default. Should never actually be visible to the user as it will be overwritten immediately */
 const emptyManifest: LakeManifest = {
   version: "",
   packagesDir: "",
@@ -50,25 +51,35 @@ const ToolsPopup: React.FC<{
 
   const [manifest, setManifest] = useState<LakeManifest>(emptyManifest)
   const [toolchain, setToolchain] = useState('')
+  // The last time `lake-manifest.json` has been modified
+  // Experimantal: This might somewhat agree with the last update of the project
+  // I couldn't think of a better way to determine this.
+  const [lastModified, setLastModified] = useState<string|null>(null)
 
+  // Load the new manifest & toolchain
   useEffect(() => {
-    const url = `${window.location.origin}/api/manifest/${project}`
-    fetch(url)
+    const urlManifest = `${window.location.origin}/api/manifest/${project}`
+    fetch(urlManifest)
     .then((response) => response.json())
     .then((manifest) => {
       setManifest(manifest)
     })
     .catch( err => {
+      console.error('Error reading manifest.')
       console.error(err)
     })
 
-    const url2 = `${window.location.origin}/api/toolchain/${project}`
-    fetch(url2)
-    .then((response) => response.text())
-    .then((toolchain) => {
-      setToolchain(toolchain)
+    const urlToolchain = `${window.location.origin}/api/toolchain/${project}`
+    fetch(urlToolchain)
+    .then((response) => {
+      const lastModified = response.headers.get('Last-Modified')
+      response.text().then(toolchain => {
+        setToolchain(toolchain)
+        setLastModified(lastModified)
+      })
     })
     .catch( err => {
+      console.error('Error reading toolchain.')
       console.error(err)
     })
   }, [project])
@@ -77,29 +88,36 @@ const ToolsPopup: React.FC<{
     <h2>Version</h2>
     <table>
       <tr>
+        <th>Last update:</th>
+        <td><i>{lastModified}</i></td>
+      </tr>
+      <tr>
         <th>Project:</th>
         <td>{manifest.name}</td>
       </tr>
       <tr>
-        <th>Lean:</th>
+        <th>Toolchain:</th>
         <td>{toolchain}</td>
       </tr>
     </table>
     <table>
       <tr>
-        <th>Packages</th>
+        <th>Packages:</th>
         <th>Commit</th>
         <th>Input Rev.</th>
       </tr>
-      { manifest.packages.map(pkg => <tr>
-        <td>{pkg.name}</td>
-        { pkg.type == 'git' ?
-          <>
-            <td><a href={`${pkg.url}/commits/${pkg.rev}/`} target='_blank' >{pkg.rev.substring(0,7)}</a></td>
-            <td>{pkg.inputRev}</td>
-          </> : <td colSpan={2}>(local package)</td>
-        }
-      </tr>)}
+      { manifest.packages.length > 0 ?
+        manifest.packages.map(pkg => <tr>
+          <td>{pkg.name}</td>
+          { pkg.type == 'git' ?
+            <>
+              <td><a href={`${pkg.url}/commits/${pkg.rev}/`} target='_blank' >{pkg.rev.substring(0,7)}</a></td>
+              <td>{pkg.inputRev}</td>
+            </> : <td colSpan={2}>(local package)</td>
+          }
+        </tr>) :
+        <td colSpan={3}>(no dependencies)</td>
+      }
     </table>
     <h2>Tools</h2>
     <p>
