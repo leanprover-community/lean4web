@@ -35,13 +35,16 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: normalizePath(path.resolve(__dirname, './node_modules/@leanprover/infoview/dist/*.production.min.js')),
+          src: [
+            normalizePath(path.resolve(__dirname, './node_modules/@leanprover/infoview/dist/*')),
+            normalizePath(path.resolve(__dirname, './node_modules/lean4monaco/webview/webview.js')),
+          ],
           dest: 'infoview'
         }
       ]
     })
   ],
-  publicDir: "client/public",
+  publicDir: "client/public/",
   server: {
     port: 3000,
     proxy: {

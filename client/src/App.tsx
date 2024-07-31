@@ -136,18 +136,18 @@ function App() {
     const leanMonacoEditor = new LeanMonacoEditor()
     ;(async () => {
         await leanMonaco.start({websocket: {url: socketUrl}, vscode: {
-          // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
-          "editor.tabSize": 2,
-          // "editor.rulers": [100],
-          "editor.lightbulb": {enabled: true},
-          "editor.wordWrap": preferences.wordWrap ? "on" : "off",
-          "editor.wrappingStrategy": "advanced",
-          "editor.semanticHighlighting.enabled": true,
-          "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off", // nope?
-          "editor.theme": preferences.theme,
-          "editor.eagerReplacementEnabled": true,
+          // // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
+          // "editor.tabSize": 2,
+          // // "editor.rulers": [100],
+          // "editor.lightbulb": {enabled: true},
+          // "editor.wordWrap": preferences.wordWrap ? "on" : "off",
+          // "editor.wrappingStrategy": "advanced",
+          // "editor.semanticHighlighting.enabled": true,
+          // "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off", // nope?
+          // "editor.theme": preferences.theme,
+          // "editor.eagerReplacementEnabled": true,
 
-          "lean4.input.leader": preferences.abbreviationCharacter
+          // "lean4.input.leader": preferences.abbreviationCharacter
         }})
         leanMonaco.setInfoviewElement(infoviewRef.current!)
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')

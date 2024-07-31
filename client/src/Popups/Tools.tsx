@@ -87,37 +87,41 @@ const ToolsPopup: React.FC<{
   return <Popup open={open} handleClose={handleClose}>
     <h2>Version</h2>
     <table>
-      <tr>
-        <th>Last update:</th>
-        <td><i>{lastModified}</i></td>
-      </tr>
-      <tr>
-        <th>Project:</th>
-        <td>{manifest.name}</td>
-      </tr>
-      <tr>
-        <th>Toolchain:</th>
-        <td>{toolchain}</td>
-      </tr>
+      <tbody>
+        <tr>
+          <th>Last update:</th>
+          <td><i>{lastModified}</i></td>
+        </tr>
+        <tr>
+          <th>Project:</th>
+          <td>{manifest.name}</td>
+        </tr>
+        <tr>
+          <th>Toolchain:</th>
+          <td>{toolchain}</td>
+        </tr>
+      </tbody>
     </table>
     <table>
-      <tr>
-        <th>Packages:</th>
-        <th>Commit</th>
-        <th>Input Rev.</th>
-      </tr>
-      { manifest.packages.length > 0 ?
-        manifest.packages.map(pkg => <tr>
-          <td>{pkg.name}</td>
-          { pkg.type == 'git' ?
-            <>
-              <td><a href={`${pkg.url}/commits/${pkg.rev}/`} target='_blank' >{pkg.rev.substring(0,7)}</a></td>
-              <td>{pkg.inputRev}</td>
-            </> : <td colSpan={2}>(local package)</td>
-          }
-        </tr>) :
-        <td colSpan={3}>(no dependencies)</td>
-      }
+      <tbody>
+        <tr>
+          <th>Packages:</th>
+          <th>Commit</th>
+          <th>Input Rev.</th>
+        </tr>
+        { manifest.packages.length > 0 ?
+          manifest.packages.map(pkg => <tr key={`entry-${pkg.name}`}>
+            <td>{pkg.name}</td>
+            { pkg.type == 'git' ?
+              <>
+                <td><a href={`${pkg.url}/commits/${pkg.rev}/`} target='_blank' >{pkg.rev.substring(0,7)}</a></td>
+                <td>{pkg.inputRev}</td>
+              </> : <td colSpan={2}>(local package)</td>
+            }
+          </tr>) :
+          <tr><td colSpan={3}>(no dependencies)</td></tr>
+        }
+      </tbody>
     </table>
     <h2>Tools</h2>
     <p>
