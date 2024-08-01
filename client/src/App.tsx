@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import LeanLogo from './assets/logo.svg'
 import * as monaco from 'monaco-editor'
-import { LeanMonaco, LeanMonacoEditor } from 'lean4monaco'
+import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import defaultSettings from './config/settings'
 import Split from 'react-split'
 import { Menu } from './Navigation'
@@ -128,27 +128,30 @@ function App() {
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
     console.log(`socket url: ${socketUrl}`)
 
-    // TODO: is this link still recent?
-    // see available options here:
-    // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
+    const options: LeanMonacoOptions = {
+      websocket: {url: socketUrl},
+      vscode: {
+        /* To add settings here, you can open your settings in VSCode (Ctrl+,), search
+         * for the desired setting, select "Copy Setting as JSON" from the "More Actions"
+         * menu next to the selected setting, and paste the copied string here.
+         */
+        "workbench.colorTheme": preferences.theme,
+        "editor.tabSize": 2,
+        // "editor.rulers": [100],
+        "editor.lightbulb.enabled": "on",
+        "editor.wordWrap": preferences.wordWrap ? "on" : "off",
+        "editor.wrappingStrategy": "advanced",
+        "editor.semanticHighlighting.enabled": true,
+        "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off",
+        "lean4.input.eagerReplacementEnabled": true,
+        "lean4.input.leader": preferences.abbreviationCharacter
+      }
+    }
 
     const leanMonaco = new LeanMonaco()
     const leanMonacoEditor = new LeanMonacoEditor()
     ;(async () => {
-        await leanMonaco.start({websocket: {url: socketUrl}, vscode: {
-          // // https://microsoft.github.io/monaco-editor/typedoc/variables/editor.EditorOptions.html
-          // "editor.tabSize": 2,
-          // // "editor.rulers": [100],
-          // "editor.lightbulb": {enabled: true},
-          // "editor.wordWrap": preferences.wordWrap ? "on" : "off",
-          // "editor.wrappingStrategy": "advanced",
-          // "editor.semanticHighlighting.enabled": true,
-          // "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off", // nope?
-          // "editor.theme": preferences.theme,
-          // "editor.eagerReplacementEnabled": true,
-
-          // "lean4.input.leader": preferences.abbreviationCharacter
-        }})
+        await leanMonaco.start(options)
         leanMonaco.setInfoviewElement(infoviewRef.current!)
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
 
