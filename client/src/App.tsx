@@ -123,7 +123,6 @@ function App() {
     if (!preferences.loaded) { return }
 
     console.debug('Restarting Editor!')
-    console.debug(preferences)
 
     const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
     console.log(`socket url: ${socketUrl}`)

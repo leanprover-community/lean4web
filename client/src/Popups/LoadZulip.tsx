@@ -25,9 +25,7 @@ const LoadZulipPopup: React.FC<{
 
     if (res) {
       let code = res.map(s => {
-        console.log(`match: ${s}`)
         return s.match(regex2)![2]}).join('\n\n-- new codeblock\n\n').trim() + '\n'
-      console.log(code)
       setContent(code)
       //setError('')
       handleClose()
