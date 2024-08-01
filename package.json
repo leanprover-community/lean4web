@@ -20,7 +20,6 @@
     "@emotion/styled": "^11.13.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@leanprover/infoview": "^0.7.3",
     "@mui/material": "^5.16.4",
     "@types/file-saver": "^2.0.7",
     "concurrently": "^8.2.2",
