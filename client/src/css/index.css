@@ -3,17 +3,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #fff;
+  background-color: #2B2B2B;
+  color: #fff;
 }
 
 #root {
   height: 100vh;
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   body {
-    background: rgb(30, 30, 30);
-    color: #fff;
+    background: #fff;
+    color: #000;
   }
 }
 

@@ -1,18 +1,3 @@
-
-
-/* hack to prevent white flashing on loading in dark mode.
-TODO: doesnt work for me. */
-@media (prefers-color-scheme: dark) {
-  .app {
-    /* note: vscode theme not loaded yet, don't use `--vscode-XXX` variables */
-    background-color: #2B2B2B; /* TODO */
-  }
-}
-
-.app {
-  background-color: var(--vscode-background);
-}
-
 .app {
   display: flex;
   flex-direction: column;

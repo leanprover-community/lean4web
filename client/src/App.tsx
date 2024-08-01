@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 import * as monaco from 'monaco-editor'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
-import defaultSettings from './config/settings'
+import defaultSettings, {IPreferencesContext} from './config/settings'
 import { Menu } from './Navigation'
-import { IPreferencesContext, PreferencesContext } from './Popups/Settings'
+import { PreferencesContext } from './Popups/Settings'
 import { useWindowDimensions } from './utils/window_width'
 import LeanLogo from './assets/logo.svg'
 import './css/App.css'
@@ -47,7 +47,8 @@ function App() {
 
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
 
-  const [preferences, setPreferences] = useState<IPreferencesContext>({...defaultSettings, loaded: false})
+  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
+  const [loaded, setLoaded] = useState<boolean>(false)
 
   /* Option to change themes */
   // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -70,7 +71,7 @@ function App() {
     console.debug('Preferences: Loading.')
 
     // only load them once
-    if (preferences.loaded) { return }
+    if (loaded) { return }
 
     let saveInLocalStore = false;
     let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
@@ -102,14 +103,14 @@ function App() {
       }
     }
     newPreferences['saveInLocalStore'] = saveInLocalStore
-    newPreferences['loaded'] = true
     setPreferences(newPreferences)
+    setLoaded(true)
   }, [])
 
   /** Use the window witdh to switch between mobile/desktop layout */
   useEffect(() => {
     // Wait for preferences to be loaded
-    if (!preferences.loaded) { return }
+    if (!loaded) { return }
 
     const _mobile = width < 800
     if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
@@ -120,7 +121,7 @@ function App() {
   // Setting up the editor and infoview
   useEffect(() => {
     // Wait for preferences to be loaded
-    if (!preferences.loaded) { return }
+    if (!loaded) { return }
 
     console.debug('Restarting Editor!')
 
@@ -266,6 +267,7 @@ function App() {
             style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
         </Split>
       </div>
+
     </PreferencesContext.Provider>
   )
 }

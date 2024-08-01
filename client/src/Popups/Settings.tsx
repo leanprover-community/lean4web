@@ -3,31 +3,15 @@ import { useContext } from 'react'
 import Switch from '@mui/material/Switch';
 import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
-import defaultSettings from '../config/settings'
-
-/** This must be kept in sync with ../config/settings.ts */
-export interface IPreferencesContext {
-  // lean4web
-  mobile: boolean
-  saveInLocalStore: boolean
-  // editor
-  acceptSuggestionOnEnter: boolean
-  wordWrap: boolean,
-  theme: string,
-  // lean4
-  abbreviationCharacter: string
-
-  // This isn't present in the settings; we use it for a hack to prevent multiple loading/saving
-  loaded: boolean
-}
+import defaultSettings, { IPreferencesContext } from '../config/settings'
 
 /** The context holding the preferences */
 export const PreferencesContext = React.createContext<{
   preferences: IPreferencesContext,
   setPreferences: React.Dispatch<React.SetStateAction<IPreferencesContext>>
 }>({
-  preferences: {...defaultSettings, loaded: false},
-  setPreferences: () => {}
+  preferences: defaultSettings,
+  setPreferences: () => {},
 })
 
 /** Save preferences to local storage whenever there are modifications */

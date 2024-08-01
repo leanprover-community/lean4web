@@ -76,7 +76,8 @@ function startServerProcess(project) {
   let projectPath = __dirname + `/../Projects/` + project
 
   let serverProcess
-  if (isDevelopment) {
+  if (!isDevelopment) {
+    console.info("Running with Bubblewrap container.")
     serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], { cwd: __dirname })
   } else {
     console.warn("Running without Bubblewrap container!")
