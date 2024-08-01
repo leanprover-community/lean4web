@@ -8,12 +8,6 @@ import * as jsonrpcserver from 'vscode-ws-jsonrpc/server';
 import nocache from 'nocache'
 import anonymize from 'ip-anonymize'
 import os from 'os'
-
-
-// const WebSocketServer = require("./WebsocketServer");
-// const express = require("express");
-// const path = require("path")
-// const fs = require('fs');
 import http from 'http'
 import https from 'https'
 
@@ -75,12 +69,6 @@ if (crtFile && keyFile) {
   server = app.listen(PORT,
     () => console.log(`HTTP on port ${PORT}`))
 }
-
-// const wss = new WebSocketServer(server, !isDevelopment)
-
-// const reRes = urlRegEx.exec(req.url)
-// if (!reRes) { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
-const project = 'mathlib-demo' //reRes[1]
 
 const wss = new WebSocketServer({ server })
 
