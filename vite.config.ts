@@ -37,7 +37,7 @@ export default defineConfig({
         {
           src: [
             normalizePath(path.resolve(__dirname, './node_modules/@leanprover/infoview/dist/*')),
-            normalizePath(path.resolve(__dirname, './node_modules/lean4monaco/webview/webview.js')),
+            normalizePath(path.resolve(__dirname, './node_modules/lean4monaco/dist/webview/webview.js')),
           ],
           dest: 'infoview'
         }
