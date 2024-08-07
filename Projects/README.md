@@ -1,32 +1,40 @@
 # Adding Projects
 
-To add a new project, one needs to add a lean project here.
+To add new projects, add any Lean project in the folder `Projects/`, e.g. `Projects/my-cool-project/`.
+You can either build your Lean project manually or you include a script
+`Projects/my-cool-project/build.sh` for automatic builds.
+Usually a build script looks like this:
 
-Projects can be any Lean projects.
+```
+#!/usr/bin/env bash
 
-1. You can build the lean project manually. For automatic updates, your project should include a file `ProjectName/build.sh` which can be
-  executed to build the project. See [lean4web-tools](https://github.com/hhu-adam/lean4web-tools) for an example.
-2. Your project should add the dependency
-    ```lean
-    require webeditor from git
-        "https://github.com/hhu-adam/lean4web-tools.git" @ "main"
-    ```
-    in its `lakefile.lean`. This package adds some simple tools like `#package_version`.
-3. For a project to appear in the settings, you need to add it to `config.json`:
-  add a new entry `{folder: "_", name: "_"}` to `projects`, where "folder" is the
-  folder name inside `Projects/` and "name" is the free-text display name.
+# Operate in the directory where this file is located
+cd $(dirname $0)
 
-* Optionally, you can also specify examples in the `config.json` each of these
-    examples will appear under "Examples" in the menu. A full project entry would then
-    look as follows:
-    ```
-    { "folder": "folder name inside `Projects/`",
-      "name": "My Custom Lean Demo",
-      "examples": [
-        { "file": "path/inside/the/lean/package.lean",
-          "name": "My Cool Example"},
-        ...
-      ]
-    }
-    ```
-* Compare to the entry for the `mathlib-demo` project.
+# add code here to update the project correctly
+
+lake build
+```
+
+A project added this way can then be accessed online with `https://your.url.com/#project=my-cool-project`.
+For the project to appear in the Settings, you need to update `client/config/config.json` by adding
+a new entry `{folder: "my-cool-project", name: "My Cool Project"}` to `projects`; here `folder` is the
+folder name inside `Projects/` and `name` is the free-text display name.
+
+If you want to add Examples, you should add them as valid Lean files to your project and then expand
+the config entry of your project in `config.json` as follows:
+
+```
+{ "folder": "my-cool-project`",
+  "name": "My Cool Project",
+  "examples": [
+    { "file": "MyCustomProject/Demo1.lean",
+      "name": "My Cool Example" }
+  ]
+}
+```
+
+This will add an entry `My Cool Example` to the Example menu which loads
+the file from `Projects/my-cool-project/MyCustomProject/Demo1.lean`.
+
+You might want to look at the provided `mathlib-demo` project for comparison.

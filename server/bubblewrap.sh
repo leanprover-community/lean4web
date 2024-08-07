@@ -3,9 +3,9 @@
 ELAN_HOME=$(cd $1 && lake env printenv ELAN_HOME)
 
 (exec bwrap\
-  --bind $1 /project \
-  --bind $ELAN_HOME /elan \
-  --bind /usr /usr \
+  --ro-bind $1 /project \
+  --ro-bind $ELAN_HOME /elan \
+  --ro-bind /usr /usr \
   --dev /dev \
   --proc /proc \
   --symlink usr/lib /lib\

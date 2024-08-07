@@ -1,215 +1,275 @@
-import * as React from 'react'
-import { useState, Suspense, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import Split from 'react-split'
+import * as monaco from 'monaco-editor'
+import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
+import defaultSettings, {IPreferencesContext} from './config/settings'
+import { Menu } from './Navigation'
+import { PreferencesContext } from './Popups/Settings'
+import { useWindowDimensions } from './utils/window_width'
+import LeanLogo from './assets/logo.svg'
 import './css/App.css'
-import './css/Topbar.css'
-import './css/Modal.css'
-//import './css/dark-theme.css'
-import PrivacyPolicy from './PrivacyPolicy'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowRotateRight, faArrowUpRightFromSquare, faDownload, faBars, faXmark } from '@fortawesome/free-solid-svg-icons'
-const Editor = React.lazy(() => import('./Editor'))
-import { ReactComponent as Logo } from './assets/logo.svg'
-import { saveAs } from 'file-saver';
-import Settings from './Settings'
-import Tools from './Tools'
-import Examples from './Examples'
-import LoadingMenu from './LoadingMenu'
-import { config } from './config/config'
+import './css/Editor.css'
 
-function formatArgs(args) {
-  let out = '#' + Object.entries(args).map(([key, val]) => (val ? `${key}=${val}` : null)).filter((x) => x).join('&')
+/** Expected arguments which can be provided in the URL. */
+interface UrlArgs {
+  project: string | null
+  url: string | null
+  code: string | null
+}
+
+/**
+ * Format the arguments for displaying in the URL, i.e. join them
+ * in the form `#project=Mathlib&url=...`
+ */
+function formatArgs(args: UrlArgs): string {
+  let out = '#' +
+    Object.entries(args).filter(([_key, val]) => (val !== null && val.trim().length > 0)).map(([key, val]) => (`${key}=${val}`)).join('&')
   if (out == '#') {
     return ' '
   }
   return out
 }
 
-function parseArgs() {
+/**
+ * Parse arguments from URL. These are of the form `#project=Mathlib&url=...`
+ */
+function parseArgs(): UrlArgs {
   let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
   return Object.fromEntries(_args)
 }
 
-const App: React.FC = () => {
-  const [restart, setRestart] = useState<(project?) => Promise<void>>()
-  const [navOpen, setNavOpen] = useState(false)
-  const menuRef = React.useRef<HTMLDivElement>()
-  const submenuRef = React.useRef<HTMLDivElement>()
+const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
-  // Open a submenu. We manage submenus here so that only one submenu can be open at any time.
-  const [submenu, setSubmenu] = useState<React.JSX.Element>(null)
+function App() {
+  const codeviewRef = useRef<HTMLDivElement>(null)
+  const infoviewRef = useRef<HTMLDivElement>(null)
+  const [dragging, setDragging] = useState<boolean | null>(false)
 
-  function openSubmenu(ev: React.MouseEvent, component: React.JSX.Element) {
-    setNavOpen(true)
-    setSubmenu(component)
-    ev.stopPropagation()
-  }
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
 
-  function closeNav() {
-    setNavOpen(false)
-  }
+  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
+  const [loaded, setLoaded] = useState<boolean>(false)
 
   /* Option to change themes */
-  const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-  const [theme, setTheme] = React.useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
+  // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
+  // const [theme, setTheme] = useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
 
-  const [content, setContent] = useState<string>('')
-  const [url, setUrl] = useState<string>(null)
+  // the data
+  const [code, setCode] = useState<string>('')
   const [project, setProject] = useState<string>('mathlib-demo')
-  const [contentFromUrl, setContentFromUrl] = useState<string>(null)
+  const [url, setUrl] = useState<string|null>(null)
+  const [contentFromUrl, setContentFromUrl] = useState<string>('')
+  const { width } = useWindowDimensions()
 
-  const readHash = () => {
+  function setContent (code: string) {
+    editor?.getModel()?.setValue(code)
+    setCode(code)
+  }
+
+  /** Load preferences from store in the beginning */
+  useEffect(() => {
+    console.debug('Preferences: Loading.')
+
+    // only load them once
+    if (loaded) { return }
+
+    let saveInLocalStore = false;
+    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
+    for (const [key, value] of Object.entries(preferences)) {
+      let storedValue = window.localStorage.getItem(key)
+      if (storedValue) {
+        saveInLocalStore = true
+        console.debug(`Found stored value for ${key}: ${storedValue}`)
+        if (typeof value === 'string') {
+          newPreferences[key] = storedValue
+        } else if (typeof value === 'boolean') {
+          // Boolean values
+          newPreferences[key] = (storedValue === "true")
+        } else {
+          // other values aren't implemented yet.
+          console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
+        }
+      } else {
+        // no stored preferences
+        if (key == 'theme') {
+          if (isBrowserDefaultDark()) {
+            console.debug("Preferences: Set dark theme.")
+            newPreferences['theme'] = 'Visual Studio Dark'
+          } else {
+            console.debug("Preferences: Set light theme.")
+            newPreferences['theme'] = 'Visual Studio Light'
+          }
+        }
+      }
+    }
+    newPreferences['saveInLocalStore'] = saveInLocalStore
+    setPreferences(newPreferences)
+    setLoaded(true)
+  }, [])
+
+  /** Use the window witdh to switch between mobile/desktop layout */
+  useEffect(() => {
+    // Wait for preferences to be loaded
+    if (!loaded) { return }
+    console.debug(`width: ${width}`)
+
+    const _mobile = width < 800
+    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
+      setPreferences({ ...preferences, mobile: _mobile })
+    }
+  }, [width, loaded])
+
+  // Setting up the editor and infoview
+  useEffect(() => {
+    // Wait for preferences to be loaded
+    if (!loaded) { return }
+
+    console.debug('Restarting Editor!')
+
+    const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
+    console.log(`socket url: ${socketUrl}`)
+
+    const options: LeanMonacoOptions = {
+      websocket: {url: socketUrl},
+      vscode: {
+        /* To add settings here, you can open your settings in VSCode (Ctrl+,), search
+         * for the desired setting, select "Copy Setting as JSON" from the "More Actions"
+         * menu next to the selected setting, and paste the copied string here.
+         */
+        "workbench.colorTheme": preferences.theme,
+        "editor.tabSize": 2,
+        // "editor.rulers": [100],
+        "editor.lightbulb.enabled": "on",
+        "editor.wordWrap": preferences.wordWrap ? "on" : "off",
+        "editor.wrappingStrategy": "advanced",
+        "editor.semanticHighlighting.enabled": true,
+        "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off",
+        "lean4.input.eagerReplacementEnabled": true,
+        "lean4.input.leader": preferences.abbreviationCharacter
+      }
+    }
+
+    const leanMonaco = new LeanMonaco()
+    const leanMonacoEditor = new LeanMonacoEditor()
+    ;(async () => {
+        await leanMonaco.start(options)
+        leanMonaco.setInfoviewElement(infoviewRef.current!)
+        await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
+
+        setEditor(leanMonacoEditor.editor)
+
+        // Setting hooks for the editor
+        leanMonacoEditor.editor?.onDidChangeModelContent(() => {
+          console.log('content changed')
+          setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
+        })
+    })()
+    return () => {
+        leanMonacoEditor.dispose()
+        leanMonaco.dispose()
+    }
+  }, [project, preferences])
+
+  // Read the URL once
+  useEffect(() => {
+    if (!editor) { return }
+    console.debug('editor is ready')
+
+    // Parse args
     let args = parseArgs()
-    if (args.code) {setContent(decodeURIComponent(args.code))}
+    if (args.code) {
+      let _code = decodeURIComponent(args.code)
+      setContent(_code)
+    }
     if (args.url) {setUrl(decodeURIComponent(args.url))}
     if (args.project) {
       console.log(`setting project to ${args.project}`)
       setProject(args.project)
     }
-  }
+  }, [editor])
 
-  const onDidChangeContent = (newContent) => {
-    setContent(newContent)
-  }
-
-  const save = () => {
-    var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-    saveAs(blob, "Lean4WebDownload.lean");
-  }
-
-  const loadFromUrl = (url: string, project=null) => {
-    setUrl((oldUrl) => {
-      if (oldUrl === url) {
-        setContent(contentFromUrl)
-      }
-      return url
-    })
-    if (project) {
-      setProject(project)
-    }
-  }
-
-
+  // Load content from source URL
   useEffect(() => {
-    // Trigger onhashchange once in the beginning
-    readHash()
-
-    // Closing the dropdown menu or submenu when clicking outside it.
-    // Use `ev.stopPropagation()` or `ev.stopImmediatePropagation()` inside
-    // the menu to prevent.
-    document.body.addEventListener("click", (ev) => {
-      if (menuRef?.current) {
-        if (menuRef.current.contains(ev.target as HTMLElement)) {
-
-          if(submenuRef?.current && submenuRef.current.contains(ev.target as HTMLElement)) {
-            console.log('keeping submenu open')
-          } else {
-            // Close submenu when clicking inside the menu
-            setSubmenu(null)
-            console.log('closing submenu')
-          }
-          ev.stopImmediatePropagation()
-        } else {
-          // Close Nav on clicking somewhere outside the menu
-          setNavOpen(false)
-          console.log('closing nav')
-        }
-      }
+    if (!(editor && url)) { return }
+    console.debug(`Loading from ${url}`)
+    let txt = "Loading…"
+    setContent(txt)
+    setContentFromUrl(txt)
+    fetch(url)
+    .then((response) => response.text())
+    .then((code) => {
+      setContent(code)
+      setContentFromUrl(code)
     })
-  }, [])
+    .catch( err => {
+      let errorTxt = `ERROR: ${err.toString()}`
+      setContent(errorTxt)
+      setContentFromUrl(errorTxt)
+    })
+  }, [editor, url])
 
-
-  // // if ("onhashchange" in window) // does the browser support the hashchange event?
-  // //   window.addEventListener('hashchange', readHash)
-
+  // keep url updated on changes
   useEffect(() => {
-    //let args = parseArgs()
+    if (!editor) { return }
     let _project = (project == 'mathlib-demo' ? null : project)
-    if (content === contentFromUrl) {
-      let args = {project: _project, url: encodeURIComponent(url), code: null}
-      history.replaceState(undefined, undefined, formatArgs(args))
-    } else if (content === "") {
+    if (code === contentFromUrl) {
+      if (url !== null) {
+        let args = {project: _project, url: encodeURIComponent(url), code: null}
+        history.replaceState(undefined, undefined!, formatArgs(args))
+      } else {
+        let args = {project: _project, url: null, code: null}
+        history.replaceState(undefined, undefined!, formatArgs(args))
+      }
+    } else if (code === "") {
       let args = {project: _project, url: null, code: null}
-      history.replaceState(undefined, undefined, formatArgs(args))
+      history.replaceState(undefined, undefined!, formatArgs(args))
     } else {
-      let args = {project: _project, url: null, code: encodeURIComponent(content)}
-      history.replaceState(undefined, undefined, formatArgs(args))
+      let args = {project: _project, url: null, code: encodeURIComponent(code)}
+      history.replaceState(undefined, undefined!, formatArgs(args))
     }
-  }, [project, content])
-
-  useEffect(() => {
-    if (url !== null) {
-      setContent("Loading...")
-      setContentFromUrl("Loading...")
-      fetch(url)
-      .then((response) => response.text())
-      .then((content) => {
-        setContent(content)
-        setContentFromUrl(content)
-      })
-      .catch( err => {
-        setContent(err.toString())
-        setContentFromUrl(err.toString())
-      })
-    }
-  }, [url])
-
-  useEffect(() => {
-    if (restart) {
-      console.log(`changing Lean version to ${project}`)
-      restart(project)
-    }
-  }, [project])
+  }, [editor, project, code, contentFromUrl])
 
   return (
-    <div className={'app monaco-editor'}>
-      <div className='nav'>
-        <Logo className='logo' />
-        <div className='menu' ref={menuRef}>
-          {!config.verticalLayout && <>
-            {/* Buttons for desktop version */}
-            <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-            <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
-          </>
-          }
-          <span className={"nav-link nav-icon"} onClick={(ev) => {setNavOpen(!navOpen)}}>
-            {navOpen ? <FontAwesomeIcon icon={faXmark} /> : <FontAwesomeIcon icon={faBars} />}
-          </span>
-          <div className={'dropdown' + (navOpen ? '' : ' hidden')}>
-            {config.verticalLayout && <>
-              {/* Buttons for mobile version */}
-              <Examples loadFromUrl={loadFromUrl} openSubmenu={openSubmenu} closeNav={closeNav}/>
-              <LoadingMenu loadFromUrl={loadFromUrl} setContent={setContent} openSubmenu={openSubmenu} closeNav={closeNav}/>
-            </>}
-            <Settings closeNav={closeNav} theme={theme} setTheme={setTheme}
-              project={project} setProject={setProject}/>
-            <span className="nav-link" onClick={restart}>
-              <FontAwesomeIcon icon={faArrowRotateRight} /> Restart server
-            </span>
-            <Tools />
-            <span className="nav-link" onClick={save}>
-              <FontAwesomeIcon icon={faDownload} /> Save file
-            </span>
-            <PrivacyPolicy />
-            <a className="nav-link" href="https://leanprover-community.github.io/" target="_blank">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean community
-            </a>
-            <a className="nav-link" href="https://leanprover.github.io/lean4/doc/" target="_blank">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> Lean documentation
-            </a>
-            <a className="nav-link" href="https://github.com/hhu-adam/lean4web" target="_blank">
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} /> GitHub
-            </a>
-            <div className="submenu" ref={submenuRef}>
-              {submenu && submenu}
-            </div>
-          </div>
-        </div>
+    <PreferencesContext.Provider value={{preferences, setPreferences}}>
+      <div className="app monaco-editor">
+        <nav>
+          <LeanLogo />
+          <Menu
+            code={code}
+            setContent={setContent}
+            project={project}
+            setProject={setProject}
+            setUrl={setUrl}
+            contentFromUrl={contentFromUrl} />
+        </nav>
+        <Split className={`editor ${ dragging? 'dragging':''}`}
+          gutter={(_index, _direction) => {
+            const gutter = document.createElement('div')
+            gutter.className = `gutter` // no `gutter-${direction}` as it might change
+            return gutter
+          }}
+          gutterStyle={(_dimension, gutterSize, _index) => {
+            return {
+              'width': preferences.mobile ? '100%' : `${gutterSize}px`,
+              'height': preferences.mobile ? `${gutterSize}px` : '100%',
+              'cursor': preferences.mobile ? 'row-resize' : 'col-resize',
+              'margin-left': preferences.mobile ? 0 : `-${gutterSize}px`,
+              'margin-top': preferences.mobile ? `-${gutterSize}px` : 0,
+              'z-index': 0,
+            }}}
+          gutterSize={5}
+          onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
+          sizes={preferences.mobile ? [50, 50] : [70, 30]}
+          direction={preferences.mobile ? "vertical" : "horizontal"}
+          style={{flexDirection: preferences.mobile ? "column" : "row"}}>
+          <div ref={codeviewRef} className="codeview"
+            style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
+          <div ref={infoviewRef} className="vscode-light infoview"
+            style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
+        </Split>
       </div>
-      <Suspense fallback={<div className="loading-ring"></div>}>
-        <Editor setRestart={setRestart}
-          value={content} onDidChangeContent={onDidChangeContent} theme={theme} project={project}/>
-      </Suspense>
-    </div>
+
+    </PreferencesContext.Provider>
   )
 }
 
