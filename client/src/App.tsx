@@ -111,12 +111,13 @@ function App() {
   useEffect(() => {
     // Wait for preferences to be loaded
     if (!loaded) { return }
+    console.debug(`width: ${width}`)
 
     const _mobile = width < 800
     if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
       setPreferences({ ...preferences, mobile: _mobile })
     }
-  }, [width])
+  }, [width, loaded])
 
   // Setting up the editor and infoview
   useEffect(() => {
