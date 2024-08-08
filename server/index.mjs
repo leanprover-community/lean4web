@@ -72,6 +72,18 @@ if (crtFile && keyFile) {
 
 const wss = new WebSocketServer({ server })
 
+function checkCommandExists(command) {
+  return new Promise((resolve, reject) => {
+      exec(`command -v ${command}`, (error) => {
+          if (error) {
+              resolve(false); // Command does not exist
+          } else {
+              resolve(true); // Command exists
+          }
+      });
+  });
+}
+
 function startServerProcess(project) {
   let projectPath = __dirname + `/../Projects/` + project
 
@@ -81,18 +93,25 @@ function startServerProcess(project) {
     serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], { cwd: __dirname })
   } else {
     console.warn("Running without Bubblewrap container!")
-    serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath })
+    serverProcess = cp.spawn("lean", ["--server"], { cwd: projectPath })
   }
+
+  // serverProcess.stdout.on('data', (data) => {
+  //   console.log(`Lean Server: ${data}`);
+  // });
+
+  serverProcess.stderr.on('data', data =>
+    console.error(`Lean Server: ${data}`)
+  )
 
   serverProcess.on('error', error =>
     console.error(`Launching Lean Server failed: ${error}`)
   )
 
-  if (serverProcess.stderr !== null) {
-    serverProcess.stderr.on('data', data =>
-      console.error(`Lean Server: ${data}`)
-    )
-  }
+  serverProcess.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+
   return serverProcess
 }
 

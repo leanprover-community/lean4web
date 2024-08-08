@@ -15,8 +15,11 @@ PRs are welcome as well.
 To add new themes, please read [Adding Themes](client/public/themes/README.md).
 
 ## Security
-Providing the use access to a Lean instance running on the server is a severe security risk. That is why we start the Lean server
-using [Bubblewrap](https://github.com/containers/bubblewrap).
+Providing the use access to a Lean instance running on the server is a severe security risk.
+That is why we start the Lean server using [Bubblewrap](https://github.com/containers/bubblewrap).
+
+If bubblewrap is not installed, the server will start without a container and produce a warning.
+You can also opt-out of using bubblewrap by setting `NODE_ENV=development`.
 
 ## Build Instructions
 
