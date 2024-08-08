@@ -2,8 +2,6 @@
 
 This is a web version of Lean 4. The official lean playground is hosted at [live.lean-lang.org](https://live.lean-lang.org), while [lean.math.hhu.de](https://lean.math.hhu.de) hosts a development server testing newer features.
 
-
-
 In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
 
@@ -11,8 +9,6 @@ running on a web server, and not in the browser.
 
 If you experience any problems, or have feature requests, please open an issue here!
 PRs are welcome as well.
-
-To add new themes, please read [Adding Themes](client/public/themes/README.md).
 
 ## Security
 Providing the use access to a Lean instance running on the server is a severe security risk.
@@ -88,7 +84,7 @@ In addition, we use Nginx and pm2 to manage our server.
 
 #### Managing toolchains
 
-Running and updating the server periodically might accumulate lean toolchains.
+Running and updating the server periodically might accumulate Lean toolchains.
 
 To delete unused toolchains automatically, you can use the
 [elan-cleanup tool](https://github.com/JLimperg/elan-cleanup) and set up a
@@ -106,7 +102,8 @@ and check the size of `~/.elan`.
 For legal purposes, we need to display contact details. When setting up your own server,
 you will need to modify the following files:
 
-- `client/src/config/text.tsx`: Update contact information & server location. (set them to `null` if you don't need to display them in your country)
+- `client/src/config/text.tsx`: Update contact information & server location. (set them to
+  `null` if you don't need to display them in your country)
 - `client/public/index.html`: Update the `noscript` page with the correct contact details.
 
 ## Development Instructions
