@@ -1,6 +1,5 @@
-import * as React from 'react'
 import { Popup } from '../Navigation'
-import { useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 
 // TODO: Do these interfaces exist somewhere in vscode-lean4?
 // They might need to be updated manually if changes to `lake` occur.
@@ -43,7 +42,7 @@ const emptyManifest: LakeManifest = {
   lakeDir: ""
 }
 
-const ToolsPopup: React.FC<{
+const ToolsPopup: FC<{
   open: boolean
   project: string
   handleClose: () => void

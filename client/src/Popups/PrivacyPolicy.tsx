@@ -1,9 +1,9 @@
-import * as React from 'react'
+import { FC } from 'react'
 import { Popup } from '../Navigation'
 import lean4webConfig from '../config/config'
 
 /** The popup with the privacy policy. */
-const PrivacyPopup: React.FC<{
+const PrivacyPopup: FC<{
   open: boolean
   handleClose: () => void
 }> = ({open, handleClose}) => {

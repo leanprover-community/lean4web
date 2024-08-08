@@ -1,16 +1,16 @@
-import * as React from 'react'
 import { Popup } from '../Navigation'
+import { FC, FormEvent, useRef, useState } from 'react'
 
-const LoadZulipPopup: React.FC<{
+const LoadZulipPopup: FC<{
   open: boolean
   handleClose: () => void
-  setContent: React.Dispatch<React.SetStateAction<string>>
+  setContent: (code: string) => void
 }> = ({open, handleClose, setContent}) => {
 
-  const [error, setError] = React.useState('');
-  const textInputRef = React.useRef<HTMLTextAreaElement>(null)
+  const [error, setError] = useState('');
+  const textInputRef = useRef<HTMLTextAreaElement>(null)
 
-  const handleLoad = (ev: any) => {
+  const handleLoad = (ev: FormEvent) => {
     ev.preventDefault()
     let md = textInputRef.current?.value // TODO: not a URL but text, update the var names
 

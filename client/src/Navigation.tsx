@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { ChangeEvent, Dispatch, FC, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
@@ -16,11 +16,11 @@ import './css/Modal.css'
 import './css/Navigation.css'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
-export const NavButton: React.FC<{
+export const NavButton: FC<{
   icon?: IconDefinition
   iconElement?: JSX.Element
   text: string
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>
+  onClick?: MouseEventHandler<HTMLAnchorElement>
   href?: string
 }> = ({icon, iconElement, text, onClick=()=>{}, href=null}) => {
   // note: it seems that we can just leave the `target="_blank"` and it has no
@@ -31,14 +31,14 @@ export const NavButton: React.FC<{
 }
 
 /** A button to appear in the hamburger menu or to navigation bar. */
-export const Dropdown: React.FC<{
+export const Dropdown: FC<{
   open: boolean
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  setOpen: Dispatch<SetStateAction<boolean>>
   icon?: IconDefinition
   text?: string
   useOverlay?: boolean
-  onClick?: React.MouseEventHandler<HTMLAnchorElement>
-  children?: React.ReactNode
+  onClick?: MouseEventHandler<HTMLAnchorElement>
+  children?: ReactNode
 }> = ({open, setOpen, icon, text, useOverlay=false, onClick, children}) => {
   return <><div className='dropdown'>
     <NavButton icon={icon} text={text!} onClick={(ev) => {setOpen(!open); onClick!(ev); ev.stopPropagation()}} />
@@ -55,10 +55,10 @@ export const Dropdown: React.FC<{
 }
 
 /** A popup which overlays the entire screen. */
-export const Popup: React.FC<{
+export const Popup: FC<{
   open: boolean
   handleClose: () => void // TODO: what's the correct type?
-  children?: React.ReactNode
+  children?: ReactNode
 }> = ({open, handleClose, children}) => {
   return <div className={`modal-wrapper${open? '': ' hidden'}`}>
     <div className="modal-backdrop" onClick={handleClose} />
@@ -75,15 +75,15 @@ const save = (content: string) => {
 }
 
 /** The menu items either appearing inside the dropdown or outside */
-const FlexibleMenu: React.FC <{
+const FlexibleMenu: FC <{
   isInDropdown: boolean,
-  setOpenNav: any,
-  openExample: any,
-  setOpenExample: any,
-  openLoad: any,
-  setOpenLoad: any,
-  loadFromUrl: any,
-  setContent: any,
+  setOpenNav: Dispatch<SetStateAction<boolean>>,
+  openExample: boolean,
+  setOpenExample: Dispatch<SetStateAction<boolean>>,
+  openLoad: boolean,
+  setOpenLoad: Dispatch<SetStateAction<boolean>>,
+  loadFromUrl: (url: string, project?: string | undefined) => void,
+  setContent: (code: string) => void,
 }> = ({isInDropdown = false, setOpenNav, openExample, setOpenExample, openLoad,
   setOpenLoad, loadFromUrl, setContent
 }) => {
@@ -91,7 +91,7 @@ const FlexibleMenu: React.FC <{
   const [loadUrlOpen, setLoadUrlOpen] = useState(false)
   const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
-  const loadFileFromDisk = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
     const fileToLoad = event.target.files![0]
     var fileReader = new FileReader();
@@ -137,13 +137,13 @@ const FlexibleMenu: React.FC <{
 }
 
 /** The Navigation menu */
-export const Menu: React.FC <{
+export const Menu: FC <{
   code: string,
-  setContent: any,
-  project: any,
-  setProject: any,
-  setUrl: any,
-  contentFromUrl: any,
+  setContent: (code: string) => void,
+  project: string,
+  setProject: Dispatch<SetStateAction<string>>,
+  setUrl: Dispatch<SetStateAction<string | null>>,
+  contentFromUrl: string,
 }> = ({code, setContent, project, setProject, setUrl, contentFromUrl}) => {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
@@ -159,7 +159,7 @@ export const Menu: React.FC <{
 
   const loadFromUrl = (url: string, project:string|undefined=undefined) => {
     console.debug('load code from url')
-    setUrl((oldUrl: string) => {
+    setUrl((oldUrl: string|null) => {
       if (oldUrl === url) {
         setContent(contentFromUrl)
       }

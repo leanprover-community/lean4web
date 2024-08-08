@@ -1,16 +1,16 @@
-import * as React from 'react'
 import { Popup } from '../Navigation'
+import { FC, FormEvent, useRef, useState } from 'react'
 
-const LoadUrlPopup: React.FC<{
+const LoadUrlPopup: FC<{
   open: boolean
   handleClose: () => void
   loadFromUrl: (url: string) => void
 }> = ({open, handleClose, loadFromUrl}) => {
 
-  const [error, setError] = React.useState('');
-  const urlRef = React.useRef<HTMLInputElement>(null);
+  const [error, setError] = useState('');
+  const urlRef = useRef<HTMLInputElement>(null);
 
-  const handleLoad = (ev: any) => {
+  const handleLoad = (ev: FormEvent) => {
     ev.preventDefault()
     let url = urlRef.current?.value
     if (!url) {

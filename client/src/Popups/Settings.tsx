@@ -1,14 +1,13 @@
-import * as React from 'react'
-import { useContext } from 'react'
+import { Dispatch, FC, SetStateAction, createContext, useContext } from 'react'
 import Switch from '@mui/material/Switch';
 import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
 import defaultSettings, { IPreferencesContext } from '../config/settings'
 
 /** The context holding the preferences */
-export const PreferencesContext = React.createContext<{
+export const PreferencesContext = createContext<{
   preferences: IPreferencesContext,
-  setPreferences: React.Dispatch<React.SetStateAction<IPreferencesContext>>
+  setPreferences: Dispatch<SetStateAction<IPreferencesContext>>
 }>({
   preferences: defaultSettings,
   setPreferences: () => {},
@@ -36,17 +35,17 @@ function savePreferences(preferences: IPreferencesContext) {
   }
 }
 
-const SettingsPopup: React.FC<{
+const SettingsPopup: FC<{
   open: boolean
   handleClose: () => void
   closeNav: () => void
-  project: any
-  setProject: any
+  project: string
+  setProject: Dispatch<SetStateAction<string>>
 }> = ({open, handleClose, closeNav, project, setProject}) => {
   const { preferences, setPreferences } = useContext(PreferencesContext)
 
   function modifyPreferences(key: keyof IPreferencesContext, value: any) {
-    let newPreferences: any = { ...preferences }
+    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
     newPreferences[key] = value
     setPreferences(newPreferences)
   }
