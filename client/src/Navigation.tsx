@@ -171,6 +171,17 @@ export const Menu: React.FC <{
   }
 
   return  <div className='menu'>
+    <select
+        name="leanVersion"
+        value={project}
+        onChange={(ev) => {
+          setProject(ev.target.value)
+          console.log(`set Lean project to: ${ev.target.value}`)
+          }} >
+      {lean4webConfig.projects.map(proj =>
+        <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
+      )}
+    </select>
     { !preferences.mobile &&
       <FlexibleMenu isInDropdown={false}
         setOpenNav={setOpenNav}

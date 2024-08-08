@@ -86,3 +86,8 @@ nav .nav-link:hover {
   color: var(--vscode-menu-selectionForeground);
   background-color: var(--vscode-menu-selectionBackground);
 }
+
+nav select {
+  margin-left: .5rem;
+  margin-right: .5rem;
+}
