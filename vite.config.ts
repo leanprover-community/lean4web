@@ -47,12 +47,6 @@ export default defineConfig({
             normalizePath(path.resolve(__dirname, './node_modules/@leanprover/infoview/dist/codicon.ttf'))
           ],
           dest: 'assets'
-        },
-        {
-          src: [
-            normalizePath(path.resolve(__dirname, './node_modules/lean4monaco/dist/vscode-lean4/vscode-lean4/media/*'))
-          ],
-          dest: 'assets/vscode-lean4/vscode-lean4/media'
         }
       ]
     })

@@ -29,7 +29,7 @@
     "express": "^4.19.2",
     "file-saver": "^2.0.5",
     "ip-anonymize": "^0.1.0",
-    "lean4monaco": "^1.0.19",
+    "lean4monaco": "^1.0.23",
     "memfs": "^4.11.1",
     "nocache": "^4.0.0",
     "node": "^20.16.0",
@@ -37,14 +37,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-split": "^2.0.14",
-    "vite-plugin-node-polyfills": "0.17.0",
-    "vite-plugin-static-copy": "^1.0.6",
-    "vite-plugin-svgr": "^4.2.0",
     "vscode-ws-jsonrpc": "^3.3.2",
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@codingame/esbuild-import-meta-url-plugin": "https://gitpkg.vercel.app/hhu-adam/lean4monaco/esbuild-import-meta-url-plugin?ec9666e",
+    "@codingame/esbuild-import-meta-url-plugin": "https://gitpkg.vercel.app/abentkamp/monacotest2/esbuild-import-meta-url-plugin?ec9666e",
     "@types/node": "^22.0.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -55,6 +52,9 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "^5.5.4",
-    "vite": "^5.3.4"
+    "vite": "^5.3.1",
+    "vite-plugin-node-polyfills": "0.17.0",
+    "vite-plugin-static-copy": "^1.0.6",
+    "vite-plugin-svgr": "^4.2.0"
   }
 }
