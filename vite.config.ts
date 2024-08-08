@@ -12,6 +12,7 @@ import svgr from "vite-plugin-svgr"
 export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
+      // @ts-ignore           // TODO
       plugins: [importMetaUrlPlugin]
     }
   },
