@@ -10,6 +10,13 @@ import LeanLogo from './assets/logo.svg'
 import './css/App.css'
 import './css/Editor.css'
 
+
+function fixedEncodeURIComponent(str: string) {
+  return encodeURIComponent(str).replace(/[()]/g, function(c) {
+    return '%' + c.charCodeAt(0).toString(16);
+  })
+}
+
 /** Expected arguments which can be provided in the URL. */
 interface UrlArgs {
   project: string | null
@@ -224,7 +231,8 @@ function App() {
       let args = {project: _project, url: null, code: null}
       history.replaceState(undefined, undefined!, formatArgs(args))
     } else {
-      let args = {project: _project, url: null, code: encodeURIComponent(code)}
+      let args = {project: _project, url: null, code: fixedEncodeURIComponent(code)}
+      console.debug(formatArgs(args))
       history.replaceState(undefined, undefined!, formatArgs(args))
     }
   }, [editor, project, code, contentFromUrl])
