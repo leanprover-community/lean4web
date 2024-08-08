@@ -232,7 +232,6 @@ function App() {
       history.replaceState(undefined, undefined!, formatArgs(args))
     } else {
       let args = {project: _project, url: null, code: fixedEncodeURIComponent(code)}
-      console.debug(formatArgs(args))
       history.replaceState(undefined, undefined!, formatArgs(args))
     }
   }, [editor, project, code, contentFromUrl])
