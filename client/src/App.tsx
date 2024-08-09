@@ -10,7 +10,6 @@ import LeanLogo from './assets/logo.svg'
 import './css/App.css'
 import './css/Editor.css'
 
-
 function fixedEncodeURIComponent(str: string) {
   return encodeURIComponent(str).replace(/[()]/g, function(c) {
     return '%' + c.charCodeAt(0).toString(16);
@@ -164,6 +163,50 @@ function App() {
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
 
         setEditor(leanMonacoEditor.editor)
+
+        // // TODO: This was an approach to create a new definition provider, but it
+        // // wasn't that useful. I'll leave it here in connection with the TODO below for
+        // // reference.
+        // monaco.languages.registerDefinitionProvider('lean4', {
+        //   provideDefinition(model, position) {
+        //     const word = model.getWordAtPosition(position);
+        //     if (word) {
+        //       console.log(`Providing definition for: ${word.word}`);
+        //       // Return the location of the definition
+        //       return [
+        //         {
+        //           uri: model.uri,
+        //           range: {startLineNumber: 0, startColumn: word.startColumn, endColumn: word.endColumn, endLineNumber: 0}, // Replace with actual definition range
+        //         },
+        //       ];
+        //     }
+        //     return null;
+        //   },
+        // });
+
+        // TODO: Go-To-Definition
+        // This approach only gives us the file on the server (plus line number) it wants
+        // to open, is there a better approach?
+        const editorService = (leanMonacoEditor.editor! as any)._codeEditorService;
+        const openEditorBase = editorService.openCodeEditor.bind(editorService);
+        editorService.openCodeEditor = async (input: any, source: any) => {
+            const result = await openEditorBase(input, source);
+            if (result === null) {
+              let path = input.resource.path.replace(
+                new RegExp("^.*/(?:lean|\.lake/packages/[^/]+/)"), ""
+              ).replace(
+                new RegExp("\.lean$"), ""
+              )
+
+              if (window.confirm(`Do you want to open the docs?\n\n${path} (line ${input.options.selection.startLineNumber})`)) {
+                let newTab = window.open(`https://leanprover-community.github.io/mathlib4_docs/${path}.html`, "_blank")
+                if (newTab) {
+                  newTab.focus()
+                }
+              }
+            }
+            return result // always return the base result
+        }
 
         // Setting hooks for the editor
         leanMonacoEditor.editor?.onDidChangeModelContent(() => {
