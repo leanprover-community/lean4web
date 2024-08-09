@@ -187,25 +187,27 @@ function App() {
         // TODO: Go-To-Definition
         // This approach only gives us the file on the server (plus line number) it wants
         // to open, is there a better approach?
-        const editorService = (leanMonacoEditor.editor! as any)._codeEditorService;
-        const openEditorBase = editorService.openCodeEditor.bind(editorService);
-        editorService.openCodeEditor = async (input: any, source: any) => {
-            const result = await openEditorBase(input, source);
-            if (result === null) {
-              let path = input.resource.path.replace(
-                new RegExp("^.*/(?:lean|\.lake/packages/[^/]+/)"), ""
-              ).replace(
-                new RegExp("\.lean$"), ""
-              )
+        const editorService = (leanMonacoEditor.editor as any)?._codeEditorService
+        if (editorService) {
+          const openEditorBase = editorService.openCodeEditor.bind(editorService)
+          editorService.openCodeEditor = async (input: any, source: any) => {
+              const result = await openEditorBase(input, source);
+              if (result === null) {
+                let path = input.resource.path.replace(
+                  new RegExp("^.*/(?:lean|\.lake/packages/[^/]+/)"), ""
+                ).replace(
+                  new RegExp("\.lean$"), ""
+                )
 
-              if (window.confirm(`Do you want to open the docs?\n\n${path} (line ${input.options.selection.startLineNumber})`)) {
-                let newTab = window.open(`https://leanprover-community.github.io/mathlib4_docs/${path}.html`, "_blank")
-                if (newTab) {
-                  newTab.focus()
+                if (window.confirm(`Do you want to open the docs?\n\n${path} (line ${input.options.selection.startLineNumber})`)) {
+                  let newTab = window.open(`https://leanprover-community.github.io/mathlib4_docs/${path}.html`, "_blank")
+                  if (newTab) {
+                    newTab.focus()
+                  }
                 }
               }
-            }
-            return result // always return the base result
+              return result // always return the base result
+          }
         }
 
         // Setting hooks for the editor

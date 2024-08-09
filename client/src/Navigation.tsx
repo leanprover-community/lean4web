@@ -84,12 +84,11 @@ const FlexibleMenu: FC <{
   setOpenLoad: Dispatch<SetStateAction<boolean>>,
   loadFromUrl: (url: string, project?: string | undefined) => void,
   setContent: (code: string) => void,
+  setLoadUrlOpen: Dispatch<SetStateAction<boolean>>,
+  setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
 }> = ({isInDropdown = false, setOpenNav, openExample, setOpenExample, openLoad,
-  setOpenLoad, loadFromUrl, setContent
+  setOpenLoad, loadFromUrl, setContent, setLoadUrlOpen, setLoadZulipOpen
 }) => {
-
-  const [loadUrlOpen, setLoadUrlOpen] = useState(false)
-  const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
@@ -131,8 +130,6 @@ const FlexibleMenu: FC <{
       <NavButton iconElement={<ZulipIcon />} text="Load Zulip Message" onClick={() => {setLoadZulipOpen(true)}} />
     </Dropdown>
     {/* {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />} */}
-    <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
-    <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setContent={setContent} />
   </>
 }
 
@@ -149,6 +146,8 @@ export const Menu: FC <{
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
   const [openLoad, setOpenLoad] = useState(false)
+  const [loadUrlOpen, setLoadUrlOpen] = useState(false)
+  const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
   // state for the popups
   const [privacyOpen, setPrivacyOpen] = useState(false)
@@ -190,7 +189,9 @@ export const Menu: FC <{
         openLoad={openLoad}
         setOpenLoad={setOpenLoad}
         loadFromUrl={loadFromUrl}
-        setContent={setContent} />
+        setContent={setContent}
+        setLoadUrlOpen={setLoadUrlOpen}
+        setLoadZulipOpen={setLoadZulipOpen} />
     }
     <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
       { preferences.mobile &&
@@ -201,7 +202,9 @@ export const Menu: FC <{
           openLoad={openLoad}
           setOpenLoad={setOpenLoad}
           loadFromUrl={loadFromUrl}
-          setContent={setContent} />
+          setContent={setContent}
+          setLoadUrlOpen={setLoadUrlOpen}
+          setLoadZulipOpen={setLoadZulipOpen} />
       }
       <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
       <NavButton icon={faHammer} text="Lean Version Info" onClick={() => setToolsOpen(true)} />
@@ -215,5 +218,7 @@ export const Menu: FC <{
     <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} project={project} />
     <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
       project={project} setProject={setProject} />
+    <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} loadFromUrl={loadFromUrl} />
+    <LoadZulipPopup open={loadZulipOpen} handleClose={() => setLoadZulipOpen(false)} setContent={setContent} />
   </div>
 }
