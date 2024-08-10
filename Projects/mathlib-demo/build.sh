@@ -18,3 +18,4 @@ curl -L https://raw.githubusercontent.com/leanprover-community/mathlib4/master/l
 
 lake update -R
 lake build
+lake build Batteries
