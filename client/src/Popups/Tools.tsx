@@ -51,7 +51,7 @@ const ToolsPopup: FC<{
   const [manifest, setManifest] = useState<LakeManifest>(emptyManifest)
   const [toolchain, setToolchain] = useState('')
   // The last time `lake-manifest.json` has been modified
-  // Experimantal: This might somewhat agree with the last update of the project
+  // Experimental: This might somewhat agree with the last update of the project
   // I couldn't think of a better way to determine this.
   const [lastModified, setLastModified] = useState<string|null>(null)
 
@@ -59,9 +59,12 @@ const ToolsPopup: FC<{
   useEffect(() => {
     const urlManifest = `${window.location.origin}/api/manifest/${project}`
     fetch(urlManifest)
-    .then((response) => response.json())
-    .then((manifest) => {
-      setManifest(manifest)
+    .then((response) => {
+      var _lastModified = response.headers.get('Last-Modified')
+      response.json().then(manifest => {
+        setManifest(manifest)
+        setLastModified(_lastModified)
+      })
     })
     .catch( err => {
       console.error('Error reading manifest.')
@@ -71,10 +74,8 @@ const ToolsPopup: FC<{
     const urlToolchain = `${window.location.origin}/api/toolchain/${project}`
     fetch(urlToolchain)
     .then((response) => {
-      const lastModified = response.headers.get('Last-Modified')
       response.text().then(toolchain => {
         setToolchain(toolchain)
-        setLastModified(lastModified)
       })
     })
     .catch( err => {
