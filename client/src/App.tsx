@@ -51,6 +51,8 @@ function App() {
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
 
+  const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
+
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
 
   const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
@@ -66,6 +68,10 @@ function App() {
   const [url, setUrl] = useState<string|null>(null)
   const [contentFromUrl, setContentFromUrl] = useState<string>('')
   const { width } = useWindowDimensions()
+
+  function restart() {
+    leanMonaco?.clientProvider?.getClients().map(client => {client.restart()})
+  }
 
   function setContent (code: string) {
     editor?.getModel()?.setValue(code)
@@ -155,14 +161,15 @@ function App() {
       }
     }
 
-    const leanMonaco = new LeanMonaco()
+    var _leanMonaco = new LeanMonaco()
     const leanMonacoEditor = new LeanMonacoEditor()
     ;(async () => {
-        await leanMonaco.start(options)
-        leanMonaco.setInfoviewElement(infoviewRef.current!)
+        await _leanMonaco.start(options)
+        _leanMonaco.setInfoviewElement(infoviewRef.current!)
         await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
 
         setEditor(leanMonacoEditor.editor)
+        setLeanMonaco(_leanMonaco)
 
         // // TODO: This was an approach to create a new definition provider, but it
         // // wasn't that useful. I'll leave it here in connection with the TODO below for
@@ -218,7 +225,7 @@ function App() {
     })()
     return () => {
         leanMonacoEditor.dispose()
-        leanMonaco.dispose()
+        _leanMonaco.dispose()
     }
   }, [project, preferences])
 
@@ -292,7 +299,8 @@ function App() {
             project={project}
             setProject={setProject}
             setUrl={setUrl}
-            contentFromUrl={contentFromUrl} />
+            contentFromUrl={contentFromUrl}
+            restart={restart} />
         </nav>
         <Split className={`editor ${ dragging? 'dragging':''}`}
           gutter={(_index, _direction) => {

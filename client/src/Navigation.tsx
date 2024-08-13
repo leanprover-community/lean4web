@@ -1,6 +1,6 @@
 import { ChangeEvent, Dispatch, FC, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition, faArrowRotateRight } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver'
@@ -129,7 +129,6 @@ const FlexibleMenu: FC <{
       <NavButton icon={faCloudArrowUp} text="Load from URL" onClick={() => {setLoadUrlOpen(true)}} />
       <NavButton iconElement={<ZulipIcon />} text="Load Zulip Message" onClick={() => {setLoadZulipOpen(true)}} />
     </Dropdown>
-    {/* {restart && <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />} */}
   </>
 }
 
@@ -141,7 +140,8 @@ export const Menu: FC <{
   setProject: Dispatch<SetStateAction<string>>,
   setUrl: Dispatch<SetStateAction<string | null>>,
   contentFromUrl: string,
-}> = ({code, setContent, project, setProject, setUrl, contentFromUrl}) => {
+  restart: () => void,
+}> = ({code, setContent, project, setProject, setUrl, contentFromUrl, restart}) => {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
@@ -208,6 +208,7 @@ export const Menu: FC <{
       }
       <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
       <NavButton icon={faHammer} text="Lean Version Info" onClick={() => setToolsOpen(true)} />
+      <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
       <NavButton icon={faDownload} text="Save file" onClick={() => save(code)} />
       <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
       <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
