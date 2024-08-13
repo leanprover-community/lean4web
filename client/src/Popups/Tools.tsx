@@ -89,7 +89,7 @@ const ToolsPopup: FC<{
     <table>
       <tbody>
         <tr>
-          <th>Last update:</th>
+          <th>Last (manifest) update:</th>
           <td><i>{lastModified}</i></td>
         </tr>
         <tr>
