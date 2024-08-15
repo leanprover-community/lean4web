@@ -143,6 +143,7 @@ function App() {
 
     const options: LeanMonacoOptions = {
       websocket: {url: socketUrl},
+      htmlElement: codeviewRef.current!,
       vscode: {
         /* To add settings here, you can open your settings in VSCode (Ctrl+,), search
          * for the desired setting, select "Copy Setting as JSON" from the "More Actions"
