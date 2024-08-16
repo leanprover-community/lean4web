@@ -223,15 +223,20 @@ function App() {
         //   },
         // });
 
-        // TODO: Go-To-Definition
+        // TODO: Implement Go-To-Definition better
         // This approach only gives us the file on the server (plus line number) it wants
         // to open, is there a better approach?
         const editorService = (leanMonacoEditor.editor as any)?._codeEditorService
         if (editorService) {
           const openEditorBase = editorService.openCodeEditor.bind(editorService)
           editorService.openCodeEditor = async (input: any, source: any) => {
-              const result = await openEditorBase(input, source);
+              const result = await openEditorBase(input, source)
               if (result === null) {
+                // found this out with `console.debug(input)`:
+                // `resource.path` is the file go-to-def tries to open on the disk
+                // we try to create a doc-gen link from that. Could not extract the
+                // (fully-qualified) decalaration name... with that one could
+                // call `...${path}.html#${declaration}`
                 let path = input.resource.path.replace(
                   new RegExp("^.*/(?:lean|\.lake/packages/[^/]+/)"), ""
                 ).replace(
@@ -245,7 +250,8 @@ function App() {
                   }
                 }
               }
-              return result // always return the base result
+              return null
+              // return result // always return the base result
           }
         }
 
