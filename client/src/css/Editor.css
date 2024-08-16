@@ -9,6 +9,32 @@
   height: 100%;
 }
 
+.codeview-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.codeview {
+  height: 100%;
+  width: 100%;
+}
+
+.editor-support-warning {
+  border: 3px solid var(--vscode-editorWarning-foreground);
+  border-radius: 5px;
+  padding: .5rem;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  /* background-color: var(--vscode-editorWarning-background); */
+  color: var(--vscode-editorWarning-foreground);
+}
+
+/* hack to adjust the code-mirror more to the Monaco theme loaded. */
+.cm-editor {
+  color: var(--vscode-editor-foreground);
+  background-color: var(--vscode-editor-background);
+}
+
 .infoview {
   position: relative;
 }

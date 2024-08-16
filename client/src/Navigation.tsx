@@ -1,6 +1,6 @@
 import { ChangeEvent, Dispatch, FC, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition, faArrowRotateRight } from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition, faArrowRotateRight, faCode } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver'
@@ -141,7 +141,9 @@ export const Menu: FC <{
   setUrl: Dispatch<SetStateAction<string | null>>,
   contentFromUrl: string,
   restart: () => void,
-}> = ({code, setContent, project, setProject, setUrl, contentFromUrl, restart}) => {
+  codeMirror: boolean,
+  setCodeMirror: Dispatch<SetStateAction<boolean>>,
+}> = ({code, setContent, project, setProject, setUrl, contentFromUrl, restart, codeMirror, setCodeMirror}) => {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
@@ -181,6 +183,9 @@ export const Menu: FC <{
         <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
       )}
     </select>
+    { preferences.mobile &&
+      <NavButton icon={faCode} text={codeMirror ? "Lean" : "Raw"} onClick={() => {setCodeMirror(!codeMirror)}}/>
+    }
     { !preferences.mobile &&
       <FlexibleMenu isInDropdown={false}
         setOpenNav={setOpenNav}

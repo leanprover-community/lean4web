@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 import * as monaco from 'monaco-editor'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
@@ -7,8 +7,13 @@ import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
 import { useWindowDimensions } from './utils/window_width'
 import LeanLogo from './assets/logo.svg'
+
+import CodeMirror, { EditorView } from '@uiw/react-codemirror'
+
 import './css/App.css'
 import './css/Editor.css'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCode } from '@fortawesome/free-solid-svg-icons'
 
 function fixedEncodeURIComponent(str: string) {
   return encodeURIComponent(str).replace(/[()]/g, function(c) {
@@ -36,6 +41,13 @@ function formatArgs(args: UrlArgs): string {
   return out
 }
 
+// For CodeMirror (on mobile only)
+// If you add a Monaco theme, the mobile code-mirror editor will default to its dark theme,
+// unless the theme is in this list.
+const lightThemes = [
+  'Visual Studio Light'
+]
+
 /**
  * Parse arguments from URL. These are of the form `#project=Mathlib&url=...`
  */
@@ -50,13 +62,16 @@ function App() {
   const codeviewRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
-
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
-
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
-
   const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
   const [loaded, setLoaded] = useState<boolean>(false)
+
+  // Because of Monaco's missing mobile support we add a codeMirror editor
+  // which can be enabled to do editing.
+  // TODO: It would be nice to integrate Lean into CodeMirror better.
+  // first step could be to pass the cursor selection to the underlying monaco editor
+  const [codeMirror, setCodeMirror] = useState(false)
 
   /* Option to change themes */
   // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -171,6 +186,22 @@ function App() {
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)
+
+        // Add a `Paste` option to the context menu on mobile.
+        // Monaco does not support clipboard pasting as all browsers block it
+        // due to security reasons. Therefore we use a codeMirror editor overlay
+        // which features good mobile support (but no Lean support yet)
+        if (preferences.mobile) {
+          leanMonacoEditor.editor.addAction({
+            id: "myPaste",
+            label: "Paste: open 'Raw Editor' for editing on mobile",
+            // keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_V],
+            contextMenuGroupId: "9_cutcopypaste",
+            run: (_editor) => {
+              setCodeMirror(true)
+            }
+          })
+        }
 
         // // TODO: This was an approach to create a new definition provider, but it
         // // wasn't that useful. I'll leave it here in connection with the TODO below for
@@ -301,7 +332,10 @@ function App() {
             setProject={setProject}
             setUrl={setUrl}
             contentFromUrl={contentFromUrl}
-            restart={restart} />
+            restart={restart}
+            codeMirror={codeMirror}
+            setCodeMirror={setCodeMirror}
+            />
         </nav>
         <Split className={`editor ${ dragging? 'dragging':''}`}
           gutter={(_index, _direction) => {
@@ -323,10 +357,28 @@ function App() {
           sizes={preferences.mobile ? [50, 50] : [70, 30]}
           direction={preferences.mobile ? "vertical" : "horizontal"}
           style={{flexDirection: preferences.mobile ? "column" : "row"}}>
-          <div ref={codeviewRef} className="codeview"
-            style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
+          <div className='codeview-wrapper'
+            style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
+            { codeMirror &&
+              <CodeMirror
+                className="codeview plain"
+                value={code}
+                extensions={[EditorView.lineWrapping]}
+                height='100%'
+                maxHeight='100%'
+                theme={lightThemes.includes(preferences.theme) ? 'light' : 'dark'}
+                onChange={setContent} />
+            }
+            <div ref={codeviewRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
+          </div>
           <div ref={infoviewRef} className="vscode-light infoview"
-            style={preferences.mobile ? {width : '100%'} : {height: '100%'}}></div>
+            style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
+              <p className={`editor-support-warning${codeMirror ? '' : ' hidden'}`} >
+                You are in the plain text editor<br /><br />
+                Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode}/>)
+                for the infoview to update!
+              </p>
+          </div>
         </Split>
       </div>
 

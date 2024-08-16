@@ -25,6 +25,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@mui/material": "^5.16.4",
     "@types/file-saver": "^2.0.7",
+    "@uiw/react-codemirror": "^4.23.0",
     "concurrently": "^8.2.2",
     "express": "^4.19.2",
     "file-saver": "^2.0.5",
