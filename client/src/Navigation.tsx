@@ -184,7 +184,7 @@ export const Menu: FC <{
       )}
     </select>
     { preferences.mobile &&
-      <NavButton icon={faCode} text={codeMirror ? "Lean" : "Raw"} onClick={() => {setCodeMirror(!codeMirror)}}/>
+      <NavButton icon={faCode} text={codeMirror ? "Lean" : "Text"} onClick={() => {setCodeMirror(!codeMirror)}}/>
     }
     { !preferences.mobile &&
       <FlexibleMenu isInDropdown={false}
