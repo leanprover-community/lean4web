@@ -1,3 +1,7 @@
+[![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/leanprover-community/lean4web/blob/main/LICENSE)
+[![(Runtime) Build and Test](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml/badge.svg)](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml)
+
+
 # Lean 4 Web
 
 This is a web version of Lean 4. The official lean playground is hosted at [live.lean-lang.org](https://live.lean-lang.org), while [lean.math.hhu.de](https://lean.math.hhu.de) hosts a development server testing newer features.
