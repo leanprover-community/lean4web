@@ -59,7 +59,7 @@ function parseArgs(): UrlArgs {
 const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
 function App() {
-  const codeviewRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
@@ -84,81 +84,21 @@ function App() {
   const [contentFromUrl, setContentFromUrl] = useState<string>('')
   const { width } = useWindowDimensions()
 
-  function restart() {
-    leanMonaco?.clientProvider?.getClients().map(client => {client.restart()})
-  }
+  // Lean4monaco options
+  const [options, setOptions] = useState<LeanMonacoOptions>({
+    // placeholder, updated below
+    websocket: { url: '' }
+  })
 
-  function setContent (code: string) {
-    editor?.getModel()?.setValue(code)
-    setCode(code)
-  }
-
-  /** Load preferences from store in the beginning */
+  // Update LeanMonaco options
   useEffect(() => {
-    console.debug('Preferences: Loading.')
-
-    // only load them once
-    if (loaded) { return }
-
-    let saveInLocalStore = false;
-    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
-    for (const [key, value] of Object.entries(preferences)) {
-      let storedValue = window.localStorage.getItem(key)
-      if (storedValue) {
-        saveInLocalStore = true
-        console.debug(`Found stored value for ${key}: ${storedValue}`)
-        if (typeof value === 'string') {
-          newPreferences[key] = storedValue
-        } else if (typeof value === 'boolean') {
-          // Boolean values
-          newPreferences[key] = (storedValue === "true")
-        } else {
-          // other values aren't implemented yet.
-          console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
-        }
-      } else {
-        // no stored preferences
-        if (key == 'theme') {
-          if (isBrowserDefaultDark()) {
-            console.debug("Preferences: Set dark theme.")
-            newPreferences['theme'] = 'Visual Studio Dark'
-          } else {
-            console.debug("Preferences: Set light theme.")
-            newPreferences['theme'] = 'Visual Studio Light'
-          }
-        }
-      }
-    }
-    newPreferences['saveInLocalStore'] = saveInLocalStore
-    setPreferences(newPreferences)
-    setLoaded(true)
-  }, [])
-
-  /** Use the window witdh to switch between mobile/desktop layout */
-  useEffect(() => {
-    // Wait for preferences to be loaded
-    if (!loaded) { return }
-    console.debug(`width: ${width}`)
-
-    const _mobile = width < 800
-    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
-      setPreferences({ ...preferences, mobile: _mobile })
-    }
-  }, [width, loaded])
-
-  // Setting up the editor and infoview
-  useEffect(() => {
-    // Wait for preferences to be loaded
-    if (!loaded) { return }
-
-    console.debug('Restarting Editor!')
-
-    const socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/websocket" + "/" + project
-    console.log(`socket url: ${socketUrl}`)
-
-    const options: LeanMonacoOptions = {
+    var socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") +
+      window.location.host + "/websocket" + "/" + project
+    console.log(`[Lean4web] socket url: ${socketUrl}`)
+    var _options: LeanMonacoOptions = {
       websocket: {url: socketUrl},
-      htmlElement: codeviewRef.current!,
+      // Restrict monaco's extend (e.g. context menu) to the editor itself
+      htmlElement: editorRef.current ?? undefined,
       vscode: {
         /* To add settings here, you can open your settings in VSCode (Ctrl+,), search
          * for the desired setting, select "Copy Setting as JSON" from the "More Actions"
@@ -176,13 +116,83 @@ function App() {
         "lean4.input.leader": preferences.abbreviationCharacter
       }
     }
+    setOptions(_options)
+  }, [editorRef, project, preferences])
 
+  function restart() {
+    leanMonaco?.clientProvider?.getClients().map(client => {client.restart()})
+  }
+
+  function setContent (code: string) {
+    editor?.getModel()?.setValue(code)
+    setCode(code)
+  }
+
+  /** Load preferences from store in the beginning */
+  useEffect(() => {
+    console.debug('[Lean4web] Preferences: Loading.')
+
+    // only load them once
+    if (loaded) { return }
+
+    let saveInLocalStore = false;
+    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
+    for (const [key, value] of Object.entries(preferences)) {
+      let storedValue = window.localStorage.getItem(key)
+      if (storedValue) {
+        saveInLocalStore = true
+        console.debug(`[Lean4web] Found stored value for ${key}: ${storedValue}`)
+        if (typeof value === 'string') {
+          newPreferences[key] = storedValue
+        } else if (typeof value === 'boolean') {
+          // Boolean values
+          newPreferences[key] = (storedValue === "true")
+        } else {
+          // other values aren't implemented yet.
+          console.error(`[Lean4web] Preferences contain a value of unsupported type: ${typeof value}`)
+        }
+      } else {
+        // no stored preferences
+        if (key == 'theme') {
+          if (isBrowserDefaultDark()) {
+            console.debug("[Lean4web] Preferences: Set dark theme.")
+            newPreferences['theme'] = 'Visual Studio Dark'
+          } else {
+            console.debug("[Lean4web] Preferences: Set light theme.")
+            newPreferences['theme'] = 'Visual Studio Light'
+          }
+        }
+      }
+    }
+    newPreferences['saveInLocalStore'] = saveInLocalStore
+    setPreferences(newPreferences)
+    setLoaded(true)
+  }, [])
+
+  /** Use the window width to switch between mobile/desktop layout */
+  useEffect(() => {
+    // Wait for preferences to be loaded
+    if (!loaded) { return }
+    // console.debug(`[Lean4web] width: ${width}`)
+
+    const _mobile = width < 800
+    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
+      setPreferences({ ...preferences, mobile: _mobile })
+    }
+  }, [width, loaded])
+
+  // Setting up the editor and infoview
+  useEffect(() => {
+    // Wait for preferences to be loaded
+    if (!loaded) { return }
+    console.debug('[Lean4web] Restarting Editor!')
     var _leanMonaco = new LeanMonaco()
-    const leanMonacoEditor = new LeanMonacoEditor()
+    var leanMonacoEditor = new LeanMonacoEditor()
+
+    _leanMonaco.setInfoviewElement(infoviewRef.current!)
     ;(async () => {
         await _leanMonaco.start(options)
-        _leanMonaco.setInfoviewElement(infoviewRef.current!)
-        await leanMonacoEditor.start(codeviewRef.current!, `/project/${project}.lean`, '')
+        await leanMonacoEditor.start(editorRef.current!, `/project/${project}.lean`, '')
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)
@@ -192,9 +202,9 @@ function App() {
         // due to security reasons. Therefore we use a codeMirror editor overlay
         // which features good mobile support (but no Lean support yet)
         if (preferences.mobile) {
-          leanMonacoEditor.editor.addAction({
+          leanMonacoEditor.editor?.addAction({
             id: "myPaste",
-            label: "Paste: open 'Raw Editor' for editing on mobile",
+            label: "Paste: open 'Plain Editor' for editing on mobile",
             // keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_V],
             contextMenuGroupId: "9_cutcopypaste",
             run: (_editor) => {
@@ -210,7 +220,7 @@ function App() {
         //   provideDefinition(model, position) {
         //     const word = model.getWordAtPosition(position);
         //     if (word) {
-        //       console.log(`Providing definition for: ${word.word}`);
+        //       console.log(`[Lean4web] Providing definition for: ${word.word}`);
         //       // Return the location of the definition
         //       return [
         //         {
@@ -255,22 +265,21 @@ function App() {
           }
         }
 
-        // Setting hooks for the editor
+        // Keeping the `code` state up-to-date with the changes in the editor
         leanMonacoEditor.editor?.onDidChangeModelContent(() => {
-          console.log('content changed')
           setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
         })
     })()
     return () => {
-        leanMonacoEditor.dispose()
-        _leanMonaco.dispose()
+      leanMonacoEditor.dispose()
+      _leanMonaco.dispose()
     }
-  }, [project, preferences])
+  }, [loaded, project, preferences, options, infoviewRef, editorRef])
 
   // Read the URL once
   useEffect(() => {
     if (!editor) { return }
-    console.debug('editor is ready')
+    console.debug('[Lean4web] editor is ready')
 
     // Parse args
     let args = parseArgs()
@@ -279,8 +288,8 @@ function App() {
       setContent(_code)
     }
     if (args.url) {setUrl(decodeURIComponent(args.url))}
-    if (args.project) {
-      console.log(`setting project to ${args.project}`)
+    if (args.project && args.project != project) {
+      console.log(`[Lean4web] setting project to ${args.project}`)
       setProject(args.project)
     }
   }, [editor])
@@ -288,7 +297,7 @@ function App() {
   // Load content from source URL
   useEffect(() => {
     if (!(editor && url)) { return }
-    console.debug(`Loading from ${url}`)
+    console.debug(`[Lean4web] Loading from ${url}`)
     let txt = "Loading…"
     setContent(txt)
     setContentFromUrl(txt)
@@ -375,7 +384,7 @@ function App() {
                 theme={lightThemes.includes(preferences.theme) ? 'light' : 'dark'}
                 onChange={setContent} />
             }
-            <div ref={codeviewRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
+            <div ref={editorRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
           </div>
           <div ref={infoviewRef} className="vscode-light infoview"
             style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
