@@ -1,15 +1,35 @@
 name: Build
 run-name: Build the project
-on: [push]
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            os: ubuntu-latest
+          # - name: macOS
+          #   os: macos-latest
+          # - name: Windows
+          #   os: windows-latest
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - uses: leanprover/lean-action@v1
         with:
-          node-version: 19
+          lake-package-directory: "Projects/mathlib-demo"
+          build: true
+          test: false
+          lint: false
       - run: npm install --loglevel verbose
       - run: npm audit
         continue-on-error: true
-      - run: npm run build
+      - run: npm run build_client
+      - run: npm run build_server
