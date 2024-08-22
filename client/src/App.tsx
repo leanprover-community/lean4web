@@ -83,7 +83,7 @@ function App() {
   const [code, setCode] = useState<string>('')
   const [project, setProject] = useState<string>('mathlib-demo')
   const [url, setUrl] = useState<string|null>(null)
-  const [contentFromUrl, setContentFromUrl] = useState<string>('')
+  const [codeFromUrl, setCodeFromUrl] = useState<string>('')
   const { width } = useWindowDimensions()
 
   // Lean4monaco options
@@ -306,17 +306,17 @@ function App() {
     console.debug(`[Lean4web] Loading from ${url}`)
     let txt = "Loading…"
     setContent(txt)
-    setContentFromUrl(txt)
+    setCodeFromUrl(txt)
     fetch(url)
     .then((response) => response.text())
     .then((code) => {
       setContent(code)
-      setContentFromUrl(code)
+      setCodeFromUrl(code)
     })
     .catch( err => {
       let errorTxt = `ERROR: ${err.toString()}`
       setContent(errorTxt)
-      setContentFromUrl(errorTxt)
+      setCodeFromUrl(errorTxt)
     })
   }, [editor, url])
 
@@ -324,7 +324,7 @@ function App() {
   useEffect(() => {
     if (!editor) { return }
     let _project = (project == 'mathlib-demo' ? null : project)
-    if (code === contentFromUrl) {
+    if (code === codeFromUrl) {
       if (url !== null) {
         let args = {project: _project, url: encodeURIComponent(url), code: null, codez: null}
         history.replaceState(undefined, undefined!, formatArgs(args))
@@ -351,7 +351,7 @@ function App() {
       let args = {project: _project, url: null, code: fixedEncodeURIComponent(code), codez: null}
       history.replaceState(undefined, undefined!, formatArgs(args))
     }
-  }, [editor, project, code, contentFromUrl])
+  }, [editor, project, code, codeFromUrl])
 
   return (
     <PreferencesContext.Provider value={{preferences, setPreferences}}>
@@ -364,7 +364,7 @@ function App() {
             project={project}
             setProject={setProject}
             setUrl={setUrl}
-            contentFromUrl={contentFromUrl}
+            codeFromUrl={codeFromUrl}
             restart={restart}
             codeMirror={codeMirror}
             setCodeMirror={setCodeMirror}

@@ -139,11 +139,11 @@ export const Menu: FC <{
   project: string,
   setProject: Dispatch<SetStateAction<string>>,
   setUrl: Dispatch<SetStateAction<string | null>>,
-  contentFromUrl: string,
+  codeFromUrl: string,
   restart: () => void,
   codeMirror: boolean,
   setCodeMirror: Dispatch<SetStateAction<boolean>>,
-}> = ({code, setContent, project, setProject, setUrl, contentFromUrl, restart, codeMirror, setCodeMirror}) => {
+}> = ({code, setContent, project, setProject, setUrl, codeFromUrl, restart, codeMirror, setCodeMirror}) => {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
@@ -162,7 +162,7 @@ export const Menu: FC <{
     console.debug('load code from url')
     setUrl((oldUrl: string|null) => {
       if (oldUrl === url) {
-        setContent(contentFromUrl)
+        setContent(codeFromUrl)
       }
       return url
     })
