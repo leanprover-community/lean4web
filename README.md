@@ -21,6 +21,28 @@ That is why we start the Lean server using [Bubblewrap](https://github.com/conta
 If bubblewrap is not installed, the server will start without a container and produce a warning.
 You can also opt-out of using bubblewrap by setting `NODE_ENV=development`.
 
+## Documentation
+
+### URL arguments
+
+The website parses arguments of the form `https://myserver.com/#arg1=value1&arg2=value2`.
+The recognised arguments are:
+
+- `code=`: plain text code.
+  (overwrites `codez`)
+- `codez=`: compressed code using [LZ-string](https://www.npmjs.com/package/lz-string).
+- `url=`: a URL where the content is loaded from.
+  (overwrites `code` and `codez`).
+- `project=`: the Lean project used by the server to evaluate the code. This has the be the name
+  of one of the projects the server defines in their config.
+
+The server will automatically only write one of `code`, `codez`, and `url` based on the following
+logic:
+
+1. if the code matches the one from the loaded URL, use `url`
+2. if the preferences say no comression, use `code`
+3. otherwise use `codez` or `code` depending on which results in a shorter URL.
+
 ## Build Instructions
 
 We have set up the project on a Ubuntu Server 22.10.
