@@ -7,6 +7,7 @@ import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
 import { useWindowDimensions } from './utils/window_width'
 import LeanLogo from './assets/logo.svg'
+import LZString from 'lz-string';
 
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 
@@ -26,6 +27,7 @@ interface UrlArgs {
   project: string | null
   url: string | null
   code: string | null
+  codez: string | null
 }
 
 /**
@@ -286,7 +288,11 @@ function App() {
     if (args.code) {
       let _code = decodeURIComponent(args.code)
       setContent(_code)
+    } else if (args.codez) {
+      let _code = LZString.decompressFromBase64(args.codez);
+      setContent(_code);
     }
+
     if (args.url) {setUrl(decodeURIComponent(args.url))}
     if (args.project && args.project != project) {
       console.log(`[Lean4web] setting project to ${args.project}`)
@@ -320,18 +326,24 @@ function App() {
     let _project = (project == 'mathlib-demo' ? null : project)
     if (code === contentFromUrl) {
       if (url !== null) {
-        let args = {project: _project, url: encodeURIComponent(url), code: null}
+        let args = {project: _project, url: encodeURIComponent(url), code: null, codez: null}
         history.replaceState(undefined, undefined!, formatArgs(args))
       } else {
-        let args = {project: _project, url: null, code: null}
+        let args = {project: _project, url: null, code: null, codez: null}
         history.replaceState(undefined, undefined!, formatArgs(args))
       }
     } else if (code === "") {
-      let args = {project: _project, url: null, code: null}
+      let args = {project: _project, url: null, code: null, codez: null}
       history.replaceState(undefined, undefined!, formatArgs(args))
     } else {
-      let args = {project: _project, url: null, code: fixedEncodeURIComponent(code)}
-      history.replaceState(undefined, undefined!, formatArgs(args))
+      const compressed = LZString.compressToBase64(code).replace(/=*$/, '');
+      if(compressed.length < code.length) {
+        let args = {project: _project, url: null, code: null, codez: compressed}
+        history.replaceState(undefined, undefined!, formatArgs(args))
+      } else {
+        let args = {project: _project, url: null, code: fixedEncodeURIComponent(code), codez: null}
+        history.replaceState(undefined, undefined!, formatArgs(args))
+      }
     }
   }, [editor, project, code, contentFromUrl])
 
