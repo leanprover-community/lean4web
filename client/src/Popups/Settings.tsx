@@ -105,6 +105,11 @@ const SettingsPopup: FC<{
         <label htmlFor="mobile">Mobile layout (vertical)</label>
       </p>
       <p>
+        <Switch id="compress" onChange={() => {modifyPreferences("compress", !preferences.compress)}}
+        checked={preferences.compress} />
+        <label htmlFor="compress">Compress code in URL (if shorter)</label>
+      </p>
+      <p>
         <Switch id="wordWrap" onChange={() => {modifyPreferences("wordWrap", !preferences.wordWrap)}}
         checked={preferences.wordWrap} />
         <label htmlFor="wordWrap">Wrap code</label>

@@ -7,7 +7,7 @@ import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
 import { useWindowDimensions } from './utils/window_width'
 import LeanLogo from './assets/logo.svg'
-import LZString from 'lz-string';
+import LZString from 'lz-string'
 
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 
@@ -289,8 +289,8 @@ function App() {
       let _code = decodeURIComponent(args.code)
       setContent(_code)
     } else if (args.codez) {
-      let _code = LZString.decompressFromBase64(args.codez);
-      setContent(_code);
+      let _code = LZString.decompressFromBase64(args.codez)
+      setContent(_code)
     }
 
     if (args.url) {setUrl(decodeURIComponent(args.url))}
@@ -335,15 +335,21 @@ function App() {
     } else if (code === "") {
       let args = {project: _project, url: null, code: null, codez: null}
       history.replaceState(undefined, undefined!, formatArgs(args))
-    } else {
+    } else if (preferences.compress) {
+      // LZ padds the string with trailing `=`, which mess up the argument parsing
+      // and aren't needed for LZ encoding, so we remove them.
       const compressed = LZString.compressToBase64(code).replace(/=*$/, '');
-      if(compressed.length < code.length) {
+      console.debug(`[Lean4web]: code length: ${code.length}, compressed: ${compressed.length}`)
+      if (compressed.length < code.length) {
         let args = {project: _project, url: null, code: null, codez: compressed}
         history.replaceState(undefined, undefined!, formatArgs(args))
       } else {
         let args = {project: _project, url: null, code: fixedEncodeURIComponent(code), codez: null}
         history.replaceState(undefined, undefined!, formatArgs(args))
       }
+    } else {
+      let args = {project: _project, url: null, code: fixedEncodeURIComponent(code), codez: null}
+      history.replaceState(undefined, undefined!, formatArgs(args))
     }
   }, [editor, project, code, contentFromUrl])
 
