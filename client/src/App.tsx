@@ -278,7 +278,7 @@ function App() {
     }
   }, [loaded, project, preferences, options, infoviewRef, editorRef])
 
-  // Read the URL once
+  // Read the URL arguments once
   useEffect(() => {
     if (!editor) { return }
     console.debug('[Lean4web] editor is ready')
@@ -302,28 +302,30 @@ function App() {
 
   // Load content from source URL
   useEffect(() => {
-    if (!editor || !url || code || codeFromUrl) {
-      // Do not execute if editor is not ready, if there is no URL to parse
-      // or if the editor already has some code loaded
-      // (last point is important for when settings change)
-      return
-    }
+    // Note: It is important that the editor is loaded because of the effect below:
+    // It does not want to retrigger on each editor reload, but it
+    // needs the editor to set the initial code. Therefore we wait loading the URL
+    // until we have an editor.
+    if (!editor || !url) {return}
     console.debug(`[Lean4web] Loading from ${url}`)
-    let txt = "Loading…"
-    setContent(txt)
-    setCodeFromUrl(txt)
     fetch(url)
     .then((response) => response.text())
     .then((code) => {
-      setContent(code)
       setCodeFromUrl(code)
     })
     .catch( err => {
       let errorTxt = `ERROR: ${err.toString()}`
-      setContent(errorTxt)
+      console.error(errorTxt)
       setCodeFromUrl(errorTxt)
     })
-  }, [editor, url])
+  }, [url, editor])
+
+  // `contentFromUrl` should only change on loading.
+  // this assumes the editor is loaded (see above)
+  useEffect(() => {
+    if (!codeFromUrl) { return }
+    setContent(codeFromUrl)
+  }, [codeFromUrl])
 
   // keep url updated on changes
   useEffect(() => {
