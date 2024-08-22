@@ -302,7 +302,12 @@ function App() {
 
   // Load content from source URL
   useEffect(() => {
-    if (!(editor && url)) { return }
+    if (!editor || !url || code || codeFromUrl) {
+      // Do not execute if editor is not ready, if there is no URL to parse
+      // or if the editor already has some code loaded
+      // (last point is important for when settings change)
+      return
+    }
     console.debug(`[Lean4web] Loading from ${url}`)
     let txt = "Loading…"
     setContent(txt)
