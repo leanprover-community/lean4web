@@ -19,11 +19,9 @@ const PrivacyPopup: FC<{
     <p>We don't use cookies but you can choose to save the settings in the browser store
       by activating the option in the settings.
     </p>
-
     { lean4webConfig.serverCountry &&
       <p>Our server is located in {lean4webConfig.serverCountry}.</p>
     }
-
     { lean4webConfig.contactDetails &&
       <p>
         <strong>Contact details</strong><br/>
