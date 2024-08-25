@@ -1,4 +1,11 @@
-const lean4webConfig = {
+import { Project } from './docs' // look here for documentation of the individual config options
+
+const lean4webConfig : {
+  projects: Project[],
+  serverCountry: string | null
+  contactDetails: JSX.Element | null
+  impressum: JSX.Element | null
+} = {
   "projects": [
     { "folder": "mathlib-demo",
       "name": "Latest Mathlib",
@@ -19,16 +26,18 @@ const lean4webConfig = {
         { "file": "DuperDemo.lean",
           "name": "Duper" }]},
   ],
-  "serverCountry": "Germany",
-  "contactInformation": <>
-    Alexander Bentkamp,&nbsp;
-    <a href="https://www.math.hhu.de/lehrstuehle-/-personen-/-ansprechpartner/innen/lehrstuehle-des-mathematischen-instituts/lehrstuhl-fuer-algebraische-geometrie/team/jon-eugster">Jon Eugster</a><br />
-    Mathematisches Institut der Heinrich-Heine-Universität Düsseldorf<br />
-    Universitätsstr. 1<br />
-    40225 Düsseldorf<br />
-    Germany<br />
-    +49 211 81-12173<br />
-  </>
+  "serverCountry": null,
+  // example:
+  // <>
+  //   <p>my name</p>
+  //   <p>my email</p>
+  // </>,
+  "contactDetails": null,
+  // example:
+  // <>
+  //   <p>our VAT number is ...</p>
+  // </>
+  "impressum": null
 }
 
 export default lean4webConfig

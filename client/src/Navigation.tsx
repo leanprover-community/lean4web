@@ -1,15 +1,16 @@
 import { ChangeEvent, Dispatch, FC, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition, faArrowRotateRight, faCode } from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition, faArrowRotateRight, faCode, faInfo, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver'
 
 import SettingsPopup, { PreferencesContext } from './Popups/Settings'
-import PrivacyPopup from './Popups/PrivacyPolicy';
-import ToolsPopup from './Popups/Tools';
-import LoadUrlPopup from './Popups/LoadUrl';
-import LoadZulipPopup from './Popups/LoadZulip';
+import PrivacyPopup from './Popups/PrivacyPolicy'
+import ImpressumPopup from './Popups/Impressum'
+import ToolsPopup from './Popups/Tools'
+import LoadUrlPopup from './Popups/LoadUrl'
+import LoadZulipPopup from './Popups/LoadZulip'
 
 import lean4webConfig from './config/config'
 import './css/Modal.css'
@@ -153,6 +154,7 @@ export const Menu: FC <{
 
   // state for the popups
   const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [impressumOpen, setImpressumOpen] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -212,15 +214,19 @@ export const Menu: FC <{
           setLoadZulipOpen={setLoadZulipOpen} />
       }
       <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
-      <NavButton icon={faHammer} text="Lean Version Info" onClick={() => setToolsOpen(true)} />
+      <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
       <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
       <NavButton icon={faDownload} text="Save file" onClick={() => save(code)} />
       <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
+      <NavButton icon={faInfoCircle} text={'Impressum'} onClick={() => {setImpressumOpen(true)}} />
       <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
       <NavButton icon={faArrowUpRightFromSquare} text="Lean documentation" href="https://leanprover.github.io/lean4/doc/" />
       <NavButton icon={faArrowUpRightFromSquare} text="GitHub" href="https://github.com/hhu-adam/lean4web" />
     </Dropdown>
     <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
+    { (lean4webConfig.impressum || lean4webConfig.contactDetails) &&
+      <ImpressumPopup open={impressumOpen} handleClose={() => setImpressumOpen(false)} />
+    }
     <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} project={project} />
     <SettingsPopup open={settingsOpen} handleClose={() => setSettingsOpen(false)} closeNav={() => setOpenNav(false)}
       project={project} setProject={setProject} />

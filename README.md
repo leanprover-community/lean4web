@@ -125,12 +125,19 @@ You can see installed lean toolchains with `elan toolchain list`
 and check the size of `~/.elan`.
 
 ### Legal information
-For legal purposes, we need to display contact details. When setting up your own server,
-you will need to modify the following files:
 
-- `client/src/config/text.tsx`: Update contact information & server location. (set them to
-  `null` if you don't need to display them in your country)
-- `client/public/index.html`: Update the `noscript` page with the correct contact details.
+Depending on the GDPR and laws applying to your server, you will need to provide the following
+information:
+
+- `client/config/config.tsx`, `serverCountry`: where your server is located.
+- `client/config/config.tsx`, `contactDetails`: used in privacy policy & impressum
+- `client/config/config.tsx`, `impressum`: further legal notes
+
+if `contactDetails` or `impressum` are not `null`, you will see an item `Impressum` in
+the dropdown menu containing that information.
+
+Further, you might need to add the impressum manually to `index.html`
+for people with javascript disabled!
 
 ## Development Instructions
 

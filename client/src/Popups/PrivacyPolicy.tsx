@@ -24,10 +24,10 @@ const PrivacyPopup: FC<{
       <p>Our server is located in {lean4webConfig.serverCountry}.</p>
     }
 
-    { lean4webConfig.contactInformation &&
+    { lean4webConfig.contactDetails &&
       <p>
-        <strong>Contact information:</strong><br/>
-        {lean4webConfig.contactInformation}
+        <strong>Contact details</strong><br/>
+        {lean4webConfig.contactDetails}
       </p>
     }
   </Popup>
