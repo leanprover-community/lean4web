@@ -1,5 +1,5 @@
 import { Popup } from '../Navigation'
-import { FC, useEffect, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 
 // TODO: Do these interfaces exist somewhere in vscode-lean4?
 // They might need to be updated manually if changes to `lake` occur.
@@ -42,6 +42,94 @@ const emptyManifest: LakeManifest = {
   lakeDir: ""
 }
 
+/** These are just a few relevant fields the data fetched from github comprises. */
+interface CommitInfo {
+  sha: string,
+  commit: {
+    author: {
+      name: string,
+      date: string
+    },
+    message: string
+  },
+  author: {
+    avatar_url: string
+  },
+  stats: {
+    total: number,
+    additions: number,
+    deletions: number,
+  }
+}
+
+/** Displays a link of the specified commit together with a hover-tooltip showing the
+ * information from github.
+ *
+ * Note that github has a rate limit (60 requests/h), but since this should be a
+ * rarely used feature, it might be fine for now.
+ */
+const ToolTip: FC<{
+  pkg: LakePackage
+}> = ({pkg}) => {
+  const [loaded, setLoaded] = useState(false)
+  const linkRef = useRef<HTMLAnchorElement>(null)
+  const [commit, setCommit] = useState<CommitInfo>()
+  const [error, setError] = useState<string>()
+
+  useEffect(() => {
+    linkRef.current?.addEventListener('mouseover', handleHover)
+    return () => {
+      linkRef.current?.removeEventListener('mouseover', handleHover)
+    }
+  }, [linkRef, loaded])
+
+  // Load commit info on hovering the first time
+  const handleHover = (_event: any) => {
+    // Do not fetch twice
+    if (loaded) { return }
+    setLoaded(true)
+
+    // Hack: construct github api URL from repo URL
+    let githubUrl = pkg.url.replace('github.com/', 'api.github.com/repos/') + `/commits/${pkg.rev}`
+    console.debug(`[LeanWeb]: fetch from ${githubUrl}`)
+
+    fetch(githubUrl).then(response => {
+      if (! response.ok) {
+        console.warn(`[LeanWeb]: failed request (${response.status})`, response)
+      }
+      return response.json()
+    }).then(data => {
+      if (data.message) {
+        // e.g. when reaching rate limit
+        setError(data.message)
+      } else {
+        setCommit(data)
+      }
+    }).catch(error => {
+      setError(error)
+      console.error(error)
+    })
+  }
+
+  return <a ref={linkRef} className="tooltip" href={`${pkg.url}/commits/${pkg.rev}/`} target='_blank' >{pkg.rev.substring(0,7)}
+  <div className="tooltiptext" id="tooltip-content">
+    { error ?
+        <p>{error}</p> :
+      (loaded && commit) ? <>
+        {/* valid */}
+        <img src={commit?.author?.avatar_url} />
+        <p>
+          <span className="commit-date">{new Date(commit?.commit?.author?.date).toLocaleString()}</span><br/>
+          <span className="commit-message">{commit?.commit?.message.split('\n')[0]}</span> <span className="commit-author">by {commit?.commit?.author?.name}</span><br/>
+          <span className="commit-sha">{commit?.sha}</span>
+        </p>
+      </> : <p>Loading…</p>
+    }
+  </div>
+</a>
+}
+
+/** Shows important information about the Lean project loaded in the web editor */
 const ToolsPopup: FC<{
   open: boolean
   project: string
@@ -114,7 +202,7 @@ const ToolsPopup: FC<{
             <td>{pkg.name}</td>
             { pkg.type == 'git' ?
               <>
-                <td><a href={`${pkg.url}/commits/${pkg.rev}/`} target='_blank' >{pkg.rev.substring(0,7)}</a></td>
+                <td><ToolTip pkg={pkg} /></td>
                 <td>{pkg.inputRev}</td>
               </> : <td colSpan={2}>(local package)</td>
             }

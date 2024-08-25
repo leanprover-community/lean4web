@@ -91,3 +91,62 @@ nav select {
   margin-left: .5rem;
   margin-right: .5rem;
 }
+
+.tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  min-width: 300px;
+  background-color: var(--vscode-input-foreground);
+  color: var(--vscode-input-background);
+  text-align: left;
+  border-radius: 5px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Position the tooltip above the element */
+  left: 50%;
+  margin-left: -150px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip img {
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  margin-right: .5em;
+  margin-bottom: .5em;
+  float: left;
+}
+
+.tooltip p {
+  padding: 0;
+  margin: 0;
+}
+
+.tooltip .tooltiptext .commit-message {
+  font-weight: bold;
+}
+
+.tooltip .tooltiptext .commit-author {
+  font-style: italic;
+  color: #bbb;
+}
+
+.tooltip .tooltiptext .commit-date {
+  color: #bbb;
+}
+
+.tooltip .tooltiptext .commit-sha {
+  font-style: italic;
+  color: #5cb6de;
+}

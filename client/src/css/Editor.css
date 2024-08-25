@@ -97,6 +97,7 @@
 code {
   font-family: 'Source Code Pro', 'STIX Two Math', monospace;
   color: var(--vscode-textPreformat-foreground);
+  background-color: var(--vscode-textPreformat-background);
 }
 
 
