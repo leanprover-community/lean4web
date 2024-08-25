@@ -89,8 +89,17 @@ const ToolTip: FC<{
     if (loaded) { return }
     setLoaded(true)
 
-    // Hack: construct github api URL from repo URL
-    let githubUrl = pkg.url.replace('github.com/', 'api.github.com/repos/') + `/commits/${pkg.rev}`
+    // construct github api URL from repo URL
+    let m = pkg.url.match(/github.com\/([^\/]+)\/([^\/\.]+)/i) // exclude '\.' to strip potential '.git' at the end
+    if (!m || m.length < 2) {
+      console.warn(`[LeanWeb]: cannot parse package url`, pkg.url)
+      setError('Not Found')
+      return
+    }
+
+    let githubUrl = `https://api.github.com/repos/${m![1]}/${m![2]}/commits/${pkg.rev}`
+
+    pkg.url.replace('github.com/', 'api.github.com/repos/') + `/commits/${pkg.rev}`
     console.debug(`[LeanWeb]: fetch from ${githubUrl}`)
 
     fetch(githubUrl).then(response => {
