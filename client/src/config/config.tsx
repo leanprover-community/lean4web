@@ -1,11 +1,6 @@
-import { Project } from './docs' // look here for documentation of the individual config options
+import { LeanWebConfig } from './docs' // look here for documentation of the individual config options
 
-const lean4webConfig : {
-  projects: Project[],
-  serverCountry: string | null
-  contactDetails: JSX.Element | null
-  impressum: JSX.Element | null
-} = {
+const lean4webConfig : LeanWebConfig = {
   "projects": [
     { "folder": "mathlib-demo",
       "name": "Latest Mathlib",
@@ -27,16 +22,7 @@ const lean4webConfig : {
           "name": "Duper" }]},
   ],
   "serverCountry": null,
-  // example:
-  // <>
-  //   <p>my name</p>
-  //   <p>my email</p>
-  // </>,
   "contactDetails": null,
-  // example:
-  // <>
-  //   <p>our VAT number is ...</p>
-  // </>
   "impressum": null
 }
 
