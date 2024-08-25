@@ -1,89 +1,37 @@
 import { useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 import * as monaco from 'monaco-editor'
-import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
-import defaultSettings, {IPreferencesContext} from './config/settings'
-import { Menu } from './Navigation'
-import { PreferencesContext } from './Popups/Settings'
-import { useWindowDimensions } from './utils/window_width'
-import LeanLogo from './assets/logo.svg'
-import LZString from 'lz-string'
-
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
-
-import './css/App.css'
-import './css/Editor.css'
+import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
+import LZString from 'lz-string'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 
-function fixedEncodeURIComponent(str: string) {
-  return encodeURIComponent(str).replace(/[()]/g, function(c) {
-    return '%' + c.charCodeAt(0).toString(16);
-  })
+// Local imports
+import LeanLogo from './assets/logo.svg'
+import defaultSettings, { IPreferencesContext, lightThemes } from './config/settings'
+import { Menu } from './Navigation'
+import { PreferencesContext } from './Popups/Settings'
+import { fixedEncodeURIComponent, formatArgs, parseArgs } from './utils/UrlParsing'
+import { useWindowDimensions } from './utils/WindowWidth'
+
+// CSS
+import './css/App.css'
+import './css/Editor.css'
+
+/** Returns true if the browser wants dark mode */
+function isBrowserDefaultDark() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
 }
-
-/** Expected arguments which can be provided in the URL. */
-interface UrlArgs {
-  project: string | null
-  url: string | null
-  code: string | null
-  codez: string | null
-}
-
-/**
- * Format the arguments for displaying in the URL, i.e. join them
- * in the form `#project=Mathlib&url=...`
- */
-function formatArgs(args: UrlArgs): string {
-  let out = '#' +
-    Object.entries(args).filter(([_key, val]) => (val !== null && val.trim().length > 0)).map(([key, val]) => (`${key}=${val}`)).join('&')
-  if (out == '#') {
-    return ' '
-  }
-  return out
-}
-
-// For CodeMirror (on mobile only)
-// If you add a Monaco theme, the mobile code-mirror editor will default to its dark theme,
-// unless the theme is in this list.
-const lightThemes = [
-  'Visual Studio Light'
-]
-
-/**
- * Parse arguments from URL. These are of the form `#project=Mathlib&url=...`
- */
-function parseArgs(): UrlArgs {
-  let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
-  return Object.fromEntries(_args)
-}
-
-const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
 function App() {
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
-  const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
-  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
+  const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
   const [loaded, setLoaded] = useState<boolean>(false)
-
-  // Because of Monaco's missing mobile support we add a codeMirror editor
-  // which can be enabled to do editing.
-  // TODO: It would be nice to integrate Lean into CodeMirror better.
-  // first step could be to pass the cursor selection to the underlying monaco editor
-  const [codeMirror, setCodeMirror] = useState(false)
-
-  /* Option to change themes */
-  // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
-  // const [theme, setTheme] = useState(isBrowserDefaultDark() ? 'GithubDark' : 'lightPlus')
-
-  // the data
-  const [code, setCode] = useState<string>('')
-  const [project, setProject] = useState<string>('mathlib-demo')
-  const [url, setUrl] = useState<string|null>(null)
-  const [codeFromUrl, setCodeFromUrl] = useState<string>('')
+  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
   const { width } = useWindowDimensions()
 
   // Lean4monaco options
@@ -92,7 +40,82 @@ function App() {
     websocket: { url: '' }
   })
 
-  // Update LeanMonaco options
+  // Because of Monaco's missing mobile support we add a codeMirror editor
+  // which can be enabled to do editing.
+  // TODO: It would be nice to integrate Lean into CodeMirror better.
+  // first step could be to pass the cursor selection to the underlying monaco editor
+  const [codeMirror, setCodeMirror] = useState(false)
+
+  // the user data
+  const [code, setCode] = useState<string>('')
+  const [project, setProject] = useState<string>('mathlib-demo')
+  const [url, setUrl] = useState<string | null>(null)
+  const [codeFromUrl, setCodeFromUrl] = useState<string>('')
+
+  /** Restart the Lean client. */
+  function restart() {
+    leanMonaco?.clientProvider?.getClients().map(client => {client.restart()})
+  }
+
+  /** Monaco editor requires the code to be set manually. */
+  function setContent (code: string) {
+    editor?.getModel()?.setValue(code)
+    setCode(code)
+  }
+
+  // Load preferences from store in the beginning
+  useEffect(() => {
+    console.debug('[Lean4web] Preferences: Loading.')
+
+    // only load them once
+    if (loaded) { return }
+
+    let saveInLocalStore = false;
+    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
+    for (const [key, value] of Object.entries(preferences)) {
+      let storedValue = window.localStorage.getItem(key)
+      if (storedValue) {
+        saveInLocalStore = true
+        console.debug(`[Lean4web] Found stored value for ${key}: ${storedValue}`)
+        if (typeof value === 'string') {
+          newPreferences[key] = storedValue
+        } else if (typeof value === 'boolean') {
+          // Boolean values
+          newPreferences[key] = (storedValue === "true")
+        } else {
+          // other values aren't implemented yet.
+          console.error(`[Lean4web] Preferences (key: ${key}) contain a value of unsupported type: ${typeof value}`)
+        }
+      } else {
+        // no stored preferences, set a default value
+        if (key == 'theme') {
+          if (isBrowserDefaultDark()) {
+            console.debug("[Lean4web] Preferences: Set dark theme.")
+            newPreferences['theme'] = 'Visual Studio Dark'
+          } else {
+            console.debug("[Lean4web] Preferences: Set light theme.")
+            newPreferences['theme'] = 'Visual Studio Light'
+          }
+        }
+      }
+    }
+    newPreferences['saveInLocalStore'] = saveInLocalStore
+    setPreferences(newPreferences)
+    setLoaded(true)
+  }, [])
+
+  // Use the window width to switch between mobile/desktop layout
+  useEffect(() => {
+    // Wait for preferences to be loaded
+    if (!loaded) { return }
+
+    const _mobile = width < 800
+    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
+      setPreferences({ ...preferences, mobile: _mobile })
+    }
+  }, [width, loaded])
+
+  // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
     var socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") +
       window.location.host + "/websocket" + "/" + project
@@ -120,68 +143,6 @@ function App() {
     }
     setOptions(_options)
   }, [editorRef, project, preferences])
-
-  function restart() {
-    leanMonaco?.clientProvider?.getClients().map(client => {client.restart()})
-  }
-
-  function setContent (code: string) {
-    editor?.getModel()?.setValue(code)
-    setCode(code)
-  }
-
-  /** Load preferences from store in the beginning */
-  useEffect(() => {
-    console.debug('[Lean4web] Preferences: Loading.')
-
-    // only load them once
-    if (loaded) { return }
-
-    let saveInLocalStore = false;
-    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
-    for (const [key, value] of Object.entries(preferences)) {
-      let storedValue = window.localStorage.getItem(key)
-      if (storedValue) {
-        saveInLocalStore = true
-        console.debug(`[Lean4web] Found stored value for ${key}: ${storedValue}`)
-        if (typeof value === 'string') {
-          newPreferences[key] = storedValue
-        } else if (typeof value === 'boolean') {
-          // Boolean values
-          newPreferences[key] = (storedValue === "true")
-        } else {
-          // other values aren't implemented yet.
-          console.error(`[Lean4web] Preferences contain a value of unsupported type: ${typeof value}`)
-        }
-      } else {
-        // no stored preferences
-        if (key == 'theme') {
-          if (isBrowserDefaultDark()) {
-            console.debug("[Lean4web] Preferences: Set dark theme.")
-            newPreferences['theme'] = 'Visual Studio Dark'
-          } else {
-            console.debug("[Lean4web] Preferences: Set light theme.")
-            newPreferences['theme'] = 'Visual Studio Light'
-          }
-        }
-      }
-    }
-    newPreferences['saveInLocalStore'] = saveInLocalStore
-    setPreferences(newPreferences)
-    setLoaded(true)
-  }, [])
-
-  /** Use the window width to switch between mobile/desktop layout */
-  useEffect(() => {
-    // Wait for preferences to be loaded
-    if (!loaded) { return }
-    // console.debug(`[Lean4web] width: ${width}`)
-
-    const _mobile = width < 800
-    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
-      setPreferences({ ...preferences, mobile: _mobile })
-    }
-  }, [width, loaded])
 
   // Setting up the editor and infoview
   useEffect(() => {
@@ -300,12 +261,12 @@ function App() {
     }
   }, [editor])
 
-  // Load content from source URL
+  // Load content from source URL.
+  // Once the editor, this reads the content of any provided `url=` in the URL and
+  // saves this content as `contentFromURL`. It is important that we only do this once
+  // the editor is loaded, as the `useEffect` below only triggers when the `contentFromURL`
+  // changes, otherwise it might overwrite local changes too often.
   useEffect(() => {
-    // Note: It is important that the editor is loaded because of the effect below:
-    // It does not want to retrigger on each editor reload, but it
-    // needs the editor to set the initial code. Therefore we wait loading the URL
-    // until we have an editor.
     if (!editor || !url) {return}
     console.debug(`[Lean4web] Loading from ${url}`)
     fetch(url)
@@ -320,28 +281,40 @@ function App() {
     })
   }, [url, editor])
 
-  // `contentFromUrl` should only change on loading.
-  // this assumes the editor is loaded (see above)
+  // Sets the editors content to the content from the loaded URL.
+  // As described above, this requires the editor is loaded, but we do not want to
+  // trigger this effect every time the editor is reloaded (e.g. config change) as otherwise
+  // we would constantly overwrite the user's local changes
   useEffect(() => {
     if (!codeFromUrl) { return }
     setContent(codeFromUrl)
   }, [codeFromUrl])
 
-  // keep url updated on changes
+  // Keep the URL updated on change
   useEffect(() => {
     if (!editor) { return }
+
     let _project = (project == 'mathlib-demo' ? null : project)
-    if (code === codeFromUrl) {
-      if (url !== null) {
-        let args = {project: _project, url: encodeURIComponent(url), code: null, codez: null}
-        history.replaceState(undefined, undefined!, formatArgs(args))
-      } else {
-        let args = {project: _project, url: null, code: null, codez: null}
-        history.replaceState(undefined, undefined!, formatArgs(args))
+    let args: {
+      project: string | null
+      url: string | null
+      code: string | null
+      codez: string | null
+    }
+    if (code === "") {
+      args = {
+        project: _project,
+        url: null,
+        code: null,
+        codez: null
       }
-    } else if (code === "") {
-      let args = {project: _project, url: null, code: null, codez: null}
-      history.replaceState(undefined, undefined!, formatArgs(args))
+    } else if (url != null && code == codeFromUrl) {
+      args = {
+        project: _project,
+        url: encodeURIComponent(url),
+        code: null,
+        codez: null
+      }
     } else if (preferences.compress) {
       // LZ padds the string with trailing `=`, which mess up the argument parsing
       // and aren't needed for LZ encoding, so we remove them.
@@ -351,82 +324,93 @@ function App() {
       const encodedCode = fixedEncodeURIComponent(code)
       console.debug(`[Lean4web]: code length: ${encodedCode.length}, compressed: ${compressed.length}`)
       if (compressed.length < encodedCode.length) {
-        let args = {project: _project, url: null, code: null, codez: compressed}
-        history.replaceState(undefined, undefined!, formatArgs(args))
+        args = {
+          project: _project,
+          url: null,
+          code: null,
+          codez: compressed
+        }
       } else {
-        let args = {project: _project, url: null, code: encodedCode, codez: null}
-        history.replaceState(undefined, undefined!, formatArgs(args))
+        args = {
+          project: _project,
+          url: null,
+          code: encodedCode,
+          codez: null
+        }
       }
     } else {
-      let args = {project: _project, url: null, code: fixedEncodeURIComponent(code), codez: null}
-      history.replaceState(undefined, undefined!, formatArgs(args))
+      args = {
+        project: _project,
+        url: null,
+        code: fixedEncodeURIComponent(code),
+        codez: null
+      }
     }
+    history.replaceState(undefined, undefined!, formatArgs(args))
   }, [editor, project, code, codeFromUrl])
 
-  return (
-    <PreferencesContext.Provider value={{preferences, setPreferences}}>
-      <div className="app monaco-editor">
-        <nav>
-          <LeanLogo />
-          <Menu
-            code={code}
-            setContent={setContent}
-            project={project}
-            setProject={setProject}
-            setUrl={setUrl}
-            codeFromUrl={codeFromUrl}
-            restart={restart}
-            codeMirror={codeMirror}
-            setCodeMirror={setCodeMirror}
-            />
-        </nav>
-        <Split className={`editor ${ dragging? 'dragging':''}`}
-          gutter={(_index, _direction) => {
-            const gutter = document.createElement('div')
-            gutter.className = `gutter` // no `gutter-${direction}` as it might change
-            return gutter
-          }}
-          gutterStyle={(_dimension, gutterSize, _index) => {
-            return {
-              'width': preferences.mobile ? '100%' : `${gutterSize}px`,
-              'height': preferences.mobile ? `${gutterSize}px` : '100%',
-              'cursor': preferences.mobile ? 'row-resize' : 'col-resize',
-              'margin-left': preferences.mobile ? 0 : `-${gutterSize}px`,
-              'margin-top': preferences.mobile ? `-${gutterSize}px` : 0,
-              'z-index': 0,
-            }}}
-          gutterSize={5}
-          onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
-          sizes={preferences.mobile ? [50, 50] : [70, 30]}
-          direction={preferences.mobile ? "vertical" : "horizontal"}
-          style={{flexDirection: preferences.mobile ? "column" : "row"}}>
-          <div className='codeview-wrapper'
-            style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
-            { codeMirror &&
-              <CodeMirror
-                className="codeview plain"
-                value={code}
-                extensions={[EditorView.lineWrapping]}
-                height='100%'
-                maxHeight='100%'
-                theme={lightThemes.includes(preferences.theme) ? 'light' : 'dark'}
-                onChange={setContent} />
-            }
-            <div ref={editorRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
-          </div>
-          <div ref={infoviewRef} className="vscode-light infoview"
-            style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
-              <p className={`editor-support-warning${codeMirror ? '' : ' hidden'}`} >
-                You are in the plain text editor<br /><br />
-                Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode}/>)
-                for the infoview to update!
-              </p>
-          </div>
-        </Split>
-      </div>
+  return <PreferencesContext.Provider value={{preferences, setPreferences}}>
+    <div className="app monaco-editor">
+      <nav>
+        <LeanLogo />
+        <Menu
+          code={code}
+          setContent={setContent}
+          project={project}
+          setProject={setProject}
+          setUrl={setUrl}
+          codeFromUrl={codeFromUrl}
+          restart={restart}
+          codeMirror={codeMirror}
+          setCodeMirror={setCodeMirror}
+          />
+      </nav>
+      <Split className={`editor ${ dragging? 'dragging':''}`}
+        gutter={(_index, _direction) => {
+          const gutter = document.createElement('div')
+          gutter.className = `gutter` // no `gutter-${direction}` as it might change
+          return gutter
+        }}
+        gutterStyle={(_dimension, gutterSize, _index) => {
+          return {
+            'width': preferences.mobile ? '100%' : `${gutterSize}px`,
+            'height': preferences.mobile ? `${gutterSize}px` : '100%',
+            'cursor': preferences.mobile ? 'row-resize' : 'col-resize',
+            'margin-left': preferences.mobile ? 0 : `-${gutterSize}px`,
+            'margin-top': preferences.mobile ? `-${gutterSize}px` : 0,
+            'z-index': 0,
+          }}}
+        gutterSize={5}
+        onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
+        sizes={preferences.mobile ? [50, 50] : [70, 30]}
+        direction={preferences.mobile ? "vertical" : "horizontal"}
+        style={{flexDirection: preferences.mobile ? "column" : "row"}}>
+        <div className='codeview-wrapper'
+          style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
+          { codeMirror &&
+            <CodeMirror
+              className="codeview plain"
+              value={code}
+              extensions={[EditorView.lineWrapping]}
+              height='100%'
+              maxHeight='100%'
+              theme={lightThemes.includes(preferences.theme) ? 'light' : 'dark'}
+              onChange={setContent} />
+          }
+          <div ref={editorRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
+        </div>
+        <div ref={infoviewRef} className="vscode-light infoview"
+          style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
+            <p className={`editor-support-warning${codeMirror ? '' : ' hidden'}`} >
+              You are in the plain text editor<br /><br />
+              Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode}/>)
+              for the infoview to update!
+            </p>
+        </div>
+      </Split>
+    </div>
+  </PreferencesContext.Provider>
 
-    </PreferencesContext.Provider>
-  )
 }
 
 export default App

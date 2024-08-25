@@ -28,4 +28,13 @@ const settings: IPreferencesContext = {
   wordWrap: true
 }
 
+/**
+ * For CodeMirror (on mobile only)
+ * If you add a Monaco theme, the mobile code-mirror editor will default to its dark theme,
+ * unless the theme is in this list.
+ */
+export const lightThemes = [
+  'Visual Studio Light'
+]
+
 export default settings
