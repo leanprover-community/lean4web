@@ -72,18 +72,6 @@ if (crtFile && keyFile) {
 
 const wss = new WebSocketServer({ server })
 
-function checkCommandExists(command) {
-  return new Promise((resolve, reject) => {
-      exec(`command -v ${command}`, (error) => {
-          if (error) {
-              resolve(false); // Command does not exist
-          } else {
-              resolve(true); // Command exists
-          }
-      });
-  });
-}
-
 function startServerProcess(project) {
   let projectPath = __dirname + `/../Projects/` + project
 
