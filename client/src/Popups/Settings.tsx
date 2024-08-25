@@ -70,15 +70,26 @@ const SettingsPopup: FC<{
         </select>
       </p>
 
-      <h2>User settings</h2>
-      <p><i>These settings are not preserved unless you opt-in to save them.</i></p>
+      <h2>Editor settings</h2>
       <p>
         <label htmlFor="abbreviationCharacter">Lead character to trigger unicode input mode</label>
         <input id="abbreviationCharacter" type="text"
           onChange={(ev) => {modifyPreferences("abbreviationCharacter", ev.target.value)}}
           value={preferences.abbreviationCharacter} />
       </p>
-      <p className="flex">
+      <p>
+        <Switch id="wordWrap" onChange={() => {modifyPreferences("wordWrap", !preferences.wordWrap)}}
+        checked={preferences.wordWrap} />
+        <label htmlFor="wordWrap">Wrap code</label>
+      </p>
+      <p>
+        <Switch id="acceptSuggestionOnEnter" onChange={() => {modifyPreferences("acceptSuggestionOnEnter", !preferences.acceptSuggestionOnEnter)}}
+        checked={preferences.acceptSuggestionOnEnter} />
+        <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
+      </p>
+
+      <h2>User settings</h2>
+      <p>
         <label htmlFor="theme">Theme: </label>
         <select
             id="theme"
@@ -109,16 +120,9 @@ const SettingsPopup: FC<{
         checked={preferences.compress} />
         <label htmlFor="compress">Compress code in URL (if shorter)</label>
       </p>
-      <p>
-        <Switch id="wordWrap" onChange={() => {modifyPreferences("wordWrap", !preferences.wordWrap)}}
-        checked={preferences.wordWrap} />
-        <label htmlFor="wordWrap">Wrap code</label>
-      </p>
-      <p>
-        <Switch id="acceptSuggestionOnEnter" onChange={() => {modifyPreferences("acceptSuggestionOnEnter", !preferences.acceptSuggestionOnEnter)}}
-        checked={preferences.acceptSuggestionOnEnter} />
-        <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
-      </p>
+
+      <h2>Save</h2>
+      <p><i>Editor settings and User settings are not preserved unless you opt-in to save them.</i></p>
       <p>
         <Switch id="savingAllowed" onChange={() => {modifyPreferences("saveInLocalStore", !preferences.saveInLocalStore)}} checked={preferences.saveInLocalStore} />
         <label htmlFor="savingAllowed">Save my settings (in the browser store)</label>
