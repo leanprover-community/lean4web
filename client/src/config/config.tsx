@@ -14,12 +14,7 @@ const lean4webConfig : LeanWebConfig = {
         { "file": "MathlibLatest/Rational.lean",
           "name": "Rational" }]},
     { "folder": "stable",
-      "name": "Stable Lean" },
-    { "folder": "DuperDemo",
-      "name": "Duper",
-      "examples": [
-        { "file": "DuperDemo.lean",
-          "name": "Duper" }]},
+      "name": "Stable Lean" }
   ],
   "serverCountry": null,
   "contactDetails": null,
