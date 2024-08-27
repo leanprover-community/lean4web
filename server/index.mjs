@@ -47,6 +47,7 @@ app.use('/api/toolchain/*', (req, res, next) => {
   req.url = 'lean-toolchain'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
+// Using the client files
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 app.use(nocache())
 

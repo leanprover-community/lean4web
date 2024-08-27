@@ -52,6 +52,7 @@ export default defineConfig({
     })
   ],
   publicDir: "client/public/",
+  base: "/", // setting this to `/leanweb/` means the server is now accessible at `localhost:3000/leanweb`
   server: {
     port: 3000,
     proxy: {
