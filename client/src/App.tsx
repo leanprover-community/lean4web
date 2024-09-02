@@ -314,25 +314,25 @@ function App() {
       // LZ padds the string with trailing `=`, which mess up the argument parsing
       // and aren't needed for LZ encoding, so we remove them.
       const compressed = LZString.compressToBase64(code).replace(/=*$/, '')
-      // Note: probably temporary; might be worth to always compress as with whitespace encoding
-      // it needs very little for the compressed version to be shorter
-      const encodedCode = fixedEncodeURIComponent(code)
-      console.debug(`[Lean4web]: code length: ${encodedCode.length}, compressed: ${compressed.length}`)
-      if (compressed.length < encodedCode.length) {
+      // // Note: probably temporary; might be worth to always compress as with whitespace encoding
+      // // it needs very little for the compressed version to be shorter
+      // const encodedCode = fixedEncodeURIComponent(code)
+      // console.debug(`[Lean4web]: code length: ${encodedCode.length}, compressed: ${compressed.length}`)
+      // if (compressed.length < encodedCode.length) {
         args = {
           project: _project,
           url: null,
           code: null,
           codez: compressed
         }
-      } else {
-        args = {
-          project: _project,
-          url: null,
-          code: encodedCode,
-          codez: null
-        }
-      }
+      // } else {
+      //   args = {
+      //     project: _project,
+      //     url: null,
+      //     code: encodedCode,
+      //     codez: null
+      //   }
+      // }
     } else {
       args = {
         project: _project,

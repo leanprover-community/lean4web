@@ -118,7 +118,7 @@ const SettingsPopup: FC<{
       <p>
         <Switch id="compress" onChange={() => {modifyPreferences("compress", !preferences.compress)}}
         checked={preferences.compress} />
-        <label htmlFor="compress">Compress code in URL (if shorter)</label>
+        <label htmlFor="compress">Compress code in URL</label>
       </p>
 
       <h2>Save</h2>
