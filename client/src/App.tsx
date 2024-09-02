@@ -52,11 +52,6 @@ function App() {
   const [url, setUrl] = useState<string | null>(null)
   const [codeFromUrl, setCodeFromUrl] = useState<string>('')
 
-  /** Restart the Lean client. */
-  function restart() {
-    leanMonaco?.clientProvider?.getClients().map(client => {client.restart()})
-  }
-
   /** Monaco editor requires the code to be set manually. */
   function setContent (code: string) {
     editor?.getModel()?.setValue(code)
@@ -118,7 +113,7 @@ function App() {
   // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
     var socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") +
-      window.location.host + "/websocket" + "/" + project
+      window.location.host + "/websocket/" + project
     console.log(`[Lean4web] socket url: ${socketUrl}`)
     var _options: LeanMonacoOptions = {
       websocket: {url: socketUrl},
@@ -155,7 +150,7 @@ function App() {
     _leanMonaco.setInfoviewElement(infoviewRef.current!)
     ;(async () => {
         await _leanMonaco.start(options)
-        await leanMonacoEditor.start(editorRef.current!, `/project/${project}.lean`, '')
+        await leanMonacoEditor.start(editorRef.current!, `/project/${project}.lean`, code)
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)
@@ -360,7 +355,7 @@ function App() {
           setProject={setProject}
           setUrl={setUrl}
           codeFromUrl={codeFromUrl}
-          restart={restart}
+          restart={leanMonaco?.restart}
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
           />

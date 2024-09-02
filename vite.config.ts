@@ -14,7 +14,8 @@ export default defineConfig({
     esbuildOptions: {
       // @ts-ignore           // TODO
       plugins: [importMetaUrlPlugin]
-    }
+    },
+    exclude: ['Projects']
   },
   build: {
     // Relative to the root

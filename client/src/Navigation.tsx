@@ -141,7 +141,7 @@ export const Menu: FC <{
   setProject: Dispatch<SetStateAction<string>>,
   setUrl: Dispatch<SetStateAction<string | null>>,
   codeFromUrl: string,
-  restart: () => void,
+  restart?: () => void,
   codeMirror: boolean,
   setCodeMirror: Dispatch<SetStateAction<boolean>>,
 }> = ({code, setContent, project, setProject, setUrl, codeFromUrl, restart, codeMirror, setCodeMirror}) => {

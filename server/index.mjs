@@ -77,12 +77,12 @@ function startServerProcess(project) {
   let projectPath = __dirname + `/../Projects/` + project
 
   let serverProcess
-  if (!isDevelopment) {
-    console.info("Running with Bubblewrap container.")
-    serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], { cwd: __dirname })
-  } else {
+  if (isDevelopment) {
     console.warn("Running without Bubblewrap container!")
     serverProcess = cp.spawn("lean", ["--server"], { cwd: projectPath })
+  } else {
+    console.info("Running with Bubblewrap container.")
+    serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], { cwd: __dirname })
   }
 
   // serverProcess.stdout.on('data', (data) => {
@@ -98,7 +98,7 @@ function startServerProcess(project) {
   )
 
   serverProcess.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
+    console.log(`lean server exited with code ${code}`);
   });
 
   return serverProcess
@@ -124,12 +124,16 @@ wss.addListener("connection", function(ws, req) {
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () => ws.close())
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, message => {
-      // console.log(`CLIENT: ${JSON.stringify(message)}`)
-      return message;
+    // if (isDevelopment) {
+    //   console.log(`CLIENT: ${JSON.stringify(message)}`)
+    // }
+    return message;
   })
   serverConnection.forward(socketConnection, message => {
-      // console.log(`SERVER: ${JSON.stringify(message)}`)
-      return message;
+    // if (isDevelopment) {
+    //   console.log(`SERVER: ${JSON.stringify(message)}`)
+    // }
+    return message;
   });
 
   ws.on('close', () => {
