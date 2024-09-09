@@ -6,9 +6,6 @@
   "bin": {
     "server": "server/index.mjs"
   },
-  "bin": {
-    "server": "server/index.js"
-  },
   "files": ["client/dist", "server"],
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start_server\" \"npm run start_client\"",
