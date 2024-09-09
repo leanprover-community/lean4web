@@ -85,9 +85,9 @@ function startServerProcess(project) {
     // the nix setup runs the server in ~,
     // `bubblewrap.sh` is somewhere relative to the js source file
     // and the projects are in ~/deploy/live/<project>
-    console.info(`Running with Bubblewrap container: ${cmd} ${cmdArgs}.`)
     cmd = path.join (__dirname, "bubblewrap.sh");
     cmdArgs = [path.join("deploy","live",project)];
+    console.info(`Running with Bubblewrap container: ${cmd} ${cmdArgs}.`)
     serverProcess = cp.spawn(cmd, cmdArgs, {})
   }
 
