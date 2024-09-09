@@ -1,0 +1,10 @@
+name = "mathlibLatest"
+defaultTargets = ["MathlibLatest"]
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "master"
+
+[[lean_lib]]
+name = "MathlibLatest"

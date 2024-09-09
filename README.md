@@ -1,8 +1,10 @@
+[![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/leanprover-community/lean4web/blob/main/LICENSE)
+[![(Runtime) Build and Test](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml/badge.svg)](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml)
+
+
 # Lean 4 Web
 
 This is a web version of Lean 4. The official lean playground is hosted at [live.lean-lang.org](https://live.lean-lang.org), while [lean.math.hhu.de](https://lean.math.hhu.de) hosts a development server testing newer features.
-
-
 
 In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
@@ -12,11 +14,34 @@ running on a web server, and not in the browser.
 If you experience any problems, or have feature requests, please open an issue here!
 PRs are welcome as well.
 
-To add new themes, please read [Adding Themes](client/public/themes/README.md).
-
 ## Security
-Providing the use access to a Lean instance running on the server is a severe security risk. That is why we start the Lean server
-using [Bubblewrap](https://github.com/containers/bubblewrap).
+Providing the use access to a Lean instance running on the server is a severe security risk.
+That is why we start the Lean server using [Bubblewrap](https://github.com/containers/bubblewrap).
+
+If bubblewrap is not installed, the server will start without a container and produce a warning.
+You can also opt-out of using bubblewrap by setting `NODE_ENV=development`.
+
+## Documentation
+
+### URL arguments
+
+The website parses arguments of the form `https://myserver.com/#arg1=value1&arg2=value2`.
+The recognised arguments are:
+
+- `code=`: plain text code.
+  (overwrites `codez`)
+- `codez=`: compressed code using [LZ-string](https://www.npmjs.com/package/lz-string).
+- `url=`: a URL where the content is loaded from.
+  (overwrites `code` and `codez`).
+- `project=`: the Lean project used by the server to evaluate the code. This has the be the name
+  of one of the projects the server defines in their config.
+
+The server will automatically only write one of `code`, `codez`, and `url` based on the following
+logic:
+
+1. if the code matches the one from the loaded URL, use `url`
+2. if the preferences say no comression, use `code`
+3. otherwise use `codez` or `code` depending on which results in a shorter URL.
 
 ## Build Instructions
 
@@ -85,7 +110,7 @@ In addition, we use Nginx and pm2 to manage our server.
 
 #### Managing toolchains
 
-Running and updating the server periodically might accumulate lean toolchains.
+Running and updating the server periodically might accumulate Lean toolchains.
 
 To delete unused toolchains automatically, you can use the
 [elan-cleanup tool](https://github.com/JLimperg/elan-cleanup) and set up a
@@ -100,11 +125,19 @@ You can see installed lean toolchains with `elan toolchain list`
 and check the size of `~/.elan`.
 
 ### Legal information
-For legal purposes, we need to display contact details. When setting up your own server,
-you will need to modify the following files:
 
-- `client/src/config/text.tsx`: Update contact information & server location. (set them to `null` if you don't need to display them in your country)
-- `client/public/index.html`: Update the `noscript` page with the correct contact details.
+Depending on the GDPR and laws applying to your server, you will need to provide the following
+information:
+
+- `client/config/config.tsx`, `serverCountry`: where your server is located.
+- `client/config/config.tsx`, `contactDetails`: used in privacy policy & impressum
+- `client/config/config.tsx`, `impressum`: further legal notes
+
+if `contactDetails` or `impressum` are not `null`, you will see an item `Impressum` in
+the dropdown menu containing that information.
+
+Further, you might need to add the impressum manually to `index.html`
+for people with javascript disabled!
 
 ## Development Instructions
 

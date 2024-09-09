@@ -1,0 +1,152 @@
+nav {
+  /* box-shadow: 0 .3rem .3rem 0 var(--vscode-menu-separatorBackground); */
+  border-bottom: 1px solid var(--vscode-menu-separatorBackground);
+  background-color: var(--vscode-menu-background);
+  color: var(--vscode-menu-foreground);
+  z-index: 1;
+}
+
+/* The Lean logo */
+nav > svg {
+  height: 2.2rem;
+  width: unset;
+  vertical-align: middle;
+  margin-left: .5rem;
+  margin-right: 1rem;
+  filter: invert(1);
+  mix-blend-mode: difference;
+}
+
+/* The top bar with menu items. */
+nav .menu {
+  float: right;
+}
+
+/* A dropdown comprises a `nav-link` and a `dropdown-content`. The latter has absolute
+positioning to be displayed on top of things. */
+nav .dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+nav .dropdown-content {
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  white-space: nowrap;
+  background-color: var(--vscode-menu-background);
+  z-index: 1;
+  border: none;
+  border-top: 1px solid var(--vscode-menu-separatorBackground);
+  border-bottom: 1px solid var(--vscode-menu-separatorBackground);
+  box-shadow: -.1rem .3rem .3rem 0 var(--vscode-menu-separatorBackground);
+}
+
+/* Second level dropdowns */
+nav .dropdown-content .dropdown .dropdown-content {
+  z-index: 2;
+  left: 0;
+}
+/* Second level dropdowns */
+nav .dropdown-content .dropdown > .nav-link {
+  /* Don't know why but apparently that yields the correct width. */
+  display: block;
+}
+
+/* Overlay to fade out the dropdown if a sub-dropdown is displayed on top. */
+nav .dropdown-overlay {
+  background-color: var(--vscode-menu-background);
+  opacity: 0.7;
+  position: absolute;
+  width:100%;
+  height: 100%;
+}
+
+/* The menu items */
+nav .nav-link {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  padding-left: .8rem;
+  padding-right: .8rem;
+  padding-top: .6rem;
+  padding-bottom: .6rem;
+}
+
+/* Zulip logo (instead of font-awesome icon) */
+nav .nav-link svg {
+  width: 1.4rem;
+}
+
+nav .nav-link:hover {
+  color: var(--vscode-menu-selectionForeground);
+  background-color: var(--vscode-menu-selectionBackground);
+}
+
+nav select {
+  margin-left: .5rem;
+  margin-right: .5rem;
+}
+
+.tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  min-width: 300px;
+  background-color: var(--vscode-input-foreground);
+  color: var(--vscode-input-background);
+  text-align: left;
+  border-radius: 5px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; /* Position the tooltip above the element */
+  left: 50%;
+  margin-left: -150px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip img {
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  margin-right: .5em;
+  margin-bottom: .5em;
+  float: left;
+}
+
+.tooltip p {
+  padding: 0;
+  margin: 0;
+}
+
+.tooltip .tooltiptext .commit-message {
+  font-weight: bold;
+}
+
+.tooltip .tooltiptext .commit-author {
+  font-style: italic;
+  color: #bbb;
+}
+
+.tooltip .tooltiptext .commit-date {
+  color: #bbb;
+}
+
+.tooltip .tooltiptext .commit-sha {
+  font-style: italic;
+  color: #5cb6de;
+}

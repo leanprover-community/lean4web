@@ -1,9 +1,10 @@
-import * as React from 'react';
-import { createRoot } from 'react-dom/client';
-import './css/index.css';
-import App from './App';
-// import './fonts/JuliaMono-Regular.ttf';
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './css/index.css'
+import { StrictMode } from 'react'
 
-const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(<React.StrictMode><App /></React.StrictMode>);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)

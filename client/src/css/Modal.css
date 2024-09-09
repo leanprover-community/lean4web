@@ -36,6 +36,7 @@ input[type="file"] {
   z-index: 3;
   padding: 2rem;
   border-radius: 1rem;
+  border: 1px solid var(--vscode-panel-border);
   text-align: left;
   color: var(--vscode-input-foreground);
 }

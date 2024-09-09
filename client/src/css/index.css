@@ -3,13 +3,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #2B2B2B;
+  color: #fff;
 }
 
 #root {
   height: 100vh;
 }
 
+@media (prefers-color-scheme: light) {
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
+
 @font-face {
-  font-family: 'JuliaMono';
-  src: local('JuliaMono'), url('/fonts/JuliaMono-Regular.ttf') format('truetype');
+  font-family: "JuliaMono";
+  src:
+    local('JuliaMono'),
+    url("/fonts/JuliaMono-Regular.ttf"),
 }
