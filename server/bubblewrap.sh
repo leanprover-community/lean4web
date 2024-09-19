@@ -12,7 +12,7 @@ if command -v bwrap >/dev/null 2>&1; then
     --ro-bind "$LEAN_ROOT" /lean \
     --ro-bind /usr /usr \
     --dev /dev \
-    --bind /tmp/ /tmp/ \
+    --tmpfs /tmp \
     --proc /proc \
     --symlink usr/lib /lib\
     --symlink usr/lib64 /lib64\
