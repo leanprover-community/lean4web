@@ -1,5 +1,9 @@
 #/bin/bash
 
+# Limit CPU time per process to 1h
+ulimit -t 3600
+# NB: The RSS limit (ulimit -m) is not supported by modern linux!
+
 LEAN_ROOT="$(cd $1 && lean --print-prefix)"
 LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
 GLIBC_PATH="$(nix-store --query "$(patchelf --print-interpreter "$LEAN_ROOT/bin/lean")")"
