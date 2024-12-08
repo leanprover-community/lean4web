@@ -6,6 +6,7 @@ ulimit -t 3600
 
 LEAN_ROOT="$(cd $1 && lean --print-prefix)"
 LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
+LEAN_SRC_PATH=$(cd $1 && lake env printenv LEAN_SRC_PATH)
 GLIBC_PATH="$(nix-store --query "$(patchelf --print-interpreter "$LEAN_ROOT/bin/lean")")"
 
 # # print commands as they are executed
@@ -27,6 +28,7 @@ if true; then
     --setenv PATH "/lean/bin" \
     --setenv LAKE "/no" `# tries to invoke git otherwise` \
     --setenv LEAN_PATH "$LEAN_PATH" \
+    --setenv LEAN_SRC_PATH "$LEAN_SRC_PATH" \
     --unshare-user \
     --unshare-pid  \
     --unshare-net  \
