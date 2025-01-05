@@ -18,6 +18,8 @@ if true; then
     --ro-bind "$LEAN_ROOT" /lean \
     --ro-bind "$GLIBC_PATH" "$GLIBC_PATH" `# only dep of bin/lean` \
     --ro-bind /usr /usr \
+    --ro-bind /etc/localtime /etc/localtime \
+    --ro-bind $(readlink -f /etc/zoneinfo) $(readlink -f /etc/zoneinfo) \
     --dev /dev \
     --proc /proc \
     --symlink usr/lib /lib\
