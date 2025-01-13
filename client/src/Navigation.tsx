@@ -175,6 +175,8 @@ export const Menu: FC <{
     }
   }
 
+  const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
+
   return  <div className='menu'>
     <select
         name="leanVersion"
@@ -220,13 +222,15 @@ export const Menu: FC <{
       <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
       <NavButton icon={faDownload} text="Save file" onClick={() => save(code)} />
       <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />
-      <NavButton icon={faInfoCircle} text={'Impressum'} onClick={() => {setImpressumOpen(true)}} />
+      { hasImpressum &&
+        <NavButton icon={faInfoCircle} text={'Impressum'} onClick={() => {setImpressumOpen(true)}} />
+      }
       <NavButton icon={faArrowUpRightFromSquare} text="Lean community" href="https://leanprover-community.github.io/" />
       <NavButton icon={faArrowUpRightFromSquare} text="Lean documentation" href="https://leanprover.github.io/lean4/doc/" />
       <NavButton icon={faArrowUpRightFromSquare} text="GitHub" href="https://github.com/hhu-adam/lean4web" />
     </Dropdown>
     <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
-    { (lean4webConfig.impressum || lean4webConfig.contactDetails) &&
+    { hasImpressum &&
       <ImpressumPopup open={impressumOpen} handleClose={() => setImpressumOpen(false)} />
     }
     <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} project={project} />
