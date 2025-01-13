@@ -33,3 +33,18 @@ export function parseArgs(): UrlArgs {
     let _args = window.location.hash.replace('#', '').split('&').map((s) => s.split('=')).filter(x => x[0])
     return Object.fromEntries(_args)
   }
+
+/**
+ * Tries to lookup and replace some common URLs, such as a github url.
+ *
+ * - change link to github file to its raw content.
+ */
+export function lookupUrl(url: string): string {
+  const regex = RegExp('https://github.com/(.+)/blob/(.+)')
+
+  if (regex.test(url)) {
+    url = url.replace(regex, 'https://raw.githubusercontent.com/$1/refs/heads/$2')
+  }
+
+  return url
+}

@@ -15,6 +15,7 @@ import LoadZulipPopup from './Popups/LoadZulip'
 import lean4webConfig from './config/config'
 import './css/Modal.css'
 import './css/Navigation.css'
+import { lookupUrl } from './utils/UrlParsing'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
 export const NavButton: FC<{
@@ -161,6 +162,7 @@ export const Menu: FC <{
   const { preferences } = useContext(PreferencesContext)
 
   const loadFromUrl = (url: string, project:string|undefined=undefined) => {
+    url = lookupUrl(url)
     console.debug('load code from url')
     setUrl((oldUrl: string|null) => {
       if (oldUrl === url) {
