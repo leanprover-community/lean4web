@@ -40,13 +40,15 @@ app.use('/api/examples/*', (req, res, next) => {
 app.use('/api/manifest/*', (req, res, next) => {
   const project = req.params[0]
   req.url = 'lake-manifest.json'
-  express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
+  // the nix setup has the files in ~/deploy/live
+  express.static(path.join(os.homedir(), 'deploy', 'live', project))(req, res, next)
 })
 // `*` is the project like `mathlib-demo`
 app.use('/api/toolchain/*', (req, res, next) => {
   const project = req.params[0]
   req.url = 'lean-toolchain'
-  express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
+  // the nix setup has the files in ~/deploy/live
+  express.static(path.join(os.homedir(), 'deploy', 'live', project))(req, res, next)
 })
 // Using the client files
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
