@@ -21,6 +21,7 @@ if true; then
     --ro-bind /etc/localtime /etc/localtime \
     --ro-bind $(readlink -f /etc/zoneinfo) $(readlink -f /etc/zoneinfo) \
     --dev /dev \
+    --tmpfs /tmp \
     --proc /proc \
     --symlink usr/lib /lib\
     --symlink usr/lib64 /lib64\

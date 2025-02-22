@@ -12,7 +12,7 @@ import LeanLogo from './assets/logo.svg'
 import defaultSettings, { IPreferencesContext, lightThemes } from './config/settings'
 import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
-import { fixedEncodeURIComponent, formatArgs, parseArgs } from './utils/UrlParsing'
+import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
 import { useWindowDimensions } from './utils/WindowWidth'
 
 // CSS
@@ -249,7 +249,7 @@ function App() {
       setContent(_code)
     }
 
-    if (args.url) {setUrl(decodeURIComponent(args.url))}
+    if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
     if (args.project && args.project != project) {
       console.log(`[Lean4web] setting project to ${args.project}`)
       setProject(args.project)
