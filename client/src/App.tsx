@@ -82,10 +82,9 @@ function App() {
 
   // Load preferences from store in the beginning
   useEffect(() => {
-    console.debug('[Lean4web] Preferences: Loading.')
-
     // only load them once
     if (loaded) { return }
+    console.debug('[Lean4web] Loading preferences')
 
     let saveInLocalStore = false;
     let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
@@ -139,7 +138,7 @@ function App() {
 
     var socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") +
       window.location.host + "/websocket/" + project
-    console.log(`[Lean4web] socket url: ${socketUrl}`)
+    console.log(`[Lean4web] Socket url is ${socketUrl}`)
     var _options: LeanMonacoOptions = {
       websocket: {url: socketUrl},
       // Restrict monaco's extend (e.g. context menu) to the editor itself
@@ -168,7 +167,7 @@ function App() {
   useEffect(() => {
     // Wait for preferences to be loaded
     if (!loaded) { return }
-    console.debug('[Lean4web] Restarting Editor!')
+    console.debug('[Lean4web] Restarting editor')
     var _leanMonaco = new LeanMonaco()
     var leanMonacoEditor = new LeanMonacoEditor()
 
@@ -260,12 +259,12 @@ function App() {
   }, [loaded, project, preferences, options, infoviewRef, editorRef])
 
   // Load content from source URL.
-  // Once the editor, this reads the content of any provided `url=` in the URL and
-  // saves this content as `contentFromURL`. It is important that we only do this once
-  // the editor is loaded, as the `useEffect` below only triggers when the `contentFromURL`
+  // Once the editor is loaded, this reads the content of any provided `url=` in the URL and
+  // saves this content as `codeFromURL`. It is important that we only do this once
+  // the editor is loaded, as the `useEffect` below only triggers when the `codeFromURL`
   // changes, otherwise it might overwrite local changes too often.
   useEffect(() => {
-    if (!editor || !url) {return}
+    if (!editor || !url) { return }
     console.debug(`[Lean4web] Loading from ${url}`)
     fetch(url)
     .then((response) => response.text())
@@ -320,7 +319,7 @@ function App() {
       // // Note: probably temporary; might be worth to always compress as with whitespace encoding
       // // it needs very little for the compressed version to be shorter
       // const encodedCode = fixedEncodeURIComponent(code)
-      // console.debug(`[Lean4web]: code length: ${encodedCode.length}, compressed: ${compressed.length}`)
+      // console.debug(`[Lean4web] Code length: ${encodedCode.length}, compressed: ${compressed.length}`)
       // if (compressed.length < encodedCode.length) {
         args = {
           project: _project,

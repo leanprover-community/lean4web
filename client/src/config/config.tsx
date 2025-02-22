@@ -14,7 +14,9 @@ const lean4webConfig : LeanWebConfig = {
         { "file": "MathlibLatest/Rational.lean",
           "name": "Rational" }]},
     { "folder": "stable",
-      "name": "Stable Lean" }
+      "name": "Stable Lean" },
+    { "folder": "nightly",
+        "name": "Nightly" }
   ],
   "serverCountry": null,
   "contactDetails": null,

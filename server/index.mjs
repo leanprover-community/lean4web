@@ -139,6 +139,7 @@ wss.addListener("connection", function(ws, req) {
   ws.on('close', () => {
     console.log(`[${new Date()}] Socket closed - ${ip}`)
     socketCounter -= 1
+    logStats()
   })
 
   socketConnection.onClose(() => serverConnection.dispose())
