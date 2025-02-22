@@ -48,7 +48,7 @@ function App() {
 
   // the user data
   const [code, setCode] = useState<string>('')
-  const [project, setProject] = useState<string>('mathlib-demo')
+  const [project, setProject] = useState<string>(undefined)
   const [url, setUrl] = useState<string | null>(null)
   const [codeFromUrl, setCodeFromUrl] = useState<string>('')
 
@@ -57,6 +57,28 @@ function App() {
     editor?.getModel()?.setValue(code)
     setCode(code)
   }
+
+  // Read the URL arguments
+  useEffect(() => {
+    // Parse args
+    console.log('[Lean4web] Parsing URL')
+    let args = parseArgs()
+    if (args.code) {
+      let _code = decodeURIComponent(args.code)
+      setContent(_code)
+    } else if (args.codez) {
+      let _code = LZString.decompressFromBase64(args.codez)
+      setContent(_code)
+    }
+
+    if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
+
+    // if no project provided, use default
+    let project = args.project || 'mathlib-demo'
+
+    console.log(`[Lean4web] Setting project to ${project}`)
+    setProject(project)
+  }, [])
 
   // Load preferences from store in the beginning
   useEffect(() => {
@@ -112,6 +134,9 @@ function App() {
 
   // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
+    if (!project) { return }
+    console.log('[Lean4web] Update lean4monaco options')
+
     var socketUrl = ((window.location.protocol === "https:") ? "wss://" : "ws://") +
       window.location.host + "/websocket/" + project
     console.log(`[Lean4web] socket url: ${socketUrl}`)
@@ -233,28 +258,6 @@ function App() {
       _leanMonaco.dispose()
     }
   }, [loaded, project, preferences, options, infoviewRef, editorRef])
-
-  // Read the URL arguments once
-  useEffect(() => {
-    if (!editor) { return }
-    console.debug('[Lean4web] editor is ready')
-
-    // Parse args
-    let args = parseArgs()
-    if (args.code) {
-      let _code = decodeURIComponent(args.code)
-      setContent(_code)
-    } else if (args.codez) {
-      let _code = LZString.decompressFromBase64(args.codez)
-      setContent(_code)
-    }
-
-    if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
-    if (args.project && args.project != project) {
-      console.log(`[Lean4web] setting project to ${args.project}`)
-      setProject(args.project)
-    }
-  }, [editor])
 
   // Load content from source URL.
   // Once the editor, this reads the content of any provided `url=` in the URL and
