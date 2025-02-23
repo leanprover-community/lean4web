@@ -14,11 +14,9 @@ const lean4webConfig : LeanWebConfig = {
         { "file": "MathlibLatest/Rational.lean",
           "name": "Rational" }]},
     { "folder": "mathlib-stable",
-      "name": "Mathlib stable",
-      "examples" : []},
+      "name": "Mathlib stable"},
     { "folder": "lean-nightly",
-      "name": "Lean Nightly (without mathlib)",
-      "examples" : []}
+      "name": "Lean Nightly (without mathlib)"}
   ],
   "serverCountry": 'Finland',
   "contactDetails": null,

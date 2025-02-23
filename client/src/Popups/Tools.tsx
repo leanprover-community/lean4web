@@ -154,6 +154,7 @@ const ToolsPopup: FC<{
 
   // Load the new manifest & toolchain
   useEffect(() => {
+    if (!project) { return }
     const urlManifest = `${window.location.origin}/api/manifest/${project}`
     fetch(urlManifest)
     .then((response) => {
