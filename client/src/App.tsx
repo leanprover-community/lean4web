@@ -159,6 +159,7 @@ function App() {
         "lean4.input.eagerReplacementEnabled": true,
         "lean4.infoview.showGoalNames": false,
         "lean4.infoview.emphasizeFirstGoal": true,
+        "lean4.infoview.showExpectedType": false,
         "lean4.input.leader": preferences.abbreviationCharacter
       }
     }
