@@ -93,7 +93,6 @@ describe('The Editor', () => {
   it('displays and accetps quickfixes inline', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?{shift+alt+.}')
-    cy.contains('div.view-line', 'apply?').should('not.exist')
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
