@@ -124,15 +124,15 @@ wss.addListener("connection", function(ws, req) {
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () => ws.close())
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, message => {
-    // if (isDevelopment) {
-    //   console.log(`CLIENT: ${JSON.stringify(message)}`)
-    // }
+    if (isDevelopment) {
+      console.log(`CLIENT: ${JSON.stringify(message)}`)
+    }
     return message;
   })
   serverConnection.forward(socketConnection, message => {
-    // if (isDevelopment) {
-    //   console.log(`SERVER: ${JSON.stringify(message)}`)
-    // }
+    if (isDevelopment) {
+      console.log(`SERVER: ${JSON.stringify(message)}`)
+    }
     return message;
   });
 
