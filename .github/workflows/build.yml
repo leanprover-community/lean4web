@@ -31,7 +31,7 @@ jobs:
       - name: Install elan, build and test server
         uses: leanprover/lean-action@v1
         with:
-          lake-package-directory: "server"
+          lake-package-directory: "Projects/mathlib-demo"
           use-mathlib-cache: false
           use-github-cache: false
           auto-config: false
