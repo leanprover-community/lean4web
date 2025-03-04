@@ -20,7 +20,9 @@
     "production": "NODE_ENV=production node server/index.mjs",
     "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:bare": "wait-on http://localhost:8080 http://localhost:3000 && cypress run",
+    "test": "concurrently -k -n server,client,cypress -c blue,green,cyan \"npm run start_server\" \"npm run start_client\" \"npm run test:bare\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -54,10 +56,14 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
+    "cypress": "^13.17.0",
+    "cypress-iframe": "^1.0.1",
+    "cypress-real-events": "^1.14.0",
     "typescript": "^5.8.2",
     "vite": "^6.2.0",
     "vite-plugin-node-polyfills": "0.23.0",
     "vite-plugin-static-copy": "^2.3.0",
-    "vite-plugin-svgr": "^4.3.0"
+    "vite-plugin-svgr": "^4.3.0",
+    "wait-on": "^8.0.2"
   }
 }

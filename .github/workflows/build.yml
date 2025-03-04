@@ -1,35 +1,45 @@
-name: Build
-run-name: Build the project
+name: Build and Test
+run-name: Build and Test
 on:
+  workflow_dispatch:
   push:
-    branches: ["main"]
+    branches:
+      - "main"
+      - "dev"
   pull_request:
-    branches: ["main"]
+    branches:
+      - "main"
+      - "dev"
+    paths:
+      - ".github/workflows/build.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Linux
-            os: ubuntu-latest
-          # - name: macOS
-          #   os: macos-latest
-          # - name: Windows
-          #   os: windows-latest
-    name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - uses: leanprover/lean-action@v1
+      - name: Install elan, build and test server
+        uses: leanprover/lean-action@v1
         with:
-          lake-package-directory: "Projects/mathlib-demo"
+          lake-package-directory: "server"
+          use-mathlib-cache: false
+          use-github-cache: false
+          auto-config: false
           build: true
-          test: false
+          test: true
           lint: false
-      - run: npm install
-      # - run: npm audit
-      #   continue-on-error: true
-      - run: npm run build_client
-      - run: npm run build_server
+      - name: Install dependencies
+        run: npm install
+      - name: Build client for production
+        run: npm run build:client
+      - name: Cypress tests
+        run: npm test
