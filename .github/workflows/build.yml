@@ -6,6 +6,7 @@ on:
     branches:
       - "main"
       - "dev"
+      - "add-cypress"
   pull_request:
     branches:
       - "main"
