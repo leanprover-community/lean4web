@@ -100,7 +100,7 @@ SHELL=/usr/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.elan/bin:/home/USER/.nvm/versions/node/v20.8.0/bin/
 
 # Update server (i.e. mathlib) of lean4web and delete mathlib cache
-*  */6 * * * cd /home/USER/lean4web && npm run build_server 2>&1 1>/dev/null | logger -t lean4web
+*  */6 * * * cd /home/USER/lean4web && npm run build:server 2>&1 1>/dev/null | logger -t lean4web
 40 2   * * * rm -rf /home/USER/.cache/mathlib/
 ```
 
@@ -144,7 +144,7 @@ for people with javascript disabled!
 Install [npm](https://www.npmjs.com/) and clone this repository. Inside the repository, run:
 
 1. `npm install`, to install dependencies
-2. `npm run build_server`, to build contained lean projects under `Projects/` (or run `lake build` manually inside any lean project)
+2. `npm run build:server`, to build contained lean projects under `Projects/` (or run `lake build` manually inside any lean project)
 3. `npm start`, to start the server.
 
 The project can be accessed via http://localhost:3000. (Internally, websocket requests to `ws://localhost:3000/`websockets will be forwarded to a Lean server running on port 8080.)

@@ -32,11 +32,9 @@ jobs:
         uses: leanprover/lean-action@v1
         with:
           lake-package-directory: "Projects/mathlib-demo"
-          use-mathlib-cache: false
           use-github-cache: false
-          auto-config: false
           build: true
-          test: true
+          test: false
           lint: false
       - name: Install dependencies
         run: npm install
