@@ -21,8 +21,8 @@
     "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "test:bare": "wait-on http://localhost:8080 http://localhost:3000 && cypress run",
-    "test": "concurrently -k -n server,client,cypress -c blue,green,cyan \"npm run start:server\" \"npm run start:client\" \"npm run test:bare\""
+    "test:bare": "wait-on --resources \"http://localhost:8080\" \"http://localhost:3000\" && cypress run",
+    "test": "concurrently -k -s first -n server,client,cypress -c blue,green,cyan \"npm run start:server\" \"npm run start:client\" \"npm run test:bare\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
