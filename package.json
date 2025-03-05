@@ -6,7 +6,10 @@
   "bin": {
     "server": "server/index.mjs"
   },
-  "files": ["client/dist", "server"],
+  "files": [
+    "client/dist",
+    "server"
+  ],
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start_server\" \"npm run start_client\"",
     "start_server": "cd server && NODE_ENV=development nodemon ./index.mjs",
@@ -46,7 +49,7 @@
     "ws": "^8.18.1"
   },
   "devDependencies": {
-    "@codingame/esbuild-import-meta-url-plugin": "https://gitpkg.vercel.app/abentkamp/monacotest2/esbuild-import-meta-url-plugin?ec9666e",
+    "@codingame/esbuild-import-meta-url-plugin": "^1.0.3",
     "@types/node": "^22.13.9",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",

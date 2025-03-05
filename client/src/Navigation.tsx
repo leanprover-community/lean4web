@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, FC, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
+import { ChangeEvent, Dispatch, FC, JSX, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition, faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'

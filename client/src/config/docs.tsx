@@ -2,6 +2,8 @@
  * This file contains the documentation of the existing `config` options
 */
 
+import { JSX } from "react"
+
 /** An example can be any Lean file which belongs to the project.
  * The editor just reads the file content, but it makes sense for maintainability
  * that you ensure the Lean project actually builds the file. */
