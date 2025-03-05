@@ -49,19 +49,28 @@ jobs:
       - name: Build client for production
         run: npm run build:client
 
-      - name: Run Cypress tests
+      - name: Run Cypress tests (No Video)
+        id: cypress_no_video
         run: npm test
+        continue-on-error: true
 
-      - name: Upload screenshots
+      - name: Upload screenshots on failure
+        if: failure() && steps.cypress_no_video.outcome == 'failure'
         uses: actions/upload-artifact@v4
-        if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
 
+      - name: Run Cypress tests (With Video)
+        id: cypress_with_video
+        if: failure() && steps.cypress_no_video.outcome == 'failure'
+        run: npm test
+        env:
+          CYPRESS_VIDEOS: true
+
       - name: Upload videos
+        if: failure() && steps.cypress_with_video.outcome == 'failure'
         uses: actions/upload-artifact@v4
-        if: failure()
         with:
           name: cypress-videos
           path: cypress/videos
