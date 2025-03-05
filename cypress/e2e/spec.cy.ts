@@ -40,7 +40,7 @@ describe('The Editor', () => {
 
   it('displays correct infoview state', () => {
     cy.visit('/')
-    cy.get('div.view-lines').type('example (P: Prop) : P \\or \\not P := by{enter}  ')
+    cy.get('div.view-lines').type('example (P: Prop) : P \\or \\not P := by')
 
     cy.iframe().containsAll([
       'Tactic state',
@@ -50,7 +50,7 @@ describe('The Editor', () => {
       'unexpected end of input'
     ]).should('exist')
 
-    cy.get('div.view-lines').type('exact Classical.em P')
+    cy.contains('div.view-lines', 'P := by').type('{enter}  exact Classical.em P')
     cy.iframe().containsAll('details', ['Tactic state', 'No goals']).should('exist')
     cy.iframe().contains('details', 'Expected type').should('not.be.open').click()
     cy.iframe().containsAll('details', ['P : Prop', '⊢ Prop']).should('be.open')
@@ -68,11 +68,12 @@ describe('The Editor', () => {
 
   it('displays and handles code completion', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  ap')
-    cy.contains('div.monaco-editor', 'apply?').as('editor').should('exist')
-    cy.get('@editor').contains('div.view-line', 'apply?').should('not.exist')
-    cy.get('@editor').contains('div.view-line', 'ap').type('{downArrow}{shift+enter}')
-    cy.contains('div.view-line', 'apply?').should('exist')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl')
+    cy.containsAll('div.monaco-editor', ['by appl', 'apply?']).should('exist')
+        .then(() => {
+          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}')
+          cy.contains('div.view-line', 'apply?').should('exist')
+        })
     cy.get('.squiggly-info').should('exist')
   })
 
