@@ -23,12 +23,19 @@ defaults:
     shell: bash
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - name: Install elan, build and test server
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.18.3"
+          cache: "npm"
+
+      - name: Install elan and build server
         uses: leanprover/lean-action@v1
         with:
           lake-package-directory: "Projects/mathlib-demo"
@@ -36,18 +43,23 @@ jobs:
           build: true
           test: false
           lint: false
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
       - name: Build client for production
         run: npm run build:client
-      - name: Cypress tests
+
+      - name: Run Cypress tests
         run: npm test
+
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+
       - name: Upload videos
         uses: actions/upload-artifact@v4
         if: failure()
