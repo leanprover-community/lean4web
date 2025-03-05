@@ -52,6 +52,9 @@ jobs:
       - name: Run Cypress tests (No Video)
         id: cypress_no_video
         run: npm test
+        env:
+          CYPRESS_VIDEO: false
+          CYPRESS_NUM_TESTS_KEPT_IN_MEMORY: 5
 
       - name: Upload screenshots on failure
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
@@ -66,6 +69,7 @@ jobs:
         run: npm test
         env:
           CYPRESS_VIDEO: true
+          CYPRESS_NUM_TESTS_KEPT_IN_MEMORY: 5
 
       - name: Upload videos
         if: failure() && steps.cypress_no_video.conclusion == 'failure'

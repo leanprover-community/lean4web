@@ -83,10 +83,10 @@ describe('The Editor', () => {
 
   it('displays and handles code completion', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl', { delay: 100 })
     cy.containsAll('div.monaco-editor', ['by appl', 'apply?']).should('exist')
         .then(() => {
-          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}')
+          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}', { delay: 100 })
           cy.contains('div.view-line', 'apply?').should('exist')
         })
     cy.get('.squiggly-info').should('exist')
