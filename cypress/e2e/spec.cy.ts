@@ -70,14 +70,15 @@ describe('The Editor', () => {
   it('displays correct hover tooltips', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by')
-    cy.contains('div.view-line span', 'by').realHover({ position: "center" })
-    cy.containsAll('div.monaco-hover-content', [
+    cy.contains('div.view-line span', 'by').realHover({ position: "center" }).then(() => {
+      cy.containsAll('div.monaco-hover-content', [
         'unsolved goals',
         'P : Prop',
         '⊢ P ∨ ¬P',
         'by tac constructs a term of the expected type by running the tactic(s) tac.',
         'View Problem (Alt+F8)'
-    ]).should('be.visible')
+      ]).should('be.visible')
+    })
   })
 
   it('displays and handles code completion', () => {
@@ -92,8 +93,9 @@ describe('The Editor', () => {
 
   it('displays and accetps quickfixes inline', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?{shift}{alt}.')
-    cy.contains('div.view-line', 'exact Classical.em P').should('exist')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?{shift}{alt}.').then(() => {
+      cy.contains('div.view-line', 'exact Classical.em P').should('exist')
+    })
   })
 
   it('displays and accetps suggestions from infoview', () => {
