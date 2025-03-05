@@ -46,14 +46,14 @@
   },
   "devDependencies": {
     "@codingame/esbuild-import-meta-url-plugin": "https://gitpkg.vercel.app/abentkamp/monacotest2/esbuild-import-meta-url-plugin?ec9666e",
-    "@types/node": "^22.0.2",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "typescript": "^5.5.4",
-    "vite": "^5.3.1",
-    "vite-plugin-node-polyfills": "0.17.0",
-    "vite-plugin-static-copy": "^1.0.6",
-    "vite-plugin-svgr": "^4.2.0"
+    "@types/node": "^22.13.9",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.0",
+    "vite-plugin-node-polyfills": "0.23.0",
+    "vite-plugin-static-copy": "^2.3.0",
+    "vite-plugin-svgr": "^4.3.0"
   }
 }
