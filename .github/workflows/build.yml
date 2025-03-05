@@ -68,7 +68,7 @@ jobs:
           CYPRESS_VIDEO: true
 
       - name: Upload videos
-        if: failure() && steps.cypress_with_video.conclusion == 'failure'
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
