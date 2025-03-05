@@ -52,10 +52,9 @@ jobs:
       - name: Run Cypress tests (No Video)
         id: cypress_no_video
         run: npm test
-        continue-on-error: true
 
       - name: Upload screenshots on failure
-        if: failure() && steps.cypress_no_video.outcome == 'failure'
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
@@ -63,13 +62,13 @@ jobs:
 
       - name: Run Cypress tests (With Video)
         id: cypress_with_video
-        if: failure() && steps.cypress_no_video.outcome == 'failure'
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
         run: npm test
         env:
           CYPRESS_VIDEOS: true
 
       - name: Upload videos
-        if: failure() && steps.cypress_with_video.outcome == 'failure'
+        if: failure() && steps.cypress_with_video.conclusion == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos
