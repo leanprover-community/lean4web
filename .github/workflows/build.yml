@@ -65,7 +65,7 @@ jobs:
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
         run: npm test
         env:
-          CYPRESS_VIDEOS: true
+          CYPRESS_VIDEO: true
 
       - name: Upload videos
         if: failure() && steps.cypress_with_video.conclusion == 'failure'
