@@ -70,7 +70,7 @@ describe('The Editor', () => {
   it('displays correct hover tooltips', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by')
-    cy.contains('div.view-line span', 'by').realHover()
+    cy.contains('div.view-line span', 'by').realHover({ position: "center" })
     cy.containsAll('div.monaco-hover-content', [
         'unsolved goals',
         'P : Prop',
@@ -99,7 +99,7 @@ describe('The Editor', () => {
   it('displays and accetps suggestions from infoview', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
-    cy.iframe().contains('exact Classical.em P').click()
+    cy.iframe().contains("span[title='Apply suggestion']", 'exact Classical.em P').click()
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 })
