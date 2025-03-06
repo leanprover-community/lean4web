@@ -107,4 +107,25 @@ describe('The Editor', () => {
     cy.iframe().contains("span[title='Apply suggestion']", 'exact Classical.em P').click()
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
+
+  it('loads from Zulip message on desktop', () => {
+    cy.fixture('zulip-msg-1.txt').as('zulipMsg')
+    cy.visit('/')
+    cy.frameLoaded()
+    cy.contains('.nav-link', 'Load').click()
+    cy.contains('.nav-link', 'Load Zulip Message').click()
+    cy.get('@zulipMsg').should('include', 'An example snippet').then(($msg) => {
+      cy.get('.modal>form>textarea').invoke('val', $msg).then(() => {
+        cy.get(".modal>form>input[value='Parse message']").should('exist').click()
+      })
+    })
+    cy.containsAll('.view-lines', ['#eval Lean.toolchain', '#check Classical.em']).should('exist')
+    cy.iframe().contains('Restart File').should('exist').click()
+    cy.iframe().contains('details', 'All Messages (2)').should('exist').click()
+    cy.iframe().containsAll('body', [
+      'All Messages (2)',
+      'leanprover/lean4',
+      'Classical.em (p : Prop) : p ∨ ¬p'
+    ]).should('exist')
+  })
 })
