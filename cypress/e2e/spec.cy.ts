@@ -93,11 +93,14 @@ describe('The Editor', () => {
   })
 
   it('displays and accetps quickfixes inline', () => {
+    const modBtn = Cypress.platform === 'darwin' ? 'Meta' : 'Control'
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
     cy.contains('div.view-line', 'apply?').should('exist')
     cy.get('.squiggly-info').should('exist')
-    cy.realPress(['Shift', 'Alt', '.'], { pressDelay: 1 })
+    cy.realPress([modBtn, '.'])
+    cy.contains('.action-widget', 'Try this: exact Classical.em P').should('exist')
+    cy.realPress([modBtn, '.'])
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
@@ -130,12 +133,13 @@ describe('The Editor', () => {
   })
 
   it('shows correct go-to definitions', () => {
+    const isOnDarwin = Cypress.platform === 'darwin'
     const alertShown = cy.stub().as("alertShown")
     cy.on('window:confirm', alertShown)
     cy.visit('/')
     cy.get('div.view-line').type('#check Classical.em')
     cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
-    cy.get('@defToCheck').realClick({ ctrlKey: true, button: "left" })
+    cy.get('@defToCheck').realClick({ ctrlKey: !isOnDarwin, metaKey: isOnDarwin })
     cy.get("@alertShown").should("have.been.calledOnce")
         .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
   })
