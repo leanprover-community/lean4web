@@ -64,5 +64,8 @@
     "vite-plugin-static-copy": "^2.3.0",
     "vite-plugin-svgr": "^4.3.0",
     "wait-on": "^8.0.2"
+  },
+  "engines" : {
+    "node" : ">=22.0.0 <23.0.0"
   }
 }
