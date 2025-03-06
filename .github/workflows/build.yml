@@ -23,8 +23,13 @@ defaults:
     shell: bash
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        browser: [electron, chromium, firefox]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,35 +65,15 @@ jobs:
       - name: Build client for production
         run: npm run build:client
 
-  test:
-    needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-        browser: [electron, chromium, firefox]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run Cypress tests
-        id: cypress_tests
+      - name: Run Cypress tests (No Video)
+        id: cypress_no_video
         run: npm test
         env:
           CYPRESS_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: false
 
       - name: Upload screenshots on failure
-        if: failure()
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots-${{ matrix.os }}-${{ matrix.browser }}
@@ -96,7 +81,7 @@ jobs:
 
       - name: Run Cypress tests (With Video)
         id: cypress_with_video
-        if: failure()
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
         run: npm test
         env:
           CYPRESS_BROWSER: ${{ matrix.browser }}
@@ -104,7 +89,7 @@ jobs:
           CYPRESS_VIDEO_COMPRESSION: true
 
       - name: Upload videos
-        if: failure()
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
