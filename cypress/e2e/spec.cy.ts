@@ -159,4 +159,20 @@ describe('The Editor', () => {
       ).should('be.visible')
     })
   })
+
+  it('can switch themes', () => {
+    cy.visit('/')
+    cy.iframe().contains('All Messages (0)').should('exist')
+    cy.get('.monaco-editor').should('exist').then(($editor) => {
+      const oldBg = $editor.css('background-color')
+      cy.get('.dropdown>.nav-link>.fa-bars').click()
+      cy.contains('.nav-link', 'Settings').click()
+      cy.get("select#theme option").not(':selected').first().invoke('val').then(($newVal) => {
+        cy.get("select#theme").select($newVal).should(() => {
+          const newBg = $editor.css('background-color')
+          expect(newBg).to.not.eq(oldBg)
+        })
+      })
+    })
+  })
 })
