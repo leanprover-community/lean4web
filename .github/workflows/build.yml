@@ -60,30 +60,52 @@ jobs:
       - name: Build client for production
         run: npm run build:client
 
-      - name: Run Cypress tests (No Video)
-        id: cypress_no_video
+  test:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        browser: [electron, chromium, firefox]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests
+        id: cypress_tests
         run: npm test
         env:
+          CYPRESS_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: false
 
       - name: Upload screenshots on failure
-        if: failure() && steps.cypress_no_video.conclusion == 'failure'
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-screenshots
+          name: cypress-screenshots-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
 
       - name: Run Cypress tests (With Video)
         id: cypress_with_video
-        if: failure() && steps.cypress_no_video.conclusion == 'failure'
+        if: failure()
         run: npm test
         env:
+          CYPRESS_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: true
           CYPRESS_VIDEO_COMPRESSION: true
 
       - name: Upload videos
-        if: failure() && steps.cypress_no_video.conclusion == 'failure'
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: cypress-videos
+          name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/videos
