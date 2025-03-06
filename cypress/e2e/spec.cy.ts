@@ -96,7 +96,10 @@ describe('The Editor', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
     cy.get('.squiggly-info').should('exist').then(() => {
-      cy.realPress(['Shift', 'Alt', '.'])
+      cy.realPress(['Meta', '.'])
+      cy.get('.action-widget').should('be.visible').then(() => {
+        cy.realPress('Enter')
+      })
     })
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
