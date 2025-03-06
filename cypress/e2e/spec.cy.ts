@@ -128,4 +128,15 @@ describe('The Editor', () => {
       'Classical.em (p : Prop) : p ∨ ¬p'
     ]).should('exist')
   })
+
+  it('shows correct go-to definitions', () => {
+    const alertShown = cy.stub().as("alertShown")
+    cy.on('window:confirm', alertShown)
+    cy.visit('/')
+    cy.get('div.view-line').type('#check Classical.em')
+    cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
+    cy.get('@defToCheck').click({ ctrlKey: true })
+    cy.get("@alertShown").should("have.been.calledOnce")
+        .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
+  })
 })
