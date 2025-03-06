@@ -69,7 +69,7 @@ jobs:
         id: cypress_no_video
         run: npm test
         env:
-          CYPRESS_BROWSER: ${{ matrix.browser }}
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: false
 
       - name: Upload screenshots on failure
@@ -84,7 +84,7 @@ jobs:
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
         run: npm test
         env:
-          CYPRESS_BROWSER: ${{ matrix.browser }}
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: true
           CYPRESS_VIDEO_COMPRESSION: true
 

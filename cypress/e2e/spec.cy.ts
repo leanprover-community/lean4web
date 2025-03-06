@@ -73,8 +73,8 @@ describe('The Editor', () => {
 
   it('displays correct hover tooltips', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by')
-    cy.contains('div.view-line span', 'by').realHover()
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by', { delay: 100 })
+    cy.contains('div.view-line span', 'by').should('exist').realHover()
     cy.contains(
         'div.monaco-hover-content',
         'by tac constructs a term of the expected type by running the tactic(s) tac.'
@@ -96,7 +96,7 @@ describe('The Editor', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
     cy.get('.squiggly-info').should('exist').then(() => {
-      cy.contains('div.view-line', 'apply?').type('{shift}{alt}.')
+      cy.realPress(['Shift', 'Alt', '.'])
     })
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
@@ -135,7 +135,7 @@ describe('The Editor', () => {
     cy.visit('/')
     cy.get('div.view-line').type('#check Classical.em')
     cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
-    cy.get('@defToCheck').click({ctrlKey: true})
+    cy.get('@defToCheck').realClick({ ctrlKey: true })
     cy.get("@alertShown").should("have.been.calledOnce")
         .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
   })
