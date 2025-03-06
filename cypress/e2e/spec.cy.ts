@@ -139,4 +139,19 @@ describe('The Editor', () => {
     cy.get("@alertShown").should("have.been.calledOnce")
         .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
   })
+
+  it('handles custom lead character', () => {
+    cy.visit('/')
+    cy.iframe().contains('All Messages (0)').should('exist')
+    cy.get('.dropdown>.nav-link>.fa-bars').click()
+    cy.contains('.nav-link', 'Settings').click()
+    cy.get('input#abbreviationCharacter').type(`{backspace}\${enter}`)
+    cy.iframe().contains('All Messages (0)').should('exist')
+    cy.get('div.view-line').type('example ($tau) (P: Prop) : P $or $not P := by exact Classical.em P')
+    cy.contains('div.view-line span', 'τ').realHover()
+    cy.contains(
+        'div.monaco-hover-content',
+        'Type τ using $ta or $tau'
+    ).should('be.visible')
+  })
 })
