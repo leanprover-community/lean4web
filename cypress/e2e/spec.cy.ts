@@ -73,7 +73,7 @@ describe('The Editor', () => {
 
   it('displays correct hover tooltips', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by', { delay: 100 })
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by')
     cy.contains('div.view-line span', 'by').should('exist').realHover()
     cy.contains(
         'div.monaco-hover-content',
@@ -95,12 +95,9 @@ describe('The Editor', () => {
   it('displays and accetps quickfixes inline', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
-    cy.get('.squiggly-info').should('exist').then(() => {
-      cy.realPress(['Meta', '.'])
-      cy.get('.action-widget').should('be.visible').then(() => {
-        cy.realPress('Enter')
-      })
-    })
+    cy.contains('div.view-line', 'apply?').should('exist')
+    cy.get('.squiggly-info').should('exist')
+    cy.realPress(['Shift', 'Alt', '.'], { pressDelay: 1 })
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
@@ -138,19 +135,19 @@ describe('The Editor', () => {
     cy.visit('/')
     cy.get('div.view-line').type('#check Classical.em')
     cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
-    cy.get('@defToCheck').realClick({ metaKey: true, button: "left" })
+    cy.get('@defToCheck').realClick({ ctrlKey: true, button: "left" })
     cy.get("@alertShown").should("have.been.calledOnce")
         .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
   })
 
   it('handles custom lead character', () => {
     cy.visit('/')
-    cy.get('.cgmr.codicon').as('glyphWarnings').should('not.exist')
+    cy.get('.cgmr.codicon').should('not.exist')
     cy.iframe().contains('All Messages (0)').should('exist')
     cy.get('.dropdown>.nav-link>.fa-bars').click()
     cy.contains('.nav-link', 'Settings').click()
     cy.get('input#abbreviationCharacter').type(`{backspace}\${enter}`)
-    cy.get('@glyphWarnings').should('not.exist')
+    cy.get('.cgmr.codicon').should('not.exist')
     cy.iframe().contains('All Messages (0)').should('exist')
     cy.get('div.view-line').type('example ($tau) : $tau $or $not $tau := by exact Classical.em $tau ')
     cy.contains('div.view-line', 'example (τ) : τ ∨ ¬ τ := by exact Classical.em τ').should('exist')
