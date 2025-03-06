@@ -147,11 +147,14 @@ describe('The Editor', () => {
     cy.contains('.nav-link', 'Settings').click()
     cy.get('input#abbreviationCharacter').type(`{backspace}\${enter}`)
     cy.iframe().contains('All Messages (0)').should('exist')
-    cy.get('div.view-line').type('example ($tau) (P: Prop) : P $or $not P := by exact Classical.em P')
-    cy.contains('div.view-line span', 'τ').realHover()
-    cy.contains(
-        'div.monaco-hover-content',
-        'Type τ using $ta or $tau'
-    ).should('be.visible')
+    cy.get('div.view-line').type('example ($tau) : $tau $or $not $tau := by exact Classical.em $tau ')
+    cy.contains('div.view-line', 'example (τ) : τ ∨ ¬ τ := by exact Classical.em τ').should('exist')
+    cy.iframe().contains('No goals').should('exist').then(() => {
+      cy.contains('div.view-line span', 'τ').realHover({ position: "center" })
+      cy.contains(
+          'div.monaco-hover-content',
+          'Type τ using $ta or $tau'
+      ).should('be.visible')
+    })
   })
 })
