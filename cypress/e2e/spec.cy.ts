@@ -135,7 +135,7 @@ describe('The Editor', () => {
     cy.visit('/')
     cy.get('div.view-line').type('#check Classical.em')
     cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
-    cy.get('@defToCheck').realClick({ ctrlKey: true })
+    cy.get('@defToCheck').realClick({ metaKey: true, button: "left" })
     cy.get("@alertShown").should("have.been.calledOnce")
         .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
   })
