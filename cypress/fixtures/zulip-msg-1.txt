@@ -1,0 +1,8 @@
+An example snippet
+```lean
+#eval Lean.toolchain
+#check Classical.em
+```
+which should be parsed.
+
+You could also consider `Cons : Set (Fin n) → pre_simple_graph n → pre_simple_graph (n + 1)`.

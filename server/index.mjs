@@ -22,6 +22,7 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const environment = process.env.NODE_ENV
+const isGithubAction = process.env.GITHUB_ACTIONS
 const isDevelopment = environment === 'development'
 
 const crtFile = process.env.SSL_CRT_FILE
@@ -124,13 +125,13 @@ wss.addListener("connection", function(ws, req) {
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () => ws.close())
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, message => {
-    if (isDevelopment) {
+    if (isDevelopment && !isGithubAction) {
       console.log(`CLIENT: ${JSON.stringify(message)}`)
     }
     return message;
   })
   serverConnection.forward(socketConnection, message => {
-    if (isDevelopment) {
+    if (isDevelopment && !isGithubAction) {
       console.log(`SERVER: ${JSON.stringify(message)}`)
     }
     return message;
