@@ -72,12 +72,25 @@ describe('The Editor', () => {
   })
 
   it('displays correct hover tooltips', () => {
-    cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by')
-    cy.contains('div.view-line span', 'by').should('exist').realHover()
+    cy.visit('/#codez=KYDwhgtgDgNsAEAKACgLnsgTgeygSnnWXkAoieAGo0IF54AjAT3lDAGMAXeAYRjAGc+AS1ZgYAOmAQMQA')
+    cy.iframe().contains('Expected type').should('exist')
+    cy.get('.cgmr.codicon').should('not.exist')
+    cy.get('div.view-lines').realClick()
+    cy.iframe().contains('No goals').should('exist')
+
+    cy.contains('div.view-line span', 'example').should('exist').then(($el) => cy.wrap($el).realHover())
+    cy.contains('div.monaco-hover-content', '_example (P : Prop) : P ∨ ¬P').should('be.visible')
+
+    cy.contains('div.view-line span', 'by').should('exist').then(($el) => cy.wrap($el).realHover())
     cy.contains(
         'div.monaco-hover-content',
         'by tac constructs a term of the expected type by running the tactic(s) tac.'
+    ).should('be.visible')
+
+    cy.contains('div.view-line span', 'exact').should('exist').then(($el) => cy.wrap($el).realHover())
+    cy.contains(
+        'div.monaco-hover-content',
+        'exact e closes the main goal if its target type matches that of e.'
     ).should('be.visible')
   })
 
@@ -134,18 +147,6 @@ describe('The Editor', () => {
     ]).should('exist')
   })
 
-  it('shows correct go-to definitions', () => {
-    const isOnDarwin = Cypress.platform === 'darwin'
-    const alertShown = cy.stub().as("alertShown")
-    cy.on('window:confirm', alertShown)
-    cy.visit('/')
-    cy.get('div.view-line').type('#check Classical.em')
-    cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
-    cy.get('@defToCheck').realClick({ ctrlKey: !isOnDarwin, metaKey: isOnDarwin })
-    cy.get("@alertShown").should("have.been.calledOnce")
-        .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
-  })
-
   it('handles custom lead character', () => {
     cy.visit('/')
     cy.iframe().contains('All Messages (0)').should('exist')
@@ -180,5 +181,17 @@ describe('The Editor', () => {
         })
       })
     })
+  })
+
+  it('shows correct go-to definitions', () => {
+    const isOnDarwin = Cypress.platform === 'darwin'
+    const alertShown = cy.stub().as("alertShown")
+    cy.on('window:confirm', alertShown)
+    cy.visit('/')
+    cy.get('div.view-line').type('#check Classical.em')
+    cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
+    cy.get('@defToCheck').realClick({ ctrlKey: !isOnDarwin, metaKey: isOnDarwin })
+    cy.get("@alertShown").should("have.been.calledOnce")
+        .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
   })
 })
