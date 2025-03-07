@@ -55,7 +55,7 @@ describe('The Editor', () => {
 
   it('displays correct infoview state', () => {
     cy.visit('/')
-    cy.get('div.view-lines').type('example (P: Prop) : P \\or \\not P := by')
+    cy.get('div.view-lines').type('example (P: Prop) : P \\or \\not P := by ')
 
     cy.iframe().containsAll([
       'Tactic state',
@@ -65,7 +65,7 @@ describe('The Editor', () => {
       'unexpected end of input'
     ]).should('exist')
 
-    cy.contains('div.view-lines', 'P := by').type('{enter}  exact Classical.em P')
+    cy.contains('div.view-lines', 'P := by').type('exact Classical.em P')
     cy.iframe().containsAll('details', ['Tactic state', 'No goals']).should('exist')
     cy.iframe().contains('details', 'Expected type').should('not.be.open').click()
     cy.iframe().containsAll('details', ['P : Prop', '⊢ Prop']).should('be.open')
@@ -95,7 +95,7 @@ describe('The Editor', () => {
   it('displays and accetps quickfixes inline', () => {
     const modBtn = Cypress.platform === 'darwin' ? 'Meta' : 'Control'
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by apply?')
     cy.contains('div.view-line', 'apply?').should('exist')
     cy.get('.squiggly-info').should('exist')
     cy.realPress([modBtn, '.'])
@@ -106,7 +106,7 @@ describe('The Editor', () => {
 
   it('displays and accetps suggestions from infoview', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by{enter}  apply?')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by apply?')
     cy.iframe().contains("span[title='Apply suggestion']", 'exact Classical.em P').click()
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
