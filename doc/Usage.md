@@ -1,7 +1,7 @@
 - [Back to README](../README.md)
-  - User Manual
-  - [Installation](./Installation.md)
-  - [Development](./Development.md)
+- User Manual
+- [Installation](./Installation.md)
+- [Development](./Development.md)
 
 ## Lean4Web Documentation
 

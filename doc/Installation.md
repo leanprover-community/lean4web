@@ -1,7 +1,7 @@
 - [Back to README](../README.md)
-  - [User Manual](./Usage.md)
-  - Installation
-  - [Development](./Development.md)
+- [User Manual](./Usage.md)
+- Installation
+- [Development](./Development.md)
 
 
 ## Security

@@ -1,7 +1,7 @@
 - [Back to README](../README.md)
-  - [User Manual](./Usage.md)
-  - [Installation](./Installation.md)
-  - Development
+- [User Manual](./Usage.md)
+- [Installation](./Installation.md)
+- Development
 
 
 ## Development Instructions
