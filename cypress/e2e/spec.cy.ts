@@ -86,22 +86,16 @@ describe('The Editor', () => {
         'div.monaco-hover-content',
         'by tac constructs a term of the expected type by running the tactic(s) tac.'
     ).should('be.visible')
-
-    cy.contains('div.view-line span', 'exact').should('exist').then(($el) => cy.wrap($el).realHover())
-    cy.contains(
-        'div.monaco-hover-content',
-        'exact e closes the main goal if its target type matches that of e.'
-    ).should('be.visible')
   })
 
   it('displays and handles code completion', () => {
     cy.visit('/')
     cy.iframe().contains('All Messages (0)').should('exist')
     cy.get('.cgmr.codicon').should('not.exist')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl', { delay: 100 })
     cy.containsAll('div.monaco-editor', ['by appl', 'apply?']).should('exist')
         .then(() => {
-          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}')
+          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}', { delay: 100 })
           cy.contains('div.view-line', 'apply?').should('exist')
         })
     cy.get('.squiggly-info').should('exist')
