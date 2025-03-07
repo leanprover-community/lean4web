@@ -38,25 +38,28 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Build Projects/mathlib-demo
+      - name: Install elan
         uses: leanprover/lean-action@v1
         with:
           lake-package-directory: Projects/mathlib-demo
           use-github-cache: false
           auto-config: false
-          build: true
+          build: false
           test: false
           lint: false
 
-      - name: Build Projects/stable
-        uses: leanprover/lean-action@v1
-        with:
-          lake-package-directory: Projects/stable
-          use-github-cache: false
-          auto-config: false
-          build: true
-          test: false
-          lint: false
+      - name: Build sample projects
+        run: npm run build:server
+
+      - name: Ensure sample project 'mathlib-demo' is built
+        run: |
+          cd Projects/mathlib-demo
+          lake build --no-build
+
+      - name: Ensure sample project 'stable' is built
+        run: |
+          cd Projects/stable
+          lake build --no-build
 
       - name: Install dependencies
         run: npm ci
