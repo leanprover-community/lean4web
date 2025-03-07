@@ -101,7 +101,7 @@ describe('The Editor', () => {
     cy.get('.squiggly-info').should('exist')
   })
 
-  it('displays and accetps quickfixes inline', () => {
+  it('displays and accepts quickfixes inline', () => {
     const modBtn = Cypress.platform === 'darwin' ? 'Meta' : 'Control'
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by apply?')
@@ -113,7 +113,7 @@ describe('The Editor', () => {
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
-  it('displays and accetps suggestions from infoview', () => {
+  it('displays and accepts suggestions from infoview', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by apply?')
     cy.iframe().contains("span[title='Apply suggestion']", 'exact Classical.em P').click()
