@@ -79,7 +79,9 @@ function startServerProcess(project) {
 
   let serverProcess
   if (isDevelopment) {
-    console.warn("Running without Bubblewrap container!")
+    if (!isGithubAction) {
+      console.warn("Running without Bubblewrap container!")
+    }
     serverProcess = cp.spawn("lean", ["--server"], { cwd: projectPath })
   } else {
     console.info("Running with Bubblewrap container.")
@@ -138,9 +140,9 @@ wss.addListener("connection", function(ws, req) {
   });
 
   ws.on('close', () => {
-    console.log(`[${new Date()}] Socket closed - ${ip}`)
     socketCounter -= 1
     if (!isGithubAction) {
+      console.log(`[${new Date()}] Socket closed - ${ip}`)
       logStats()
     }
   })
@@ -148,9 +150,9 @@ wss.addListener("connection", function(ws, req) {
   socketConnection.onClose(() => serverConnection.dispose())
   serverConnection.onClose(() => socketConnection.dispose())
 
-  console.log(`[${new Date()}] Socket opened - ${ip}`)
   socketCounter += 1
   if (!isGithubAction) {
+    console.log(`[${new Date()}] Socket opened - ${ip}`)
     logStats()
   }
 })
