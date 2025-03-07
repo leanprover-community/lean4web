@@ -83,10 +83,12 @@ describe('The Editor', () => {
 
   it('displays and handles code completion', () => {
     cy.visit('/')
-    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl', { delay: 100 })
+    cy.iframe().contains('All Messages (0)').should('exist')
+    cy.get('.cgmr.codicon').should('not.exist')
+    cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by appl')
     cy.containsAll('div.monaco-editor', ['by appl', 'apply?']).should('exist')
         .then(() => {
-          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}', { delay: 100 })
+          cy.contains('div.view-line', 'by appl').type('{downArrow}{shift+enter}')
           cy.contains('div.view-line', 'apply?').should('exist')
         })
     cy.get('.squiggly-info').should('exist')
@@ -146,13 +148,13 @@ describe('The Editor', () => {
 
   it('handles custom lead character', () => {
     cy.visit('/')
-    cy.get('.cgmr.codicon').should('not.exist')
     cy.iframe().contains('All Messages (0)').should('exist')
+    cy.get('.cgmr.codicon').should('not.exist')
     cy.get('.dropdown>.nav-link>.fa-bars').click()
     cy.contains('.nav-link', 'Settings').click()
     cy.get('input#abbreviationCharacter').type(`{backspace}\${enter}`)
-    cy.get('.cgmr.codicon').should('not.exist')
     cy.iframe().contains('All Messages (0)').should('exist')
+    cy.get('.cgmr.codicon').should('not.exist')
     cy.get('div.view-line').type('example ($tau) : $tau $or $not $tau := by exact Classical.em $tau ')
     cy.contains('div.view-line', 'example (τ) : τ ∨ ¬ τ := by exact Classical.em τ').should('exist')
     cy.iframe().contains('No goals').should('exist').then(() => {
