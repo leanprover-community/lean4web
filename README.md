@@ -13,7 +13,7 @@ running on a web server, and not in the browser.
 
 The main scope of `lean4web` is to provide an easy way to run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.
 
-While `lean4web` looks very similar to VSCode with the [Lean4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) installed - and it reuses much of that code - there is currently no official support by the [Lean FRO](https://lean-fro.org) and therefore `lean4web` does not claim to be feature complete. 
+While `lean4web` looks very similar to VSCode with the [Lean4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) installed - and it reuses much of that code - `lean4web` does not claim to be feature complete. 
 
 ## Contribution
 
