@@ -11,9 +11,15 @@ running on a web server, and not in the browser.
 
 ## Scope of lean4web
 
-The main scope of `lean4web` is to provide an easy way to run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.
+* Provide a clean, minimalistic and easily accessible way to run some (smallish) Lean snippets
+* Provide a simple way to run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.
+* Provide a easy way to demonstrate some Lean code in talks/lecutres.
+* Provide a easy way for newcomers to doodle with Lean before installing it.
+* Provide a way to run some Lean code in a mobile context.
 
-While `lean4web` looks very similar to VSCode with the [Lean4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) installed - and it reuses much of that code - `lean4web` does not claim to be feature complete. 
+Currently, serious Lean code development and larger projects are considered out-of-scope. For these, it might be more suitable to look at a setup using Codespaces or Gitpot.
+
+While `lean4web` looks very similar to VSCode with the [Lean4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) installed - and it reuses much of that code - `lean4web` does not claim to be feature complete.
 
 ## Contribution
 
