@@ -10,6 +10,7 @@ Note that more Editor options are set in `App.tsx` directly.
 export interface IPreferencesContext {
   abbreviationCharacter: string
   acceptSuggestionOnEnter: boolean
+  showGoalNames: boolean
   compress: boolean, // compress the `code=` in the URL into `codez=` using LZ-string
   mobile: boolean
   saveInLocalStore: boolean
@@ -21,6 +22,7 @@ export interface IPreferencesContext {
 const settings: IPreferencesContext = {
   abbreviationCharacter: '\\',
   acceptSuggestionOnEnter: false,
+  showGoalNames: true,
   compress: true,
   mobile: false, // value irrelevant as it will be overwritten with `width < 800` in App.tsx
   saveInLocalStore: false, // should be false unless user gave consent.

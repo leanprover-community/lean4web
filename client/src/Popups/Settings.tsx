@@ -87,6 +87,11 @@ const SettingsPopup: FC<{
         checked={preferences.acceptSuggestionOnEnter} />
         <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
       </p>
+      <p>
+        <Switch id="showGoalNames" onChange={() => {modifyPreferences("showGoalNames", !preferences.showGoalNames)}}
+        checked={preferences.showGoalNames} />
+        <label htmlFor="showGoalNames">Show Goal Names</label>
+      </p>
 
       <h2>User settings</h2>
       <p>
