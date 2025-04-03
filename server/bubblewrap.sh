@@ -33,7 +33,7 @@ if command -v bwrap >/dev/null 2>&1; then
     --unshare-cgroup \
     --die-with-parent \
     --chdir "/project/" \
-    lake serve --
+    lean --server
   )
 else
   echo "bwrap is not installed. Running without container." >&2
