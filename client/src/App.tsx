@@ -350,6 +350,20 @@ function App() {
     history.replaceState(undefined, undefined!, formatArgs(args))
   }, [editor, project, code, codeFromUrl])
 
+  // Disable monaco context menu outside the editor
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      const editorContainer = document.querySelector(".editor")
+      if (editorContainer && !editorContainer.contains(event.target as Node)) {
+        event.stopPropagation()
+      }
+    }
+    document.addEventListener("contextmenu", handleContextMenu, true)
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu, true)
+    }
+  }, [])
+
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
     <div className="app monaco-editor">
       <nav>
