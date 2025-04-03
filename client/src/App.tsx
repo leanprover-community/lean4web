@@ -178,7 +178,7 @@ function App() {
     _leanMonaco.setInfoviewElement(infoviewRef.current!)
     ;(async () => {
         await _leanMonaco.start(options)
-        await leanMonacoEditor.start(editorRef.current!, `/project/${project}.lean`, code)
+        await leanMonacoEditor.start(editorRef.current!, `./${project}.lean`, code)
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)
