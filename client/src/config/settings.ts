@@ -18,6 +18,12 @@ export interface IPreferencesContext {
   wordWrap: boolean
 }
 
+export type Entries<T> = {
+    [K in keyof T]-?: [K, T[K]];
+}[keyof T][];
+
+export const preferenceParams: (keyof IPreferencesContext)[] = ["showGoalNames"]
+
 /** The default settings. */
 const settings: IPreferencesContext = {
   abbreviationCharacter: '\\',

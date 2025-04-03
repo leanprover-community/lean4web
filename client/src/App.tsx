@@ -9,7 +9,7 @@ import { faCode } from '@fortawesome/free-solid-svg-icons'
 
 // Local imports
 import LeanLogo from './assets/logo.svg'
-import defaultSettings, { IPreferencesContext, lightThemes } from './config/settings'
+import defaultSettings, { Entries, IPreferencesContext, lightThemes, preferenceParams } from './config/settings'
 import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
@@ -87,10 +87,16 @@ function App() {
     console.debug('[Lean4web] Loading preferences')
 
     let saveInLocalStore = false;
-    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
-    for (const [key, value] of Object.entries(preferences)) {
+    let newPreferences: Record<keyof IPreferencesContext, any> = { ...preferences }
+    for (const [key, value] of (Object.entries(preferences) as Entries<IPreferencesContext>)) {
       let storedValue = window.localStorage.getItem(key)
-      if (storedValue) {
+      // prefer URL params over stored
+      const searchParams = new URLSearchParams(window.location.search);
+      if (preferenceParams.includes(key) && searchParams.has(key)) {
+        const paramValue = !(searchParams.get(key) === "false")  // expecting true or false
+        console.debug(`[Lean4web] Found URL value for ${key}: ${paramValue}`)
+        newPreferences[key] = paramValue
+      } else if (storedValue) {
         saveInLocalStore = true
         console.debug(`[Lean4web] Found stored value for ${key}: ${storedValue}`)
         if (typeof value === 'string') {
