@@ -1,6 +1,9 @@
 name = "mathlibLatest"
 defaultTargets = ["MathlibLatest"]
 
+[leanOptions]
+pp.unicode.fun = true
+
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4"
