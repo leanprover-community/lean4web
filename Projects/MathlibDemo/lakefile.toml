@@ -1,5 +1,5 @@
-name = "mathlibLatest"
-defaultTargets = ["MathlibLatest"]
+name = "MathlibDemo"
+defaultTargets = ["MathlibDemo"]
 
 [leanOptions]
 pp.unicode.fun = true
@@ -10,4 +10,4 @@ git = "https://github.com/leanprover-community/mathlib4"
 rev = "master"
 
 [[lean_lib]]
-name = "MathlibLatest"
+name = "MathlibDemo"

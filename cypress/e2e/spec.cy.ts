@@ -1,19 +1,19 @@
 describe('The Editor', () => {
   it('displays the version selection', () => {
     cy.visit('/')
-    cy.get("nav>*>select[name='leanVersion']").select('mathlib-demo')
-    cy.iframe().contains('mathlib-demo.lean').should('exist')
+    cy.get("nav>*>select[name='leanVersion']").select('MathlibDemo')
+    cy.iframe().contains('MathlibDemo.lean').should('exist')
     cy.get('.dropdown>.nav-link>.fa-bars').click()
     cy.contains('.nav-link', 'Lean Info').click()
     cy.containsAll('.modal', [
-      'mathlibLatest',
+      'MathlibDemo',
       'leanprover/lean4',
       'mathlib',
       'aesop'
     ]).find('.modal-close').click()
 
-    cy.get("nav>*>select[name='leanVersion']").select('stable')
-    cy.iframe().contains('stable.lean').should('exist')
+    cy.get("nav>*>select[name='leanVersion']").select('Stable')
+    cy.iframe().contains('Stable.lean').should('exist')
     cy.get('.dropdown>.nav-link>.fa-bars').click()
     cy.contains('.nav-link', 'Lean Info').click()
     cy.containsAll('.modal', [

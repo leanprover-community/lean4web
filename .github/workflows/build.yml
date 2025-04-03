@@ -41,7 +41,7 @@ jobs:
       - name: Install elan
         uses: leanprover/lean-action@v1
         with:
-          lake-package-directory: Projects/mathlib-demo
+          lake-package-directory: Projects/MathlibDemo
           use-mathlib-cache: false
           use-github-cache: false
           auto-config: false
@@ -52,14 +52,14 @@ jobs:
       - name: Build sample projects
         run: npm run build:server
 
-      - name: Ensure sample project 'mathlib-demo' is built
+      - name: Ensure sample project 'MathlibDemo' is built
         run: |
-          cd Projects/mathlib-demo
+          cd Projects/MathlibDemo
           lake build --no-build
 
-      - name: Ensure sample project 'stable' is built
+      - name: Ensure sample project 'Stable' is built
         run: |
-          cd Projects/stable
+          cd Projects/Stable
           lake build --no-build
 
       - name: Install dependencies

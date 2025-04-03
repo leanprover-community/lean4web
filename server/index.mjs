@@ -30,19 +30,19 @@ const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
 
-// `*` has the form `mathlib-demo/MathlibLatest/Logic.lean`
+// `*` has the form `MathlibDemo/MathlibDemo/Logic.lean`
 app.use('/api/examples/*', (req, res, next) => {
   const filename = req.params[0]
   req.url = filename
   express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
 })
-// `*` is the project like `mathlib-demo`
+// `*` is the project like `MathlibDemo`
 app.use('/api/manifest/*', (req, res, next) => {
   const project = req.params[0]
   req.url = 'lake-manifest.json'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
-// `*` is the project like `mathlib-demo`
+// `*` is the project like `MathlibDemo`
 app.use('/api/toolchain/*', (req, res, next) => {
   const project = req.params[0]
   req.url = 'lean-toolchain'

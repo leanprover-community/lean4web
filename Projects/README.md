@@ -37,4 +37,4 @@ the config entry of your project in `config.json` as follows:
 This will add an entry `My Cool Example` to the Example menu which loads
 the file from `Projects/my-cool-project/MyCustomProject/Demo1.lean`.
 
-You might want to look at the provided `mathlib-demo` project for comparison.
+You might want to look at the provided `MathlibDemo` project for comparison.

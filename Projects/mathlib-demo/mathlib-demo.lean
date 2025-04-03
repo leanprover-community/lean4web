@@ -1,3 +1,0 @@
--- The Lean server and vscode-lean4 have several bugs when there isn't actually a
--- physical file on the disk which the editor opened.
--- As a workaround we add this dummy file, but ideally this could be fixed in core.

@@ -74,7 +74,7 @@ function App() {
     if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
 
     // if no project provided, use default
-    let project = args.project || 'mathlib-demo'
+    let project = args.project || 'MathlibDemo'
 
     console.log(`[Lean4web] Setting project to ${project}`)
     setProject(project)
@@ -295,7 +295,7 @@ function App() {
   useEffect(() => {
     if (!editor) { return }
 
-    let _project = (project == 'mathlib-demo' ? null : project)
+    let _project = (project == 'MathlibDemo' ? null : project)
     let args: {
       project: string | null
       url: string | null

@@ -1,7 +1,7 @@
 import Lake
 open Lake DSL
 
-package «stable» where
+package «Stable» where
   -- add package configuration options here
 
 @[default_target]

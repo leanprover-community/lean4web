@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": null,
    "scope": "",
-   "rev": "37f686cf27093bcbde5a9eb2f1519ef730de1828",
+   "rev": "d6bc0a15829bf478c4ab90b491dd5e7f000021b1",
    "name": "mathlib",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",
@@ -91,5 +91,5 @@
    "inputRev": "main",
    "inherited": true,
    "configFile": "lakefile.toml"}],
- "name": "mathlibLatest",
+ "name": "MathlibDemo",
  "lakeDir": ".lake"}
