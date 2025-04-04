@@ -36,5 +36,5 @@ The recognized settings are:
 - `acceptSuggestionOnEnter`: Accept code editors suggestions on Enter, default is false
 - `showGoalNames`: Show goal names in Lean infoview box, default is true
 - `mobile`: Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode. Usually inferred from window width.
-- `theme`: `light` or `dark`. Usually inferred from browser dark mode preferences.
+- `theme`: Light or dark. Usually inferred from browser dark mode preferences.
 - `wordWrap`: Wrap code in editor box, default is true

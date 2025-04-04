@@ -6,6 +6,8 @@ Note that more Editor options are set in `App.tsx` directly.
 
 // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
+type Theme = "Visual Studio Light" | "Visual Studio Dark"
+
 /** Type for the user settings. */
 export interface IPreferencesContext {
   /** Lead character to trigger unicode input mode */
@@ -21,7 +23,7 @@ export interface IPreferencesContext {
   mobile: boolean
   saveInLocalStore: boolean
   /** Light or dark. Usually inferred from browser dark mode preferences. */
-  theme: string
+  theme: Theme
   /** Wrap code */
   wordWrap: boolean
 }
@@ -55,7 +57,7 @@ const settings: IPreferencesContext = {
  * If you add a Monaco theme, the mobile code-mirror editor will default to its dark theme,
  * unless the theme is in this list.
  */
-export const lightThemes = [
+export const lightThemes: Theme[] = [
   'Visual Studio Light'
 ]
 

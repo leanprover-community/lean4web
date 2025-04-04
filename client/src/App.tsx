@@ -100,7 +100,13 @@ function App() {
         saveInLocalStore = window.localStorage.getItem(key) === storedValue
         console.debug(`[Lean4web] Found value for ${key}: ${storedValue}`)
         if (typeof value === 'string') {
-          newPreferences[key] = storedValue
+          if (key == 'theme') {
+            const theme = storedValue.toLowerCase().includes('dark') ? "Visual Studio Dark" : "Visual Studio Light"
+            newPreferences[key] = theme
+          }
+          else {
+            newPreferences[key] = storedValue
+          }
         } else if (typeof value === 'boolean') {
           newPreferences[key] = (storedValue === "true")
         } else {
