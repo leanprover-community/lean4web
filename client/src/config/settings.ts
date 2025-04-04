@@ -8,13 +8,21 @@ Note that more Editor options are set in `App.tsx` directly.
 
 /** Type for the user settings. */
 export interface IPreferencesContext {
+  /** Lead character to trigger unicode input mode */
   abbreviationCharacter: string
+  /** Accept code editors suggestions on Enter */
   acceptSuggestionOnEnter: boolean
+  /** Show goal names in Lean infoview box */
   showGoalNames: boolean
-  compress: boolean, // compress the `code=` in the URL into `codez=` using LZ-string
+  /** Compress the `code=` in the URL into `codez=` using LZ-string */
+  compress: boolean, 
+  /** Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode.
+   * Usually inferred from window width. */
   mobile: boolean
   saveInLocalStore: boolean
-  theme: string,
+  /** Light or dark. Usually inferred from browser dark mode preferences. */
+  theme: string
+  /** Wrap code */
   wordWrap: boolean
 }
 
@@ -34,7 +42,9 @@ const settings: IPreferencesContext = {
   acceptSuggestionOnEnter: false,
   showGoalNames: true,
   compress: true,
-  mobile: false, // value irrelevant as it will be overwritten with `width < 800` in App.tsx
+  /** value likely overwritten with `width < 800` in App.tsx
+   * unless provided in URL searchparams or in local storage. */
+  mobile: false,
   saveInLocalStore: false, // should be false unless user gave consent.
   theme: 'Visual Studio Light', // irrelevant as it will be overwritten in App.tsx
   wordWrap: true
