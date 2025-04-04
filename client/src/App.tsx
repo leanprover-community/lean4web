@@ -131,7 +131,8 @@ function App() {
     if (!loaded) { return }
 
     const _mobile = width < 800
-    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (!(searchParams.has("mobile") || preferences.saveInLocalStore) && _mobile !== preferences.mobile) {
       setPreferences({ ...preferences, mobile: _mobile })
     }
   }, [width, loaded])
