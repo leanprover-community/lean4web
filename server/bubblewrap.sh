@@ -7,12 +7,22 @@ ulimit -t 3600
 LEAN_ROOT="$(cd $1 && lean --print-prefix)"
 LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
 
+PROJECT_NAME="$(basename $1)"
+
 # # print commands as they are executed
 # set -x
 
-if command -v bwrap >/dev/null 2>&1; then
+if ! command -v bwrap >/dev/null 2>&1; then
+  echo "bwrap is not installed! You could try to run the development server instead."
+  # # Could run without bubblewrap like this, but this might be an unwanted
+  # # security risk.
+  # (exec
+  #   cd $1
+  #   lake serve --
+  # )
+else
   (exec bwrap\
-    --ro-bind "$1" /project \
+    --ro-bind "$1" "/$PROJECT_NAME" \
     --ro-bind "$LEAN_ROOT" /lean \
     --ro-bind /usr /usr \
     --dev /dev \
@@ -32,13 +42,7 @@ if command -v bwrap >/dev/null 2>&1; then
     --unshare-uts  \
     --unshare-cgroup \
     --die-with-parent \
-    --chdir "/project/" \
-    lean --server
-  )
-else
-  echo "bwrap is not installed. Running without container." >&2
-  (exec
-    cd $1
+    --chdir "/$PROJECT_NAME/" \
     lean --server
   )
 fi

@@ -6,6 +6,7 @@ import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import LZString from 'lz-string'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
+import * as path from 'path'
 
 // Local imports
 import LeanLogo from './assets/logo.svg'
@@ -178,7 +179,7 @@ function App() {
     _leanMonaco.setInfoviewElement(infoviewRef.current!)
     ;(async () => {
         await _leanMonaco.start(options)
-        await leanMonacoEditor.start(editorRef.current!, `/project/${project}.lean`, code)
+        await leanMonacoEditor.start(editorRef.current!, path.join(project, `${project}.lean`), code)
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)

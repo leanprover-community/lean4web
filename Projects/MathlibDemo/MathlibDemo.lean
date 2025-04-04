@@ -6,3 +6,4 @@ import MathlibDemo.Bijection
 import MathlibDemo.Logic
 import MathlibDemo.Rational
 import MathlibDemo.Ring
+import MathlibDemo.MathlibDemo
