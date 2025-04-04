@@ -88,22 +88,20 @@ function App() {
     console.debug('[Lean4web] Loading preferences')
 
     let saveInLocalStore = false;
-    let newPreferences: Record<keyof IPreferencesContext, any> = { ...preferences }
+    let newPreferences: { [K in keyof IPreferencesContext]: IPreferencesContext[K] } = { ...preferences }
     for (const [key, value] of (Object.entries(preferences) as Entries<IPreferencesContext>)) {
-      let storedValue = window.localStorage.getItem(key)
       // prefer URL params over stored
       const searchParams = new URLSearchParams(window.location.search);
-      if (preferenceParams.includes(key) && searchParams.has(key)) {
-        const paramValue = !(searchParams.get(key) === "false")  // expecting true or false
-        console.debug(`[Lean4web] Found URL value for ${key}: ${paramValue}`)
-        newPreferences[key] = paramValue
-      } else if (storedValue) {
-        saveInLocalStore = true
-        console.debug(`[Lean4web] Found stored value for ${key}: ${storedValue}`)
+      let storedValue = (
+        preferenceParams.includes(key) &&  // only for keys we explictly check for
+        searchParams.has(key) && searchParams.get(key))
+        ?? window.localStorage.getItem(key)
+      if (storedValue) {
+        saveInLocalStore = window.localStorage.getItem(key) === storedValue
+        console.debug(`[Lean4web] Found value for ${key}: ${storedValue}`)
         if (typeof value === 'string') {
           newPreferences[key] = storedValue
         } else if (typeof value === 'boolean') {
-          // Boolean values
           newPreferences[key] = (storedValue === "true")
         } else {
           // other values aren't implemented yet.

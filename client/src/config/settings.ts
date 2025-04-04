@@ -18,7 +18,15 @@ export interface IPreferencesContext {
   wordWrap: boolean
 }
 
-export const preferenceParams: (keyof IPreferencesContext)[] = ["showGoalNames"]
+export const preferenceParams: (keyof IPreferencesContext)[] = [
+  "abbreviationCharacter",
+  "acceptSuggestionOnEnter",
+  // "compress", // not sure if this should be user-settable
+  "showGoalNames",
+  "mobile",
+  "theme",
+  "wordWrap",
+]
 
 /** The default settings. */
 const settings: IPreferencesContext = {
