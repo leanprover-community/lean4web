@@ -9,9 +9,10 @@ import { faCode } from '@fortawesome/free-solid-svg-icons'
 
 // Local imports
 import LeanLogo from './assets/logo.svg'
-import defaultSettings, { Entries, IPreferencesContext, lightThemes, preferenceParams } from './config/settings'
+import defaultSettings, { IPreferencesContext, lightThemes, preferenceParams } from './config/settings'
 import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
+import { Entries } from './utils/Entries'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
 import { useWindowDimensions } from './utils/WindowWidth'
 
