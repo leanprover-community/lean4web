@@ -165,7 +165,10 @@ wss.addListener("connection", function(ws, req) {
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, message => {
     const prefix = isDevelopment ? projectsBasePath : "/"
-    urisToFilenames(prefix, message)
+
+    if (!message.method === 'textDocument/definition') {
+      urisToFilenames(prefix, message)
+    }
 
     if (isDevelopment && !isGithubAction) {
       console.log(`CLIENT: ${JSON.stringify(message)}`)
