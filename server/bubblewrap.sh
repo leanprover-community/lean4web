@@ -7,7 +7,7 @@ ulimit -t 3600
 LEAN_ROOT="$(cd $1 && lean --print-prefix)"
 LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
 
-PROJECT_NAME="$(basename $1)"
+PROJECT_NAME="$(realpath $1)"
 
 # # print commands as they are executed
 # set -x
