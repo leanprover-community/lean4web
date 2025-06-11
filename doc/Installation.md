@@ -49,6 +49,14 @@ Now the server can be started using
 PORT=8080 npm run production
 ```
 
+If you get the following error:
+```
+bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
+bwrap: setting up uid map: Permission denied
+```
+follow these instructions:
+https://etbe.coker.com.au/2024/04/24/ubuntu-24-04-bubblewrap/
+
 To set the locations of SSL certificates, use the following environment variables:
 ```
 SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem PORT=8080 npm run production
