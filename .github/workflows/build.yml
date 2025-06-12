@@ -68,9 +68,9 @@ jobs:
       - name: Build client for production
         run: npm run build:client
 
-      - name: Run Cypress tests (No Video)
+      - name: Run Cypress tests Development (No Video)
         id: cypress_no_video
-        run: npm test
+        run: npm test:dev
         env:
           CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: false
@@ -82,10 +82,10 @@ jobs:
           name: cypress-screenshots-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
 
-      - name: Run Cypress tests (With Video)
+      - name: Run Cypress tests Development (With Video)
         id: cypress_with_video
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        run: npm test
+        run: npm test:dev
         env:
           CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: true
@@ -97,3 +97,22 @@ jobs:
         with:
           name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/videos
+
+      - name: Install bubblewrap
+        if: runner.os == 'Linux'
+        run: sudo apt-get install bubblewrap
+
+      - name: Run Cypress tests Production (No Video)
+        if: runner.os == 'Linux'
+        id: cypress_production_no_video
+        run: npm test:prod
+        env:
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
+          CYPRESS_VIDEO: false
+
+      - name: Upload screenshots on failure
+        if: runner.os == 'Linux' && failure() && steps.cypress_production_no_video.conclusion == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-production-${{ matrix.os }}-${{ matrix.browser }}
+          path: cypress/screenshots
