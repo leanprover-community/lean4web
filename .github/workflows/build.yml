@@ -70,7 +70,7 @@ jobs:
 
       - name: Run Cypress tests Development (No Video)
         id: cypress_no_video
-        run: npm test:dev
+        run: npm run test:dev
         env:
           CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: false
@@ -85,7 +85,7 @@ jobs:
       - name: Run Cypress tests Development (With Video)
         id: cypress_with_video
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        run: npm test:dev
+        run: npm run test:dev
         env:
           CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: true
@@ -105,7 +105,7 @@ jobs:
       - name: Run Cypress tests Production (No Video)
         if: runner.os == 'Linux'
         id: cypress_production_no_video
-        run: npm test:prod
+        run: npm run test:prod
         env:
           CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
           CYPRESS_VIDEO: false
