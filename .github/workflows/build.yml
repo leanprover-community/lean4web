@@ -102,7 +102,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get install bubblewrap
-          echo 'abi <abi/4.0>,\ninclude <tunables/global>\n\nprofile bwrap /usr/bin/bwrap flags=(unconfined) {\n  userns,\n\n  include if exists <local/bwrap>\n}' | sudo tee /etc/apparmor.d/bwrap
+          echo -e "abi <abi/4.0>,\ninclude <tunables/global>\n\nprofile bwrap /usr/bin/bwrap flags=(unconfined) {\n  userns,\n\n  include if exists <local/bwrap>\n}" | sudo tee /etc/apparmor.d/bwrap
           sudo systemctl reload apparmor
 
       - name: Run Cypress tests Production (No Video)
