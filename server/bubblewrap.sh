@@ -33,8 +33,7 @@ else
     --symlink usr/bin /bin\
     --symlink usr/sbin /sbin\
     --clearenv \
-    --setenv PATH "/lean/bin" \
-    --setenv LAKE "/no" `# tries to invoke git otherwise` \
+    --setenv PATH "/bin:/usr/bin:/lean/bin" \
     --setenv LEAN_PATH "$LEAN_PATH" \
     --unshare-user \
     --unshare-pid  \
@@ -43,6 +42,6 @@ else
     --unshare-cgroup \
     --die-with-parent \
     --chdir "/$PROJECT_NAME/" \
-    lean --server
+    lake serve --
   )
 fi
