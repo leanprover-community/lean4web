@@ -180,20 +180,18 @@ describe('The Editor', () => {
   it('shows correct go-to definitions', () => {
     const isOnDarwin = Cypress.platform === 'darwin'
     const alertShown = cy.stub().as("alertShown")
-
-    // Click on theorem
     cy.on('window:confirm', alertShown)
     cy.visit('/')
-    cy.get('div.view-line').type('#check Classical.em')
+    cy.get('div.view-line').type('import Mathlib.Logic.Basic #check Classical.em')
     cy.get('.squiggly-info')
-    cy.contains('div.view-line span', 'Classical.em').as('defToCheck').should('exist')
-    cy.get('@defToCheck').realClick({ ctrlKey: !isOnDarwin, metaKey: isOnDarwin })
+
+    // Click on theorem
+    cy.contains('div.view-line span', 'Classical.em')
+      .realClick({ ctrlKey: !isOnDarwin, metaKey: isOnDarwin })
     cy.get("@alertShown").should("have.been.calledOnce")
         .and('have.been.calledWithMatch', /Do you want to open the docs\?\s+\/Init\/Classical/gm)
 
     // Click on import
-    cy.visit('/')
-    cy.get('div.view-line').type('import Mathlib.Logic.Basic')
     cy.contains('div.view-line span', 'Mathlib.Logic.Basic')
       .realClick({ ctrlKey: !isOnDarwin, metaKey: isOnDarwin })
     cy.get("@alertShown").should("have.been.calledTwice")
