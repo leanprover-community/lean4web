@@ -109,6 +109,7 @@ describe('The Editor', () => {
     cy.get('.squiggly-info').should('exist')
     cy.realPress([modBtn, '.'])
     cy.contains('.action-widget', 'Try this: exact Classical.em P').should('exist')
+    cy.wait(1000)
     cy.realPress([modBtn, '.'])
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
