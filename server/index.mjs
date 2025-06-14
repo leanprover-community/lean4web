@@ -22,6 +22,7 @@ const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 const environment = process.env.NODE_ENV
+const isGithubAction = process.env.GITHUB_ACTIONS
 const isDevelopment = environment === 'development'
 
 const crtFile = process.env.SSL_CRT_FILE
@@ -76,13 +77,18 @@ if (crtFile && keyFile) {
 
 const wss = new WebSocketServer({ server })
 
+// The path to the projects folder relative to the server
+let projectsBasePath = path.join(__dirname, '..', 'Projects')
+
 function startServerProcess(project) {
-  let projectPath = __dirname + `/../Projects/` + project
+  let projectPath = path.join(projectsBasePath, project)
 
   let serverProcess
   if (isDevelopment) {
-    console.warn("Running without Bubblewrap container!")
-    serverProcess = cp.spawn("lean", ["--server"], { cwd: projectPath })
+    if (!isGithubAction) {
+      console.warn("Running without Bubblewrap container!")
+    }
+    serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath })
   } else {
     // the nix setup runs the server in ~,
     // `bubblewrap.sh` is somewhere relative to the js source file
@@ -112,6 +118,40 @@ function startServerProcess(project) {
   return serverProcess
 }
 
+/** Transform client URI to valid file on the server */
+function urisToFilenames(prefix, obj) {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (key === 'uri') {
+        obj[key] = obj[key].replace('file://', `file://${prefix}`)
+      } else if (key === 'rootUri') {
+        obj[key] = obj[key].replace('file://', `file://${prefix}`)
+      } else if (key === 'rootPath') {
+        obj[key] = path.join(prefix, obj[key])
+      }
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        urisToFilenames(prefix, obj[key]);
+      }
+    }
+  }
+  return obj;
+}
+
+/** Transform server file back into client URI */
+function FilenamesToUri(prefix, obj) {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (key === 'uri') {
+        obj[key] = obj[key].replace(prefix, '')
+      }
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        FilenamesToUri(prefix, obj[key]);
+      }
+    }
+  }
+  return obj;
+}
+
 wss.addListener("connection", function(ws, req) {
   const urlRegEx = /^\/websocket\/([\w.-]+)$/
   const reRes = urlRegEx.exec(req.url)
@@ -132,29 +172,40 @@ wss.addListener("connection", function(ws, req) {
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () => ws.close())
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, message => {
-    // if (isDevelopment) {
-    //   console.log(`CLIENT: ${JSON.stringify(message)}`)
-    // }
+    const prefix = isDevelopment ? projectsBasePath : ""
+
+    if (!message.method === 'textDocument/definition') {
+      urisToFilenames(prefix, message)
+    }
+
+    if (isDevelopment && !isGithubAction) {
+      console.log(`CLIENT: ${JSON.stringify(message)}`)
+    }
     return message;
   })
   serverConnection.forward(socketConnection, message => {
-    // if (isDevelopment) {
-    //   console.log(`SERVER: ${JSON.stringify(message)}`)
-    // }
+    const prefix = isDevelopment ? projectsBasePath : ""
+    FilenamesToUri(prefix, message)
+    if (isDevelopment && !isGithubAction) {
+      console.log(`SERVER: ${JSON.stringify(message)}`)
+    }
     return message;
   });
 
   ws.on('close', () => {
-    console.log(`[${new Date()}] Socket closed - ${ip}`)
     socketCounter -= 1
-    logStats()
+    if (!isGithubAction) {
+      console.log(`[${new Date()}] Socket closed - ${ip}`)
+      logStats()
+    }
   })
 
   socketConnection.onClose(() => serverConnection.dispose())
   serverConnection.onClose(() => socketConnection.dispose())
 
-  console.log(`[${new Date()}] Socket opened - ${ip}`)
   socketCounter += 1
-  logStats()
-
+  if (!isGithubAction) {
+    console.log(`[${new Date()}] Socket opened - ${ip}`)
+    logStats()
+  }
 })

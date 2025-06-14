@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+cypress/screenshots
+cypress/videos
+
 **/.lake
 
 # Editor directories and files

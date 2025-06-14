@@ -4,150 +4,33 @@
 
 # Lean 4 Web
 
-This is a web version of Lean 4. The official lean playground is hosted at [live.lean-lang.org](https://live.lean-lang.org), while [lean.math.hhu.de](https://lean.math.hhu.de) hosts a development server testing newer features.
+This is a web version of Lean 4. There is a playground hosted at [live.lean-lang.org](https://live.lean-lang.org) and one at [lean.math.hhu.de](https://lean.math.hhu.de).
 
 In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
 
+## Scope of lean4web
+
+* Provide a clean, minimalistic and easily accessible way to run some (smallish) Lean snippets
+* Provide a simple way to run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.
+* Provide a easy way to demonstrate some Lean code in talks/lecutres.
+* Provide a easy way for newcomers to doodle with Lean before installing it.
+* Provide a way to run some Lean code in a mobile context.
+
+Currently, serious Lean code development and larger projects are considered out-of-scope. For these, it might be more suitable to look at a setup using Codespaces or Gitpot.
+
+While `lean4web` looks very similar to VSCode with the [Lean4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) installed - and it reuses much of that code - `lean4web` does not claim to be feature complete.
+
 ## Contribution
 
 If you experience any problems, or have feature requests, please open an issue here!
-PRs are welcome as well.
 
-## Security
-Providing the use access to a Lean instance running on the server is a severe security risk.
-That is why we start the Lean server using [Bubblewrap](https://github.com/containers/bubblewrap).
+PRs fixing issues are very welcome!
 
-If bubblewrap is not installed, the server will start without a container and produce a warning.
-You can also opt-out of using bubblewrap by setting `NODE_ENV=development`.
+For new features, it's best to write an issue first to discuss them: For example, some functionality might be better implemented in [lean4monaco](https://github.com/hhu-adam/lean4monaco) which provides the key features and a discussion might be helpful to figure this out. 
 
 ## Documentation
 
-### URL arguments
-
-The website parses arguments of the form `https://myserver.com/#arg1=value1&arg2=value2`.
-The recognised arguments are:
-
-- `code=`: plain text code.
-  *(overwrites `codez`; note this argument does accept unescaped code, but the browser will always display certain characters escaped, like `%20` for a space)*
-- `codez=`: compressed code using [LZ-string](https://www.npmjs.com/package/lz-string).
-- `url=`: a URL where the content is loaded from.
-  *(overwrites `code` and `codez`)*.
-- `project=`: the Lean project used by the server to evaluate the code. This has to be the name
-  of one of the projects defined in the server's config.
-
-The server will automatically only write one of `code`, `codez`, and `url` based on the following
-logic:
-
-1. if the code matches the one from the loaded URL, use `url`
-2. if the preferences say no comression, use `code`
-3. otherwise use `codez` or `code` depending on which results in a shorter URL.
-
-## Build Instructions
-
-We have set up the project on a Ubuntu Server 22.10.
-Here are the installation instructions:
-
-Install NPM (don't use `apt-get` since it will give you an outdated version of npm):
-```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-source ~/.bashrc
-nvm install node npm
-```
-
-Now, install `git` and clone this repository:
-```
-sudo apt-get install git
-git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
-```
-
-note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
-
-Install Bubblewrap:
-```
-sudo apt-get install bubblewrap
-```
-
-Navigate into the cloned repository, install, and
-compile:
-```
-cd lean4web
-npm install
-npm run build
-```
-
-Now the server can be started using
-```
-PORT=8080 npm run production
-```
-
-To set the locations of SSL certificates, use the following environment variables:
-```
-SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem PORT=8080 npm run production
-```
-
-### Cronjob
-
-Optionally, you can set up a cronjob to regularly update the mathlib version.
-To do so, run
-```
-crontab -e
-```
-and add the following lines, where all paths must be adjusted appropriately:
-```
-# Need to set PATH manually:
-SHELL=/usr/bin/bash
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.elan/bin:/home/USER/.nvm/versions/node/v20.8.0/bin/
-
-# Update server (i.e. mathlib) of lean4web and delete mathlib cache
-*  */6 * * * cd /home/USER/lean4web && npm run build_server 2>&1 1>/dev/null | logger -t lean4web
-40 2   * * * rm -rf /home/USER/.cache/mathlib/
-```
-
-Note that with this setup, you will still have to manage the lean toolchains manually, as they will slowly fill up your space (~0.9GB per new toolchain): see `elan toolchain --help` for infos.
-
-In addition, we use Nginx and pm2 to manage our server.
-
-#### Managing toolchains
-
-Running and updating the server periodically might accumulate Lean toolchains.
-
-To delete unused toolchains automatically, you can use the
-[elan-cleanup tool](https://github.com/JLimperg/elan-cleanup) and set up a
-cron-job with `crontab -e` and adding the following line, which runs once a month and
-deletes any unused toolchains:
-
-```
-30 2 1 * * /PATH/TO/elan-cleanup/build/bin/elan-cleanup | logger -t lean-cleanup
-```
-
-You can see installed lean toolchains with `elan toolchain list`
-and check the size of `~/.elan`.
-
-### Legal information
-
-Depending on the GDPR and laws applying to your server, you will need to provide the following
-information:
-
-- `client/config/config.tsx`, `serverCountry`: where your server is located.
-- `client/config/config.tsx`, `contactDetails`: used in privacy policy & impressum
-- `client/config/config.tsx`, `impressum`: further legal notes
-
-if `contactDetails` or `impressum` are not `null`, you will see an item `Impressum` in
-the dropdown menu containing that information.
-
-Further, you might need to add the impressum manually to `index.html`
-for people with javascript disabled!
-
-## Development Instructions
-
-Install [npm](https://www.npmjs.com/) and clone this repository. Inside the repository, run:
-
-1. `npm install`, to install dependencies
-2. `npm run build_server`, to build contained lean projects under `Projects/` (or run `lake build` manually inside any lean project)
-3. `npm start`, to start the server.
-
-The project can be accessed via http://localhost:3000. (Internally, websocket requests to `ws://localhost:3000/`websockets will be forwarded to a Lean server running on port 8080.)
-
-## Running different projects
-You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](Projects/README.md) for further instructions.
+- [User Manual](./doc/Usage.md): Specification of `lean4web` features for the end user.
+- [Installation](./doc/Installation.md): Instructions to install your own instance of `lean4web` on your own server
+- [Development](./doc/Development.md): Instructions to contribute to `lean4web` itself

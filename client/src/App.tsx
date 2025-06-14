@@ -6,12 +6,14 @@ import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import LZString from 'lz-string'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
+import * as path from 'path'
 
 // Local imports
 import LeanLogo from './assets/logo.svg'
-import defaultSettings, { IPreferencesContext, lightThemes } from './config/settings'
+import defaultSettings, { IPreferencesContext, lightThemes, preferenceParams } from './config/settings'
 import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
+import { Entries } from './utils/Entries'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
 import { useWindowDimensions } from './utils/WindowWidth'
 
@@ -74,7 +76,7 @@ function App() {
     if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
 
     // if no project provided, use default
-    let project = args.project || 'mathlib-demo'
+    let project = args.project || 'MathlibDemo'
 
     console.log(`[Lean4web] Setting project to ${project}`)
     setProject(project)
@@ -87,16 +89,26 @@ function App() {
     console.debug('[Lean4web] Loading preferences')
 
     let saveInLocalStore = false;
-    let newPreferences: any = { ...preferences } // TODO: need `any` instead of `IPreferencesContext` here to satisfy ts
-    for (const [key, value] of Object.entries(preferences)) {
-      let storedValue = window.localStorage.getItem(key)
+    let newPreferences: { [K in keyof IPreferencesContext]: IPreferencesContext[K] } = { ...preferences }
+    for (const [key, value] of (Object.entries(preferences) as Entries<IPreferencesContext>)) {
+      // prefer URL params over stored
+      const searchParams = new URLSearchParams(window.location.search);
+      let storedValue = (
+        preferenceParams.includes(key) &&  // only for keys we explictly check for
+        searchParams.has(key) && searchParams.get(key))
+        ?? window.localStorage.getItem(key)
       if (storedValue) {
-        saveInLocalStore = true
-        console.debug(`[Lean4web] Found stored value for ${key}: ${storedValue}`)
+        saveInLocalStore = window.localStorage.getItem(key) === storedValue
+        console.debug(`[Lean4web] Found value for ${key}: ${storedValue}`)
         if (typeof value === 'string') {
-          newPreferences[key] = storedValue
+          if (key == 'theme') {
+            const theme = storedValue.toLowerCase().includes('dark') ? "Visual Studio Dark" : "Visual Studio Light"
+            newPreferences[key] = theme
+          }
+          else {
+            newPreferences[key] = storedValue
+          }
         } else if (typeof value === 'boolean') {
-          // Boolean values
           newPreferences[key] = (storedValue === "true")
         } else {
           // other values aren't implemented yet.
@@ -126,7 +138,8 @@ function App() {
     if (!loaded) { return }
 
     const _mobile = width < 800
-    if (!preferences.saveInLocalStore && _mobile !== preferences.mobile) {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (!(searchParams.has("mobile") || preferences.saveInLocalStore) && _mobile !== preferences.mobile) {
       setPreferences({ ...preferences, mobile: _mobile })
     }
   }, [width, loaded])
@@ -157,7 +170,7 @@ function App() {
         "editor.semanticHighlighting.enabled": true,
         "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off",
         "lean4.input.eagerReplacementEnabled": true,
-        "lean4.infoview.showGoalNames": false,
+        "lean4.infoview.showGoalNames": preferences.showGoalNames,
         "lean4.infoview.emphasizeFirstGoal": true,
         "lean4.infoview.showExpectedType": false,
         "lean4.infoview.showTooltipOnHover": false,
@@ -178,7 +191,7 @@ function App() {
     _leanMonaco.setInfoviewElement(infoviewRef.current!)
     ;(async () => {
         await _leanMonaco.start(options)
-        await leanMonacoEditor.start(editorRef.current!, `/project/${project}.lean`, code)
+        await leanMonacoEditor.start(editorRef.current!, path.join(project, `${project}.lean`), code)
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)
@@ -295,7 +308,7 @@ function App() {
   useEffect(() => {
     if (!editor) { return }
 
-    let _project = (project == 'mathlib-demo' ? null : project)
+    let _project = (project == 'MathlibDemo' ? null : project)
     let args: {
       project: string | null
       url: string | null
@@ -349,6 +362,20 @@ function App() {
     }
     history.replaceState(undefined, undefined!, formatArgs(args))
   }, [editor, project, code, codeFromUrl])
+
+  // Disable monaco context menu outside the editor
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      const editorContainer = document.querySelector(".editor")
+      if (editorContainer && !editorContainer.contains(event.target as Node)) {
+        event.stopPropagation()
+      }
+    }
+    document.addEventListener("contextmenu", handleContextMenu, true)
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu, true)
+    }
+  }, [])
 
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
     <div className="app monaco-editor">
