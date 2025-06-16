@@ -41,7 +41,7 @@
     "express": "^4.21.2",
     "file-saver": "^2.0.5",
     "ip-anonymize": "^0.1.0",
-    "lean4monaco": "^1.1.1",
+    "lean4monaco": "^1.1.2",
     "lz-string": "^1.5.0",
     "memfs": "^4.11.1",
     "nocache": "^4.0.0",
