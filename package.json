@@ -25,6 +25,8 @@
     "test:dev": "concurrently -k -s first -n server,client,cypress -c blue,green,cyan \"npm run start:server\" \"npm run start:client\" \"npm run test:dev:bare\"",
     "test:prod:bare": "wait-on \"http://localhost:3000\" && cypress run",
     "test:prod": "concurrently -k -s first -n server,cypress -c blue,cyan \"npm run build && PORT=3000 npm run production\" \"npm run test:prod:bare\"",
+    "test:prod:windows:bare": "wait-on \"http://localhost:3000\" && CYPRESS_USER_AGENT_OS=\"Windows NT 10.0; Win64; x64\" cypress run --browser chromium",
+    "test:prod:windows": "concurrently -k -s first -n server,cypress -c blue,cyan \"npm run build && PORT=3000 npm run production\" \"npm run test:prod:windows:bare\"",
     "test": "npm run test:dev"
   },
   "dependencies": {
@@ -41,7 +43,7 @@
     "express": "^4.21.2",
     "file-saver": "^2.0.5",
     "ip-anonymize": "^0.1.0",
-    "lean4monaco": "^1.1.1",
+    "lean4monaco": "^1.1.3",
     "lz-string": "^1.5.0",
     "memfs": "^4.11.1",
     "nocache": "^4.0.0",

@@ -106,6 +106,7 @@ describe('The Editor', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by apply?')
     cy.contains('div.view-line', 'apply?').should('exist')
+    cy.wait(1000)
     cy.get('.squiggly-info').should('exist')
     cy.realPress([modBtn, '.'])
     cy.contains('.action-widget', 'Try this: exact Classical.em P').should('exist')
