@@ -384,7 +384,7 @@ function App() {
           setProject={setProject}
           setUrl={setUrl}
           codeFromUrl={codeFromUrl}
-          restart={leanMonaco?.restart}
+          restart={() => {leanMonaco?.restart()}}
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
           />
