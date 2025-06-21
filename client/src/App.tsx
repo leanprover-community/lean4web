@@ -88,17 +88,14 @@ function App() {
     if (loaded) { return }
     console.debug('[Lean4web] Loading preferences')
 
-    let saveInLocalStore = false;
     let newPreferences: { [K in keyof IPreferencesContext]: IPreferencesContext[K] } = { ...preferences }
     for (const [key, value] of (Object.entries(preferences) as Entries<IPreferencesContext>)) {
       // prefer URL params over stored
       const searchParams = new URLSearchParams(window.location.search);
-      let storedValue = (
-        preferenceParams.includes(key) &&  // only for keys we explictly check for
-        searchParams.has(key) && searchParams.get(key))
-        ?? window.localStorage.getItem(key)
+      let storedValue =
+        (preferenceParams.includes(key) && searchParams.has(key)) ?
+        searchParams.get(key) : window.localStorage.getItem(key)
       if (storedValue) {
-        saveInLocalStore = window.localStorage.getItem(key) === storedValue
         console.debug(`[Lean4web] Found value for ${key}: ${storedValue}`)
         if (typeof value === 'string') {
           if (key == 'theme') {
@@ -127,7 +124,6 @@ function App() {
         }
       }
     }
-    newPreferences['saveInLocalStore'] = saveInLocalStore
     setPreferences(newPreferences)
     setLoaded(true)
   }, [])

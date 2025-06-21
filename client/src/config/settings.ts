@@ -28,6 +28,7 @@ export interface IPreferencesContext {
   wordWrap: boolean
 }
 
+// Settings allowed to be set in URL
 export const preferenceParams: (keyof IPreferencesContext)[] = [
   "abbreviationCharacter",
   "acceptSuggestionOnEnter",
