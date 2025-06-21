@@ -86,7 +86,7 @@ function App() {
   useEffect(() => {
     // only load them once
     if (loaded) { return }
-    console.debug('[Lean4web] Loading preferences')
+    console.log('[Lean4web] Loading preferences')
 
     let newPreferences: { [K in keyof IPreferencesContext]: IPreferencesContext[K] } = { ...preferences }
     for (const [key, value] of (Object.entries(preferences) as Entries<IPreferencesContext>)) {
@@ -115,10 +115,10 @@ function App() {
         // no stored preferences, set a default value
         if (key == 'theme') {
           if (isBrowserDefaultDark()) {
-            console.debug("[Lean4web] Preferences: Set dark theme.")
+            console.log("[Lean4web] Preferences: Set dark theme.")
             newPreferences['theme'] = 'Visual Studio Dark'
           } else {
-            console.debug("[Lean4web] Preferences: Set light theme.")
+            console.log("[Lean4web] Preferences: Set light theme.")
             newPreferences['theme'] = 'Visual Studio Light'
           }
         }
@@ -159,7 +159,7 @@ function App() {
          */
         "workbench.colorTheme": preferences.theme,
         "editor.tabSize": 2,
-        // "editor.rulers": [100],
+        "editor.rulers": preferences.rulerPosition ? [100] : [],
         "editor.lightbulb.enabled": "on",
         "editor.wordWrap": preferences.wordWrap ? "on" : "off",
         "editor.wrappingStrategy": "advanced",

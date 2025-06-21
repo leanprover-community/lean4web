@@ -26,6 +26,8 @@ export interface IPreferencesContext {
   theme: Theme
   /** Wrap code */
   wordWrap: boolean
+  /** Show ruler at position 100 */
+  rulerPosition: boolean
 }
 
 // Settings allowed to be set in URL
@@ -37,6 +39,7 @@ export const preferenceParams: (keyof IPreferencesContext)[] = [
   "mobile",
   "theme",
   "wordWrap",
+  "rulerPosition",
 ]
 
 /** The default settings. */
@@ -50,7 +53,8 @@ const settings: IPreferencesContext = {
   mobile: false,
   saveInLocalStore: false, // should be false unless user gave consent.
   theme: 'Visual Studio Light', // irrelevant as it will be overwritten in App.tsx
-  wordWrap: true
+  wordWrap: true,
+  rulerPosition: false
 }
 
 /**

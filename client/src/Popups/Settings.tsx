@@ -55,7 +55,7 @@ const SettingsPopup: FC<{
       <h2>Project settings</h2>
       <p><i>These settings are stored in the URL as they change the project's setup</i></p>
       <p>
-        <label htmlFor="leanVersion">Lean Version: </label>
+        <label htmlFor="leanVersion">Lean version: </label>
         <select
             id="leanVersion"
             name="leanVersion"
@@ -85,12 +85,17 @@ const SettingsPopup: FC<{
       <p>
         <Switch id="acceptSuggestionOnEnter" onChange={() => {modifyPreferences("acceptSuggestionOnEnter", !preferences.acceptSuggestionOnEnter)}}
         checked={preferences.acceptSuggestionOnEnter} />
-        <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
+        <label htmlFor="acceptSuggestionOnEnter">Accept suggestion on Enter</label>
       </p>
       <p>
         <Switch id="showGoalNames" onChange={() => {modifyPreferences("showGoalNames", !preferences.showGoalNames)}}
         checked={preferences.showGoalNames} />
-        <label htmlFor="showGoalNames">Show Goal Names</label>
+        <label htmlFor="showGoalNames">Show goal names</label>
+      </p>
+      <p>
+        <Switch id="rulerPosition" onChange={() => {modifyPreferences("rulerPosition", !preferences.rulerPosition)}}
+        checked={preferences.rulerPosition} />
+        <label htmlFor="rulerPosition">Show ruler</label>
       </p>
 
       <h2>User settings</h2>
