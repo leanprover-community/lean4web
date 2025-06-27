@@ -1,24 +1,24 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { spawnSync } = require('child_process');
+import { readdirSync, lstatSync, existsSync } from 'fs';
+import { resolve, join } from 'path';
+import { spawnSync } from 'child_process';
 
 // Change to ../Projects directory relative to this script
-const baseDir = path.resolve(__dirname, '../Projects');
+const baseDir = resolve(__dirname, '../Projects');
 process.chdir(baseDir);
 const isWin = process.platform === 'win32';
 const buildScriptName = isWin ? 'build.cmd' : 'build.sh';
 
 // Iterate over subfolders in Projects
-fs.readdirSync('.').forEach(folder => {
-  const folderPath = path.join(baseDir, folder);
+readdirSync('.').forEach(folder => {
+  const folderPath = join(baseDir, folder);
 
-  if (fs.lstatSync(folderPath).isDirectory()) {
+  if (lstatSync(folderPath).isDirectory()) {
 
-    const buildScriptPath = path.join(folderPath, buildScriptName);
+    const buildScriptPath = join(folderPath, buildScriptName);
 
-    if (fs.existsSync(buildScriptPath)) {
+    if (existsSync(buildScriptPath)) {
       const start = Date.now();
 
       console.log(`Start building ${folder}`);
