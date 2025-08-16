@@ -381,7 +381,7 @@ function App() {
 
   // Save file with Ctrl+S
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key === 's' && !saved.current) {
+    if (event.ctrlKey && event.key.toLowerCase() === 's' && !saved.current) {
       event.preventDefault()
       save(code)
       saved.current = true
@@ -391,7 +391,7 @@ function App() {
   // Reset saved state on Ctrl+S release
   // This is needed to stop multiple saves when the user holds down Ctrl+S
   const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key === 's') {
+    if (event.ctrlKey && event.key.toLowerCase() === 's') {
       event.preventDefault()
       saved.current = false
     }
