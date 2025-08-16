@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 import * as monaco from 'monaco-editor'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
@@ -14,6 +14,7 @@ import defaultSettings, { IPreferencesContext, lightThemes, preferenceParams } f
 import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
 import { Entries } from './utils/Entries'
+import { save } from './utils/SaveToFile'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
 import { useWindowDimensions } from './utils/WindowWidth'
 
@@ -29,6 +30,7 @@ function isBrowserDefaultDark() {
 function App() {
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
+  const saved = useRef<boolean>(false)
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
@@ -376,6 +378,33 @@ function App() {
       document.removeEventListener("contextmenu", handleContextMenu, true)
     }
   }, [])
+
+  // Save file with Ctrl+S
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.ctrlKey && event.key === 's' && !saved.current) {
+      event.preventDefault()
+      save(code)
+      saved.current = true
+    }
+  }, [code])
+
+  // Reset saved state on Ctrl+S release
+  // This is needed to stop multiple saves when the user holds down Ctrl+S
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault()
+      saved.current = false
+    }
+  }, [])
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [handleKeyDown, handleKeyUp])
 
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
     <div className="app monaco-editor">
