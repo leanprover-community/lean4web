@@ -40,7 +40,8 @@ if true; then
     --unshare-cgroup \
     --die-with-parent \
     --chdir "$PROJECT" \
-    lean --server
+    lean --server \
+    -D experimental.module=true
   )
 else
   echo "bwrap is not installed. Running without container." >&2
