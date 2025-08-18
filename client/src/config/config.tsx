@@ -13,10 +13,12 @@ const lean4webConfig : LeanWebConfig = {
           "name": "Ring" },
         { "file": "MathlibDemo/Rational.lean",
           "name": "Rational" }]},
-    { "folder": "Stable",
-      "name": "Stable Lean" },
+    { "folder": "mathlib-stable",
+      "name": "Mathlib stable"},
+    { "folder": "lean-nightly",
+      "name": "Lean Nightly (without mathlib)"}
   ],
-  "serverCountry": null,
+  "serverCountry": 'Finland',
   "contactDetails": null,
   "impressum": null
 }
