@@ -116,4 +116,4 @@ Further, you might need to add the impressum manually to `index.html`
 for people with javascript disabled!
 
 ### Running different projects
-You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](Projects/README.md) for further instructions.
+You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](../Projects/README.md) for further instructions.
