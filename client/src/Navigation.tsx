@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition, faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { saveAs } from 'file-saver'
 
 import SettingsPopup, { PreferencesContext } from './Popups/Settings'
 import PrivacyPopup from './Popups/PrivacyPolicy'
@@ -15,6 +14,7 @@ import LoadZulipPopup from './Popups/LoadZulip'
 import lean4webConfig from './config/config'
 import './css/Modal.css'
 import './css/Navigation.css'
+import { save } from './utils/SaveToFile'
 import { lookupUrl } from './utils/UrlParsing'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
@@ -69,11 +69,6 @@ export const Popup: FC<{
         {children}
       </div>
     </div>
-}
-
-const save = (content: string) => {
-  var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-  saveAs(blob, "Lean4WebDownload.lean");
 }
 
 /** The menu items either appearing inside the dropdown or outside */

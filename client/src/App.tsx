@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 import * as monaco from 'monaco-editor'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
@@ -14,6 +14,7 @@ import defaultSettings, { IPreferencesContext, lightThemes, preferenceParams } f
 import { Menu } from './Navigation'
 import { PreferencesContext } from './Popups/Settings'
 import { Entries } from './utils/Entries'
+import { save } from './utils/SaveToFile'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
 import { useWindowDimensions } from './utils/WindowWidth'
 
@@ -376,6 +377,30 @@ function App() {
       document.removeEventListener("contextmenu", handleContextMenu, true)
     }
   }, [])
+
+  // Stop the browser's save dialog on Ctrl+S
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault()
+    }
+  }, [])
+
+  // Actually save the file on Ctrl+S
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault()
+      save(code)
+    }
+  }, [code])
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [handleKeyDown, handleKeyUp])
 
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
     <div className="app monaco-editor">
