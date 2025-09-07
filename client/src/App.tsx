@@ -30,7 +30,6 @@ function isBrowserDefaultDark() {
 function App() {
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
-  const saved = useRef<boolean>(false)
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
@@ -379,23 +378,20 @@ function App() {
     }
   }, [])
 
-  // Save file with Ctrl+S
+  // Stop the browser's save dialog on Ctrl+S
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key.toLowerCase() === 's' && !saved.current) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
       event.preventDefault()
-      save(code)
-      saved.current = true
-    }
-  }, [code])
-
-  // Reset saved state on Ctrl+S release
-  // This is needed to stop multiple saves when the user holds down Ctrl+S
-  const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    if (event.ctrlKey && event.key.toLowerCase() === 's') {
-      event.preventDefault()
-      saved.current = false
     }
   }, [])
+
+  // Actually save the file on Ctrl+S
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      event.preventDefault()
+      save(code)
+    }
+  }, [code])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
