@@ -21,6 +21,9 @@ function logStats() {
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
+// The path to the projects folder relative to the server
+let projectsBasePath = path.join(__dirname, '..', 'Projects')
+
 const environment = process.env.NODE_ENV
 const isGithubAction = process.env.GITHUB_ACTIONS
 const isDevelopment = environment === 'development'
@@ -34,19 +37,19 @@ const app = express()
 app.use('/api/examples/*', (req, res, next) => {
   const filename = req.params[0]
   req.url = filename
-  express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
+  express.static(projectsBasePath)(req, res, next)
 })
 // `*` is the project like `mathlib-demo`
 app.use('/api/manifest/*', (req, res, next) => {
   const project = req.params[0]
   req.url = 'lake-manifest.json'
-  express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
+  express.static(path.join(projectsBasePath, project))(req, res, next)
 })
 // `*` is the project like `mathlib-demo`
 app.use('/api/toolchain/*', (req, res, next) => {
   const project = req.params[0]
   req.url = 'lean-toolchain'
-  express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
+  express.static(path.join(projectsBasePath, project))(req, res, next)
 })
 // Using the client files
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
@@ -73,9 +76,6 @@ if (crtFile && keyFile) {
 }
 
 const wss = new WebSocketServer({ server })
-
-// The path to the projects folder relative to the server
-let projectsBasePath = path.join(__dirname, '..', 'Projects')
 
 function startServerProcess(project) {
   let projectPath = path.join(projectsBasePath, project)
@@ -110,7 +110,7 @@ function startServerProcess(project) {
   return serverProcess
 }
 
-/** Transform client URI to valid file on the server */
+/** Transform client URI to valid file on the server by mutating obj */
 function urisToFilenames(prefix, obj) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -126,10 +126,9 @@ function urisToFilenames(prefix, obj) {
       }
     }
   }
-  return obj;
 }
 
-/** Transform server file back into client URI */
+/** Transform server file back into client URI by mutating obj */
 function FilenamesToUri(prefix, obj) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -141,7 +140,6 @@ function FilenamesToUri(prefix, obj) {
       }
     }
   }
-  return obj;
 }
 
 wss.addListener("connection", function(ws, req) {
@@ -153,31 +151,23 @@ wss.addListener("connection", function(ws, req) {
   const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
   const ps = startServerProcess(project)
 
-  const socket = {
+  const reader = new rpc.WebSocketMessageReader({
       onMessage: (cb) => { ws.on("message", cb) },
       onError: (cb) => { ws.on("error", cb) },
       onClose: (cb) => { ws.on("close", cb) },
+  })
+  const writer = new rpc.WebSocketMessageWriter({
       send: (data, cb) => { ws.send(data,cb) }
-  }
-  const reader = new rpc.WebSocketMessageReader(socket)
-  const writer = new rpc.WebSocketMessageWriter(socket)
+  })
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () => ws.close())
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, message => {
-    const prefix = isDevelopment ? projectsBasePath : ""
-
-    if (!message.method === 'textDocument/definition') {
-      urisToFilenames(prefix, message)
-    }
-
     if (isDevelopment && !isGithubAction) {
       console.log(`CLIENT: ${JSON.stringify(message)}`)
     }
     return message;
   })
   serverConnection.forward(socketConnection, message => {
-    const prefix = isDevelopment ? projectsBasePath : ""
-    FilenamesToUri(prefix, message)
     if (isDevelopment && !isGithubAction) {
       console.log(`SERVER: ${JSON.stringify(message)}`)
     }
