@@ -21,7 +21,7 @@ const NavItemComponent: React.FC<{ item: NavItem }> = ({ item }) => {
       {item.url ? (
         <a
           href={item.url}
-          className={`nav-linklean${classes}`}
+          className={`bar-link-lean${classes}`}
           aria-label={item.alt || ""}
           target={item.blank ? "_blank" : "_self"}
           rel={item.blank ? "noopener noreferrer" : undefined}
@@ -30,7 +30,7 @@ const NavItemComponent: React.FC<{ item: NavItem }> = ({ item }) => {
         </a>
       ) : (
         <button
-          className={`nav-linklean${classes}`}
+          className={`bar-link-lean${classes}`}
           aria-label={item.alt || ""}
         >
           {item.title}
@@ -120,7 +120,7 @@ export const NavBar: React.FC<NavBarProps> = ({
               />
               <label
                 htmlFor="fro-toggle"
-                className="nav-linklean"
+                className="bar-link-lean"
                 aria-label="Toggle navigation menu"
               >
                 FRO
@@ -159,7 +159,7 @@ const LeanLogo: React.FC = () =>
 
 const NavBarLean: React.FC = () => {
   const outItems: NavItem[] = [
-    { title: "Playground", url: "https://live.lean-lang.org/", blank: true },
+    { title: "Playground", url: "https://live.lean-lang.org/", blank: true, active: true },
     {
       title: "Reservoir",
       url: "https://reservoir.lean-lang.org/",
@@ -212,7 +212,7 @@ const NavBarMathLib: React.FC = () => {
   const outItems: NavItem[] = [
     { title: "Lean", url: "https://lean-lang.org/", blank: true },
     { title: "Mathlib Community", url: "https://leanprover-community.github.io/", blank: true },
-    { title: "Playground", url: "https://live.lean-lang.org/", blank: true },
+    { title: "Playground", url: "https://live.lean-lang.org/", blank: true, active: true },
     { title: "Reservoir", url: "https://reservoir.lean-lang.org/", blank: true },
   ];
 
