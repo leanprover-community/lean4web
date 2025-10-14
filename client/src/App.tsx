@@ -378,17 +378,18 @@ function App() {
     }
   }, [])
 
-  const [isMathLib, setIsMathLib] = useState(false);
+  const [requiresNavBar, setRequiresNavBar] = useState(0);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const nameParam = params.get('from'); // e.g., ?name=Sofia
-    setIsMathLib(nameParam == "mathlib")
+    setRequiresNavBar(nameParam == "mathlib" ? 1 : (nameParam == "lean" ? 2 : 0))
   }, []);
 
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
-    { isMathLib ? <NavBarMathLib /> : <NavBarLean /> }
-    
+    { requiresNavBar == 1 && <NavBarMathLib /> }
+    { requiresNavBar == 2 && <NavBarLean /> }
+
     <div className="app monaco-editor">
       <nav>
         <Menu
