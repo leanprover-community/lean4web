@@ -181,7 +181,7 @@ const NavBarLean: React.FC = () => {
     { title: "Install", url: "https://lean-lang.org/install" },
     { title: "Learn", url: "https://lean-lang.org/learn" },
     { title: "Community", url: "https://lean-lang.org/community" },
-    { title: "Use Cases", url: "https://lean-lang.org/usecases" },
+    { title: "Use Cases", url: "https://lean-lang.org/use-cases" },
     { title: "FRO", url: "https://lean-lang.org/fro" },
   ];
 
