@@ -3,6 +3,7 @@ import "./css/Nav.css";
 
 import GitHubIcon from "./assets/github.svg?react"
 import MathLibLogo from "./assets/mathlib_initiative_logo.svg?react"
+import { useNavBar } from "./context/NavBarContext";
 
 export interface NavItem {
   title: React.ReactNode;
@@ -212,7 +213,7 @@ const NavBarMathLib: React.FC = () => {
   const outItems: NavItem[] = [
     { title: "Lean", url: "https://lean-lang.org/", blank: true },
     { title: "Mathlib Community", url: "https://leanprover-community.github.io/", blank: true },
-    { title: "Playground", url: "https://live.lean-lang.org/", blank: true, active: true },
+    { title: "Playground", url: "https://live.lean-lang.org/?from=lean", blank: true, active: true },
     { title: "Reservoir", url: "https://reservoir.lean-lang.org/", blank: true },
   ];
 
@@ -255,4 +256,15 @@ const NavBarMathLib: React.FC = () => {
   );
 };
 
-export {NavBarLean, NavBarMathLib};
+
+const NavBarComp: React.FC = () => {
+  let navBar = useNavBar()
+
+  return (!navBar.hideNavBar && <>
+    {navBar.requiresNavBar === 1 && <NavBarMathLib/>}
+    {navBar.requiresNavBar === 2 && <NavBarLean/>}
+  </>)
+
+}
+
+export {NavBarLean, NavBarMathLib, NavBarComp};

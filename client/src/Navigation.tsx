@@ -1,6 +1,6 @@
 import { ChangeEvent, Dispatch, FC, JSX, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconDefinition, faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition, faArrowRotateRight, faCode, faEye, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { saveAs } from 'file-saver'
@@ -16,6 +16,7 @@ import lean4webConfig from './config/config'
 import './css/Modal.css'
 import './css/Navigation.css'
 import { lookupUrl } from './utils/UrlParsing'
+import { useNavBar } from './context/NavBarContext'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
 export const NavButton: FC<{
@@ -177,6 +178,8 @@ export const Menu: FC <{
 
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
 
+  let navbar = useNavBar()
+
   return  <div className='menu'>
     <select
         name="leanVersion"
@@ -219,6 +222,7 @@ export const Menu: FC <{
       }
       <NavButton icon={faGear} text="Settings" onClick={() => {setSettingsOpen(true)}} />
       <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
+      { navbar.requiresNavBar != 0 && <NavButton icon={faEye} text={`${navbar.hideNavBar ? "Show" : "Hide"} Navbar`} onClick={() => navbar.setHideNavBar(!navbar.hideNavBar)} />}
       <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
       <NavButton icon={faDownload} text="Save file" onClick={() => save(code)} />
       <NavButton icon={faShield} text={'Privacy policy'} onClick={() => {setPrivacyOpen(true)}} />

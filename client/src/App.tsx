@@ -4,7 +4,7 @@ import * as monaco from 'monaco-editor'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import LZString from 'lz-string'
-import {NavBarLean, NavBar, NavItem, NavBarMathLib } from './NavBar'
+import {NavBarLean, NavBar, NavItem, NavBarMathLib, NavBarComp } from './NavBar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import * as path from 'path'
@@ -378,17 +378,8 @@ function App() {
     }
   }, [])
 
-  const [requiresNavBar, setRequiresNavBar] = useState(0);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const nameParam = params.get('from'); // e.g., ?name=Sofia
-    setRequiresNavBar(nameParam == "mathlib" ? 1 : (nameParam == "lean" ? 2 : 0))
-  }, []);
-
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
-    { requiresNavBar == 1 && <NavBarMathLib /> }
-    { requiresNavBar == 2 && <NavBarLean /> }
+    <NavBarComp />
 
     <div className="app monaco-editor">
       <nav>
