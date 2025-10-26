@@ -12,7 +12,7 @@ GLIBC_PATH="$(nix-store --query "$(patchelf --print-interpreter "$LEAN_ROOT/bin/
 
 # dynamically check for support for `-Dexperimental.module`
 OPTS=""
-if ( cd $1 && lean -Dexperimental.module=true --version >/dev/null )
+if ( cd $1 && lean -Dexperimental.module=true --stdin </dev/null >/dev/null )
 then
   OPTS="-Dexperimental.module=true"
 fi
