@@ -10,6 +10,13 @@ LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
 LEAN_SRC_PATH=$(cd $1 && lake env printenv LEAN_SRC_PATH)
 GLIBC_PATH="$(nix-store --query "$(patchelf --print-interpreter "$LEAN_ROOT/bin/lean")")"
 
+# dynamically check for support for `-Dexperimental.module`
+OPTS=""
+if ( cd $1 && lean -Dexperimental.module=true --version >/dev/null )
+then
+  OPTS="-Dexperimental.module=true"
+fi
+
 # # print commands as they are executed
 # set -x
 
@@ -41,7 +48,7 @@ if true; then
     --die-with-parent \
     --chdir "$PROJECT" \
     lean --server \
-    -D experimental.module=true
+    $OPTS
   )
 else
   echo "bwrap is not installed. Running without container." >&2
