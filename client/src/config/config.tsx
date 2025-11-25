@@ -15,6 +15,8 @@ const lean4webConfig : LeanWebConfig = {
           "name": "Rational" }]},
     { "folder": "mathlib-stable",
       "name": "Mathlib stable"},
+    { "folder": "mathlib-v4.24.0",
+      "name": "Mathlib v4.24.0"},
     { "folder": "lean-nightly",
       "name": "Lean Nightly (without mathlib)"}
   ],
