@@ -30,21 +30,20 @@ const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
 
-// `*` has the form `mathlib-demo/MathlibLatest/Logic.lean`
-app.use('/api/examples/*example', (req, res, next) => {
-  const filename = req.params.example
-  
-  path.join(...filename.filter(it => it.lenght > 0))
-  req.url = 'MathlibDemo/MathlibDemo/Bijection.lean'
+// `*example` has the form `mathlib-demo/MathlibLatest/Logic.lean`
+app.use('/api/example/*example', (req, res, next) => {
+  const filePath = path.join(...req.params.example.filter(it => it.length > 0))
+  req.url = filePath
   express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
-})
-// `*` is the project like `mathlib-demo`
+});
+
+// `:project` is the project like `mathlib-demo`
 app.use('/api/manifest/:project', (req, res, next) => {
   const project = req.params.project
   req.url = 'lake-manifest.json'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
-// `*` is the project like `mathlib-demo`
+// `:project` is the project like `mathlib-demo`
 app.use('/api/toolchain/:project', (req, res, next) => {
   const project = req.params.project
   req.url = 'lean-toolchain'
@@ -63,11 +62,13 @@ if (crtFile && keyFile) {
   const PORT = process.env.PORT ?? 443
   server = https.createServer(credentials, app).listen(PORT,
     () => console.log(`HTTPS on port ${PORT}`));
-
-  // redirect http to https
-  express().get('*', function(req, res) {
-    res.redirect('https://' + req.headers.host + req.url).listen(80);
-  })
+    // http.createServer((req, res) => {
+    //   const host = req.headers.host.replace(/:\d+$/, '');
+    //   res.writeHead(301, {
+    //     Location: `https://${host}${req.url}`
+    //   });
+    //   res.end();
+    // }).listen(80);
 } else {
   const PORT = process.env.PORT ?? 8080
   server = app.listen(PORT,
