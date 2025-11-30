@@ -22,8 +22,10 @@ export interface IPreferencesContext {
    * Usually inferred from window width. */
   mobile: boolean
   saveInLocalStore: boolean
-  /** Light or dark. Usually inferred from browser dark mode preferences. */
-  theme: Theme
+  /** `light` or `dark` or name of existing theme.
+   * Usually inferred from browser dark mode preferences.
+   */
+  theme: string
   /** Wrap code */
   wordWrap: boolean
 }
