@@ -31,20 +31,22 @@ const keyFile = process.env.SSL_KEY_FILE
 const app = express()
 
 // `*` has the form `mathlib-demo/MathlibLatest/Logic.lean`
-app.use('/api/examples/*', (req, res, next) => {
-  const filename = req.params[0]
-  req.url = filename
+app.use('/api/examples/*example', (req, res, next) => {
+  const filename = req.params.example
+  
+  path.join(...filename.filter(it => it.lenght > 0))
+  req.url = 'MathlibDemo/MathlibDemo/Bijection.lean'
   express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
 })
 // `*` is the project like `mathlib-demo`
-app.use('/api/manifest/*', (req, res, next) => {
-  const project = req.params[0]
+app.use('/api/manifest/:project', (req, res, next) => {
+  const project = req.params.project
   req.url = 'lake-manifest.json'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
 // `*` is the project like `mathlib-demo`
-app.use('/api/toolchain/*', (req, res, next) => {
-  const project = req.params[0]
+app.use('/api/toolchain/:project', (req, res, next) => {
+  const project = req.params.project
   req.url = 'lean-toolchain'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
