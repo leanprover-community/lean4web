@@ -118,7 +118,7 @@ describe('The Editor', () => {
   it('displays and accepts suggestions from infoview', () => {
     cy.visit('/')
     cy.get('div.view-line').type('example (P: Prop) : P \\or \\not P := by apply?')
-    cy.iframe().contains("span[title='Apply suggestion']", 'exact Classical.em P').click()
+    cy.iframe().contains("span[title='Apply suggestion']", '[apply]').click()
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
