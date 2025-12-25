@@ -25,6 +25,7 @@ else
     --ro-bind "$1" "/$PROJECT_NAME" \
     --ro-bind "$LEAN_ROOT" /lean \
     --ro-bind /usr /usr \
+    --ro-bind /etc/localtime /etc/localtime
     --dev /dev \
     --tmpfs /tmp \
     --proc /proc \
