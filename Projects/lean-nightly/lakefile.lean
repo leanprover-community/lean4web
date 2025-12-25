@@ -1,9 +1,12 @@
 import Lake
 open Lake DSL
 
-package «Stable» where
+package leanlatest {
   -- add package configuration options here
+  leanOptions := #[⟨`experimental.module, true⟩]
+}
 
 @[default_target]
-lean_lib «Stable» where
+lean_lib LeanNightly {
   -- add library configuration options here
+}

@@ -4,6 +4,7 @@ import * as monaco from 'monaco-editor'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import LZString from 'lz-string'
+import {NavBarLean, NavBar, NavItem, NavBarMathLib, NavBarComp } from './NavBar'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import * as path from 'path'
@@ -403,9 +404,10 @@ function App() {
   }, [handleKeyDown, handleKeyUp])
 
   return <PreferencesContext.Provider value={{preferences, setPreferences}}>
+    <NavBarComp />
+
     <div className="app monaco-editor">
       <nav>
-        <LeanLogo />
         <Menu
           code={code}
           setContent={setContent}
