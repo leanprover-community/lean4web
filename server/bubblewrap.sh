@@ -8,6 +8,14 @@ PROJECT="$(realpath "$1")"  # resolve symlinks
 LEAN_ROOT="$(cd $1 && lean --print-prefix)"
 LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
 LEAN_SRC_PATH=$(cd $1 && lake env printenv LEAN_SRC_PATH)
+GLIBC_PATH="/lib/x86_64-linux-gnu/"
+
+# dynamically check for support for `-Dexperimental.module`
+OPTS=""
+if ( cd $1 && lean -Dexperimental.module=true --stdin </dev/null >/dev/null )
+then
+  OPTS="-Dexperimental.module=true"
+fi
 
 # # print commands as they are executed
 # set -x
@@ -16,10 +24,10 @@ if command -v bwrap >/dev/null 2>&1; then
   (exec bwrap\
     --ro-bind "$PROJECT" "$PROJECT" \
     --ro-bind "$LEAN_ROOT" /lean \
+    --ro-bind "$GLIBC_PATH" "$GLIBC_PATH" `# only dep of bin/lean` \
     --ro-bind /usr /usr \
     --ro-bind /etc/localtime /etc/localtime \
     --ro-bind $(readlink -f /etc/zoneinfo) $(readlink -f /etc/zoneinfo) \
-    --setenv PATH "/bin:/usr/bin:/lean/bin" \
     --dev /dev \
     --tmpfs /tmp \
     --proc /proc \
