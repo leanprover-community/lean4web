@@ -64,7 +64,13 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
       },
-    }
+    },
+    watch: {
+      ignored: [
+        '**/.lake/**',
+        '**/build/**',
+      ],
+    },
   },
   resolve: {
     alias: {
