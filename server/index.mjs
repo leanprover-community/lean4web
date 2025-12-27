@@ -62,13 +62,12 @@ if (crtFile && keyFile) {
   const PORT = process.env.PORT ?? 443
   server = https.createServer(credentials, app).listen(PORT,
     () => console.log(`HTTPS on port ${PORT}`));
-    // http.createServer((req, res) => {
-    //   const host = req.headers.host.replace(/:\d+$/, '');
-    //   res.writeHead(301, {
-    //     Location: `https://${host}${req.url}`
-    //   });
-    //   res.end();
-    // }).listen(80);
+
+  // redirect http to https
+  express().get('*', function(req, res) {
+    res.redirect('https://' + req.headers.host + req.url).listen(80);
+  })
+
 } else {
   const PORT = process.env.PORT ?? 8080
   server = app.listen(PORT,
