@@ -4,27 +4,19 @@
 ulimit -t 3600
 # NB: The RSS limit (ulimit -m) is not supported by modern linux!
 
-LEAN_ROOT="$(cd $1 && lean --print-prefix)"
-LEAN_PATH="$(cd $1 && lake env printenv LEAN_PATH)"
-
 PROJECT_NAME="$(realpath $1)"
+LEAN_ROOT="$(cd $1 && lean --print-prefix)"
+LEAN_SRC_PATH=$(cd $1 && lake env printenv LEAN_SRC_PATH)
 
 # # print commands as they are executed
 # set -x
 
-if ! command -v bwrap >/dev/null 2>&1; then
-  echo "bwrap is not installed! You could try to run the development server instead."
-  # # Could run without bubblewrap like this, but this might be an unwanted
-  # # security risk.
-  # (exec
-  #   cd $1
-  #   lake serve --
-  # )
-else
+if command -v bwrap >/dev/null 2>&1; then
   (exec bwrap\
     --ro-bind "$1" "/$PROJECT_NAME" \
     --ro-bind "$LEAN_ROOT" /lean \
     --ro-bind /usr /usr \
+    --ro-bind /etc/localtime /etc/localtime \
     --dev /dev \
     --tmpfs /tmp \
     --proc /proc \
@@ -34,7 +26,7 @@ else
     --symlink usr/sbin /sbin\
     --clearenv \
     --setenv PATH "/bin:/usr/bin:/lean/bin" \
-    --setenv LEAN_PATH "$LEAN_PATH" \
+    --setenv LEAN_SRC_PATH "$LEAN_SRC_PATH" \
     --unshare-user \
     --unshare-pid  \
     --unshare-net  \
@@ -44,4 +36,12 @@ else
     --chdir "/$PROJECT_NAME/" \
     lake serve --
   )
+else
+  echo "bwrap is not installed! You could try to run the development server instead."
+  # # Could run without bubblewrap like this, but this might be an unwanted
+  # # security risk.
+  # (exec
+  #   cd $1
+  #   lake serve --
+  # )
 fi
