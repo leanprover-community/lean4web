@@ -31,7 +31,6 @@ export const applySettingsAtom = atom(null, (get, set, val) => {
 /** Indicates if there are saved settings in storage */
 export const hasSettingsSavedAtom = atom(get => {
   const store = get(settingsStoreAtom)
-  console.log("store", store)
   return store !== undefined
 })
 

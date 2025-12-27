@@ -36,8 +36,3 @@
 .hidden {
   display: none !important;
 }
-
-:root {
-  --vscode-editor-background: #1e1e1e;
-  --vscode-editor-foreground: #d4d4d4;
-}
