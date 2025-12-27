@@ -2,6 +2,7 @@
 - User Manual
 - [Installation](./Installation.md)
 - [Development](./Development.md)
+- [Troubleshoot](./Troubleshoot.md)
 
 ## Lean4Web Documentation
 

@@ -2,69 +2,111 @@
 - [User Manual](./Usage.md)
 - Installation
 - [Development](./Development.md)
+- [Troubleshoot](./Troubleshoot.md)
 
 
 ## Security
-Providing the use access to a Lean instance running on the server is a severe security risk.
-That is why we start the Lean server using [Bubblewrap](https://github.com/containers/bubblewrap).
 
-If bubblewrap is not installed, the server will start without a container and produce a warning.
-You can also opt-out of using bubblewrap by setting `NODE_ENV=development`.
+Running a Lean instance on a server is always a potential security risk.
+
+Therefore, this project uses [Bubblewrap](https://github.com/containers/bubblewrap) to run the instance in a container.
+
+You can avoid using bubblewrap by using development mode or by providing `ALLOW_NO_BUBBLEWRAP=true` to production mode. In that case, the Lean server will
+run without any container on your server.
+
+## Legal information
+
+Depending on the GDPR and laws applying to your server, you will need to provide the following
+information:
+
+- `client/config/config.tsx`, `serverCountry`: where your server is located.
+- `client/config/config.tsx`, `contactDetails`: used in privacy policy & impressum
+- `client/config/config.tsx`, `impressum`: further legal notes
+
+if `contactDetails` or `impressum` are not `null`, you will see an item `Impressum` in
+the dropdown menu containing that information.
+
+Further, you might need to add the impressum manually to `index.html`
+for people with javascript disabled!
 
 ## Build Instructions
 
-We have set up the project on a Ubuntu Server 22.10.
-Here are the installation instructions:
+The project is initially designed to run on Ubuntu 22 LTS.
 
-Install NPM (don't use `apt-get` since it will give you an outdated version of npm):
-```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-source ~/.bashrc
-nvm install node npm
-```
+Other OS or distributions have not been tested.
+PRs to the repo to improve the installation on other distributions
+are always welcome!
 
-Now, install `git` and clone this repository:
-```
-sudo apt-get install git
-git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
-```
+### Prerequisites
 
-note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
+On a running system, you might already have these installed, if not:
 
-Install Bubblewrap:
-```
-sudo apt-get install bubblewrap
-```
+- Install NPM: [official instructions](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- Install Git: `sudo apt-get install git`
+- (optional) Install Bubblewrap: `sudo apt-get install bubblewrap`
 
-Navigate into the cloned repository, install, and
-compile:
-```
-cd lean4web
-npm install
-npm run build
-```
+### Installation
 
-Now the server can be started using
-```
-PORT=8080 npm run production
-```
+- Clone this repo:
+  ```
+  git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
+  ```
+  note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
+- Navigate into the cloned repository
+  ```
+  cd lean4web
+  ```
+- Install dependencies
+  ```
+  npm install
+  ```
 
-If you get the following error:
-```
-bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
-bwrap: setting up uid map: Permission denied
-```
-follow these instructions:
-https://etbe.coker.com.au/2024/04/24/ubuntu-24-04-bubblewrap/
+### Development mode
 
-To set the locations of SSL certificates, use the following environment variables:
-```
-SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem PORT=8080 npm run production
-```
+- Start the project in development mode
+  ```
+  npm start
+  ```
+- Go to http://localhost:3000
 
-### Cronjob
+### Production mode
 
-Optionally, you can set up a cronjob to regularly update the mathlib version.
+- Compile the project
+  ```
+  npm run build
+  ```
+- Start the server
+  ```
+  npm run production
+  ```
+- To disable the bubblewrap containers, start the server with
+  ```
+  ALLOW_NO_BUBBLEWRAP=true npm run production
+  ```
+- Start the client seperately, for example with
+  ```
+  npm run start:client
+  ```
+  and open http://localhost:3000
+- To set the locations of SSL certificates, use the following environment variables:
+  ```
+  SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run production
+  ```
+
+### Adding different Lean projects
+You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](../Projects/README.md) for further instructions.
+
+### Others
+
+In addition, we use `Nginx` and `pm2` to manage our server.
+
+(TODO: details)
+
+### Maintenance
+
+#### Cronjob: updating Lean projects
+
+Optionally, you can set up a cronjob to regularly update the Lean projects.
 To do so, run
 ```
 crontab -e
@@ -79,10 +121,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.el
 *  */6 * * * cd /home/USER/lean4web && npm run build:server 2>&1 1>/dev/null | logger -t lean4web
 40 2   * * * rm -rf /home/USER/.cache/mathlib/
 ```
-
-Note that with this setup, you will still have to manage the lean toolchains manually, as they will slowly fill up your space (~0.9GB per new toolchain): see `elan toolchain --help` for infos.
-
-In addition, we use Nginx and pm2 to manage our server.
 
 #### Managing toolchains
 
@@ -99,21 +137,3 @@ deletes any unused toolchains:
 
 You can see installed lean toolchains with `elan toolchain list`
 and check the size of `~/.elan`.
-
-### Legal information
-
-Depending on the GDPR and laws applying to your server, you will need to provide the following
-information:
-
-- `client/config/config.tsx`, `serverCountry`: where your server is located.
-- `client/config/config.tsx`, `contactDetails`: used in privacy policy & impressum
-- `client/config/config.tsx`, `impressum`: further legal notes
-
-if `contactDetails` or `impressum` are not `null`, you will see an item `Impressum` in
-the dropdown menu containing that information.
-
-Further, you might need to add the impressum manually to `index.html`
-for people with javascript disabled!
-
-### Running different projects
-You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](../Projects/README.md) for further instructions.
