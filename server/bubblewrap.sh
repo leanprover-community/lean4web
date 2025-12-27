@@ -27,7 +27,6 @@ if command -v bwrap >/dev/null 2>&1; then
     --ro-bind "$GLIBC_PATH" "$GLIBC_PATH" `# only dep of bin/lean` \
     --ro-bind /usr /usr \
     --ro-bind /etc/localtime /etc/localtime \
-    --ro-bind $(readlink -f /etc/zoneinfo) $(readlink -f /etc/zoneinfo) \
     --dev /dev \
     --tmpfs /tmp \
     --proc /proc \
