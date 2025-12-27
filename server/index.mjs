@@ -24,6 +24,7 @@ const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 const environment = process.env.NODE_ENV
 const isGithubAction = process.env.GITHUB_ACTIONS
 const isDevelopment = environment === 'development'
+const ALLOW_NO_BUBBLEWRAP = process.env.ALLOW_NO_BUBBLEWRAP
 
 const crtFile = process.env.SSL_CRT_FILE
 const keyFile = process.env.SSL_KEY_FILE
@@ -52,6 +53,17 @@ app.use('/api/toolchain/:project', (req, res, next) => {
 // Using the client files
 app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 app.use(nocache())
+
+const hasBwrap = hasWorkingBwrap()
+if (!hasBwrap) {
+  if (isDevelopment) {
+    if (!isGithubAction) {
+      console.info('Bubblewrap is not available.')
+    }
+  } else {
+    console.warn('Bubblewrap is not available!')
+  }
+}
 
 let server
 if (crtFile && keyFile) {
@@ -84,13 +96,17 @@ function startServerProcess(project) {
 
   let serverProcess
   if (isDevelopment) {
-    if (!isGithubAction) {
-      console.warn("Running without Bubblewrap container!")
-    }
     serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath })
   } else {
-    console.info("Running with Bubblewrap container.")
-    serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], { cwd: __dirname })
+    if(hasWorkingBwrap()) {
+      serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], { cwd: __dirname })
+    } else if (ALLOW_NO_BUBBLEWRAP?.toLowerCase() === 'true') {
+      console.warn("Started process witouut bubblewrap!")
+      serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath })
+    } else {
+      console.error("Bubblewrap is not available! You can set `ALLOW_NO_BUBBLEWRAP=true` to start the processes without container.")
+      return 300
+    }
   }
 
   // serverProcess.stdout.on('data', (data) => {
@@ -203,3 +219,10 @@ wss.addListener("connection", function(ws, req) {
     logStats()
   }
 })
+
+function hasWorkingBwrap() {
+  const which = cp.spawnSync("which", ["bwrap"], { stdio: "ignore" });
+  if (which.status !== 0) return false;
+  const test = cp.spawnSync("bwrap", ["--version"], { stdio: "ignore" });
+  return test.status === 0;
+}
