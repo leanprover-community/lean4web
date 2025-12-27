@@ -42,7 +42,7 @@ const LoadZulipPopup: FC<{
     </p>
     {error ? <p className="form-error">{error}</p>: null}
     <form onSubmit={handleLoad}>
-    <textarea autoFocus placeholder="Paste Zulip message" ref={textInputRef}/>
+    <textarea name="Zulip message input" autoFocus placeholder="Paste Zulip message" ref={textInputRef}/>
     <input type="submit" value="Parse message"/>
     </form>
   </Popup>

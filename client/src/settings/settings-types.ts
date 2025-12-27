@@ -6,10 +6,12 @@ Note that more Editor options are set in `App.tsx` directly.
 
 // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
-type Theme = "Visual Studio Light" | "Visual Studio Dark"
+export type Theme = "Visual Studio Light" | "Visual Studio Dark" | "Default High Contrast" | "Cobalt"
+
+export type MobileValues = boolean | "auto"
 
 /** Type for the user settings. */
-export interface IPreferencesContext {
+export interface Settings {
   /** Lead character to trigger unicode input mode */
   abbreviationCharacter: string
   /** Accept code editors suggestions on Enter */
@@ -20,17 +22,29 @@ export interface IPreferencesContext {
   compress: boolean,
   /** Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode.
    * Usually inferred from window width. */
-  mobile: boolean
-  saveInLocalStore: boolean
+  mobile: MobileValues
   /** `light` or `dark` or name of existing theme.
    * Usually inferred from browser dark mode preferences.
    */
   theme: Theme,
   /** Wrap code */
   wordWrap: boolean
+  saveInLocalStorage: boolean
 }
 
-export const preferenceParams: (keyof IPreferencesContext)[] = [
+/** Same as `Settings` but everything is optional, since single keys might be missing in the browser store */
+export interface SettingsStore {
+  abbreviationCharacter?: string
+  acceptSuggestionOnEnter?: boolean
+  showGoalNames?: boolean
+  compress?: boolean,
+  mobile?: MobileValues
+  theme?: Theme,
+  wordWrap?: boolean
+  saveInLocalStorage?: boolean
+}
+
+export const preferenceParams: (keyof Settings)[] = [
   "abbreviationCharacter",
   "acceptSuggestionOnEnter",
   // "compress", // not sure if this should be user-settable
@@ -41,17 +55,17 @@ export const preferenceParams: (keyof IPreferencesContext)[] = [
 ]
 
 /** The default settings. */
-const settings: IPreferencesContext = {
+export const defaultSettings: Settings = {
   abbreviationCharacter: '\\',
   acceptSuggestionOnEnter: false,
   showGoalNames: true,
   compress: true,
   /** value likely overwritten with `width < 800` in App.tsx
    * unless provided in URL searchparams or in local storage. */
-  mobile: false,
-  saveInLocalStore: false, // should be false unless user gave consent.
+  mobile: "auto",
   theme: 'Visual Studio Light', // irrelevant as it will be overwritten in App.tsx
-  wordWrap: true
+  wordWrap: true,
+  saveInLocalStorage: false,
 }
 
 /**
@@ -63,4 +77,3 @@ export const lightThemes: Theme[] = [
   'Visual Studio Light'
 ]
 
-export default settings

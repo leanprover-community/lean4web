@@ -4,7 +4,6 @@ import { IconDefinition, faArrowRotateRight, faCode, faInfoCircle } from '@forta
 import ZulipIcon from './assets/zulip.svg'
 import { faArrowUpRightFromSquare, faDownload, faBars, faXmark, faShield, faHammer, faGear, faStar, faUpload, faCloudArrowUp } from '@fortawesome/free-solid-svg-icons'
 
-import SettingsPopup, { PreferencesContext } from './Popups/Settings'
 import PrivacyPopup from './Popups/PrivacyPolicy'
 import ImpressumPopup from './Popups/Impressum'
 import ToolsPopup from './Popups/Tools'
@@ -16,6 +15,9 @@ import './css/Modal.css'
 import './css/Navigation.css'
 import { save } from './utils/SaveToFile'
 import { lookupUrl } from './utils/UrlParsing'
+import { mobileAtom, settingsAtom } from './settings/settings-atoms'
+import { useAtom } from 'jotai'
+import SettingsPopup from './settings/SettingsPopup'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
 export const NavButton: FC<{
@@ -154,7 +156,7 @@ export const Menu: FC <{
   const [toolsOpen, setToolsOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
-  const { preferences } = useContext(PreferencesContext)
+  const [mobile] = useAtom(mobileAtom)
 
   const loadFromUrl = (url: string, project:string|undefined=undefined) => {
     url = lookupUrl(url)
@@ -184,10 +186,10 @@ export const Menu: FC <{
         <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
       )}
     </select>
-    { preferences.mobile &&
+    { mobile &&
       <NavButton icon={faCode} text={codeMirror ? "Lean" : "Text"} onClick={() => {setCodeMirror(!codeMirror)}}/>
     }
-    { !preferences.mobile &&
+    { !mobile &&
       <FlexibleMenu isInDropdown={false}
         setOpenNav={setOpenNav}
         openExample={openExample}
@@ -200,7 +202,7 @@ export const Menu: FC <{
         setLoadZulipOpen={setLoadZulipOpen} />
     }
     <Dropdown open={openNav} setOpen={setOpenNav} icon={openNav ? faXmark : faBars} onClick={() => {setOpenExample(false); setOpenLoad(false)}}>
-      { preferences.mobile &&
+      { mobile &&
         <FlexibleMenu isInDropdown={true}
           setOpenNav={setOpenNav}
           openExample={openExample}

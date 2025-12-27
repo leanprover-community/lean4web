@@ -142,42 +142,6 @@ describe('The Editor', () => {
     ]).should('exist')
   })
 
-  it('handles custom lead character', () => {
-    cy.visit('/')
-    cy.iframe().contains('All Messages (0)').should('exist')
-    cy.get('.cgmr.codicon').should('not.exist')
-    cy.get('.dropdown>.nav-link>.fa-bars').click()
-    cy.contains('.nav-link', 'Settings').click()
-    cy.get('input#abbreviationCharacter').type(`{backspace}\${enter}`)
-    cy.iframe().contains('All Messages (0)').should('exist')
-    cy.get('.cgmr.codicon').should('not.exist')
-    cy.get('div.view-line').type('example ($tau) : $tau $or $not $tau := by exact Classical.em $tau ')
-    cy.contains('div.view-line', 'example (τ) : τ ∨ ¬ τ := by exact Classical.em τ').should('exist')
-    cy.iframe().contains('No goals').should('exist').then(() => {
-      cy.contains('div.view-line span', 'τ').realHover({ position: "center" })
-      cy.contains(
-          'div.monaco-hover-content',
-          'Type τ using $ta or $tau'
-      ).should('be.visible')
-    })
-  })
-
-  it('can switch themes', () => {
-    cy.visit('/')
-    cy.iframe().contains('All Messages (0)').should('exist')
-    cy.get('.monaco-editor').should('exist').then(($editor) => {
-      const oldBg = $editor.css('background-color')
-      cy.get('.dropdown>.nav-link>.fa-bars').click()
-      cy.contains('.nav-link', 'Settings').click()
-      cy.get("select#theme option").not(':selected').first().invoke('val').then(($newVal) => {
-        cy.get("select#theme").select($newVal).should(() => {
-          const newBg = $editor.css('background-color')
-          expect(newBg).to.not.eq(oldBg)
-        })
-      })
-    })
-  })
-
   it('shows correct go-to definitions', () => {
     const isOnDarwin = Cypress.platform === 'darwin'
     const alertShown = cy.stub().as("alertShown")

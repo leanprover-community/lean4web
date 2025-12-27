@@ -25,7 +25,7 @@ logic:
 2. if the preferences say no comression, use `code`
 3. otherwise use `codez` or `code` depending on which results in a shorter URL.
 
-### URL parameters
+### URL parameters (TODO: restore behaviour)
 
 Besides storing the settings in a cookie through the settings interface, there is an option to specify them in the form `https://myserver.com/?setting1=value1&setting2=value2#[arguments as above]`
 When a setting is not provided as URL parameter, the value from the browser store (or the default) is used.
