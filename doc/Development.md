@@ -23,7 +23,10 @@ Automated integration tests using `cypress`.
   ```
   npm test
   ```
-- Interactive UI for testing:
+- Cypress also has an interactive UI. Run both of these commands simultaneously:
   ```
+  npm start
   npx cypress open
   ```
+
+The tests produce screenshots on failure. In the Github-CI, failing tests will produce screenshots and videos which will be attached as artifacts for inspection.
