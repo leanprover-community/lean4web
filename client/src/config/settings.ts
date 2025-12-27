@@ -17,13 +17,15 @@ export interface IPreferencesContext {
   /** Show goal names in Lean infoview box */
   showGoalNames: boolean
   /** Compress the `code=` in the URL into `codez=` using LZ-string */
-  compress: boolean, 
+  compress: boolean,
   /** Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode.
    * Usually inferred from window width. */
   mobile: boolean
   saveInLocalStore: boolean
-  /** Light or dark. Usually inferred from browser dark mode preferences. */
-  theme: Theme
+  /** `light` or `dark` or name of existing theme.
+   * Usually inferred from browser dark mode preferences.
+   */
+  theme: Theme,
   /** Wrap code */
   wordWrap: boolean
 }

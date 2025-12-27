@@ -30,21 +30,22 @@ const keyFile = process.env.SSL_KEY_FILE
 
 const app = express()
 
-// `*` has the form `mathlib-demo/MathlibLatest/Logic.lean`
-app.use('/api/examples/*', (req, res, next) => {
-  const filename = req.params[0]
-  req.url = filename
+// `*example` has the form `mathlib-demo/MathlibLatest/Logic.lean`
+app.use('/api/example/*example', (req, res, next) => {
+  const filePath = path.join(...req.params.example.filter(it => it.length > 0))
+  req.url = filePath
   express.static(path.join(__dirname, '..', 'Projects'))(req, res, next)
-})
-// `*` is the project like `mathlib-demo`
-app.use('/api/manifest/*', (req, res, next) => {
-  const project = req.params[0]
+});
+
+// `:project` is the project like `mathlib-demo`
+app.use('/api/manifest/:project', (req, res, next) => {
+  const project = req.params.project
   req.url = 'lake-manifest.json'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
-// `*` is the project like `mathlib-demo`
-app.use('/api/toolchain/*', (req, res, next) => {
-  const project = req.params[0]
+// `:project` is the project like `mathlib-demo`
+app.use('/api/toolchain/:project', (req, res, next) => {
+  const project = req.params.project
   req.url = 'lean-toolchain'
   express.static(path.join(__dirname, '..', 'Projects', project))(req, res, next)
 })
@@ -66,6 +67,7 @@ if (crtFile && keyFile) {
   express().get('*', function(req, res) {
     res.redirect('https://' + req.headers.host + req.url).listen(80);
   })
+
 } else {
   const PORT = process.env.PORT ?? 8080
   server = app.listen(PORT,

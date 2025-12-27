@@ -109,7 +109,7 @@ const FlexibleMenu: FC <{
           key={`${proj.name}-${example.name}`}
           icon={faStar} text={example.name}
           onClick={() => {
-            loadFromUrl(`${window.location.origin}/api/examples/${proj.folder}/${example.file}`, proj.folder);
+            loadFromUrl(`${window.location.origin}/api/example/${proj.folder}/${example.file}`, proj.folder);
             setOpenExample(false)
           }} />
       ))}

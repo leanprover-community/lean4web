@@ -1,0 +1,6 @@
+name = "Stable"
+reservoir = false
+defaultTargets = ["Stable"]
+
+[[lean_lib]]
+name = "Stable"

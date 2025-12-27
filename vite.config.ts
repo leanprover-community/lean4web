@@ -25,10 +25,9 @@ export default defineConfig({
   plugins: [
     react(),
     svgr({
-      // svgr options: https://react-svgr.com/docs/options/
+      include: ["**/*.svg?react", "**/*.svg"],
       svgrOptions: { exportType: "default", ref: true, svgo: false, titleProp: true },
-       include: "**/*.svg",
-      }),
+    }),
     nodePolyfills({
       overrides: {
         fs: 'memfs',
@@ -64,7 +63,13 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
       },
-    }
+    },
+    watch: {
+      ignored: [
+        '**/.lake/**',
+        '**/build/**',
+      ],
+    },
   },
   resolve: {
     alias: {

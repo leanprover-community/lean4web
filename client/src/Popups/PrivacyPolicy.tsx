@@ -14,7 +14,7 @@ const PrivacyPopup: FC<{
     and the data that the user enters into the editor. The data is used to
     compute the Lean output and display it to the user. The information will be stored
     as long as the user stays on our website and will be deleted immediately afterwards.
-    We keep logs to improve our software, but the contained data is anonymized.</p>
+    We keep logs to improve our software, but the contained data is anonymised.</p>
 
     <p>We don't use cookies but you can choose to save the settings in the browser store
       by activating the option in the settings.
