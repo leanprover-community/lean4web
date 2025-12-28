@@ -7,23 +7,17 @@ import LZString from 'lz-string'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import * as path from 'path'
-
-// Local imports
-import LeanLogo from './assets/logo.svg'
-import { lightThemes } from './settings/settings-types'
-import { Menu } from './Navigation'
-import { Entries } from './utils/Entries'
-import { save } from './utils/SaveToFile'
-import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
-import { useWindowDimensions } from './utils/WindowWidth'
-
-// CSS
-import './css/App.css'
-import './css/Editor.css'
 import { mobileAtom, settingsAtom, settingsUrlAtom } from './settings/settings-atoms'
 import { useAtom } from 'jotai/react'
 import { screenWidthAtom } from './store/window-atoms'
-import { locationAtom } from './store/location-atoms'
+import LeanLogo from './assets/logo.svg'
+import { lightThemes } from './settings/settings-types'
+import { Menu } from './Navigation'
+import { save } from './utils/SaveToFile'
+import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
+import './css/App.css'
+import './css/Editor.css'
+
 
 /** Returns true if the browser wants dark mode */
 function isBrowserDefaultDark() {
@@ -64,10 +58,6 @@ function App() {
     editor?.getModel()?.setValue(code)
     setCode(code)
   }
-
-  useEffect(() => {
-    console.debug("location:",searchParams)
-  }, [searchParams])
 
   // Read the URL arguments
   useEffect(() => {

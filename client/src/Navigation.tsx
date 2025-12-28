@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, FC, JSX, MouseEventHandler, ReactNode, SetStateAction, useContext, useState } from 'react'
+import { ChangeEvent, Dispatch, FC, JSX, MouseEventHandler, ReactNode, SetStateAction, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { IconDefinition, faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import ZulipIcon from './assets/zulip.svg'
@@ -15,9 +15,9 @@ import './css/Modal.css'
 import './css/Navigation.css'
 import { save } from './utils/SaveToFile'
 import { lookupUrl } from './utils/UrlParsing'
-import { mobileAtom, settingsAtom } from './settings/settings-atoms'
+import { mobileAtom } from './settings/settings-atoms'
 import { useAtom } from 'jotai'
-import SettingsPopup from './settings/SettingsPopup'
+import { SettingsPopup } from './settings/SettingsPopup'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
 export const NavButton: FC<{

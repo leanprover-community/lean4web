@@ -1,69 +1,28 @@
-import { Dispatch, FC, SetStateAction, createContext, useContext, useState } from 'react'
-import Switch from '@mui/material/Switch';
-import { Popup } from '../Navigation';
+import Box from '@mui/material/Box'
+import Slider from '@mui/material/Slider'
+import Switch from '@mui/material/Switch'
+import { useAtom } from 'jotai/react'
+import { useState } from 'react'
+import { Popup } from '../Navigation'
+import { applySettingsAtom, settingsAtom } from './settings-atoms'
 import { defaultSettings, Settings } from './settings-types'
 import type { MobileValues, Theme } from './settings-types'
-import { applySettingsAtom, settingsAtom } from './settings-atoms';
-import { useAtom } from 'jotai/react';
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
+import { shallowEqualSubset } from '../utils/shallowEqual'
+import { inputAdornmentClasses } from '@mui/material/InputAdornment'
 
-// /** The context holding the preferences */
-// export const PreferencesContext = createContext<{
-//   preferences: Settings,
-//   setPreferences: Dispatch<SetStateAction<Settings>>
-// }>({
-//   preferences: defaultSettings,
-//   setPreferences: () => {},
-// })
-
-// /** Save preferences to local storage whenever there are modifications */
-// function savePreferences(preferences: Settings) {
-//   console.debug("Preferences: Saving.")
-//   if (preferences.saveInLocalStore) {
-//     for (const [key, value] of Object.entries(preferences)) {
-//       if (typeof value === 'string') {
-//         window.localStorage.setItem(key, value)
-//       } else if (typeof value === 'boolean') {
-//         // turn boolean values into string
-//         window.localStorage.setItem(key, value ? 'true' : 'false')
-//       } else {
-//         // other values aren't implemented yet.
-//         console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
-//       }
-//     }
-//   } else {
-//     for (const key in preferences) {
-//       window.localStorage.removeItem(key)
-//     }
-//   }
-// }
-
-const marks: {value: number, label: string, key: MobileValues}[] = [
-    {
-      value: 0,
-      label: 'Mobile',
-      key: true
-    },
-    {
-      value: 1,
-      label: 'Auto',
-      key: "auto"
-    },
-    {
-      value: 2,
-      label: 'Desktop',
-      key: false
-    },
-  ];
-
-const SettingsPopup: FC<{
+export function SettingsPopup({
+  open,
+  handleClose,
+  closeNav,
+  project,
+  setProject
+}: {
   open: boolean
   handleClose: () => void
   closeNav: () => void
   project: string
-  setProject: Dispatch<SetStateAction<string>>
-}> = ({open, handleClose, closeNav, project, setProject}) => {
+  setProject: (project: string) => void
+}) {
   const [settings, setSettings] = useAtom(settingsAtom)
   const [, applySettings] = useAtom(applySettingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
@@ -143,15 +102,15 @@ const SettingsPopup: FC<{
         <span>Layout: </span>
         <Box sx={{ width: 200 }}>
           <Slider
-            value={marks.find(item => item.key === newSettings.mobile)?.value ?? 1}
+            value={mobileSliderMarks.find(item => item.key === newSettings.mobile)?.value ?? 1}
             step={1}
-            marks={marks}
+            marks={mobileSliderMarks}
             max={2}
             sx={{
               '& .MuiSlider-track': { display: 'none', },
             }}
             onChange={(_, val) => {
-              updateSetting("mobile", marks[val].key)
+              updateSetting("mobile", mobileSliderMarks[val].key)
             }}
           />
         </Box>
@@ -161,7 +120,10 @@ const SettingsPopup: FC<{
         checked={newSettings.compress} />
         <label htmlFor="compress">Compress code in URL</label>
       </p>
-
+      <p>
+        <Switch id="inUrl" onChange={() => {updateSetting("inUrl", !newSettings.inUrl)}} checked={newSettings.inUrl} />
+        <label htmlFor="inUrl">Add settings to URL</label>
+      </p>
       <h2>Save</h2>
       <p><i>Editor settings and User settings are not preserved unless you opt-in to save them.</i></p>
       <p>
@@ -169,11 +131,7 @@ const SettingsPopup: FC<{
         <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
       </p>
       <p>
-        <Switch id="inUrl" onChange={() => {updateSetting("inUrl", !newSettings.inUrl)}} checked={newSettings.inUrl} />
-        <label htmlFor="inUrl">Add settings to URL</label>
-      </p>
-      <p>
-        {newSettings != defaultSettings &&
+        {!shallowEqualSubset(defaultSettings, newSettings) &&
           <button id="resetSettings" onClick={e => {setNewSettings({saved: false, inUrl: false, ...defaultSettings}); e.preventDefault()}}>Reset to Default</button>
         }
         <input
@@ -186,4 +144,20 @@ const SettingsPopup: FC<{
   </Popup>
 }
 
-export default SettingsPopup
+const mobileSliderMarks: {value: number, label: string, key: MobileValues}[] = [
+  {
+    value: 0,
+    label: 'Mobile',
+    key: true
+  },
+  {
+    value: 1,
+    label: 'Auto',
+    key: "auto"
+  },
+  {
+    value: 2,
+    label: 'Desktop',
+    key: false
+  },
+]
