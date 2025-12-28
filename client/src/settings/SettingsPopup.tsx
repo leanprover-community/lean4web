@@ -1,12 +1,10 @@
 import { Dispatch, FC, SetStateAction, createContext, useContext, useState } from 'react'
 import Switch from '@mui/material/Switch';
-import lean4webConfig from '../config/config'
 import { Popup } from '../Navigation';
 import { defaultSettings, Settings } from './settings-types'
 import type { MobileValues, Theme } from './settings-types'
-import { applyAndSaveSettingsAtom, applySettingsAtom, hasSettingsSavedAtom, mobileAtom, settingsAtom } from './settings-atoms';
+import { applySettingsAtom, settingsAtom } from './settings-atoms';
 import { useAtom } from 'jotai/react';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
 
@@ -66,12 +64,9 @@ const SettingsPopup: FC<{
   project: string
   setProject: Dispatch<SetStateAction<string>>
 }> = ({open, handleClose, closeNav, project, setProject}) => {
-  const [hasSettingsSaved] = useAtom(hasSettingsSavedAtom)
   const [settings, setSettings] = useAtom(settingsAtom)
-  const [, applyAndSaveStore] = useAtom(applyAndSaveSettingsAtom)
-  const [, applyAndClearStore] = useAtom(applySettingsAtom)
+  const [, applySettings] = useAtom(applySettingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
-  const [allowSaveInStore, setAllowSaveInStore] = useState<boolean>(hasSettingsSaved)
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings(prev => ({ ...prev, [key]: value }))
@@ -143,7 +138,7 @@ const SettingsPopup: FC<{
         <span>Layout: </span>
         <Box sx={{ width: 200 }}>
           <Slider
-            value={marks.find(item => item.key === newSettings.mobile).value}
+            value={marks.find(item => item.key === newSettings.mobile)?.value ?? 1}
             step={1}
             marks={marks}
             max={2}
@@ -165,24 +160,22 @@ const SettingsPopup: FC<{
       <h2>Save</h2>
       <p><i>Editor settings and User settings are not preserved unless you opt-in to save them.</i></p>
       <p>
-        <Switch id="savingAllowed" onChange={() => {setAllowSaveInStore(prev => !prev)}} checked={allowSaveInStore} />
+        <Switch id="savingAllowed" onChange={() => {updateSetting("saved", !newSettings.saved)}} checked={newSettings.saved} />
         <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
       </p>
       <p>
+        <Switch id="inUrl" onChange={() => {updateSetting("inUrl", !newSettings.inUrl)}} checked={newSettings.inUrl} />
+        <label htmlFor="inUrl">Add settings to URL</label>
+      </p>
+      <p>
         {newSettings != defaultSettings &&
-          <button id="resetSettings" onClick={e => {setNewSettings(defaultSettings); e.preventDefault()}}>Reset to Default</button>
+          <button id="resetSettings" onClick={e => {setNewSettings({saved: false, inUrl: false, ...defaultSettings}); e.preventDefault()}}>Reset to Default</button>
         }
         <input
           id="saveSettings"
           type="submit"
-          value={allowSaveInStore ? "Apply & Save" : "Apply"}
-          onClick={() => {
-            if (allowSaveInStore) {
-              applyAndSaveStore(newSettings)
-            } else {
-              applyAndClearStore(newSettings)
-            }
-          }}/>
+          value={newSettings.saved ? "Apply & Save" : "Apply"}
+          onClick={() => applySettings(newSettings)}/>
       </p>
     </form>
   </Popup>

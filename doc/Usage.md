@@ -33,9 +33,11 @@ When a setting is not provided as URL parameter, the value from the browser stor
 
 The recognised settings are:
 
-- `abbreviationCharacter`: Leader character to type to introduce abbrevations, default is `\`
-- `acceptSuggestionOnEnter`: Accept code editors suggestions on Enter, default is false
-- `showGoalNames`: Show goal names in Lean infoview box, default is true
-- `mobile`: Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode. Usually inferred from window width.
-- `theme`: `light` or `dark`. Usually inferred from browser dark mode preferences.
-- `wordWrap`: Wrap code in editor box, default is true
+- Boolean settings (`true` or `false`):
+  - `acceptSuggestionOnEnter`: accept code editors suggestions on `Enter`. default: `false`
+  - `showGoalNames`: show goal names in Lean infoview box. default: `true`
+  - `mobile`: display code editor and infoview in narrow, vertically stacked, mobile-friendly mode. default: not set, i.e. inferred
+  - `wordWrap`: wrap code in editor box. default: `true`
+- Non-boolean settings:
+- `abbreviationCharacter`: lead character for unicode abbreviations. values: a character. default: `\`
+- `theme`: selection between one light and dark theme. More themes are available in the settings, but they cannot be set through the URL. values: `light` or `dark`. default: `light` (TODO: infererred from browser)

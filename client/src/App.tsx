@@ -20,9 +20,10 @@ import { useWindowDimensions } from './utils/WindowWidth'
 // CSS
 import './css/App.css'
 import './css/Editor.css'
-import { mobileAtom, settingsAtom } from './settings/settings-atoms'
+import { mobileAtom, settingsAtom, settingsUrlAtom } from './settings/settings-atoms'
 import { useAtom } from 'jotai/react'
 import { screenWidthAtom } from './store/window-atoms'
+import { locationAtom } from './store/location-atoms'
 
 /** Returns true if the browser wants dark mode */
 function isBrowserDefaultDark() {
@@ -38,7 +39,7 @@ function App() {
   const [settings] = useAtom(settingsAtom)
   const [mobile] = useAtom(mobileAtom)
   const [, setScreenWidth] = useAtom(screenWidthAtom)
-  const { width } = useWindowDimensions()
+  const [searchParams] = useAtom(settingsUrlAtom)
 
   // Lean4monaco options
   const [options, setOptions] = useState<LeanMonacoOptions>({
@@ -54,7 +55,7 @@ function App() {
 
   // the user data
   const [code, setCode] = useState<string>('')
-  const [project, setProject] = useState<string>(undefined)
+  const [project, setProject] = useState<string>()
   const [url, setUrl] = useState<string | null>(null)
   const [codeFromUrl, setCodeFromUrl] = useState<string>('')
 
@@ -63,6 +64,10 @@ function App() {
     editor?.getModel()?.setValue(code)
     setCode(code)
   }
+
+  useEffect(() => {
+    console.debug("location:",searchParams)
+  }, [searchParams])
 
   // Read the URL arguments
   useEffect(() => {
@@ -132,7 +137,7 @@ function App() {
 
   // Setting up the editor and infoview
   useEffect(() => {
-    // if (project === undefined) return
+    if (project === undefined) return
     console.debug('[Lean4web] Restarting editor')
     var _leanMonaco = new LeanMonaco()
     var leanMonacoEditor = new LeanMonacoEditor()
@@ -257,7 +262,7 @@ function App() {
   useEffect(() => {
     if (!editor) { return }
 
-    let _project = (project == 'MathlibDemo' ? null : project)
+    let _project = (project == 'MathlibDemo' ? null : project ?? null)
     let args: {
       project: string | null
       url: string | null
