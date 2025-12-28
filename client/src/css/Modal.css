@@ -1,4 +1,4 @@
-input[type="file"] {
+input[type='file'] {
   display: none;
 }
 
@@ -51,11 +51,10 @@ input[type="file"] {
   .modal {
     min-width: 90%;
   }
-
 }
 
-
-.modal input[type="text"], .modal textarea {
+.modal input[type='text'],
+.modal textarea {
   width: 100%;
 }
 
@@ -68,16 +67,19 @@ input[type="file"] {
   font-weight: bold;
 }
 
-.modal input[type="submit"], .modal button, .modal .file-upload-button {
+.modal input[type='submit'],
+.modal button,
+.modal .file-upload-button {
   border: none;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
   cursor: pointer;
-  padding: .5rem 1rem;
-  border-radius: .2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.2rem;
 }
 
-.modal input[type="submit"], .modal button {
+.modal input[type='submit'],
+.modal button {
   display: block;
   margin: 1rem auto;
 }

@@ -39,10 +39,8 @@ the file from `Projects/MyCoolProject/MyCoolProject/Demo1.lean`.
 
 You might want to look at the provided `MathlibDemo` project for comparison.
 
-
 **Important**: In order for lake to use any "leanOptions" specified in the projects lakefile, you must make sure there is a file `Projects/MyCoolProject/MyCoolProject.lean`
 where folder name and file name coincide.
-
 
 ## Creating Lean Projects with Mathlib
 
@@ -53,6 +51,7 @@ To create a Lean project with a specific version and mathlib dependencies, you c
 ```
 
 The version should be in the format of `v4.x.x` or `4.x.x`. For example:
+
 ```bash
 ./create_project.sh v4.13.0
 # or
@@ -60,6 +59,7 @@ The version should be in the format of `v4.x.x` or `4.x.x`. For example:
 ```
 
 This will:
+
 1. Create a new Lean project in `Projects/<version>/`
 2. Configure mathlib dependencies
 3. Build the project with cache

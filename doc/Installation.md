@@ -4,7 +4,6 @@
 - [Development](./Development.md)
 - [Troubleshoot](./Troubleshoot.md)
 
-
 ## Security
 
 Running a Lean instance on a server is always a potential security risk.
@@ -94,6 +93,7 @@ On a running system, you might already have these installed, if not:
   ```
 
 ### Adding different Lean projects
+
 You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](../Projects/README.md) for further instructions.
 
 ### Others
@@ -108,10 +108,13 @@ In addition, we use `Nginx` and `pm2` to manage our server.
 
 Optionally, you can set up a cronjob to regularly update the Lean projects.
 To do so, run
+
 ```
 crontab -e
 ```
+
 and add the following lines, where all paths must be adjusted appropriately:
+
 ```
 # Need to set PATH manually:
 SHELL=/usr/bin/bash
