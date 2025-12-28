@@ -1,12 +1,8 @@
-import { FC } from 'react';
 import { Popup } from '../Navigation';
 import lean4webConfig from '../config/config';
 
 /** The popup with the privacy policy. */
-const ImpressumPopup: FC<{
-  open: boolean;
-  handleClose: () => void;
-}> = ({ open, handleClose }) => {
+function ImpressumPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
   return (
     <Popup open={open} handleClose={handleClose}>
       <h2>Impressum</h2>
@@ -22,6 +18,6 @@ const ImpressumPopup: FC<{
       {lean4webConfig.impressum}
     </Popup>
   );
-};
+}
 
 export default ImpressumPopup;

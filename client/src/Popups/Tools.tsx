@@ -1,5 +1,5 @@
 import { Popup } from '../Navigation';
-import { FC, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // TODO: Do these interfaces exist somewhere in vscode-lean4?
 // They might need to be updated manually if changes to `lake` occur.
@@ -68,9 +68,7 @@ interface CommitInfo {
  * Note that github has a rate limit (60 requests/h), but since this should be a
  * rarely used feature, it might be fine for now.
  */
-const ToolTip: FC<{
-  pkg: LakePackage;
-}> = ({ pkg }) => {
+function ToolTip({ pkg }: { pkg: LakePackage }) {
   const [loaded, setLoaded] = useState(false);
   const linkRef = useRef<HTMLAnchorElement>(null);
   const [commit, setCommit] = useState<CommitInfo>();
@@ -152,14 +150,18 @@ const ToolTip: FC<{
       </div>
     </a>
   );
-};
+}
 
 /** Shows important information about the Lean project loaded in the web editor */
-const ToolsPopup: FC<{
+function ToolsPopup({
+  open,
+  handleClose,
+  project,
+}: {
   open: boolean;
   project: string;
   handleClose: () => void;
-}> = ({ open, handleClose, project }) => {
+}) {
   const [manifest, setManifest] = useState<LakeManifest>(emptyManifest);
   const [toolchain, setToolchain] = useState('');
   // The last time `lake-manifest.json` has been modified
@@ -260,6 +262,6 @@ const ToolsPopup: FC<{
       </pre>
     </Popup>
   );
-};
+}
 
 export default ToolsPopup;

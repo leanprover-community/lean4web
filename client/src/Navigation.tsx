@@ -45,13 +45,19 @@ import { useAtom } from 'jotai';
 import { SettingsPopup } from './settings/SettingsPopup';
 
 /** A button to appear in the hamburger menu or to navigation bar. */
-export const NavButton: FC<{
+export function NavButton({
+  icon,
+  iconElement,
+  text,
+  onClick = () => {},
+  href = undefined,
+}: {
   icon?: IconDefinition;
   iconElement?: JSX.Element;
   text: string;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
   href?: string;
-}> = ({ icon, iconElement, text, onClick = () => {}, href = null }) => {
+}) {
   // note: it seems that we can just leave the `target="_blank"` and it has no
   // effect on links without a `href`. If not, add `if (href)` statement here...
   return (
@@ -59,10 +65,18 @@ export const NavButton: FC<{
       {iconElement ?? <FontAwesomeIcon icon={icon!} />}&nbsp;{text}
     </a>
   );
-};
+}
 
 /** A button to appear in the hamburger menu or to navigation bar. */
-export const Dropdown: FC<{
+export function Dropdown({
+  open,
+  setOpen,
+  icon,
+  text,
+  useOverlay = false,
+  onClick,
+  children,
+}: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   icon?: IconDefinition;
@@ -70,7 +84,7 @@ export const Dropdown: FC<{
   useOverlay?: boolean;
   onClick?: MouseEventHandler<HTMLAnchorElement>;
   children?: ReactNode;
-}> = ({ open, setOpen, icon, text, useOverlay = false, onClick, children }) => {
+}) {
   return (
     <>
       <div className="dropdown">
@@ -100,14 +114,18 @@ export const Dropdown: FC<{
       )}
     </>
   );
-};
+}
 
 /** A popup which overlays the entire screen. */
-export const Popup: FC<{
+export function Popup({
+  open,
+  handleClose,
+  children,
+}: {
   open: boolean;
   handleClose: () => void; // TODO: what's the correct type?
   children?: ReactNode;
-}> = ({ open, handleClose, children }) => {
+}) {
   return (
     <div className={`modal-wrapper${open ? '' : ' hidden'}`}>
       <div className="modal-backdrop" onClick={handleClose} />
@@ -117,21 +135,10 @@ export const Popup: FC<{
       </div>
     </div>
   );
-};
+}
 
 /** The menu items either appearing inside the dropdown or outside */
-const FlexibleMenu: FC<{
-  isInDropdown: boolean;
-  setOpenNav: Dispatch<SetStateAction<boolean>>;
-  openExample: boolean;
-  setOpenExample: Dispatch<SetStateAction<boolean>>;
-  openLoad: boolean;
-  setOpenLoad: Dispatch<SetStateAction<boolean>>;
-  loadFromUrl: (url: string, project?: string | undefined) => void;
-  setContent: (code: string) => void;
-  setLoadUrlOpen: Dispatch<SetStateAction<boolean>>;
-  setLoadZulipOpen: Dispatch<SetStateAction<boolean>>;
-}> = ({
+function FlexibleMenu({
   isInDropdown = false,
   setOpenNav,
   openExample,
@@ -142,7 +149,18 @@ const FlexibleMenu: FC<{
   setContent,
   setLoadUrlOpen,
   setLoadZulipOpen,
-}) => {
+}: {
+  isInDropdown: boolean;
+  setOpenNav: Dispatch<SetStateAction<boolean>>;
+  openExample: boolean;
+  setOpenExample: Dispatch<SetStateAction<boolean>>;
+  openLoad: boolean;
+  setOpenLoad: Dispatch<SetStateAction<boolean>>;
+  loadFromUrl: (url: string, project?: string | undefined) => void;
+  setContent: (code: string) => void;
+  setLoadUrlOpen: Dispatch<SetStateAction<boolean>>;
+  setLoadZulipOpen: Dispatch<SetStateAction<boolean>>;
+}) {
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk');
     const fileToLoad = event.target.files![0];
@@ -225,20 +243,10 @@ const FlexibleMenu: FC<{
       </Dropdown>
     </>
   );
-};
+}
 
 /** The Navigation menu */
-export const Menu: FC<{
-  code: string;
-  setContent: (code: string) => void;
-  project: string;
-  setProject: Dispatch<SetStateAction<string>>;
-  setUrl: Dispatch<SetStateAction<string | null>>;
-  codeFromUrl: string;
-  restart?: () => void;
-  codeMirror: boolean;
-  setCodeMirror: Dispatch<SetStateAction<boolean>>;
-}> = ({
+export function Menu({
   code,
   setContent,
   project,
@@ -248,7 +256,17 @@ export const Menu: FC<{
   restart,
   codeMirror,
   setCodeMirror,
-}) => {
+}: {
+  code: string;
+  setContent: (code: string) => void;
+  project: string;
+  setProject: Dispatch<SetStateAction<string>>;
+  setUrl: Dispatch<SetStateAction<string | null>>;
+  codeFromUrl: string;
+  restart?: () => void;
+  codeMirror: boolean;
+  setCodeMirror: Dispatch<SetStateAction<boolean>>;
+}) {
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false);
   const [openExample, setOpenExample] = useState(false);
@@ -408,4 +426,4 @@ export const Menu: FC<{
       />
     </div>
   );
-};
+}

@@ -1,11 +1,15 @@
 import { Popup } from '../Navigation';
 import { FC, FormEvent, useRef, useState } from 'react';
 
-const LoadUrlPopup: FC<{
+function LoadUrlPopup({
+  open,
+  handleClose,
+  loadFromUrl,
+}: {
   open: boolean;
   handleClose: () => void;
   loadFromUrl: (url: string) => void;
-}> = ({ open, handleClose, loadFromUrl }) => {
+}) {
   const [error, setError] = useState('');
   const urlRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +37,6 @@ const LoadUrlPopup: FC<{
       </form>
     </Popup>
   );
-};
+}
 
 export default LoadUrlPopup;

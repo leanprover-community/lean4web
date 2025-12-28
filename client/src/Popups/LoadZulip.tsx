@@ -1,11 +1,15 @@
 import { Popup } from '../Navigation';
 import { FC, FormEvent, useRef, useState } from 'react';
 
-const LoadZulipPopup: FC<{
+function LoadZulipPopup({
+  open,
+  handleClose,
+  setContent,
+}: {
   open: boolean;
   handleClose: () => void;
   setContent: (code: string) => void;
-}> = ({ open, handleClose, setContent }) => {
+}) {
   const [error, setError] = useState('');
   const textInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -57,6 +61,6 @@ const LoadZulipPopup: FC<{
       </form>
     </Popup>
   );
-};
+}
 
 export default LoadZulipPopup;
