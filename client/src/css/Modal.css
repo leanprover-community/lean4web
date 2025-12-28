@@ -32,12 +32,18 @@ input[type="file"] {
   transform: translate(-50%, -50%);
   min-width: 50%;
   max-width: 60ch;
+  max-height: 90%;
+  overflow-y: auto;
   background: var(--vscode-input-background);
   z-index: 3;
   padding: 2rem;
   border-radius: 1rem;
   border: 1px solid var(--vscode-panel-border);
   text-align: left;
+  color: var(--vscode-input-foreground);
+}
+
+.modal .MuiSlider-markLabel {
   color: var(--vscode-input-foreground);
 }
 
@@ -62,7 +68,7 @@ input[type="file"] {
   font-weight: bold;
 }
 
-.modal input[type="submit"], .modal .file-upload-button {
+.modal input[type="submit"], .modal button, .modal .file-upload-button {
   border: none;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
@@ -71,7 +77,7 @@ input[type="file"] {
   border-radius: .2rem;
 }
 
-.modal input[type="submit"]{
+.modal input[type="submit"], .modal button {
   display: block;
   margin: 1rem auto;
 }

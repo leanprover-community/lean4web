@@ -10,9 +10,8 @@ import * as path from 'path'
 
 // Local imports
 import LeanLogo from './assets/logo.svg'
-import defaultSettings, { IPreferencesContext, lightThemes, preferenceParams } from './config/settings'
+import { lightThemes } from './settings/settings-types'
 import { Menu } from './Navigation'
-import { PreferencesContext } from './Popups/Settings'
 import { Entries } from './utils/Entries'
 import { save } from './utils/SaveToFile'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
@@ -21,6 +20,9 @@ import { useWindowDimensions } from './utils/WindowWidth'
 // CSS
 import './css/App.css'
 import './css/Editor.css'
+import { mobileAtom, settingsAtom } from './settings/settings-atoms'
+import { useAtom } from 'jotai/react'
+import { screenWidthAtom } from './store/window-atoms'
 
 /** Returns true if the browser wants dark mode */
 function isBrowserDefaultDark() {
@@ -33,8 +35,9 @@ function App() {
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
-  const [loaded, setLoaded] = useState<boolean>(false)
-  const [preferences, setPreferences] = useState<IPreferencesContext>(defaultSettings)
+  const [settings] = useAtom(settingsAtom)
+  const [mobile] = useAtom(mobileAtom)
+  const [, setScreenWidth] = useAtom(screenWidthAtom)
   const { width } = useWindowDimensions()
 
   // Lean4monaco options
@@ -83,67 +86,13 @@ function App() {
     setProject(project)
   }, [])
 
-  // Load preferences from store in the beginning
+  // save the screen width in jotai
   useEffect(() => {
-    // only load them once
-    if (loaded) { return }
-    console.debug('[Lean4web] Loading preferences')
+    const handleResize = () => setScreenWidth(window.innerWidth)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [setScreenWidth])
 
-    let saveInLocalStore = false;
-    let newPreferences: { [K in keyof IPreferencesContext]: IPreferencesContext[K] } = { ...preferences }
-    for (const [key, value] of (Object.entries(preferences) as Entries<IPreferencesContext>)) {
-      // prefer URL params over stored
-      const searchParams = new URLSearchParams(window.location.search);
-      let storedValue = (
-        preferenceParams.includes(key) &&  // only for keys we explictly check for
-        searchParams.has(key) && searchParams.get(key))
-        ?? window.localStorage.getItem(key)
-      if (storedValue) {
-        saveInLocalStore = window.localStorage.getItem(key) === storedValue
-        console.debug(`[Lean4web] Found value for ${key}: ${storedValue}`)
-        if (typeof value === 'string') {
-          if (key == 'theme') {
-            const theme = storedValue.toLowerCase().includes('dark') ? "Visual Studio Dark" : "Visual Studio Light"
-            newPreferences[key] = theme
-          }
-          else {
-            newPreferences[key] = storedValue
-          }
-        } else if (typeof value === 'boolean') {
-          newPreferences[key] = (storedValue === "true")
-        } else {
-          // other values aren't implemented yet.
-          console.error(`[Lean4web] Preferences (key: ${key}) contain a value of unsupported type: ${typeof value}`)
-        }
-      } else {
-        // no stored preferences, set a default value
-        if (key == 'theme') {
-          if (isBrowserDefaultDark()) {
-            console.debug("[Lean4web] Preferences: Set dark theme.")
-            newPreferences['theme'] = 'Visual Studio Dark'
-          } else {
-            console.debug("[Lean4web] Preferences: Set light theme.")
-            newPreferences['theme'] = 'Visual Studio Light'
-          }
-        }
-      }
-    }
-    newPreferences['saveInLocalStore'] = saveInLocalStore
-    setPreferences(newPreferences)
-    setLoaded(true)
-  }, [])
-
-  // Use the window width to switch between mobile/desktop layout
-  useEffect(() => {
-    // Wait for preferences to be loaded
-    if (!loaded) { return }
-
-    const _mobile = width < 800
-    const searchParams = new URLSearchParams(window.location.search);
-    if (!(searchParams.has("mobile") || preferences.saveInLocalStore) && _mobile !== preferences.mobile) {
-      setPreferences({ ...preferences, mobile: _mobile })
-    }
-  }, [width, loaded])
 
   // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
@@ -162,29 +111,28 @@ function App() {
          * for the desired setting, select "Copy Setting as JSON" from the "More Actions"
          * menu next to the selected setting, and paste the copied string here.
          */
-        "workbench.colorTheme": preferences.theme,
+        "workbench.colorTheme": settings.theme,
         "editor.tabSize": 2,
         // "editor.rulers": [100],
         "editor.lightbulb.enabled": "on",
-        "editor.wordWrap": preferences.wordWrap ? "on" : "off",
+        "editor.wordWrap": settings.wordWrap ? "on" : "off",
         "editor.wrappingStrategy": "advanced",
         "editor.semanticHighlighting.enabled": true,
-        "editor.acceptSuggestionOnEnter": preferences.acceptSuggestionOnEnter ? "on" : "off",
+        "editor.acceptSuggestionOnEnter": settings.acceptSuggestionOnEnter ? "on" : "off",
         "lean4.input.eagerReplacementEnabled": true,
-        "lean4.infoview.showGoalNames": preferences.showGoalNames,
+        "lean4.infoview.showGoalNames": settings.showGoalNames,
         "lean4.infoview.emphasizeFirstGoal": true,
         "lean4.infoview.showExpectedType": false,
         "lean4.infoview.showTooltipOnHover": false,
-        "lean4.input.leader": preferences.abbreviationCharacter
+        "lean4.input.leader": settings.abbreviationCharacter
       }
     }
     setOptions(_options)
-  }, [editorRef, project, preferences])
+  }, [editorRef, project, settings])
 
   // Setting up the editor and infoview
   useEffect(() => {
-    // Wait for preferences to be loaded
-    if (!loaded) { return }
+    // if (project === undefined) return
     console.debug('[Lean4web] Restarting editor')
     var _leanMonaco = new LeanMonaco()
     var leanMonacoEditor = new LeanMonacoEditor()
@@ -192,7 +140,7 @@ function App() {
     _leanMonaco.setInfoviewElement(infoviewRef.current!)
     ;(async () => {
         await _leanMonaco.start(options)
-        await leanMonacoEditor.start(editorRef.current!, path.join(project, `${project}.lean`), code)
+        await leanMonacoEditor.start(editorRef.current!, path.join(project, `${project}.lean`), code ?? '')
 
         setEditor(leanMonacoEditor.editor)
         setLeanMonaco(_leanMonaco)
@@ -201,7 +149,7 @@ function App() {
         // Monaco does not support clipboard pasting as all browsers block it
         // due to security reasons. Therefore we use a codeMirror editor overlay
         // which features good mobile support (but no Lean support yet)
-        if (preferences.mobile) {
+        if (mobile) {
           leanMonacoEditor.editor?.addAction({
             id: "myPaste",
             label: "Paste: open 'Plain Editor' for editing on mobile",
@@ -274,7 +222,7 @@ function App() {
       leanMonacoEditor.dispose()
       _leanMonaco.dispose()
     }
-  }, [loaded, project, preferences, options, infoviewRef, editorRef])
+  }, [project, settings, options, infoviewRef, editorRef])
 
   // Load content from source URL.
   // Once the editor is loaded, this reads the content of any provided `url=` in the URL and
@@ -330,7 +278,7 @@ function App() {
         code: null,
         codez: null
       }
-    } else if (preferences.compress) {
+    } else if (settings.compress) {
       // LZ padds the string with trailing `=`, which mess up the argument parsing
       // and aren't needed for LZ encoding, so we remove them.
       const compressed = LZString.compressToBase64(code).replace(/=*$/, '')
@@ -402,7 +350,7 @@ function App() {
     }
   }, [handleKeyDown, handleKeyUp])
 
-  return <PreferencesContext.Provider value={{preferences, setPreferences}}>
+  return (
     <div className="app monaco-editor">
       <nav>
         <LeanLogo />
@@ -426,20 +374,20 @@ function App() {
         }}
         gutterStyle={(_dimension, gutterSize, _index) => {
           return {
-            'width': preferences.mobile ? '100%' : `${gutterSize}px`,
-            'height': preferences.mobile ? `${gutterSize}px` : '100%',
-            'cursor': preferences.mobile ? 'row-resize' : 'col-resize',
-            'margin-left': preferences.mobile ? 0 : `-${gutterSize}px`,
-            'margin-top': preferences.mobile ? `-${gutterSize}px` : 0,
+            'width': mobile ? '100%' : `${gutterSize}px`,
+            'height': mobile ? `${gutterSize}px` : '100%',
+            'cursor': mobile ? 'row-resize' : 'col-resize',
+            'margin-left': mobile ? 0 : `-${gutterSize}px`,
+            'margin-top': mobile ? `-${gutterSize}px` : 0,
             'z-index': 0,
           }}}
         gutterSize={5}
         onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)}
-        sizes={preferences.mobile ? [50, 50] : [70, 30]}
-        direction={preferences.mobile ? "vertical" : "horizontal"}
-        style={{flexDirection: preferences.mobile ? "column" : "row"}}>
+        sizes={mobile ? [50, 50] : [70, 30]}
+        direction={mobile ? "vertical" : "horizontal"}
+        style={{flexDirection: mobile ? "column" : "row"}}>
         <div className='codeview-wrapper'
-          style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
+          style={mobile ? {width : '100%'} : {height: '100%'}} >
           { codeMirror &&
             <CodeMirror
               className="codeview plain"
@@ -447,13 +395,13 @@ function App() {
               extensions={[EditorView.lineWrapping]}
               height='100%'
               maxHeight='100%'
-              theme={lightThemes.includes(preferences.theme) ? 'light' : 'dark'}
+              theme={lightThemes.includes(settings.theme) ? 'light' : 'dark'}
               onChange={setContent} />
           }
           <div ref={editorRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
         </div>
         <div ref={infoviewRef} className="vscode-light infoview"
-          style={preferences.mobile ? {width : '100%'} : {height: '100%'}} >
+          style={mobile ? {width : '100%'} : {height: '100%'}} >
             <p className={`editor-support-warning${codeMirror ? '' : ' hidden'}`} >
               You are in the plain text editor<br /><br />
               Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode}/>)
@@ -462,8 +410,7 @@ function App() {
         </div>
       </Split>
     </div>
-  </PreferencesContext.Provider>
-
+  )
 }
 
 export default App
