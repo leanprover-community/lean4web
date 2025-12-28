@@ -55,7 +55,7 @@ function App() {
 
   // the user data
   const [code, setCode] = useState<string>('')
-  const [project, setProject] = useState<string>()
+  const [project, setProject] = useState<string>('MathlibDemo')
   const [url, setUrl] = useState<string | null>(null)
   const [codeFromUrl, setCodeFromUrl] = useState<string>('')
 
@@ -85,7 +85,7 @@ function App() {
     if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
 
     // if no project provided, use default
-    let project = args.project || 'MathlibDemo'
+    let project = args.project ?? 'MathlibDemo'
 
     console.log(`[Lean4web] Setting project to ${project}`)
     setProject(project)
@@ -127,7 +127,7 @@ function App() {
         "lean4.input.eagerReplacementEnabled": true,
         "lean4.infoview.showGoalNames": settings.showGoalNames,
         "lean4.infoview.emphasizeFirstGoal": true,
-        "lean4.infoview.showExpectedType": false,
+        "lean4.infoview.showExpectedType": settings.showExpectedType,
         "lean4.infoview.showTooltipOnHover": false,
         "lean4.input.leader": settings.abbreviationCharacter
       }

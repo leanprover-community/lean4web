@@ -35,8 +35,10 @@ The recognised settings are:
 
 - Boolean settings (`true` or `false`):
   - `acceptSuggestionOnEnter`: accept code editors suggestions on `Enter`. default: `false`
-  - `showGoalNames`: show goal names in Lean infoview box. default: `true`
+  - `compress`: compress code in URL. default: `true`
   - `mobile`: display code editor and infoview in narrow, vertically stacked, mobile-friendly mode. default: not set, i.e. inferred
+  - `showGoalNames`: show goal names in Lean infoview box. default: `true`
+  - `showExpectedType`: expected type in Lean infoview opened by default. default: `false`
   - `wordWrap`: wrap code in editor box. default: `true`
 - Non-boolean settings:
 - `abbreviationCharacter`: lead character for unicode abbreviations. values: a character. default: `\`

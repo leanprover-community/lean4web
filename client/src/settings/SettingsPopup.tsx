@@ -114,6 +114,11 @@ const SettingsPopup: FC<{
         checked={newSettings.showGoalNames} />
         <label htmlFor="showGoalNames">Show Goal Names</label>
       </p>
+      <p>
+        <Switch id="showExpectedType" onChange={() => {updateSetting("showExpectedType", !newSettings.showExpectedType)}}
+        checked={newSettings.showExpectedType} />
+        <label htmlFor="showExpectedType">Show Expected Type</label>
+      </p>
 
       <h2>User settings</h2>
        <p>

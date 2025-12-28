@@ -1,15 +1,16 @@
 import { atomWithStorage, createJSONStorage } from 'jotai/utils'
-import { decodeSettingsFromURL, defaultSettings, encodeSettingsToURL, Settings, SettingsStore, Theme } from './settings-types'
+import { defaultSettings, Settings, PartialUserSettings, Theme } from './settings-types'
 import { atom } from 'jotai/vanilla'
 import { screenWidthAtom } from '../store/window-atoms'
 import { locationAtom } from '../store/location-atoms'
 import { cleanObject } from '../utils/cleanObject'
+import { decodeSettingsFromURL, encodeSettingsToURL } from './settings-url-converters'
 
 /** User settings as they are stored in storage */
-const settingsStoreAtom = atomWithStorage<SettingsStore>('lean4web:settings', {}, undefined, { getOnInit: true })
+const settingsStoreAtom = atomWithStorage<PartialUserSettings>('lean4web:settings', {}, undefined, { getOnInit: true })
 
 /** The settings which are set in the searchParams of the opened URL */
-export const settingsUrlAtom = atom<SettingsStore>(get => {
+export const settingsUrlAtom = atom<PartialUserSettings>(get => {
   const searchParams = get(locationAtom).searchParams
   if (!searchParams) return {}
   return decodeSettingsFromURL(searchParams)
