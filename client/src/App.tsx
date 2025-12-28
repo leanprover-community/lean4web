@@ -13,7 +13,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 
 import LeanLogo from './assets/logo.svg'
-import { Menu } from './Navigation'
+import { Menu } from './navigation/Navigation'
 import { mobileAtom, settingsAtom, settingsUrlAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
 import { screenWidthAtom } from './store/window-atoms'

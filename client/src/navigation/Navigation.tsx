@@ -16,42 +16,21 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
-import { ChangeEvent, Dispatch, ReactNode, SetStateAction, useState } from 'react'
+import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
+import lean4webConfig from '../config/config'
+import ImpressumPopup from '../Popups/Impressum'
+import LoadUrlPopup from '../Popups/LoadUrl'
+import LoadZulipPopup from '../Popups/LoadZulip'
+import PrivacyPopup from '../Popups/PrivacyPolicy'
+import ToolsPopup from '../Popups/Tools'
+import { mobileAtom } from '../settings/settings-atoms'
+import { SettingsPopup } from '../settings/SettingsPopup'
+import { save } from '../utils/SaveToFile'
+import { lookupUrl } from '../utils/UrlParsing'
 import ZulipIcon from './assets/zulip.svg'
-import lean4webConfig from './config/config'
-import { Dropdown } from './navigation/Dropdown'
-import { NavButton } from './navigation/NavButton'
-import ImpressumPopup from './Popups/Impressum'
-import LoadUrlPopup from './Popups/LoadUrl'
-import LoadZulipPopup from './Popups/LoadZulip'
-import PrivacyPopup from './Popups/PrivacyPolicy'
-import ToolsPopup from './Popups/Tools'
-import { mobileAtom } from './settings/settings-atoms'
-import { SettingsPopup } from './settings/SettingsPopup'
-import { save } from './utils/SaveToFile'
-import { lookupUrl } from './utils/UrlParsing'
-
-/** A popup which overlays the entire screen. */
-export function Popup({
-  open,
-  handleClose,
-  children,
-}: {
-  open: boolean
-  handleClose: () => void // TODO: what's the correct type?
-  children?: ReactNode
-}) {
-  return (
-    <div className={`modal-wrapper${open ? '' : ' hidden'}`}>
-      <div className="modal-backdrop" onClick={handleClose} />
-      <div className="modal">
-        <div className="codicon codicon-close modal-close" onClick={handleClose}></div>
-        {children}
-      </div>
-    </div>
-  )
-}
+import { Dropdown } from './Dropdown'
+import { NavButton } from './NavButton'
 
 /** The menu items either appearing inside the dropdown or outside */
 function FlexibleMenu({

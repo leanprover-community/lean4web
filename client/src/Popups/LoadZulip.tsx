@@ -1,6 +1,6 @@
 import { FormEvent, useRef, useState } from 'react'
 
-import { Popup } from '../Navigation'
+import { Popup } from '../navigation/Popup'
 
 function LoadZulipPopup({
   open,

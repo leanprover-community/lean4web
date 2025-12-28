@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { Popup } from '../Navigation'
+import { Popup } from '../navigation/Popup'
 
 // TODO: Do these interfaces exist somewhere in vscode-lean4?
 // They might need to be updated manually if changes to `lake` occur.

@@ -4,7 +4,7 @@ import Switch from '@mui/material/Switch'
 import { useAtom } from 'jotai/react'
 import { useState } from 'react'
 
-import { Popup } from '../Navigation'
+import { Popup } from '../navigation/Popup'
 import { shallowEqualSubset } from '../utils/shallowEqual'
 import { applySettingsAtom, settingsAtom } from './settings-atoms'
 import type { MobileValues, Theme } from './settings-types'
