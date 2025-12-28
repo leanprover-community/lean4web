@@ -82,7 +82,7 @@ function App() {
 
     console.log(`[Lean4web] Setting project to ${project}`)
     setProject(project)
-  }, [setContent])
+  }, [])
 
   // save the screen width in jotai
   useEffect(() => {
@@ -233,7 +233,7 @@ function App() {
       leanMonacoEditor.dispose()
       _leanMonaco.dispose()
     }
-  }, [project, settings, options, infoviewRef, editorRef, code, mobile])
+  }, [project, settings, options, infoviewRef, editorRef])
 
   // Load content from source URL.
   // Once the editor is loaded, this reads the content of any provided `url=` in the URL and
@@ -327,7 +327,7 @@ function App() {
       }
     }
     history.replaceState(undefined, undefined!, formatArgs(args))
-  }, [editor, project, code, codeFromUrl, url, settings.compress])
+  }, [editor, project, code, codeFromUrl])
 
   // Disable monaco context menu outside the editor
   useEffect(() => {
