@@ -133,9 +133,16 @@ jobs:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
   lint:
-    name: All Tests Pass
+    name: Lint
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "25"
       - name: lint
         run: npm run lint
   all-tests-pass:
