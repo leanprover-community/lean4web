@@ -11,7 +11,7 @@ nav > svg {
   height: 2.2rem;
   width: unset;
   vertical-align: middle;
-  margin-left: .5rem;
+  margin-left: 0.5rem;
   margin-right: 1rem;
   filter: invert(1);
   mix-blend-mode: difference;
@@ -40,7 +40,7 @@ nav .dropdown-content {
   border: none;
   border-top: 1px solid var(--vscode-menu-separatorBackground);
   border-bottom: 1px solid var(--vscode-menu-separatorBackground);
-  box-shadow: -.1rem .3rem .3rem 0 var(--vscode-menu-separatorBackground);
+  box-shadow: -0.1rem 0.3rem 0.3rem 0 var(--vscode-menu-separatorBackground);
 }
 
 /* Second level dropdowns */
@@ -59,7 +59,7 @@ nav .dropdown-overlay {
   background-color: var(--vscode-menu-background);
   opacity: 0.7;
   position: absolute;
-  width:100%;
+  width: 100%;
   height: 100%;
 }
 
@@ -71,10 +71,10 @@ nav .nav-link {
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  padding-left: .8rem;
-  padding-right: .8rem;
-  padding-top: .6rem;
-  padding-bottom: .6rem;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
 }
 
 /* Zulip logo (instead of font-awesome icon) */
@@ -88,8 +88,8 @@ nav .nav-link:hover {
 }
 
 nav select {
-  margin-left: .5rem;
-  margin-right: .5rem;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .tooltip {
@@ -123,8 +123,8 @@ nav select {
   height: 40px;
   width: 40px;
   border-radius: 20px;
-  margin-right: .5em;
-  margin-bottom: .5em;
+  margin-right: 0.5em;
+  margin-bottom: 0.5em;
   float: left;
 }
 

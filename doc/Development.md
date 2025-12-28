@@ -4,7 +4,6 @@
 - Development
 - [Troubleshoot](./Troubleshoot.md)
 
-
 ## Development Instructions
 
 Install [npm](https://www.npmjs.com/) and clone this repository. Inside the repository, run:

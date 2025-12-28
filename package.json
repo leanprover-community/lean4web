@@ -35,6 +35,7 @@
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.1",
     "@mui/material": "^7.3.5",
+    "@tailwindcss/vite": "^4.1.18",
     "@uiw/react-codemirror": "^4.25.3",
     "concurrently": "^9.2.1",
     "express": "^5.1.0",
@@ -51,6 +52,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-split": "^2.0.14",
+    "tailwindcss": "^4.1.18",
     "vscode-ws-jsonrpc": "^3.5.0",
     "ws": "^8.18.3"
   },
@@ -65,6 +67,7 @@
     "cypress-iframe": "^1.0.1",
     "cypress-real-events": "^1.15.0",
     "eslint": "^9.21.0",
+    "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
     "vite-plugin-node-polyfills": "0.24.0",
