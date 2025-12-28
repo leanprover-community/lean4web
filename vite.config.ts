@@ -1,12 +1,14 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
-import { viteStaticCopy } from "vite-plugin-static-copy";
-import { normalizePath } from "vite";
 import path from "node:path";
-import svgr from "vite-plugin-svgr";
+
+import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
 import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react-swc";
+import { defineConfig } from "vite";
+import { normalizePath } from "vite";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import svgr from "vite-plugin-svgr";
+import eslint from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -25,6 +27,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    eslint(),
     svgr({
       include: ["**/*.svg?react", "**/*.svg"],
       svgrOptions: {

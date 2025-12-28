@@ -1,31 +1,32 @@
-import { Popup } from '../Navigation';
-import { FC, FormEvent, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react'
+
+import { Popup } from '../Navigation'
 
 function LoadUrlPopup({
   open,
   handleClose,
   loadFromUrl,
 }: {
-  open: boolean;
-  handleClose: () => void;
-  loadFromUrl: (url: string) => void;
+  open: boolean
+  handleClose: () => void
+  loadFromUrl: (url: string) => void
 }) {
-  const [error, setError] = useState('');
-  const urlRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState('')
+  const urlRef = useRef<HTMLInputElement>(null)
 
   const handleLoad = (ev: FormEvent) => {
-    ev.preventDefault();
-    let url = urlRef.current?.value;
+    ev.preventDefault()
+    let url = urlRef.current?.value
     if (!url) {
-      setError(`Please specify a URL.`);
-      return;
+      setError(`Please specify a URL.`)
+      return
     }
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://' + url;
+      url = 'https://' + url
     }
-    loadFromUrl(url);
-    handleClose();
-  };
+    loadFromUrl(url)
+    handleClose()
+  }
 
   return (
     <Popup open={open} handleClose={handleClose}>
@@ -36,7 +37,7 @@ function LoadUrlPopup({
         <input type="submit" value="Load" />
       </form>
     </Popup>
-  );
+  )
 }
 
-export default LoadUrlPopup;
+export default LoadUrlPopup

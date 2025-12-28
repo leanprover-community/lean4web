@@ -1,120 +1,36 @@
-import {
-  ChangeEvent,
-  Dispatch,
-  FC,
-  JSX,
-  MouseEventHandler,
-  ReactNode,
-  SetStateAction,
-  useState,
-} from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  IconDefinition,
-  faArrowRotateRight,
-  faCode,
-  faInfoCircle,
-} from '@fortawesome/free-solid-svg-icons';
-import ZulipIcon from './assets/zulip.svg';
+import './css/Modal.css'
+import './css/Navigation.css'
+
+import { faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import {
   faArrowUpRightFromSquare,
-  faDownload,
   faBars,
-  faXmark,
-  faShield,
-  faHammer,
+  faCloudArrowUp,
+  faDownload,
   faGear,
+  faHammer,
+  faShield,
   faStar,
   faUpload,
-  faCloudArrowUp,
-} from '@fortawesome/free-solid-svg-icons';
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { useAtom } from 'jotai'
+import { ChangeEvent, Dispatch, ReactNode, SetStateAction, useState } from 'react'
 
-import PrivacyPopup from './Popups/PrivacyPolicy';
-import ImpressumPopup from './Popups/Impressum';
-import ToolsPopup from './Popups/Tools';
-import LoadUrlPopup from './Popups/LoadUrl';
-import LoadZulipPopup from './Popups/LoadZulip';
-
-import lean4webConfig from './config/config';
-import './css/Modal.css';
-import './css/Navigation.css';
-import { save } from './utils/SaveToFile';
-import { lookupUrl } from './utils/UrlParsing';
-import { mobileAtom } from './settings/settings-atoms';
-import { useAtom } from 'jotai';
-import { SettingsPopup } from './settings/SettingsPopup';
-
-/** A button to appear in the hamburger menu or to navigation bar. */
-export function NavButton({
-  icon,
-  iconElement,
-  text,
-  onClick = () => {},
-  href = undefined,
-}: {
-  icon?: IconDefinition;
-  iconElement?: JSX.Element;
-  text: string;
-  onClick?: MouseEventHandler<HTMLAnchorElement>;
-  href?: string;
-}) {
-  // note: it seems that we can just leave the `target="_blank"` and it has no
-  // effect on links without a `href`. If not, add `if (href)` statement here...
-  return (
-    <a className="nav-link" onClick={onClick} href={href!} target="_blank">
-      {iconElement ?? <FontAwesomeIcon icon={icon!} />}&nbsp;{text}
-    </a>
-  );
-}
-
-/** A button to appear in the hamburger menu or to navigation bar. */
-export function Dropdown({
-  open,
-  setOpen,
-  icon,
-  text,
-  useOverlay = false,
-  onClick,
-  children,
-}: {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  icon?: IconDefinition;
-  text?: string;
-  useOverlay?: boolean;
-  onClick?: MouseEventHandler<HTMLAnchorElement>;
-  children?: ReactNode;
-}) {
-  return (
-    <>
-      <div className="dropdown">
-        <NavButton
-          icon={icon}
-          text={text!}
-          onClick={(ev) => {
-            setOpen(!open);
-            onClick!(ev);
-            ev.stopPropagation();
-          }}
-        />
-        {open && (
-          <div className={`dropdown-content${open ? '' : ' '}`} onClick={() => setOpen(false)}>
-            {children}
-          </div>
-        )}
-      </div>
-      {useOverlay && open && (
-        <div
-          className="dropdown-overlay"
-          onClick={(ev) => {
-            setOpen(false);
-            ev.stopPropagation();
-          }}
-        />
-      )}
-    </>
-  );
-}
+import ZulipIcon from './assets/zulip.svg'
+import lean4webConfig from './config/config'
+import { Dropdown } from './navigation/Dropdown'
+import { NavButton } from './navigation/NavButton'
+import ImpressumPopup from './Popups/Impressum'
+import LoadUrlPopup from './Popups/LoadUrl'
+import LoadZulipPopup from './Popups/LoadZulip'
+import PrivacyPopup from './Popups/PrivacyPolicy'
+import ToolsPopup from './Popups/Tools'
+import { mobileAtom } from './settings/settings-atoms'
+import { SettingsPopup } from './settings/SettingsPopup'
+import { save } from './utils/SaveToFile'
+import { lookupUrl } from './utils/UrlParsing'
 
 /** A popup which overlays the entire screen. */
 export function Popup({
@@ -122,9 +38,9 @@ export function Popup({
   handleClose,
   children,
 }: {
-  open: boolean;
-  handleClose: () => void; // TODO: what's the correct type?
-  children?: ReactNode;
+  open: boolean
+  handleClose: () => void // TODO: what's the correct type?
+  children?: ReactNode
 }) {
   return (
     <div className={`modal-wrapper${open ? '' : ' hidden'}`}>
@@ -134,7 +50,7 @@ export function Popup({
         {children}
       </div>
     </div>
-  );
+  )
 }
 
 /** The menu items either appearing inside the dropdown or outside */
@@ -150,29 +66,29 @@ function FlexibleMenu({
   setLoadUrlOpen,
   setLoadZulipOpen,
 }: {
-  isInDropdown: boolean;
-  setOpenNav: Dispatch<SetStateAction<boolean>>;
-  openExample: boolean;
-  setOpenExample: Dispatch<SetStateAction<boolean>>;
-  openLoad: boolean;
-  setOpenLoad: Dispatch<SetStateAction<boolean>>;
-  loadFromUrl: (url: string, project?: string | undefined) => void;
-  setContent: (code: string) => void;
-  setLoadUrlOpen: Dispatch<SetStateAction<boolean>>;
-  setLoadZulipOpen: Dispatch<SetStateAction<boolean>>;
+  isInDropdown: boolean
+  setOpenNav: Dispatch<SetStateAction<boolean>>
+  openExample: boolean
+  setOpenExample: Dispatch<SetStateAction<boolean>>
+  openLoad: boolean
+  setOpenLoad: Dispatch<SetStateAction<boolean>>
+  loadFromUrl: (url: string, project?: string | undefined) => void
+  setContent: (code: string) => void
+  setLoadUrlOpen: Dispatch<SetStateAction<boolean>>
+  setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
 }) {
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
-    console.debug('Loading file from disk');
-    const fileToLoad = event.target.files![0];
-    var fileReader = new FileReader();
+    console.debug('Loading file from disk')
+    const fileToLoad = event.target.files![0]
+    var fileReader = new FileReader()
     fileReader.onload = (fileLoadedEvent) => {
-      var textFromFileLoaded = fileLoadedEvent.target!.result as string;
-      setContent(textFromFileLoaded);
-    };
-    fileReader.readAsText(fileToLoad, 'UTF-8');
+      var textFromFileLoaded = fileLoadedEvent.target!.result as string
+      setContent(textFromFileLoaded)
+    }
+    fileReader.readAsText(fileToLoad, 'UTF-8')
     // Manually close the menu as we prevent it closing below.
-    setOpenLoad(false);
-  };
+    setOpenLoad(false)
+  }
 
   return (
     <>
@@ -183,8 +99,8 @@ function FlexibleMenu({
         text="Examples"
         useOverlay={isInDropdown}
         onClick={() => {
-          setOpenLoad(false);
-          !isInDropdown && setOpenNav(false);
+          setOpenLoad(false)
+          !isInDropdown && setOpenNav(false)
         }}
       >
         {lean4webConfig.projects.map((proj) =>
@@ -197,8 +113,8 @@ function FlexibleMenu({
                 loadFromUrl(
                   `${window.location.origin}/api/example/${proj.folder}/${example.file}`,
                   proj.folder,
-                );
-                setOpenExample(false);
+                )
+                setOpenExample(false)
               }}
             />
           )),
@@ -211,8 +127,8 @@ function FlexibleMenu({
         text="Load"
         useOverlay={isInDropdown}
         onClick={() => {
-          setOpenExample(false);
-          !isInDropdown && setOpenNav(false);
+          setOpenExample(false)
+          !isInDropdown && setOpenNav(false)
         }}
       >
         <input
@@ -230,19 +146,19 @@ function FlexibleMenu({
           icon={faCloudArrowUp}
           text="Load from URL"
           onClick={() => {
-            setLoadUrlOpen(true);
+            setLoadUrlOpen(true)
           }}
         />
         <NavButton
           iconElement={<ZulipIcon />}
           text="Load Zulip Message"
           onClick={() => {
-            setLoadZulipOpen(true);
+            setLoadZulipOpen(true)
           }}
         />
       </Dropdown>
     </>
-  );
+  )
 }
 
 /** The Navigation menu */
@@ -257,46 +173,46 @@ export function Menu({
   codeMirror,
   setCodeMirror,
 }: {
-  code: string;
-  setContent: (code: string) => void;
-  project: string;
-  setProject: Dispatch<SetStateAction<string>>;
-  setUrl: Dispatch<SetStateAction<string | null>>;
-  codeFromUrl: string;
-  restart?: () => void;
-  codeMirror: boolean;
-  setCodeMirror: Dispatch<SetStateAction<boolean>>;
+  code: string
+  setContent: (code: string) => void
+  project: string
+  setProject: Dispatch<SetStateAction<string>>
+  setUrl: Dispatch<SetStateAction<string | null>>
+  codeFromUrl: string
+  restart?: () => void
+  codeMirror: boolean
+  setCodeMirror: Dispatch<SetStateAction<boolean>>
 }) {
   // state for handling the dropdown menus
-  const [openNav, setOpenNav] = useState(false);
-  const [openExample, setOpenExample] = useState(false);
-  const [openLoad, setOpenLoad] = useState(false);
-  const [loadUrlOpen, setLoadUrlOpen] = useState(false);
-  const [loadZulipOpen, setLoadZulipOpen] = useState(false);
+  const [openNav, setOpenNav] = useState(false)
+  const [openExample, setOpenExample] = useState(false)
+  const [openLoad, setOpenLoad] = useState(false)
+  const [loadUrlOpen, setLoadUrlOpen] = useState(false)
+  const [loadZulipOpen, setLoadZulipOpen] = useState(false)
 
   // state for the popups
-  const [privacyOpen, setPrivacyOpen] = useState(false);
-  const [impressumOpen, setImpressumOpen] = useState(false);
-  const [toolsOpen, setToolsOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [impressumOpen, setImpressumOpen] = useState(false)
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
-  const [mobile] = useAtom(mobileAtom);
+  const [mobile] = useAtom(mobileAtom)
 
   const loadFromUrl = (url: string, project: string | undefined = undefined) => {
-    url = lookupUrl(url);
-    console.debug('load code from url');
+    url = lookupUrl(url)
+    console.debug('load code from url')
     setUrl((oldUrl: string | null) => {
       if (oldUrl === url) {
-        setContent(codeFromUrl);
+        setContent(codeFromUrl)
       }
-      return url;
-    });
+      return url
+    })
     if (project) {
-      setProject(project);
+      setProject(project)
     }
-  };
+  }
 
-  const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails;
+  const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
 
   return (
     <div className="menu">
@@ -304,8 +220,8 @@ export function Menu({
         name="leanVersion"
         value={project}
         onChange={(ev) => {
-          setProject(ev.target.value);
-          console.log(`set Lean project to: ${ev.target.value}`);
+          setProject(ev.target.value)
+          console.log(`set Lean project to: ${ev.target.value}`)
         }}
       >
         {lean4webConfig.projects.map((proj) => (
@@ -319,7 +235,7 @@ export function Menu({
           icon={faCode}
           text={codeMirror ? 'Lean' : 'Text'}
           onClick={() => {
-            setCodeMirror(!codeMirror);
+            setCodeMirror(!codeMirror)
           }}
         />
       )}
@@ -342,8 +258,8 @@ export function Menu({
         setOpen={setOpenNav}
         icon={openNav ? faXmark : faBars}
         onClick={() => {
-          setOpenExample(false);
-          setOpenLoad(false);
+          setOpenExample(false)
+          setOpenLoad(false)
         }}
       >
         {mobile && (
@@ -364,7 +280,7 @@ export function Menu({
           icon={faGear}
           text="Settings"
           onClick={() => {
-            setSettingsOpen(true);
+            setSettingsOpen(true)
           }}
         />
         <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
@@ -374,7 +290,7 @@ export function Menu({
           icon={faShield}
           text={'Privacy policy'}
           onClick={() => {
-            setPrivacyOpen(true);
+            setPrivacyOpen(true)
           }}
         />
         {hasImpressum && (
@@ -382,7 +298,7 @@ export function Menu({
             icon={faInfoCircle}
             text={'Impressum'}
             onClick={() => {
-              setImpressumOpen(true);
+              setImpressumOpen(true)
             }}
           />
         )}
@@ -425,5 +341,5 @@ export function Menu({
         setContent={setContent}
       />
     </div>
-  );
+  )
 }

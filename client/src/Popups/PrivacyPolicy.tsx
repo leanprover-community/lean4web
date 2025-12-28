@@ -1,5 +1,5 @@
-import { Popup } from '../Navigation';
-import lean4webConfig from '../config/config';
+import lean4webConfig from '../config/config'
+import { Popup } from '../Navigation'
 
 /** The popup with the privacy policy. */
 function PrivacyPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
@@ -30,7 +30,7 @@ function PrivacyPopup({ open, handleClose }: { open: boolean; handleClose: () =>
         </p>
       )}
     </Popup>
-  );
+  )
 }
 
-export default PrivacyPopup;
+export default PrivacyPopup

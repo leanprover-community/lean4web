@@ -1,3 +1,3 @@
-import { atomWithLocation } from 'jotai-location';
+import { atomWithLocation } from 'jotai-location'
 
-export const locationAtom = atomWithLocation();
+export const locationAtom = atomWithLocation()
