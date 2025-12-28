@@ -133,6 +133,9 @@ jobs:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
 
+      - name: lint
+        run: npm run lint
+
   all-tests-pass:
     name: All Tests Pass
     runs-on: ubuntu-latest
