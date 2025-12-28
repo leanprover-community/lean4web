@@ -1,0 +1,154 @@
+name: CI
+run-name: ci
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "main"
+      - "dev"
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+env:
+  NODE_VERSION: 25
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        browser: [electron, chrome]
+        include:
+          - os: ubuntu-latest
+            browser: chromium
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install elan
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: Projects/MathlibDemo
+          use-mathlib-cache: false
+          use-github-cache: false
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+
+      - name: Build sample projects
+        run: npm run build:server
+
+      - name: Ensure sample project 'MathlibDemo' is built
+        run: |
+          cd Projects/MathlibDemo
+          lake build --no-build
+
+      - name: Ensure sample project 'Stable' is built
+        run: |
+          cd Projects/Stable
+          lake build --no-build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build client for production
+        run: npm run build:client
+
+      - name: Run Cypress tests Development (No Video)
+        id: cypress_no_video
+        run: npm run test:dev
+        env:
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
+          CYPRESS_VIDEO: false
+
+      - name: Upload screenshots on failure
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ matrix.os }}-${{ matrix.browser }}
+          path: cypress/screenshots
+
+      - name: Run Cypress tests Development (With Video)
+        id: cypress_with_video
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
+        run: npm run test:dev
+        env:
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
+          CYPRESS_VIDEO: true
+          CYPRESS_VIDEO_COMPRESSION: true
+
+      - name: Upload videos
+        if: failure() && steps.cypress_no_video.conclusion == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
+          path: cypress/videos
+
+      - name: Install bubblewrap
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install bubblewrap
+          echo -e "abi <abi/4.0>,\ninclude <tunables/global>\n\nprofile bwrap /usr/bin/bwrap flags=(unconfined) {\n  userns,\n\n  include if exists <local/bwrap>\n}" | sudo tee /etc/apparmor.d/bwrap
+          sudo systemctl reload apparmor
+
+      - name: Run Cypress tests Production (No Video)
+        if: runner.os == 'Linux'
+        id: cypress_production_no_video
+        run: npm run test:prod
+        env:
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
+          CYPRESS_VIDEO: false
+
+      - name: Upload screenshots on failure
+        if: runner.os == 'Linux' && failure() && steps.cypress_production_no_video.conclusion == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-production-${{ matrix.os }}-${{ matrix.browser }}
+          path: cypress/screenshots
+
+      - name: Run Cypress tests Production with Windows User Agent (No Video)
+        if: matrix.browser == 'chromium'
+        id: cypress_production_windows_no_video
+        run: npm run test:prod:windows
+        env:
+          CYPRESS_DEFAULT_BROWSER: ${{ matrix.browser }}
+          CYPRESS_VIDEO: false
+
+      - name: Upload screenshots on failure
+        if: matrix.browser == 'chromium' && failure() && steps.cypress_production_windows_no_video.conclusion == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
+          path: cypress/screenshots
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install dependencies
+        run: npm ci
+      - name: lint
+        run: npm run lint
+  all-tests-pass:
+    name: All Tests Pass
+    runs-on: ubuntu-latest
+    needs: test
+    if: success()
+    steps:
+      - run: echo "All matrix jobs passed"
