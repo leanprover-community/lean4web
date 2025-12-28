@@ -41,6 +41,7 @@
     "file-saver": "^2.0.5",
     "ip-anonymize": "^0.1.0",
     "jotai": "^2.16.1",
+    "jotai-location": "^0.6.2",
     "jotai-react": "^0.0.0",
     "lean4monaco": "^1.1.4",
     "lz-string": "^1.5.0",

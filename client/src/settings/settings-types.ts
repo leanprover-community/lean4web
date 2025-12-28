@@ -1,16 +1,10 @@
-/*
-This file contains the default settings for settings that can be changed by the user.
-
-Note that more Editor options are set in `App.tsx` directly.
-*/
-
 // const isBrowserDefaultDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches
 
 export type Theme = "Visual Studio Light" | "Visual Studio Dark" | "Default High Contrast" | "Cobalt"
 
 export type MobileValues = boolean | "auto"
 
-/** Type for the user settings. */
+/** Type for the settings, including internal ones */
 export interface Settings {
   /** Lead character to trigger unicode input mode */
   abbreviationCharacter: string
@@ -18,6 +12,8 @@ export interface Settings {
   acceptSuggestionOnEnter: boolean
   /** Show goal names in Lean infoview box */
   showGoalNames: boolean
+  /** Show expected type in Lean infoview box */
+  showExpectedType: boolean
   /** Compress the `code=` in the URL into `codez=` using LZ-string */
   compress: boolean,
   /** Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode.
@@ -29,43 +25,28 @@ export interface Settings {
   theme: Theme,
   /** Wrap code */
   wordWrap: boolean
-  saveInLocalStorage: boolean
+  // internal: saved to browser storage
+  saved: boolean
+  // internal: written to search params
+  inUrl: boolean
 }
 
-/** Same as `Settings` but everything is optional, since single keys might be missing in the browser store */
-export interface SettingsStore {
-  abbreviationCharacter?: string
-  acceptSuggestionOnEnter?: boolean
-  showGoalNames?: boolean
-  compress?: boolean,
-  mobile?: MobileValues
-  theme?: Theme,
-  wordWrap?: boolean
-  saveInLocalStorage?: boolean
-}
+/** The settings which are not internal */
+export type UserSettings = Omit<Settings, "saved" | "inUrl">
 
-export const preferenceParams: (keyof Settings)[] = [
-  "abbreviationCharacter",
-  "acceptSuggestionOnEnter",
-  // "compress", // not sure if this should be user-settable
-  "showGoalNames",
-  "mobile",
-  "theme",
-  "wordWrap",
-]
+/** Same as `UserSettings` but everything is optional, since single keys might be missing in the browser store */
+export type PartialUserSettings = Partial<UserSettings>
 
 /** The default settings. */
-export const defaultSettings: Settings = {
+export const defaultSettings: UserSettings = {
   abbreviationCharacter: '\\',
   acceptSuggestionOnEnter: false,
   showGoalNames: true,
+  showExpectedType: false,
   compress: true,
-  /** value likely overwritten with `width < 800` in App.tsx
-   * unless provided in URL searchparams or in local storage. */
   mobile: "auto",
-  theme: 'Visual Studio Light', // irrelevant as it will be overwritten in App.tsx
+  theme: 'Visual Studio Light', // TODO: introduce "auto" which takes the browser setting.
   wordWrap: true,
-  saveInLocalStorage: false,
 }
 
 /**
@@ -76,4 +57,3 @@ export const defaultSettings: Settings = {
 export const lightThemes: Theme[] = [
   'Visual Studio Light'
 ]
-

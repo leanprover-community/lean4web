@@ -7,22 +7,17 @@ import LZString from 'lz-string'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import * as path from 'path'
-
-// Local imports
+import { mobileAtom, settingsAtom, settingsUrlAtom } from './settings/settings-atoms'
+import { useAtom } from 'jotai/react'
+import { screenWidthAtom } from './store/window-atoms'
 import LeanLogo from './assets/logo.svg'
 import { lightThemes } from './settings/settings-types'
 import { Menu } from './Navigation'
-import { Entries } from './utils/Entries'
 import { save } from './utils/SaveToFile'
 import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
-import { useWindowDimensions } from './utils/WindowWidth'
-
-// CSS
 import './css/App.css'
 import './css/Editor.css'
-import { mobileAtom, settingsAtom } from './settings/settings-atoms'
-import { useAtom } from 'jotai/react'
-import { screenWidthAtom } from './store/window-atoms'
+
 
 /** Returns true if the browser wants dark mode */
 function isBrowserDefaultDark() {
@@ -38,7 +33,7 @@ function App() {
   const [settings] = useAtom(settingsAtom)
   const [mobile] = useAtom(mobileAtom)
   const [, setScreenWidth] = useAtom(screenWidthAtom)
-  const { width } = useWindowDimensions()
+  const [searchParams] = useAtom(settingsUrlAtom)
 
   // Lean4monaco options
   const [options, setOptions] = useState<LeanMonacoOptions>({
@@ -54,7 +49,7 @@ function App() {
 
   // the user data
   const [code, setCode] = useState<string>('')
-  const [project, setProject] = useState<string>(undefined)
+  const [project, setProject] = useState<string>('MathlibDemo')
   const [url, setUrl] = useState<string | null>(null)
   const [codeFromUrl, setCodeFromUrl] = useState<string>('')
 
@@ -80,7 +75,7 @@ function App() {
     if (args.url) {setUrl(lookupUrl(decodeURIComponent(args.url)))}
 
     // if no project provided, use default
-    let project = args.project || 'MathlibDemo'
+    let project = args.project ?? 'MathlibDemo'
 
     console.log(`[Lean4web] Setting project to ${project}`)
     setProject(project)
@@ -122,7 +117,7 @@ function App() {
         "lean4.input.eagerReplacementEnabled": true,
         "lean4.infoview.showGoalNames": settings.showGoalNames,
         "lean4.infoview.emphasizeFirstGoal": true,
-        "lean4.infoview.showExpectedType": false,
+        "lean4.infoview.showExpectedType": settings.showExpectedType,
         "lean4.infoview.showTooltipOnHover": false,
         "lean4.input.leader": settings.abbreviationCharacter
       }
@@ -132,7 +127,7 @@ function App() {
 
   // Setting up the editor and infoview
   useEffect(() => {
-    // if (project === undefined) return
+    if (project === undefined) return
     console.debug('[Lean4web] Restarting editor')
     var _leanMonaco = new LeanMonaco()
     var leanMonacoEditor = new LeanMonacoEditor()
@@ -257,7 +252,7 @@ function App() {
   useEffect(() => {
     if (!editor) { return }
 
-    let _project = (project == 'MathlibDemo' ? null : project)
+    let _project = (project == 'MathlibDemo' ? null : project ?? null)
     let args: {
       project: string | null
       url: string | null

@@ -1,77 +1,31 @@
-import { Dispatch, FC, SetStateAction, createContext, useContext, useState } from 'react'
-import Switch from '@mui/material/Switch';
-import lean4webConfig from '../config/config'
-import { Popup } from '../Navigation';
+import Box from '@mui/material/Box'
+import Slider from '@mui/material/Slider'
+import Switch from '@mui/material/Switch'
+import { useAtom } from 'jotai/react'
+import { useState } from 'react'
+import { Popup } from '../Navigation'
+import { applySettingsAtom, settingsAtom } from './settings-atoms'
 import { defaultSettings, Settings } from './settings-types'
 import type { MobileValues, Theme } from './settings-types'
-import { applyAndSaveSettingsAtom, applySettingsAtom, hasSettingsSavedAtom, mobileAtom, settingsAtom } from './settings-atoms';
-import { useAtom } from 'jotai/react';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Slider from '@mui/material/Slider';
-import Box from '@mui/material/Box';
+import { shallowEqualSubset } from '../utils/shallowEqual'
+import { inputAdornmentClasses } from '@mui/material/InputAdornment'
 
-// /** The context holding the preferences */
-// export const PreferencesContext = createContext<{
-//   preferences: Settings,
-//   setPreferences: Dispatch<SetStateAction<Settings>>
-// }>({
-//   preferences: defaultSettings,
-//   setPreferences: () => {},
-// })
-
-// /** Save preferences to local storage whenever there are modifications */
-// function savePreferences(preferences: Settings) {
-//   console.debug("Preferences: Saving.")
-//   if (preferences.saveInLocalStore) {
-//     for (const [key, value] of Object.entries(preferences)) {
-//       if (typeof value === 'string') {
-//         window.localStorage.setItem(key, value)
-//       } else if (typeof value === 'boolean') {
-//         // turn boolean values into string
-//         window.localStorage.setItem(key, value ? 'true' : 'false')
-//       } else {
-//         // other values aren't implemented yet.
-//         console.error(`Preferences contain a value of unsupported type: ${typeof value}`)
-//       }
-//     }
-//   } else {
-//     for (const key in preferences) {
-//       window.localStorage.removeItem(key)
-//     }
-//   }
-// }
-
-const marks: {value: number, label: string, key: MobileValues}[] = [
-    {
-      value: 0,
-      label: 'Mobile',
-      key: true
-    },
-    {
-      value: 1,
-      label: 'Auto',
-      key: "auto"
-    },
-    {
-      value: 2,
-      label: 'Desktop',
-      key: false
-    },
-  ];
-
-const SettingsPopup: FC<{
+export function SettingsPopup({
+  open,
+  handleClose,
+  closeNav,
+  project,
+  setProject
+}: {
   open: boolean
   handleClose: () => void
   closeNav: () => void
   project: string
-  setProject: Dispatch<SetStateAction<string>>
-}> = ({open, handleClose, closeNav, project, setProject}) => {
-  const [hasSettingsSaved] = useAtom(hasSettingsSavedAtom)
+  setProject: (project: string) => void
+}) {
   const [settings, setSettings] = useAtom(settingsAtom)
-  const [, applyAndSaveStore] = useAtom(applyAndSaveSettingsAtom)
-  const [, applyAndClearStore] = useAtom(applySettingsAtom)
+  const [, applySettings] = useAtom(applySettingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
-  const [allowSaveInStore, setAllowSaveInStore] = useState<boolean>(hasSettingsSaved)
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings(prev => ({ ...prev, [key]: value }))
@@ -119,6 +73,11 @@ const SettingsPopup: FC<{
         checked={newSettings.showGoalNames} />
         <label htmlFor="showGoalNames">Show Goal Names</label>
       </p>
+      <p>
+        <Switch id="showExpectedType" onChange={() => {updateSetting("showExpectedType", !newSettings.showExpectedType)}}
+        checked={newSettings.showExpectedType} />
+        <label htmlFor="showExpectedType">Show Expected Type</label>
+      </p>
 
       <h2>User settings</h2>
        <p>
@@ -143,15 +102,15 @@ const SettingsPopup: FC<{
         <span>Layout: </span>
         <Box sx={{ width: 200 }}>
           <Slider
-            value={marks.find(item => item.key === newSettings.mobile).value}
+            value={mobileSliderMarks.find(item => item.key === newSettings.mobile)?.value ?? 1}
             step={1}
-            marks={marks}
+            marks={mobileSliderMarks}
             max={2}
             sx={{
               '& .MuiSlider-track': { display: 'none', },
             }}
             onChange={(_, val) => {
-              updateSetting("mobile", marks[val].key)
+              updateSetting("mobile", mobileSliderMarks[val].key)
             }}
           />
         </Box>
@@ -161,31 +120,44 @@ const SettingsPopup: FC<{
         checked={newSettings.compress} />
         <label htmlFor="compress">Compress code in URL</label>
       </p>
-
+      <p>
+        <Switch id="inUrl" onChange={() => {updateSetting("inUrl", !newSettings.inUrl)}} checked={newSettings.inUrl} />
+        <label htmlFor="inUrl">Add settings to URL</label>
+      </p>
       <h2>Save</h2>
       <p><i>Editor settings and User settings are not preserved unless you opt-in to save them.</i></p>
       <p>
-        <Switch id="savingAllowed" onChange={() => {setAllowSaveInStore(prev => !prev)}} checked={allowSaveInStore} />
+        <Switch id="savingAllowed" onChange={() => {updateSetting("saved", !newSettings.saved)}} checked={newSettings.saved} />
         <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
       </p>
       <p>
-        {newSettings != defaultSettings &&
-          <button id="resetSettings" onClick={e => {setNewSettings(defaultSettings); e.preventDefault()}}>Reset to Default</button>
+        {!shallowEqualSubset(defaultSettings, newSettings) &&
+          <button id="resetSettings" onClick={e => {setNewSettings({saved: false, inUrl: false, ...defaultSettings}); e.preventDefault()}}>Reset to Default</button>
         }
         <input
           id="saveSettings"
           type="submit"
-          value={allowSaveInStore ? "Apply & Save" : "Apply"}
-          onClick={() => {
-            if (allowSaveInStore) {
-              applyAndSaveStore(newSettings)
-            } else {
-              applyAndClearStore(newSettings)
-            }
-          }}/>
+          value={newSettings.saved ? "Apply & Save" : "Apply"}
+          onClick={() => applySettings(newSettings)}/>
       </p>
     </form>
   </Popup>
 }
 
-export default SettingsPopup
+const mobileSliderMarks: {value: number, label: string, key: MobileValues}[] = [
+  {
+    value: 0,
+    label: 'Mobile',
+    key: true
+  },
+  {
+    value: 1,
+    label: 'Auto',
+    key: "auto"
+  },
+  {
+    value: 2,
+    label: 'Desktop',
+    key: false
+  },
+]
