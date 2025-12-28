@@ -1,5 +1,5 @@
-import './css/Modal.css'
-import './css/Navigation.css'
+import '../css/Modal.css'
+import '../css/Navigation.css'
 
 import { faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import {
