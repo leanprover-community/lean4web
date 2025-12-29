@@ -6,19 +6,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { useAtom } from 'jotai/react'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
-import LZString from 'lz-string'
 import * as monaco from 'monaco-editor'
 import * as path from 'path'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 
 import LeanLogo from './assets/logo.svg'
+import { codeAtom } from './editor/code-atoms'
 import { Menu } from './navigation/Navigation'
-import { mobileAtom, settingsAtom, settingsUrlAtom } from './settings/settings-atoms'
+import { mobileAtom, settingsAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
+import { freshlyImportedCodeAtom } from './store/import-atoms'
+import { projectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { save } from './utils/SaveToFile'
-import { fixedEncodeURIComponent, formatArgs, lookupUrl, parseArgs } from './utils/UrlParsing'
 
 /** Returns true if the browser wants dark mode */
 function isBrowserDefaultDark() {
@@ -34,7 +35,12 @@ function App() {
   const [settings] = useAtom(settingsAtom)
   const [mobile] = useAtom(mobileAtom)
   const [, setScreenWidth] = useAtom(screenWidthAtom)
-  const [searchParams] = useAtom(settingsUrlAtom)
+  const [project] = useAtom(projectAtom)
+  const [code, setCode] = useAtom(codeAtom)
+  const [freshlyImportedCode] = useAtom(freshlyImportedCodeAtom)
+  // const [codeLoaded] = useAtom(codeLoadedAtom)
+
+  const model = editor?.getModel()
 
   // Lean4monaco options
   const [options, setOptions] = useState<LeanMonacoOptions>({
@@ -48,41 +54,11 @@ function App() {
   // first step could be to pass the cursor selection to the underlying monaco editor
   const [codeMirror, setCodeMirror] = useState(false)
 
-  // the user data
-  const [code, setCode] = useState<string>('')
-  const [project, setProject] = useState<string>('MathlibDemo')
-  const [url, setUrl] = useState<string | null>(null)
-  const [codeFromUrl, setCodeFromUrl] = useState<string>('')
-
   /** Monaco editor requires the code to be set manually. */
-  function setContent(code: string) {
-    editor?.getModel()?.setValue(code)
-    setCode(code)
+  function setContent(_code: string) {
+    editor?.getModel()?.setValue(_code)
+    setCode(_code)
   }
-
-  // Read the URL arguments
-  useEffect(() => {
-    // Parse args
-    console.log('[Lean4web] Parsing URL')
-    let args = parseArgs()
-    if (args.code) {
-      let _code = decodeURIComponent(args.code)
-      setContent(_code)
-    } else if (args.codez) {
-      let _code = LZString.decompressFromBase64(args.codez)
-      setContent(_code)
-    }
-
-    if (args.url) {
-      setUrl(lookupUrl(decodeURIComponent(args.url)))
-    }
-
-    // if no project provided, use default
-    let project = args.project ?? 'MathlibDemo'
-
-    console.log(`[Lean4web] Setting project to ${project}`)
-    setProject(project)
-  }, [])
 
   // save the screen width in jotai
   useEffect(() => {
@@ -93,9 +69,8 @@ function App() {
 
   // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
-    if (!project) {
-      return
-    }
+    if (!project) return
+
     console.log('[Lean4web] Update lean4monaco options')
 
     var socketUrl =
@@ -233,101 +208,12 @@ function App() {
       leanMonacoEditor.dispose()
       _leanMonaco.dispose()
     }
-  }, [project, settings, options, infoviewRef, editorRef])
+  }, [infoviewRef, editorRef, options, project, settings])
 
-  // Load content from source URL.
-  // Once the editor is loaded, this reads the content of any provided `url=` in the URL and
-  // saves this content as `codeFromURL`. It is important that we only do this once
-  // the editor is loaded, as the `useEffect` below only triggers when the `codeFromURL`
-  // changes, otherwise it might overwrite local changes too often.
+  /** Set editor content to the code loaded from the URL */
   useEffect(() => {
-    if (!editor || !url) {
-      return
-    }
-    console.debug(`[Lean4web] Loading from ${url}`)
-    fetch(url)
-      .then((response) => response.text())
-      .then((code) => {
-        setCodeFromUrl(code)
-      })
-      .catch((err) => {
-        let errorTxt = `ERROR: ${err.toString()}`
-        console.error(errorTxt)
-        setCodeFromUrl(errorTxt)
-      })
-  }, [url, editor])
-
-  // Sets the editors content to the content from the loaded URL.
-  // As described above, this requires the editor is loaded, but we do not want to
-  // trigger this effect every time the editor is reloaded (e.g. config change) as otherwise
-  // we would constantly overwrite the user's local changes
-  useEffect(() => {
-    if (!codeFromUrl) {
-      return
-    }
-    setContent(codeFromUrl)
-  }, [codeFromUrl])
-
-  // Keep the URL updated on change
-  useEffect(() => {
-    if (!editor) {
-      return
-    }
-
-    let _project = project == 'MathlibDemo' ? null : (project ?? null)
-    let args: {
-      project: string | null
-      url: string | null
-      code: string | null
-      codez: string | null
-    }
-    if (code === '') {
-      args = {
-        project: _project,
-        url: null,
-        code: null,
-        codez: null,
-      }
-    } else if (url != null && code == codeFromUrl) {
-      args = {
-        project: _project,
-        url: encodeURIComponent(url),
-        code: null,
-        codez: null,
-      }
-    } else if (settings.compress) {
-      // LZ padds the string with trailing `=`, which mess up the argument parsing
-      // and aren't needed for LZ encoding, so we remove them.
-      const compressed = LZString.compressToBase64(code).replace(/=*$/, '')
-      // // Note: probably temporary; might be worth to always compress as with whitespace encoding
-      // // it needs very little for the compressed version to be shorter
-      // const encodedCode = fixedEncodeURIComponent(code)
-      // console.debug(`[Lean4web] Code length: ${encodedCode.length}, compressed: ${compressed.length}`)
-      // if (compressed.length < encodedCode.length) {
-      args = {
-        project: _project,
-        url: null,
-        code: null,
-        codez: compressed,
-      }
-      // } else {
-      //   args = {
-      //     project: _project,
-      //     url: null,
-      //     code: encodedCode,
-      //     codez: null
-      //   }
-      // }
-    } else {
-      args = {
-        project: _project,
-        url: null,
-        code: fixedEncodeURIComponent(code),
-        codez: null,
-      }
-    }
-    history.replaceState(undefined, undefined!, formatArgs(args))
-  }, [editor, project, code, codeFromUrl])
+    if (freshlyImportedCode && model) model.setValue(freshlyImportedCode)
+  }, [freshlyImportedCode, model])
 
   // Disable monaco context menu outside the editor
   useEffect(() => {
@@ -353,7 +239,11 @@ function App() {
   // Actually save the file on Ctrl+S
   const handleKeyUp = useCallback(
     (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === 's' &&
+        code !== undefined
+      ) {
         event.preventDefault()
         save(code)
       }
@@ -375,12 +265,7 @@ function App() {
       <nav>
         <LeanLogo />
         <Menu
-          code={code}
           setContent={setContent}
-          project={project}
-          setProject={setProject}
-          setUrl={setUrl}
-          codeFromUrl={codeFromUrl}
           restart={leanMonaco?.restart}
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}

@@ -20,6 +20,7 @@ import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
 import ZulipIcon from '../assets/zulip.svg'
 import lean4webConfig from '../config/config'
+import { codeAtom } from '../editor/code-atoms'
 import ImpressumPopup from '../Popups/Impressum'
 import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
@@ -27,8 +28,9 @@ import PrivacyPopup from '../Popups/PrivacyPolicy'
 import ToolsPopup from '../Popups/Tools'
 import { mobileAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
+import { setImportUrlAndProjectAtom } from '../store/import-atoms'
+import { projectAtom } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
-import { lookupUrl } from '../utils/UrlParsing'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
 
@@ -40,7 +42,6 @@ function FlexibleMenu({
   setOpenExample,
   openLoad,
   setOpenLoad,
-  loadFromUrl,
   setContent,
   setLoadUrlOpen,
   setLoadZulipOpen,
@@ -51,11 +52,11 @@ function FlexibleMenu({
   setOpenExample: Dispatch<SetStateAction<boolean>>
   openLoad: boolean
   setOpenLoad: Dispatch<SetStateAction<boolean>>
-  loadFromUrl: (url: string, project?: string | undefined) => void
   setContent: (code: string) => void
   setLoadUrlOpen: Dispatch<SetStateAction<boolean>>
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
 }) {
+  const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
     const fileToLoad = event.target.files![0]
@@ -89,10 +90,10 @@ function FlexibleMenu({
               icon={faStar}
               text={example.name}
               onClick={() => {
-                loadFromUrl(
-                  `${window.location.origin}/api/example/${proj.folder}/${example.file}`,
-                  proj.folder,
-                )
+                setImportUrlAndProject({
+                  url: `${window.location.origin}/api/example/${proj.folder}/${example.file}`,
+                  project: proj.folder,
+                })
                 setOpenExample(false)
               }}
             />
@@ -142,26 +143,19 @@ function FlexibleMenu({
 
 /** The Navigation menu */
 export function Menu({
-  code,
   setContent,
-  project,
-  setProject,
-  setUrl,
-  codeFromUrl,
   restart,
   codeMirror,
   setCodeMirror,
 }: {
-  code: string
   setContent: (code: string) => void
-  project: string
-  setProject: Dispatch<SetStateAction<string>>
-  setUrl: Dispatch<SetStateAction<string | null>>
-  codeFromUrl: string
   restart?: () => void
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
 }) {
+  const [project, setProject] = useAtom(projectAtom)
+  const [code] = useAtom(codeAtom)
+
   // state for handling the dropdown menus
   const [openNav, setOpenNav] = useState(false)
   const [openExample, setOpenExample] = useState(false)
@@ -176,20 +170,6 @@ export function Menu({
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   const [mobile] = useAtom(mobileAtom)
-
-  const loadFromUrl = (url: string, project: string | undefined = undefined) => {
-    url = lookupUrl(url)
-    console.debug('load code from url')
-    setUrl((oldUrl: string | null) => {
-      if (oldUrl === url) {
-        setContent(codeFromUrl)
-      }
-      return url
-    })
-    if (project) {
-      setProject(project)
-    }
-  }
 
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
 
@@ -226,7 +206,6 @@ export function Menu({
           setOpenExample={setOpenExample}
           openLoad={openLoad}
           setOpenLoad={setOpenLoad}
-          loadFromUrl={loadFromUrl}
           setContent={setContent}
           setLoadUrlOpen={setLoadUrlOpen}
           setLoadZulipOpen={setLoadZulipOpen}
@@ -249,7 +228,6 @@ export function Menu({
             setOpenExample={setOpenExample}
             openLoad={openLoad}
             setOpenLoad={setOpenLoad}
-            loadFromUrl={loadFromUrl}
             setContent={setContent}
             setLoadUrlOpen={setLoadUrlOpen}
             setLoadZulipOpen={setLoadZulipOpen}
@@ -264,7 +242,13 @@ export function Menu({
         />
         <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
         <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
-        <NavButton icon={faDownload} text="Save file" onClick={() => save(code)} />
+        <NavButton
+          icon={faDownload}
+          text="Save file"
+          onClick={() => {
+            if (code !== undefined) save(code)
+          }}
+        />
         <NavButton
           icon={faShield}
           text={'Privacy policy'}
@@ -306,14 +290,8 @@ export function Menu({
         open={settingsOpen}
         handleClose={() => setSettingsOpen(false)}
         closeNav={() => setOpenNav(false)}
-        project={project}
-        setProject={setProject}
       />
-      <LoadUrlPopup
-        open={loadUrlOpen}
-        handleClose={() => setLoadUrlOpen(false)}
-        loadFromUrl={loadFromUrl}
-      />
+      <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} />
       <LoadZulipPopup
         open={loadZulipOpen}
         handleClose={() => setLoadZulipOpen(false)}

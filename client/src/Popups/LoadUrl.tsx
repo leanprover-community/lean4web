@@ -1,16 +1,11 @@
+import { useAtom } from 'jotai'
 import { FormEvent, useRef, useState } from 'react'
 
 import { Popup } from '../navigation/Popup'
+import { setImportUrlAndProjectAtom } from '../store/import-atoms'
 
-function LoadUrlPopup({
-  open,
-  handleClose,
-  loadFromUrl,
-}: {
-  open: boolean
-  handleClose: () => void
-  loadFromUrl: (url: string) => void
-}) {
+function LoadUrlPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
+  const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
   const [error, setError] = useState('')
   const urlRef = useRef<HTMLInputElement>(null)
 
@@ -24,7 +19,7 @@ function LoadUrlPopup({
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url
     }
-    loadFromUrl(url)
+    setImportUrlAndProject({ url: url })
     handleClose()
   }
 

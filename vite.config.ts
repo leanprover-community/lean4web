@@ -8,7 +8,6 @@ import { normalizePath } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import svgr from "vite-plugin-svgr";
-import eslint from "vite-plugin-eslint";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -27,7 +26,6 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    eslint(),
     svgr({
       include: ["**/*.svg?react", "**/*.svg"],
       svgrOptions: {

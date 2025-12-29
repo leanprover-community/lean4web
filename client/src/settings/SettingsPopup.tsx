@@ -14,14 +14,10 @@ export function SettingsPopup({
   open,
   handleClose,
   closeNav,
-  project,
-  setProject,
 }: {
   open: boolean
   handleClose: () => void
   closeNav: () => void
-  project: string
-  setProject: (project: string) => void
 }) {
   const [settings, setSettings] = useAtom(settingsAtom)
   const [, applySettings] = useAtom(applySettingsAtom)

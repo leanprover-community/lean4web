@@ -146,8 +146,8 @@ describe("The Editor", () => {
       "example (P: Prop) : P \\or \\not P := by apply?",
     );
     cy.contains("div.view-line", "apply?").should("exist");
-    cy.wait(1000);
     cy.get(".squiggly-info").should("exist");
+    cy.get(".codicon-gutter-lightbulb").should("be.visible");
     cy.realPress([modBtn, "."]);
     cy.contains(".action-widget", "Try this: exact Classical.em P").should(
       "exist",
