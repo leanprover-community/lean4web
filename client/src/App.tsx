@@ -38,7 +38,6 @@ function App() {
   const [project] = useAtom(projectAtom)
   const [code, setCode] = useAtom(codeAtom)
   const [freshlyImportedCode] = useAtom(freshlyImportedCodeAtom)
-  // const [codeLoaded] = useAtom(codeLoadedAtom)
 
   const model = editor?.getModel()
 

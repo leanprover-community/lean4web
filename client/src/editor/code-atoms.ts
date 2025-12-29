@@ -51,6 +51,3 @@ export const codeAtom = atom(
     }
   },
 )
-
-/** Helper atom to retrigger a `useEffect` once `code` is not `undefined` */
-export const codeLoadedAtom = atom((get) => get(codeAtom) !== undefined)
