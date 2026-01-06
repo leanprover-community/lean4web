@@ -1,5 +1,5 @@
-name: Test
-run-name: test
+name: CI
+run-name: ci
 on:
   workflow_dispatch:
   push:
@@ -7,15 +7,14 @@ on:
       - "main"
       - "dev"
   pull_request:
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
 defaults:
   run:
     shell: bash
-
+env:
+  NODE_VERSION: 25
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -34,7 +33,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "25"
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install elan
         uses: leanprover/lean-action@v1
@@ -132,7 +131,20 @@ jobs:
         with:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
-
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Install dependencies
+        run: npm ci
+      - name: lint
+        run: npm run lint
   all-tests-pass:
     name: All Tests Pass
     runs-on: ubuntu-latest

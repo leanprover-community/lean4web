@@ -1,43 +1,39 @@
-import Box from '@mui/material/Box';
-import Slider from '@mui/material/Slider';
-import Switch from '@mui/material/Switch';
-import { useAtom } from 'jotai/react';
-import { useState } from 'react';
-import { Popup } from '../Navigation';
-import { applySettingsAtom, settingsAtom } from './settings-atoms';
-import { defaultSettings, Settings } from './settings-types';
-import type { MobileValues, Theme } from './settings-types';
-import { shallowEqualSubset } from '../utils/shallowEqual';
-import { inputAdornmentClasses } from '@mui/material/InputAdornment';
+import Box from '@mui/material/Box'
+import Slider from '@mui/material/Slider'
+import Switch from '@mui/material/Switch'
+import { useAtom } from 'jotai/react'
+import { useState } from 'react'
+
+import { Popup } from '../navigation/Popup'
+import { shallowEqualSubset } from '../utils/shallowEqual'
+import { applySettingsAtom, settingsAtom } from './settings-atoms'
+import type { MobileValues, Theme } from './settings-types'
+import { defaultSettings, Settings } from './settings-types'
 
 export function SettingsPopup({
   open,
   handleClose,
   closeNav,
-  project,
-  setProject,
 }: {
-  open: boolean;
-  handleClose: () => void;
-  closeNav: () => void;
-  project: string;
-  setProject: (project: string) => void;
+  open: boolean
+  handleClose: () => void
+  closeNav: () => void
 }) {
-  const [settings, setSettings] = useAtom(settingsAtom);
-  const [, applySettings] = useAtom(applySettingsAtom);
-  const [newSettings, setNewSettings] = useState<Settings>(settings);
+  const [settings, setSettings] = useAtom(settingsAtom)
+  const [, applySettings] = useAtom(applySettingsAtom)
+  const [newSettings, setNewSettings] = useState<Settings>(settings)
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
-    setNewSettings((prev) => ({ ...prev, [key]: value }));
+    setNewSettings((prev) => ({ ...prev, [key]: value }))
   }
 
   return (
     <Popup open={open} handleClose={handleClose}>
       <form
         onSubmit={(ev) => {
-          ev.preventDefault();
-          handleClose();
-          closeNav();
+          ev.preventDefault()
+          handleClose()
+          closeNav()
         }}
       >
         {/* <h2>Project settings</h2>
@@ -67,7 +63,7 @@ export function SettingsPopup({
             id="abbreviationCharacter"
             type="text"
             onChange={(ev) => {
-              updateSetting('abbreviationCharacter', ev.target.value);
+              updateSetting('abbreviationCharacter', ev.target.value)
             }}
             value={newSettings.abbreviationCharacter}
           />
@@ -76,7 +72,7 @@ export function SettingsPopup({
           <Switch
             id="wordWrap"
             onChange={() => {
-              updateSetting('wordWrap', !newSettings.wordWrap);
+              updateSetting('wordWrap', !newSettings.wordWrap)
             }}
             checked={newSettings.wordWrap}
           />
@@ -86,7 +82,7 @@ export function SettingsPopup({
           <Switch
             id="acceptSuggestionOnEnter"
             onChange={() => {
-              updateSetting('acceptSuggestionOnEnter', !newSettings.acceptSuggestionOnEnter);
+              updateSetting('acceptSuggestionOnEnter', !newSettings.acceptSuggestionOnEnter)
             }}
             checked={newSettings.acceptSuggestionOnEnter}
           />
@@ -96,7 +92,7 @@ export function SettingsPopup({
           <Switch
             id="showGoalNames"
             onChange={() => {
-              updateSetting('showGoalNames', !newSettings.showGoalNames);
+              updateSetting('showGoalNames', !newSettings.showGoalNames)
             }}
             checked={newSettings.showGoalNames}
           />
@@ -106,7 +102,7 @@ export function SettingsPopup({
           <Switch
             id="showExpectedType"
             onChange={() => {
-              updateSetting('showExpectedType', !newSettings.showExpectedType);
+              updateSetting('showExpectedType', !newSettings.showExpectedType)
             }}
             checked={newSettings.showExpectedType}
           />
@@ -121,7 +117,7 @@ export function SettingsPopup({
             name="theme"
             value={newSettings.theme}
             onChange={(ev) => {
-              updateSetting('theme', ev.target.value as Theme);
+              updateSetting('theme', ev.target.value as Theme)
             }}
           >
             <option value="Visual Studio Light">visual studio light</option>
@@ -145,7 +141,7 @@ export function SettingsPopup({
                 '& .MuiSlider-track': { display: 'none' },
               }}
               onChange={(_, val) => {
-                updateSetting('mobile', mobileSliderMarks[val].key);
+                updateSetting('mobile', mobileSliderMarks[val].key)
               }}
             />
           </Box>
@@ -154,7 +150,7 @@ export function SettingsPopup({
           <Switch
             id="compress"
             onChange={() => {
-              updateSetting('compress', !newSettings.compress);
+              updateSetting('compress', !newSettings.compress)
             }}
             checked={newSettings.compress}
           />
@@ -164,7 +160,7 @@ export function SettingsPopup({
           <Switch
             id="inUrl"
             onChange={() => {
-              updateSetting('inUrl', !newSettings.inUrl);
+              updateSetting('inUrl', !newSettings.inUrl)
             }}
             checked={newSettings.inUrl}
           />
@@ -178,7 +174,7 @@ export function SettingsPopup({
           <Switch
             id="savingAllowed"
             onChange={() => {
-              updateSetting('saved', !newSettings.saved);
+              updateSetting('saved', !newSettings.saved)
             }}
             checked={newSettings.saved}
           />
@@ -189,8 +185,8 @@ export function SettingsPopup({
             <button
               id="resetSettings"
               onClick={(e) => {
-                setNewSettings({ saved: false, inUrl: false, ...defaultSettings });
-                e.preventDefault();
+                setNewSettings({ saved: false, inUrl: false, ...defaultSettings })
+                e.preventDefault()
               }}
             >
               Reset to Default
@@ -205,7 +201,7 @@ export function SettingsPopup({
         </p>
       </form>
     </Popup>
-  );
+  )
 }
 
 const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] = [
@@ -224,4 +220,4 @@ const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] =
     label: 'Desktop',
     key: false,
   },
-];
+]

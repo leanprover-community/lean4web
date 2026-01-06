@@ -24,6 +24,6 @@
     /* Performance */
     "skipLibCheck": true
   },
-  "include": ["client/src"],
+  "include": ["client/src", "eslint.config.js"],
   "exclude": ["server", "node_modules"]
 }

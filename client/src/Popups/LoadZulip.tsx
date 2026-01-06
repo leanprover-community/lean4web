@@ -1,42 +1,47 @@
-import { Popup } from '../Navigation';
-import { FC, FormEvent, useRef, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react'
 
-const LoadZulipPopup: FC<{
-  open: boolean;
-  handleClose: () => void;
-  setContent: (code: string) => void;
-}> = ({ open, handleClose, setContent }) => {
-  const [error, setError] = useState('');
-  const textInputRef = useRef<HTMLTextAreaElement>(null);
+import { Popup } from '../navigation/Popup'
+
+function LoadZulipPopup({
+  open,
+  handleClose,
+  setContent,
+}: {
+  open: boolean
+  handleClose: () => void
+  setContent: (code: string) => void
+}) {
+  const [error, setError] = useState('')
+  const textInputRef = useRef<HTMLTextAreaElement>(null)
 
   const handleLoad = (ev: FormEvent) => {
-    ev.preventDefault();
-    let md = textInputRef.current?.value; // TODO: not a URL but text, update the var names
+    ev.preventDefault()
+    let md = textInputRef.current?.value // TODO: not a URL but text, update the var names
 
-    console.log(`received: ${md}`);
+    console.log(`received: ${md}`)
 
     // regex 1 finds the code-blocks
-    let regex1 = /(`{3,})\s*(lean)?\s*\n(.+?)\1/gs;
+    let regex1 = /(`{3,})\s*(lean)?\s*\n(.+?)\1/gs
     // regex 2 extracts the code from a codeblock
-    let regex2 = /^(`{3,})\s*(?:lean)?\s*\n\s*(.+)\s*\1$/s;
+    let regex2 = /^(`{3,})\s*(?:lean)?\s*\n\s*(.+)\s*\1$/s
 
-    let res = md?.match(regex1);
+    let res = md?.match(regex1)
 
     if (res) {
       let code =
         res
           .map((s) => {
-            return s.match(regex2)![2];
+            return s.match(regex2)![2]
           })
           .join('\n\n-- new codeblock\n\n')
-          .trim() + '\n';
-      setContent(code);
+          .trim() + '\n'
+      setContent(code)
       //setError('')
-      handleClose();
+      handleClose()
     } else {
-      setError('Could not find a code-block in the message');
+      setError('Could not find a code-block in the message')
     }
-  };
+  }
 
   return (
     <Popup open={open} handleClose={handleClose}>
@@ -56,7 +61,7 @@ const LoadZulipPopup: FC<{
         <input type="submit" value="Parse message" />
       </form>
     </Popup>
-  );
-};
+  )
+}
 
-export default LoadZulipPopup;
+export default LoadZulipPopup

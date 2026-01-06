@@ -1,12 +1,8 @@
-import { FC } from 'react';
-import { Popup } from '../Navigation';
-import lean4webConfig from '../config/config';
+import lean4webConfig from '../config/config'
+import { Popup } from '../navigation/Popup'
 
 /** The popup with the privacy policy. */
-const PrivacyPopup: FC<{
-  open: boolean;
-  handleClose: () => void;
-}> = ({ open, handleClose }) => {
+function PrivacyPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
   return (
     <Popup open={open} handleClose={handleClose}>
       <h2>Privacy Policy</h2>
@@ -34,7 +30,7 @@ const PrivacyPopup: FC<{
         </p>
       )}
     </Popup>
-  );
-};
+  )
+}
 
-export default PrivacyPopup;
+export default PrivacyPopup

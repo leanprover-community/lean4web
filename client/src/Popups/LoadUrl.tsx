@@ -1,27 +1,27 @@
-import { Popup } from '../Navigation';
-import { FC, FormEvent, useRef, useState } from 'react';
+import { useAtom } from 'jotai'
+import { FormEvent, useRef, useState } from 'react'
 
-const LoadUrlPopup: FC<{
-  open: boolean;
-  handleClose: () => void;
-  loadFromUrl: (url: string) => void;
-}> = ({ open, handleClose, loadFromUrl }) => {
-  const [error, setError] = useState('');
-  const urlRef = useRef<HTMLInputElement>(null);
+import { Popup } from '../navigation/Popup'
+import { setImportUrlAndProjectAtom } from '../store/import-atoms'
+
+function LoadUrlPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
+  const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
+  const [error, setError] = useState('')
+  const urlRef = useRef<HTMLInputElement>(null)
 
   const handleLoad = (ev: FormEvent) => {
-    ev.preventDefault();
-    let url = urlRef.current?.value;
+    ev.preventDefault()
+    let url = urlRef.current?.value
     if (!url) {
-      setError(`Please specify a URL.`);
-      return;
+      setError(`Please specify a URL.`)
+      return
     }
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://' + url;
+      url = 'https://' + url
     }
-    loadFromUrl(url);
-    handleClose();
-  };
+    setImportUrlAndProject({ url: url })
+    handleClose()
+  }
 
   return (
     <Popup open={open} handleClose={handleClose}>
@@ -32,7 +32,7 @@ const LoadUrlPopup: FC<{
         <input type="submit" value="Load" />
       </form>
     </Popup>
-  );
-};
+  )
+}
 
-export default LoadUrlPopup;
+export default LoadUrlPopup

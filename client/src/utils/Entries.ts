@@ -8,5 +8,5 @@ So `{[K in keyof T]-?: [K, T[K]]}` is the type of objects with keys of T
 We index into this object with `[keyof T]` to get the pairs of key,value,
 and finally with a `[]` to get the array of pairs. */
 export type Entries<T> = {
-  [K in keyof T]-?: [K, T[K]];
-}[keyof T][];
+  [K in keyof T]-?: [K, T[K]]
+}[keyof T][]
