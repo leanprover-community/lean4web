@@ -1,20 +1,20 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/leanprover-community/lean4web/blob/main/LICENSE)
 [![(Runtime) Build and Test](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml/badge.svg)](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml)
 
-# Lean 4 Web
+# Lean Web
 
-This is a web version of Lean 4. There is a playground hosted at [live.lean-lang.org](https://live.lean-lang.org) and one at [lean.math.hhu.de](https://lean.math.hhu.de).
+This is a web application running Lean 4 server-side. There is a playground hosted at [live.lean-lang.org](https://live.lean-lang.org) and one at [lean.math.hhu.de](https://lean.math.hhu.de).
 
 In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
 
 ## Scope of lean4web
 
-- Provide a clean, minimalistic and easily accessible way to run some (smallish) Lean snippets
-- Provide a simple way to run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.
-- Provide a easy way to demonstrate some Lean code in talks/lecutres.
-- Provide a easy way for newcomers to doodle with Lean before installing it.
-- Provide a way to run some Lean code in a mobile context.
+- Minimalistic and accessible way to run some (smallish) Lean snippets
+- Run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.
+- Demonstrate some Lean code in talks/lecutres.
+- Doodling around with Lean before installing it as a newcomer.
+- Run some Lean code in a mobile context.
 
 Currently, serious Lean code development and larger projects are considered out-of-scope. For these, it might be more suitable to look at a setup using Codespaces or Gitpot.
 
@@ -26,7 +26,7 @@ If you experience any problems, or have feature requests, please open an issue h
 
 PRs fixing issues are very welcome!
 
-For new features, it's best to write an issue first to discuss them: For example, some functionality might be better implemented in [lean4monaco](https://github.com/hhu-adam/lean4monaco) which provides the key features and a discussion might be helpful to figure this out.
+Regarding new features, it's best to write an issue first to discuss them: For example, some functionality might be better implemented in [lean4monaco](https://github.com/hhu-adam/lean4monaco) which provides the key features and a discussion might be helpful to figure this out.
 
 ## Documentation
 
