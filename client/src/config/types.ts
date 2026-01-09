@@ -7,7 +7,7 @@ import { JSX } from 'react'
 /** An example can be any Lean file which belongs to the project.
  * The editor just reads the file content, but it makes sense for maintainability
  * that you ensure the Lean project actually builds the file. */
-interface LeanWebExample {
+export interface LeanWebExample {
   /** File to load; relative path in `lean4web/Projects/<projectfolder>/` */
   file: string
   /** Display name used in the `Examples` menu */
@@ -16,10 +16,10 @@ interface LeanWebExample {
 
 /** You can add any Lean Project under `lean4web/Projects/` and add it here to use it in the
  * web editor. Note that you will need to manually build your project. Alternatively
- * you can add a file `lean4web/Projects/myProject/build.sh` which contains the instructions
+ * you can add a file `lean4web/Projects/myProject/leanweb-build.sh` which contains the instructions
  * to update & build the project.
  */
-interface LeanWebProject {
+export interface LeanWebProject {
   /** The folder containing the Lean project; the folder is expected to be in `lean4web/Projects/`.
    *  The folder name will appear in the URL.
    */
@@ -30,8 +30,7 @@ interface LeanWebProject {
   examples?: LeanWebExample[]
 }
 
-interface LeanWebConfig {
-  projects: LeanWebProject[]
+export interface LeanWebConfig {
   /** Where the server is located. Use `null` to not display this information. */
   serverCountry: string | null
   /** Contact details of the server maintainer. Used in Privacy Policy and Impressum.
@@ -45,5 +44,3 @@ interface LeanWebConfig {
    */
   impressum: JSX.Element | null
 }
-
-export type { LeanWebConfig, LeanWebExample, LeanWebProject }

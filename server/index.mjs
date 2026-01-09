@@ -26,44 +26,82 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const environment = process.env.NODE_ENV;
 const isGithubAction = process.env.GITHUB_ACTIONS;
 const isDevelopment = environment === "development";
-const ALLOW_NO_BUBBLEWRAP = process.env.ALLOW_NO_BUBBLEWRAP;
+const ALLOW_NO_BUBBLEWRAP =
+  process.env.ALLOW_NO_BUBBLEWRAP?.toLowerCase() === "true" ?? false;
 
 const crtFile = process.env.SSL_CRT_FILE;
 const keyFile = process.env.SSL_KEY_FILE;
 
+const PROJECTS_BASE_PATH = path.join(
+  __dirname,
+  "..",
+  process.env.PROJECTS_BASE_PATH,
+);
+
 const app = express();
 
+app.use("/api/projects", async (req, res) => {
+  try {
+    const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
+      withFileTypes: true,
+    });
+    const projects = [];
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+
+      const projectDir = path.join(PROJECTS_BASE_PATH, entry.name);
+      const configPath = path.join(projectDir, "leanweb-config.json");
+
+      let config = null;
+
+      try {
+        const raw = await fs.promises.readFile(configPath, "utf-8");
+        config = JSON.parse(raw);
+      } catch (err) {
+        // File missing or invalid JSON — keep config as null
+      }
+
+      projects.push({
+        name: entry.name,
+        config,
+      });
+    }
+
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load projects" });
+  }
+});
+
 // `*example` has the form `mathlib-demo/MathlibLatest/Logic.lean`
-app.use("/api/example/*example", (req, res, next) => {
+app.use("/api/example/:project/*example", (req, res, next) => {
   const filePath = path.join(
+    req.params.project,
     ...req.params.example.filter((it) => it.length > 0),
   );
   req.url = filePath;
-  express.static(path.join(__dirname, "..", "Projects"))(req, res, next);
+  express.static(PROJECTS_BASE_PATH)(req, res, next);
 });
 
 // `:project` is the project like `mathlib-demo`
 app.use("/api/manifest/:project", (req, res, next) => {
   const project = req.params.project;
   req.url = "lake-manifest.json";
-  express.static(path.join(__dirname, "..", "Projects", project))(
-    req,
-    res,
-    next,
-  );
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
 });
+
 // `:project` is the project like `mathlib-demo`
 app.use("/api/toolchain/:project", (req, res, next) => {
   const project = req.params.project;
   req.url = "lean-toolchain";
-  express.static(path.join(__dirname, "..", "Projects", project))(
-    req,
-    res,
-    next,
-  );
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
 });
+
 // Using the client files
 app.use(express.static(path.join(__dirname, "..", "client", "dist")));
+
 app.use(nocache());
 
 const hasBwrap = hasWorkingBwrap();
@@ -99,23 +137,21 @@ if (crtFile && keyFile) {
 
 const wss = new WebSocketServer({ server });
 
-// The path to the projects folder relative to the server
-let projectsBasePath = path.join(__dirname, "..", "Projects");
-
 function startServerProcess(project) {
-  let projectPath = path.join(projectsBasePath, project);
-
+  const PROJECT_PATH = path.join(PROJECTS_BASE_PATH, project);
   let serverProcess;
   if (isDevelopment) {
-    serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath });
+    serverProcess = cp.spawn("lake", ["serve", "--"], {
+      cwd: PROJECT_PATH,
+    });
   } else {
     if (hasWorkingBwrap()) {
-      serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], {
+      serverProcess = cp.spawn("./bubblewrap.sh", [PROJECT_PATH], {
         cwd: __dirname,
       });
-    } else if (ALLOW_NO_BUBBLEWRAP?.toLowerCase() === "true") {
+    } else if (ALLOW_NO_BUBBLEWRAP) {
       console.warn("Started process witouut bubblewrap!");
-      serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath });
+      serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: PROJECT_PATH });
     } else {
       console.error(
         "Bubblewrap is not available! You can set `ALLOW_NO_BUBBLEWRAP=true` to start the processes without container.",
@@ -212,7 +248,7 @@ wss.addListener("connection", function (ws, req) {
   );
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps);
   socketConnection.forward(serverConnection, (message) => {
-    const prefix = isDevelopment ? projectsBasePath : "";
+    const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
 
     if (!message.method === "textDocument/definition") {
       urisToFilenames(prefix, message);
@@ -224,7 +260,7 @@ wss.addListener("connection", function (ws, req) {
     return message;
   });
   serverConnection.forward(socketConnection, (message) => {
-    const prefix = isDevelopment ? projectsBasePath : "";
+    const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
     FilenamesToUri(prefix, message);
     if (isDevelopment && !isGithubAction) {
       console.log(`SERVER: ${JSON.stringify(message)}`);

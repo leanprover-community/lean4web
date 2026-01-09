@@ -1,6 +1,7 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - Installation
+- [Adding Projects](./Projects.md)
 - [Development](./Development.md)
 - [Troubleshoot](./Troubleshoot.md)
 
@@ -94,7 +95,7 @@ On a running system, you might already have these installed, if not:
 
 ### Adding different Lean projects
 
-You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](../Projects/README.md) for further instructions.
+You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](./Projects.md) for further instructions.
 
 ### Others
 

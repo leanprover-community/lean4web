@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-cd "$(dirname $0)/../Projects"
+cd "$(dirname $0)/../$PROJECT_FOLDER"
 
-# Iterate over subfolders in Projects and look for a build file `build.sh`
+# Iterate over subfolders in Projects and look for a build file `leanweb-build.sh`
 for folder in "."/*; do
   if [ -d "$folder" ]; then
-    build_script="$folder/build.sh"
+    build_script="$folder/leanweb-build.sh"
     if [ -f "$build_script" ]; then
       SECONDS=0
       echo "Start building $folder"
@@ -17,7 +17,7 @@ for folder in "."/*; do
       echo "Finished $folder in $(($duration / 60)):$(($duration % 60)) min"
       echo "Finished $folder in $(($duration / 60)):$(($duration % 60)) min" | logger -t lean4web
     else
-      echo "Skipping $folder: build.sh missing"
+      echo "Skipping $folder: leanweb-build.sh missing"
     fi
 
   fi

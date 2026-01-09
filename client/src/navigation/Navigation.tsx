@@ -19,7 +19,7 @@ import { useAtom } from 'jotai'
 import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
 import ZulipIcon from '../assets/zulip.svg'
-import lean4webConfig from '../config/config'
+import { lean4webConfig } from '../config/config'
 import { codeAtom } from '../editor/code-atoms'
 import ImpressumPopup from '../Popups/Impressum'
 import LoadUrlPopup from '../Popups/LoadUrl'
@@ -83,7 +83,7 @@ function FlexibleMenu({
           !isInDropdown && setOpenNav(false)
         }}
       >
-        {lean4webConfig.projects.map((proj) =>
+        {lean4webConfig.projects?.map((proj) =>
           proj.examples?.map((example) => (
             <NavButton
               key={`${proj.name}-${example.name}`}
@@ -183,7 +183,7 @@ export function Menu({
           console.log(`set Lean project to: ${ev.target.value}`)
         }}
       >
-        {lean4webConfig.projects.map((proj) => (
+        {lean4webConfig.projects?.map((proj) => (
           <option key={proj.folder} value={proj.folder}>
             {proj.name ?? proj.folder}
           </option>

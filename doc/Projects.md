@@ -1,8 +1,15 @@
+- [Back to README](../README.md)
+- [User Manual](./Usage.md)
+- [Installation](./Installation.md)
+- Adding Projects
+- [Development](./Development.md)
+- [Troubleshoot](./Troubleshoot.md)
+
 # Adding Projects
 
 To add new projects, add any Lean project in the folder `Projects/`, e.g. `Projects/MyCoolProject/`.
 You can either build your Lean project manually or you include a script
-`Projects/MyCoolProject/build.sh` for automatic builds.
+`Projects/MyCoolProject/leanweb-build.sh` for automatic builds.
 Usually a build script looks like this:
 
 ```
@@ -25,11 +32,14 @@ If you want to add Examples, you should add them as valid Lean files to your pro
 the config entry of your project in `config.json` as follows:
 
 ```
-{ "folder": "MyCoolProject`",
+{
+  "folder": "MyCoolProject`",
   "name": "My Cool Project",
   "examples": [
-    { "file": "MyCustomProject/Demo1.lean",
-      "name": "My Cool Example" }
+    {
+      "file": "MyCustomProject/Demo1.lean",
+      "name": "My Cool Example"
+    }
   ]
 }
 ```

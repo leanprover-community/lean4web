@@ -7,6 +7,11 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 8001,
+        ALLOW_NO_BUBBLEWRAP: false,
+        GITHUB_ACTIONS: false,
+        PROJECTS_BASE_PATH: "Projects", // relative path to the folder containing all projects
+        SSL_CRT_FILE: undefined,
+        SSL_KEY_FILE: undefined,
       },
     },
   ],
