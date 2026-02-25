@@ -5,6 +5,8 @@ import * as url from 'url';
 import * as rpc from 'vscode-ws-jsonrpc';
 import * as path from 'path'
 import * as jsonrpcserver from 'vscode-ws-jsonrpc/server';
+import { stat } from 'fs/promises';
+import { env } from 'process';
 import nocache from 'nocache'
 import anonymize from 'ip-anonymize'
 import os from 'os'
@@ -78,10 +80,21 @@ if (crtFile && keyFile) {
 const wss = new WebSocketServer({ server })
 
 // The path to the projects folder relative to the server
-let projectsBasePath = path.join(__dirname, '..', 'Projects')
+let projectsBasePath = env.LEAN4WEB_PROJECT_BASE_PATH ?? path.join(__dirname, '..', 'Projects')
 
-function startServerProcess(project) {
+/**
+ * Attempts to start the server process, returning `null` in production if the
+ * project does not exist.
+ */
+async function startServerProcess(project) {
   let projectPath = path.join(projectsBasePath, project)
+  // Check for presence of directory
+  try {
+    await stat(path.join(projectPath, "lean-toolchain"))
+  } catch (err) {
+    console.log(`Could not find project (${projectPath})`)
+    return null;
+  }
 
   let serverProcess
   if (isDevelopment) {
@@ -94,7 +107,7 @@ function startServerProcess(project) {
     // `bubblewrap.sh` is somewhere relative to the js source file
     // and the projects are in ~/deploy/live/<project>
     let cmd = path.join (__dirname, "bubblewrap.sh");
-    let cmdArgs = [path.join("deploy","live",project)];
+    let cmdArgs = [projectPath];
     console.info(`Running with Bubblewrap container: ${cmd} ${cmdArgs}.`)
     serverProcess = cp.spawn(cmd, cmdArgs, {})
   }
@@ -152,14 +165,16 @@ function FilenamesToUri(prefix, obj) {
   return obj;
 }
 
-wss.addListener("connection", function(ws, req) {
+wss.addListener("connection", async function(ws, req) {
   const urlRegEx = /^\/websocket\/([\w.-]+)$/
   const reRes = urlRegEx.exec(req.url)
   if (!reRes) { console.error(`Connection refused because of invalid URL: ${req.url}`); return; }
   const project = reRes[1]
+  if (!project.match(/^[a-zA-Z][a-zA-Z1-9.-_]*/)) { console.error(`Connection refused because of invalid project name: ${project}`); return; }
 
   const ip = anonymize(req.headers['x-forwarded-for'] || req.socket.remoteAddress)
-  const ps = startServerProcess(project)
+  const ps = await startServerProcess(project)
+  if (ps === null) { console.error(`Connection refused because of nonexistent project directory: ${project}`); return; }
 
   const socket = {
       onMessage: (cb) => { ws.on("message", cb) },
