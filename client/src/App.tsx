@@ -8,8 +8,11 @@ import { useAtom } from 'jotai/react'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import * as monaco from 'monaco-editor'
 import * as path from 'path'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import Split from 'react-split'
+import * as Y from 'yjs'
+import { WebrtcProvider } from 'y-webrtc'
+import { MonacoBinding } from 'y-monaco'
 
 import LeanLogo from './assets/logo.svg'
 import { codeAtom } from './editor/code-atoms'
@@ -38,6 +41,13 @@ function App() {
   const [project] = useAtom(projectAtom)
   const [code, setCode] = useAtom(codeAtom)
   const [freshlyImportedCode] = useAtom(freshlyImportedCodeAtom)
+  const ydoc = useMemo(() => new Y.Doc(), [])
+  const [provider, setProvider] = useState<WebrtcProvider|null>(null)
+  const [binding, setBinding] = useState<MonacoBinding|null>(null)
+  const [collabDialogVisible, setCollabDialogVisible] = useState(false)
+  const [collabRoomName, setCollabRoomName] = useState('')
+  const [collabDisplayName, setCollabDisplayName] = useState('')
+  const [isCollaborating, setIsCollaborating] = useState(false)
 
   const model = editor?.getModel()
 
@@ -65,6 +75,53 @@ function App() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [setScreenWidth])
+
+  // clean up ydoc on unmount
+  useEffect(() => {
+    return () => ydoc.destroy()
+  }, [ydoc])
+
+  // this effect manages the lifetime of the Yjs document and the provider
+  useEffect(() => {
+    // const provider = new WebsocketProvider('wss://demos.yjs.dev/ws', roomname, ydoc)
+    // See https://github.com/yjs/y-webrtc for options
+    if (!isCollaborating || !collabRoomName) {
+      setProvider(null)
+      return
+    }
+    const provider = new WebrtcProvider(
+      collabRoomName, // roomname
+      ydoc, 
+      { 
+        maxConns: 50,
+        password: undefined,
+        signaling: [
+          'wss://wide-robin-20.snowmountain.deno.net/'
+        ],
+        filterBcConns: true,
+      }
+    )
+    if (collabDisplayName) {
+      provider.awareness.setLocalStateField('user', { name: collabDisplayName })
+    }
+    setProvider(provider)
+    return () => {
+      provider?.destroy()
+    }
+  }, [ydoc, isCollaborating, collabRoomName, collabDisplayName])
+
+  // this effect manages the lifetime of the editor binding
+  useEffect(() => {
+    if (provider == null || editor == null) {
+      return
+    }
+    console.log('reached', provider)
+    const binding = new MonacoBinding(ydoc.getText(), editor.getModel()!, new Set([editor]), provider?.awareness)
+    setBinding(binding)
+    return () => {
+      binding.destroy()
+    }
+  }, [ydoc, provider, editor])
 
   // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
@@ -269,7 +326,47 @@ function App() {
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
         />
+        <button 
+          onClick={() => {
+            if (isCollaborating) {
+              setIsCollaborating(false)
+            } else {
+              setCollabDialogVisible(true)
+            }
+          }}
+          style={{ marginLeft: '10px', height: 'fit-content', alignSelf: 'center', padding: '4px 8px', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          {isCollaborating ? `Collaborating as: ${collabRoomName}/${collabDisplayName}` : 'Collaborate: OFF'}
+        </button>
       </nav>
+      {collabDialogVisible && (
+        <div style={{position: 'fixed', zIndex: 9999, inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <form 
+            style={{background: 'var(--vscode-editor-background, white)', color: 'var(--vscode-editor-foreground, black)', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '300px', border: '1px solid var(--vscode-dropdown-border, #ccc)'}}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (collabRoomName) {
+                setIsCollaborating(true);
+                setCollabDialogVisible(false);
+              }
+            }}
+          >
+            <h3 style={{marginTop: 0, marginBottom: 0}}>Join Collaboration</h3>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
+              <label>Room Name:</label>
+              <input required value={collabRoomName} onChange={e => setCollabRoomName(e.target.value)} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
+            </div>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
+              <label>Display Name:</label>
+              <input required value={collabDisplayName} onChange={e => setCollabDisplayName(e.target.value)} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
+            </div>
+            <div style={{display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '5px'}}>
+              <button type="button" onClick={() => setCollabDialogVisible(false)} style={{padding: '6px 12px', cursor: 'pointer'}}>Cancel</button>
+              <button type="submit" style={{padding: '6px 12px', cursor: 'pointer'}}>Join</button>
+            </div>
+          </form>
+        </div>
+      )}
       <Split
         className={`editor ${dragging ? 'dragging' : ''}`}
         gutter={(_index, _direction) => {

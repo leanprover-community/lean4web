@@ -57,7 +57,10 @@
     "react-split": "^2.0.14",
     "tailwindcss": "^4.1.18",
     "vscode-ws-jsonrpc": "^3.5.0",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "y-monaco": "^0.1.6",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.29"
   },
   "devDependencies": {
     "@codingame/esbuild-import-meta-url-plugin": "^1.0.3",
