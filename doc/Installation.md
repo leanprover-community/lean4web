@@ -1,7 +1,9 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - Installation
+- [Adding Projects](./Projects.md)
 - [Development](./Development.md)
+- [Server Maintenance](./Maintenance.md)
 - [Troubleshoot](./Troubleshoot.md)
 
 ## Security
