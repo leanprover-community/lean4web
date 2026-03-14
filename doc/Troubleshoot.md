@@ -1,8 +1,9 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - [Installation](./Installation.md)
+- [Adding Projects](./Projects.md)
 - [Development](./Development.md)
-- [Troubleshoot](./Troubleshoot.md)
+- Troubleshoot
 
 ## Troubleshoot
 
