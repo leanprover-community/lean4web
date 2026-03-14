@@ -18,8 +18,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
 import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
+import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
-import { lean4webConfig } from '../config/config'
 import { codeAtom } from '../editor/code-atoms'
 import ImpressumPopup from '../Popups/Impressum'
 import LoadUrlPopup from '../Popups/LoadUrl'
@@ -29,7 +29,7 @@ import ToolsPopup from '../Popups/Tools'
 import { mobileAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
-import { projectAtom, projectsAtom } from '../store/project-atoms'
+import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
@@ -155,8 +155,8 @@ export function Menu({
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
 }) {
-  const [{ data: projects }] = useAtom(projectsAtom)
-  const [project, setProject] = useAtom(projectAtom)
+  const [visibleProjects] = useAtom(visibleProjectsAtom)
+  const [project, setProject] = useAtom(currentProjectAtom)
   const [code] = useAtom(codeAtom)
 
   // state for handling the dropdown menus
@@ -178,20 +178,23 @@ export function Menu({
 
   return (
     <div className="menu">
-      <select
-        name="leanVersion"
-        value={project}
-        onChange={(ev) => {
-          setProject(ev.target.value)
-          console.log(`set Lean project to: ${ev.target.value}`)
-        }}
-      >
-        {projects.map((proj) => (
-          <option key={proj.folder} value={proj.folder}>
-            {proj.config.name}
-          </option>
-        ))}
-      </select>
+      {project && (
+        <select
+          name="leanVersion"
+          value={project.folder}
+          onChange={(ev) => {
+            setProject(ev.target.value)
+            console.log(`set Lean project to: ${ev.target.value}`)
+          }}
+        >
+          {project.folder}
+          {visibleProjects.map((proj) => (
+            <option key={proj.folder} value={proj.folder}>
+              {proj.config.name}
+            </option>
+          ))}
+        </select>
+      )}
       {mobile && (
         <NavButton
           icon={faCode}
@@ -288,7 +291,13 @@ export function Menu({
       {hasImpressum && (
         <ImpressumPopup open={impressumOpen} handleClose={() => setImpressumOpen(false)} />
       )}
-      <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} project={project} />
+      {project && (
+        <ToolsPopup
+          open={toolsOpen}
+          handleClose={() => setToolsOpen(false)}
+          project={project.folder}
+        />
+      )}
       <SettingsPopup
         open={settingsOpen}
         handleClose={() => setSettingsOpen(false)}
