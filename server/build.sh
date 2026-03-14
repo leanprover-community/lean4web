@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-cd "$(dirname $0)/../$PROJECT_FOLDER"
+PROJECTS_BASE_PATH=${PROJECTS_BASE_PATH:-"Projects"}
+
+cd "$(dirname $0)/../$PROJECTS_BASE_PATH"
 
 # Iterate over subfolders in Projects and look for a build file `leanweb-build.sh`
 for folder in "."/*; do
