@@ -21,17 +21,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        browser: [electron, chrome]
+        os:
+          - ubuntu-latest
+          - macos-latest
+        browser:
+          - chrome
+          - firefox
         include:
           - os: ubuntu-latest
             browser: chromium
     steps:
+      - name: Setup firefox (macOS)
+        if: matrix.os == 'macos-latest' && matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -74,7 +82,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cypress-screenshots-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
@@ -90,7 +98,7 @@ jobs:
 
       - name: Upload videos
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact6
         with:
           name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/videos
@@ -112,7 +120,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: runner.os == 'Linux' && failure() && steps.cypress_production_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cypress-screenshots-production-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
@@ -127,7 +135,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: matrix.browser == 'chromium' && failure() && steps.cypress_production_windows_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
@@ -136,9 +144,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
