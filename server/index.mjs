@@ -89,12 +89,14 @@ app.use("/api/projects", async (req, res) => {
 
 // `*example` has the form `mathlib-demo/MathlibLatest/Logic.lean`
 app.use("/api/example/:project/*example", (req, res, next) => {
-  const filePath = path.join(
-    req.params.project,
-    ...req.params.example.filter((it) => it.length > 0 && !it.startsWith(".")),
-  );
-  req.url = filePath;
-  express.static(PROJECTS_BASE_PATH)(req, res, next);
+  const pathComponents = req.params.example.filter((it) => it.length > 0);
+  if (!(pathComponents[pathComponents.length - 1] ?? "").endsWith(".lean")) {
+    res.status(400).json({ error: "Bad request" });
+  } else {
+    const filePath = path.join(req.params.project, ...pathComponents);
+    req.url = filePath;
+    express.static(PROJECTS_BASE_PATH)(req, res, next);
+  }
 });
 
 // `:project` is the project like `mathlib-demo`
