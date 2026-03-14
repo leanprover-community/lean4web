@@ -1,15 +1,14 @@
-import { WebSocketServer } from "ws";
-import express from "express";
 import * as cp from "child_process";
+import express from "express";
+import https from "https";
+import anonymize from "ip-anonymize";
+import nocache from "nocache";
+import os from "os";
+import * as path from "path";
 import * as url from "url";
 import * as rpc from "vscode-ws-jsonrpc";
-import * as path from "path";
 import * as jsonrpcserver from "vscode-ws-jsonrpc/server";
-import nocache from "nocache";
-import anonymize from "ip-anonymize";
-import os from "os";
-import http from "http";
-import https from "https";
+import { WebSocketServer } from "ws";
 
 let socketCounter = 0;
 

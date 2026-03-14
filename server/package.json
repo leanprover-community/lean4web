@@ -12,13 +12,13 @@
   },
   "dependencies": {
     "express": "^5.1.0",
-    "ws": "^8.18.3",
-    "nocache": "^4.0.0",
     "ip-anonymize": "^0.1.0",
-    "memfs": "^4.51.1"
+    "memfs": "^4.51.1",
+    "nocache": "^4.0.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11",
-    "@types/node": "^24.10.1"
+    "@types/node": "^24.10.1",
+    "nodemon": "^3.1.11"
   }
 }
