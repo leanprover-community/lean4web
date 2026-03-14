@@ -33,7 +33,7 @@ const keyFile = process.env.SSL_KEY_FILE;
 const app = express();
 
 // our test setup waits until the server returns `200`
-app.get("/", (_req, res) => {
+app.get("/health", (_req, res) => {
   res.status(200).send("Server is running");
 });
 
