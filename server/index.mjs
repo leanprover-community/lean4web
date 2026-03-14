@@ -226,7 +226,7 @@ function FilenamesToUri(prefix, obj) {
   return obj;
 }
 
-wss.addListener("connection", function (ws, req) {
+wss.addListener("connection", async function (ws, req) {
   const urlRegEx = /^\/websocket\/([\w.-]+)$/;
   const reRes = urlRegEx.exec(req.url);
   if (!reRes) {
@@ -235,10 +235,24 @@ wss.addListener("connection", function (ws, req) {
   }
   const project = reRes[1];
 
+  if (!project.match(/^[a-zA-Z][a-zA-Z1-9.-_]*/)) {
+    console.error(
+      `Connection refused because of invalid project name: ${project}`,
+    );
+    return;
+  }
+
   const ip = anonymize(
     req.headers["x-forwarded-for"] || req.socket.remoteAddress,
   );
-  const ps = startServerProcess(project);
+  const ps = await startServerProcess(project);
+
+  if (ps === null) {
+    console.error(
+      `Connection refused because of nonexistent project directory: ${project}`,
+    );
+    return;
+  }
 
   const socket = {
     onMessage: (cb) => {

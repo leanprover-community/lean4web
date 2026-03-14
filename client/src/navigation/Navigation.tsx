@@ -279,12 +279,12 @@ export function Menu({
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="Lean documentation"
-          href="https://leanprover.github.io/lean4/doc/"
+          href="https://lean-lang.org/learn/"
         />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
-          href="https://github.com/hhu-adam/lean4web"
+          href="https://github.com/leanprover-community/lean4web"
         />
       </Dropdown>
       <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
