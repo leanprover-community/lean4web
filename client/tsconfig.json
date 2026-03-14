@@ -24,6 +24,6 @@
     /* Performance */
     "skipLibCheck": true
   },
-  "include": ["src", "config.ts"],
+  "include": ["src", "config.tsx"],
   "exclude": ["node_modules"]
 }
