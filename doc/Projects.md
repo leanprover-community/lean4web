@@ -57,7 +57,7 @@ where folder name and file name coincide.
 To create a Lean project with a specific version and mathlib dependencies, you can use the `create_project.sh` script:
 
 ```bash
-./create_project.sh <version>
+./Projects/create_project.sh <version>
 ```
 
 The version should be in the format of `v4.x.x` or `4.x.x`. For example:

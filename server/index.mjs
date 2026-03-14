@@ -27,8 +27,7 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const environment = process.env.NODE_ENV;
 const isGithubAction = process.env.GITHUB_ACTIONS;
 const isDevelopment = environment === "development";
-const ALLOW_NO_BUBBLEWRAP =
-  process.env.ALLOW_NO_BUBBLEWRAP?.toLowerCase() === "true" ?? false;
+const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() === "true" ?? false;
 
 const crtFile = process.env.SSL_CRT_FILE;
 const keyFile = process.env.SSL_KEY_FILE;
@@ -163,12 +162,12 @@ function startServerProcess(project) {
       serverProcess = cp.spawn("./bubblewrap.sh", [PROJECT_PATH], {
         cwd: __dirname,
       });
-    } else if (ALLOW_NO_BUBBLEWRAP) {
+    } else if (NO_BWRAP) {
       console.warn("Started process witouut bubblewrap!");
       serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: PROJECT_PATH });
     } else {
       console.error(
-        "Bubblewrap is not available! You can set `ALLOW_NO_BUBBLEWRAP=true` to start the processes without container.",
+        "Bubblewrap is not available! You can set `NO_BWRAP=true` to start the processes without container.",
       );
       return 300;
     }
