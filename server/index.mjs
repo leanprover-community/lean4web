@@ -1,11 +1,13 @@
-import * as cp from "child_process";
+import * as cp from "node:child_process";
+import * as fs from "node:fs";
+import https from "node:https";
+import os from "node:os";
+import * as path from "node:path";
+import * as url from "node:url";
+
 import express from "express";
-import https from "https";
 import anonymize from "ip-anonymize";
 import nocache from "nocache";
-import os from "os";
-import * as path from "path";
-import * as url from "url";
 import * as rpc from "vscode-ws-jsonrpc";
 import * as jsonrpcserver from "vscode-ws-jsonrpc/server";
 import { WebSocketServer } from "ws";
@@ -34,7 +36,7 @@ const keyFile = process.env.SSL_KEY_FILE;
 const PROJECTS_BASE_PATH = path.join(
   __dirname,
   "..",
-  process.env.PROJECTS_BASE_PATH,
+  process.env.PROJECTS_BASE_PATH ?? "Projects",
 );
 
 const app = express();
@@ -44,6 +46,7 @@ app.get("/health", (_req, res) => {
   res.status(200).send("Server is running");
 });
 
+// endpoint to list all available projects
 app.use("/api/projects", async (req, res) => {
   try {
     const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
@@ -58,17 +61,22 @@ app.use("/api/projects", async (req, res) => {
       const configPath = path.join(projectDir, "leanweb-config.json");
 
       let config = null;
-
       try {
         const raw = await fs.promises.readFile(configPath, "utf-8");
         config = JSON.parse(raw);
       } catch (err) {
+        console.debug(err);
         // File missing or invalid JSON — keep config as null
       }
 
       projects.push({
-        name: entry.name,
-        config,
+        folder: entry.name,
+        config: {
+          name: String(config.name), // TODO: ensure this is not null
+          hidden: Boolean(config.hidden) ?? false,
+          default: Boolean(config.default) ?? false,
+          examples: config.examples ?? [], // TODO: validate
+        },
       });
     }
 

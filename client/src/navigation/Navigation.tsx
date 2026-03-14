@@ -29,7 +29,7 @@ import ToolsPopup from '../Popups/Tools'
 import { mobileAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
-import { projectAtom } from '../store/project-atoms'
+import { projectAtom, projectsAtom } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
@@ -57,6 +57,7 @@ function FlexibleMenu({
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
 }) {
   const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
+  const [{ data: projects }] = useAtom(projectsAtom)
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
     const fileToLoad = event.target.files![0]
@@ -83,16 +84,17 @@ function FlexibleMenu({
           !isInDropdown && setOpenNav(false)
         }}
       >
-        {lean4webConfig.projects?.map((proj) =>
-          proj.examples?.map((example) => (
+        {projects.map((it) =>
+          it.config.examples?.map((example) => (
             <NavButton
-              key={`${proj.name}-${example.name}`}
+              key={`${it.config.name}-${example.name}`}
               icon={faStar}
               text={example.name}
+              title={`${it.config.name}: ${example.name}`}
               onClick={() => {
                 setImportUrlAndProject({
-                  url: `${window.location.origin}/api/example/${proj.folder}/${example.file}`,
-                  project: proj.folder,
+                  url: `${window.location.origin}/api/example/${it.folder}/${example.file}`,
+                  project: it.folder,
                 })
                 setOpenExample(false)
               }}
@@ -153,6 +155,7 @@ export function Menu({
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
 }) {
+  const [{ data: projects }] = useAtom(projectsAtom)
   const [project, setProject] = useAtom(projectAtom)
   const [code] = useAtom(codeAtom)
 
@@ -183,9 +186,9 @@ export function Menu({
           console.log(`set Lean project to: ${ev.target.value}`)
         }}
       >
-        {lean4webConfig.projects?.map((proj) => (
+        {projects.map((proj) => (
           <option key={proj.folder} value={proj.folder}>
-            {proj.name ?? proj.folder}
+            {proj.config.name}
           </option>
         ))}
       </select>

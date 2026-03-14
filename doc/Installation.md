@@ -1,7 +1,6 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - Installation
-- [Adding Projects](./Projects.md)
 - [Development](./Development.md)
 - [Troubleshoot](./Troubleshoot.md)
 
@@ -77,11 +76,11 @@ On a running system, you might already have these installed, if not:
   ```
 - Start the server
   ```
-  npm run production
+  npm run prod
   ```
 - To disable the bubblewrap containers, start the server with
   ```
-  ALLOW_NO_BUBBLEWRAP=true npm run production
+  ALLOW_NO_BUBBLEWRAP=true npm run prod
   ```
 - Start the client seperately, for example with
   ```
@@ -90,7 +89,7 @@ On a running system, you might already have these installed, if not:
   and open http://localhost:3000
 - To set the locations of SSL certificates, use the following environment variables:
   ```
-  SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run production
+  SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run prod
   ```
 
 ### Adding different Lean projects
