@@ -91,7 +91,7 @@ app.use("/api/projects", async (req, res) => {
 app.use("/api/example/:project/*example", (req, res, next) => {
   const filePath = path.join(
     req.params.project,
-    ...req.params.example.filter((it) => it.length > 0),
+    ...req.params.example.filter((it) => it.length > 0 && !it.startsWith(".")),
   );
   req.url = filePath;
   express.static(PROJECTS_BASE_PATH)(req, res, next);
