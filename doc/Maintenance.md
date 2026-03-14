@@ -1,3 +1,11 @@
+- [Back to README](../README.md)
+- [User Manual](./Usage.md)
+- [Installation](./Installation.md)
+- Server Maintenance
+- [Adding Projects](./Projects.md)
+- [Development](./Development.md)
+- [Troubleshoot](./Troubleshoot.md)
+
 # Notes for server maintenance
 
 We use `Nginx` and `pm2` to manage our server.
