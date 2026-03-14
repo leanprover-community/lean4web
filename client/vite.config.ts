@@ -1,5 +1,3 @@
-import path from "node:path";
-
 import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
@@ -16,12 +14,11 @@ export default defineConfig({
       // @ts-ignore           // TODO
       plugins: [importMetaUrlPlugin],
     },
-    exclude: ["Projects"],
+    // exclude: ["Projects"],
   },
   build: {
-    // Relative to the root
     // Note: This has to match the path in `server/index.mjs` and in `tsconfig.json`
-    outDir: "client/dist",
+    outDir: "dist",
   },
   plugins: [
     react(),
@@ -44,36 +41,19 @@ export default defineConfig({
       targets: [
         {
           src: [
-            normalizePath(
-              path.resolve(
-                __dirname,
-                "./node_modules/@leanprover/infoview/dist/*",
-              ),
-            ),
-            normalizePath(
-              path.resolve(
-                __dirname,
-                "./node_modules/lean4monaco/dist/webview/webview.js",
-              ),
-            ),
+            "../node_modules/@leanprover/infoview/dist/*",
+            "../node_modules/lean4monaco/dist/webview/webview.js",
           ],
           dest: "infoview",
         },
         {
-          src: [
-            normalizePath(
-              path.resolve(
-                __dirname,
-                "./node_modules/@leanprover/infoview/dist/codicon.ttf",
-              ),
-            ),
-          ],
+          src: ["../node_modules/@leanprover/infoview/dist/codicon.ttf"],
           dest: "assets",
         },
       ],
     }),
   ],
-  publicDir: "client/public/",
+  publicDir: "public",
   base: "/", // setting this to `/leanweb/` means the server is now accessible at `localhost:3000/leanweb`
   server: {
     port: 3000,
@@ -91,8 +71,6 @@ export default defineConfig({
     },
   },
   resolve: {
-    alias: {
-      path: "path-browserify",
-    },
+    alias: {},
   },
 });
