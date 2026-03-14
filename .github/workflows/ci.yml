@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload videos
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact6
+        uses: actions/upload-artifact@v6
         with:
           name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/videos
