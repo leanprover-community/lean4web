@@ -68,15 +68,17 @@ app.use("/api/projects", async (req, res) => {
         // File missing or invalid JSON — keep config as null
       }
 
-      projects.push({
-        folder: entry.name,
-        config: {
-          name: String(config.name), // TODO: ensure this is not null
-          hidden: Boolean(config.hidden) ?? false,
-          default: Boolean(config.default) ?? false,
-          examples: config.examples ?? [], // TODO: validate
-        },
-      });
+      if (config) {
+        projects.push({
+          folder: entry.name,
+          config: {
+            name: String(config.name), // TODO: ensure this is not null
+            hidden: Boolean(config.hidden) ?? false,
+            default: Boolean(config.default) ?? false,
+            examples: config.examples ?? [], // TODO: validate
+          },
+        });
+      }
     }
 
     res.json(projects);
