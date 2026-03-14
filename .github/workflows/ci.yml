@@ -26,10 +26,7 @@ jobs:
           - macos-latest
         browser:
           - chrome
-          - firefox
-        include:
-          - os: ubuntu-latest
-            browser: chromium
+          - chromium
     steps:
       - name: Setup firefox (macOS)
         if: matrix.os == 'macos-latest' && matrix.browser == 'firefox'
@@ -126,7 +123,7 @@ jobs:
           path: cypress/screenshots
 
       - name: Run Cypress tests Production with Windows User Agent (No Video)
-        if: matrix.browser == 'chromium'
+        if: matrix.os == 'ubuntu-latest' && matrix.browser == 'chromium'
         id: cypress_production_windows_no_video
         run: npm run test:prod:windows
         env:
@@ -134,7 +131,7 @@ jobs:
           CYPRESS_VIDEO: false
 
       - name: Upload screenshots on failure
-        if: matrix.browser == 'chromium' && failure() && steps.cypress_production_windows_no_video.conclusion == 'failure'
+        if: matrix.os == 'ubuntu-latest' &&matrix.browser == 'chromium' && failure() && steps.cypress_production_windows_no_video.conclusion == 'failure'
         uses: actions/upload-artifact@v6
         with:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
