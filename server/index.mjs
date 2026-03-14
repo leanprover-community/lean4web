@@ -32,6 +32,11 @@ const keyFile = process.env.SSL_KEY_FILE;
 
 const app = express();
 
+// our test setup waits until the server returns `200`
+app.get("/", (_req, res) => {
+  res.status(200).send("Server is running");
+});
+
 // `*example` has the form `mathlib-demo/MathlibLatest/Logic.lean`
 app.use("/api/example/*example", (req, res, next) => {
   const filePath = path.join(
