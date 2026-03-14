@@ -3,6 +3,7 @@
 - [Installation](./Installation.md)
 - Adding Projects
 - [Development](./Development.md)
+- [Server Maintenance](./Maintenance.md)
 - [Troubleshoot](./Troubleshoot.md)
 
 # Adding Projects

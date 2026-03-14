@@ -32,4 +32,7 @@ For new features, it's best to write an issue first to discuss them: For example
 
 - [User Manual](./doc/Usage.md): Specification of `lean4web` features for the end user.
 - [Installation](./doc/Installation.md): Instructions to install your own instance of `lean4web` on your own server
+- [Adding Projects](./doc/Projects.md): For server maintainers
 - [Development](./doc/Development.md): Instructions to contribute to `lean4web` itself
+- [Server Maintenance](./doc/Maintenance.md): For server maintainers
+- [Troubleshoot](./doc/Troubleshoot.md)

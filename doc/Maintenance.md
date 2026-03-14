@@ -1,9 +1,9 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - [Installation](./Installation.md)
-- Server Maintenance
 - [Adding Projects](./Projects.md)
 - [Development](./Development.md)
+- Server Maintenance
 - [Troubleshoot](./Troubleshoot.md)
 
 # Notes for server maintenance
