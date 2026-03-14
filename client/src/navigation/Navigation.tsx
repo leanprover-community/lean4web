@@ -276,11 +276,7 @@ export function Menu({
           text="Lean community"
           href="https://leanprover-community.github.io/"
         />
-        <NavButton
-          icon={faArrowUpRightFromSquare}
-          text="Lean documentation"
-          href="https://lean-lang.org/learn/"
-        />
+        <NavButton icon={faArrowUpRightFromSquare} text="Lean FRO" href="https://lean-lang.org" />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
