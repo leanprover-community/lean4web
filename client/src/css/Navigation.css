@@ -64,7 +64,8 @@ nav .dropdown-overlay {
 }
 
 /* The menu items */
-nav .nav-link {
+nav .nav-link,
+nav select {
   background: none;
   border: none;
   color: inherit;
@@ -82,14 +83,10 @@ nav .nav-link svg {
   width: 1.4rem;
 }
 
-nav .nav-link:hover {
+nav .nav-link:hover,
+nav select:hover {
   color: var(--vscode-menu-selectionForeground);
   background-color: var(--vscode-menu-selectionBackground);
-}
-
-nav select {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
 }
 
 .tooltip {

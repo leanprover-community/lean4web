@@ -92,10 +92,6 @@ input[type='file'] {
   border-radius: 6px;
   background-color: var(--vscode-input-background);
   color: var(--vscode-input-foreground);
-
-  /* outline: none;
-  transition: all 0.2s ease-in-out;
-  box-sizing: border-box; */
 }
 
 .modal input[type='text'] {
