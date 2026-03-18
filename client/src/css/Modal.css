@@ -78,13 +78,10 @@ input[type='file'] {
   border-radius: 0.2rem;
 }
 
-.modal #abbreviationCharacter {
-  width: 15px;
-  margin-left: 4px;
-}
-
-.modal .MuiSwitch-track {
-  background-color: var(--vscode-input-foreground);
+.modal input[type='submit'],
+.modal button {
+  display: block;
+  margin: 1rem auto;
 }
 
 .modal input[type='text'],
@@ -105,10 +102,13 @@ input[type='file'] {
   font-family: 'JuliaMono';
 }
 
-.modal input[type='submit'],
-.modal button {
-  display: block;
-  margin: 1rem auto;
+.modal #abbreviationCharacter {
+  width: 15px;
+  margin-left: 4px;
+}
+
+.modal .MuiSwitch-track {
+  background-color: var(--vscode-input-foreground);
 }
 
 .modal .flex {
