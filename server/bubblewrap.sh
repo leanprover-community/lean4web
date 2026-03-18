@@ -4,9 +4,9 @@
 ulimit -t 3600
 # NB: The RSS limit (ulimit -m) is not supported by modern linux!
 
-PROJECT_NAME="$(realpath $1)"
-LEAN_ROOT="$(cd $1 && lean --print-prefix)"
-LEAN_SRC_PATH=$(cd $1 && lake env printenv LEAN_SRC_PATH)
+PROJECT_NAME="$(realpath "$1")"
+LEAN_ROOT="$(cd "$1" && lean --print-prefix)"
+LEAN_SRC_PATH=$(cd "$1" && lake env printenv LEAN_SRC_PATH)
 
 # # print commands as they are executed
 # set -x

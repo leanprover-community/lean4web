@@ -1,11 +1,13 @@
-import * as cp from "child_process";
+import * as cp from "node:child_process";
+import * as fs from "node:fs";
+import https from "node:https";
+import os from "node:os";
+import * as path from "node:path";
+import * as url from "node:url";
+
 import express from "express";
-import https from "https";
 import anonymize from "ip-anonymize";
 import nocache from "nocache";
-import os from "os";
-import * as path from "path";
-import * as url from "url";
 import * as rpc from "vscode-ws-jsonrpc";
 import * as jsonrpcserver from "vscode-ws-jsonrpc/server";
 import { WebSocketServer } from "ws";
@@ -25,10 +27,16 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const environment = process.env.NODE_ENV;
 const isGithubAction = process.env.GITHUB_ACTIONS;
 const isDevelopment = environment === "development";
-const ALLOW_NO_BUBBLEWRAP = process.env.ALLOW_NO_BUBBLEWRAP;
+const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() === "true" ?? false;
 
 const crtFile = process.env.SSL_CRT_FILE;
 const keyFile = process.env.SSL_KEY_FILE;
+
+const PROJECTS_BASE_PATH = path.join(
+  __dirname,
+  "..",
+  process.env.PROJECTS_BASE_PATH ?? "Projects",
+);
 
 const app = express();
 
@@ -37,37 +45,78 @@ app.get("/health", (_req, res) => {
   res.status(200).send("Server is running");
 });
 
+// endpoint to list all available projects
+app.use("/api/projects", async (req, res) => {
+  try {
+    const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
+      withFileTypes: true,
+    });
+    const projects = [];
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+
+      const projectDir = path.join(PROJECTS_BASE_PATH, entry.name);
+      const configPath = path.join(projectDir, "leanweb-config.json");
+
+      let config = null;
+      try {
+        const raw = await fs.promises.readFile(configPath, "utf-8");
+        config = JSON.parse(raw);
+      } catch (err) {
+        console.debug(err);
+        // File missing or invalid JSON — keep config as null
+      }
+
+      if (config) {
+        projects.push({
+          folder: entry.name,
+          config: {
+            name: String(config.name), // TODO: ensure this is not null
+            hidden: Boolean(config.hidden) ?? false,
+            default: Boolean(config.default) ?? false,
+            examples: config.examples ?? [], // TODO: validate
+          },
+        });
+      }
+    }
+
+    res.json(projects);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to load projects" });
+  }
+});
+
 // `*example` has the form `mathlib-demo/MathlibLatest/Logic.lean`
-app.use("/api/example/*example", (req, res, next) => {
-  const filePath = path.join(
-    ...req.params.example.filter((it) => it.length > 0),
-  );
-  req.url = filePath;
-  express.static(path.join(__dirname, "..", "Projects"))(req, res, next);
+app.use("/api/example/:project/*example", (req, res, next) => {
+  const pathComponents = req.params.example.filter((it) => it.length > 0);
+  if (!(pathComponents[pathComponents.length - 1] ?? "").endsWith(".lean")) {
+    res.status(400).json({ error: "Bad request" });
+  } else {
+    const filePath = path.join(req.params.project, ...pathComponents);
+    req.url = filePath;
+    express.static(PROJECTS_BASE_PATH)(req, res, next);
+  }
 });
 
 // `:project` is the project like `mathlib-demo`
 app.use("/api/manifest/:project", (req, res, next) => {
   const project = req.params.project;
   req.url = "lake-manifest.json";
-  express.static(path.join(__dirname, "..", "Projects", project))(
-    req,
-    res,
-    next,
-  );
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
 });
+
 // `:project` is the project like `mathlib-demo`
 app.use("/api/toolchain/:project", (req, res, next) => {
   const project = req.params.project;
   req.url = "lean-toolchain";
-  express.static(path.join(__dirname, "..", "Projects", project))(
-    req,
-    res,
-    next,
-  );
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
 });
+
 // Using the client files
 app.use(express.static(path.join(__dirname, "..", "client", "dist")));
+
 app.use(nocache());
 
 const hasBwrap = hasWorkingBwrap();
@@ -103,26 +152,24 @@ if (crtFile && keyFile) {
 
 const wss = new WebSocketServer({ server });
 
-// The path to the projects folder relative to the server
-let projectsBasePath = path.join(__dirname, "..", "Projects");
-
 function startServerProcess(project) {
-  let projectPath = path.join(projectsBasePath, project);
-
+  const PROJECT_PATH = path.join(PROJECTS_BASE_PATH, project);
   let serverProcess;
   if (isDevelopment) {
-    serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath });
+    serverProcess = cp.spawn("lake", ["serve", "--"], {
+      cwd: PROJECT_PATH,
+    });
   } else {
     if (hasWorkingBwrap()) {
-      serverProcess = cp.spawn("./bubblewrap.sh", [projectPath], {
+      serverProcess = cp.spawn("./bubblewrap.sh", [PROJECT_PATH], {
         cwd: __dirname,
       });
-    } else if (ALLOW_NO_BUBBLEWRAP?.toLowerCase() === "true") {
+    } else if (NO_BWRAP) {
       console.warn("Started process witouut bubblewrap!");
-      serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: projectPath });
+      serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: PROJECT_PATH });
     } else {
       console.error(
-        "Bubblewrap is not available! You can set `ALLOW_NO_BUBBLEWRAP=true` to start the processes without container.",
+        "Bubblewrap is not available! You can set `NO_BWRAP=true` to start the processes without container.",
       );
       return 300;
     }
@@ -181,7 +228,7 @@ function FilenamesToUri(prefix, obj) {
   return obj;
 }
 
-wss.addListener("connection", function (ws, req) {
+wss.addListener("connection", async function (ws, req) {
   const urlRegEx = /^\/websocket\/([\w.-]+)$/;
   const reRes = urlRegEx.exec(req.url);
   if (!reRes) {
@@ -190,10 +237,24 @@ wss.addListener("connection", function (ws, req) {
   }
   const project = reRes[1];
 
+  if (!project.match(/^[a-zA-Z][a-zA-Z1-9.-_]*/)) {
+    console.error(
+      `Connection refused because of invalid project name: ${project}`,
+    );
+    return;
+  }
+
   const ip = anonymize(
     req.headers["x-forwarded-for"] || req.socket.remoteAddress,
   );
-  const ps = startServerProcess(project);
+  const ps = await startServerProcess(project);
+
+  if (ps === null) {
+    console.error(
+      `Connection refused because of nonexistent project directory: ${project}`,
+    );
+    return;
+  }
 
   const socket = {
     onMessage: (cb) => {
@@ -216,7 +277,7 @@ wss.addListener("connection", function (ws, req) {
   );
   const serverConnection = jsonrpcserver.createProcessStreamConnection(ps);
   socketConnection.forward(serverConnection, (message) => {
-    const prefix = isDevelopment ? projectsBasePath : "";
+    const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
 
     if (!message.method === "textDocument/definition") {
       urisToFilenames(prefix, message);
@@ -228,7 +289,7 @@ wss.addListener("connection", function (ws, req) {
     return message;
   });
   serverConnection.forward(socketConnection, (message) => {
-    const prefix = isDevelopment ? projectsBasePath : "";
+    const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
     FilenamesToUri(prefix, message);
     if (isDevelopment && !isGithubAction) {
       console.log(`SERVER: ${JSON.stringify(message)}`);
