@@ -70,12 +70,39 @@ input[type='file'] {
 .modal input[type='submit'],
 .modal button,
 .modal .file-upload-button {
-  border: none;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
+  border: 1px solid var(--vscode-button-border);
   cursor: pointer;
   padding: 0.5rem 1rem;
   border-radius: 0.2rem;
+}
+
+.modal #abbreviationCharacter {
+  width: 15px;
+  margin-left: 4px;
+}
+
+.modal .MuiSwitch-track {
+  background-color: var(--vscode-input-foreground);
+}
+
+.modal input[type='text'],
+.modal select {
+  padding: 10px 12px;
+
+  border: 1px solid var(--vscode-dropdown-border);
+  border-radius: 6px;
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+
+  /* outline: none;
+  transition: all 0.2s ease-in-out;
+  box-sizing: border-box; */
+}
+
+.modal input[type='text'] {
+  font-family: 'JuliaMono';
 }
 
 .modal input[type='submit'],
