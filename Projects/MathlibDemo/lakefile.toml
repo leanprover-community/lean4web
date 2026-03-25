@@ -1,12 +1,13 @@
 name = "MathlibDemo"
+reservoir = false
 defaultTargets = ["MathlibDemo"]
 
 [leanOptions]
 pp.unicode.fun = true
 
 [[require]]
+scope = "leanprover-community"
 name = "mathlib"
-git = "https://github.com/leanprover-community/mathlib4"
 rev = "master"
 
 [[lean_lib]]

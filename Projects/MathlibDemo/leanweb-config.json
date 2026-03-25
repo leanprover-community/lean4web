@@ -1,0 +1,11 @@
+{
+  "name": "Latest Mathlib",
+  "default": true,
+  "hidden": false,
+  "examples": [
+    { "file": "MathlibDemo/Bijection.lean", "name": "Bijection" },
+    { "file": "MathlibDemo/Logic.lean", "name": "Logic" },
+    { "file": "MathlibDemo/Ring.lean", "name": "Ring" },
+    { "file": "MathlibDemo/Rational.lean", "name": "Rational" }
+  ]
+}

@@ -1,14 +1,13 @@
-import { Popup } from '../Navigation'
-import { FC, FormEvent, useRef, useState } from 'react'
+import { useAtom } from 'jotai'
+import { FormEvent, useRef, useState } from 'react'
 
-const LoadUrlPopup: FC<{
-  open: boolean
-  handleClose: () => void
-  loadFromUrl: (url: string) => void
-}> = ({open, handleClose, loadFromUrl}) => {
+import { Popup } from '../navigation/Popup'
+import { setImportUrlAndProjectAtom } from '../store/import-atoms'
 
-  const [error, setError] = useState('');
-  const urlRef = useRef<HTMLInputElement>(null);
+function LoadUrlPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
+  const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
+  const [error, setError] = useState('')
+  const urlRef = useRef<HTMLInputElement>(null)
 
   const handleLoad = (ev: FormEvent) => {
     ev.preventDefault()
@@ -20,18 +19,20 @@ const LoadUrlPopup: FC<{
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url
     }
-    loadFromUrl(url)
+    setImportUrlAndProject({ url: url })
     handleClose()
   }
 
-  return <Popup open={open} handleClose={handleClose}>
-    <h2>Load from URL</h2>
-    {error ? <p className="form-error">{error}</p>: null}
-    <form onSubmit={handleLoad}>
-      <input autoFocus type="text" placeholder="Paste URL here" ref={urlRef}/>
-      <input type="submit" value="Load"/>
-    </form>
-  </Popup>
+  return (
+    <Popup open={open} handleClose={handleClose}>
+      <h2>Load from URL</h2>
+      {error ? <p className="form-error">{error}</p> : null}
+      <form onSubmit={handleLoad}>
+        <input name="import URL" autoFocus type="text" placeholder="Paste URL here" ref={urlRef} />
+        <input type="submit" value="Load" />
+      </form>
+    </Popup>
+  )
 }
 
 export default LoadUrlPopup

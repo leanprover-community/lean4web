@@ -1,106 +1,21 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - Installation
+- [Adding Projects](./Projects.md)
 - [Development](./Development.md)
-
+- [Server Maintenance](./Maintenance.md)
+- [Troubleshoot](./Troubleshoot.md)
 
 ## Security
-Providing the use access to a Lean instance running on the server is a severe security risk.
-That is why we start the Lean server using [Bubblewrap](https://github.com/containers/bubblewrap).
 
-If bubblewrap is not installed, the server will start without a container and produce a warning.
-You can also opt-out of using bubblewrap by setting `NODE_ENV=development`.
+Running a Lean instance on a server is always a potential security risk.
 
-## Build Instructions
+Therefore, this project uses [Bubblewrap](https://github.com/containers/bubblewrap) to run the instance in a container.
 
-We have set up the project on a Ubuntu Server 22.10.
-Here are the installation instructions:
+You can avoid using bubblewrap by using development mode or by providing `NO_BWRAP=true` to production mode. In that case, the Lean server will
+run without any container on your server.
 
-Install NPM (don't use `apt-get` since it will give you an outdated version of npm):
-```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-source ~/.bashrc
-nvm install node npm
-```
-
-Now, install `git` and clone this repository:
-```
-sudo apt-get install git
-git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
-```
-
-note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
-
-Install Bubblewrap:
-```
-sudo apt-get install bubblewrap
-```
-
-Navigate into the cloned repository, install, and
-compile:
-```
-cd lean4web
-npm install
-npm run build
-```
-
-Now the server can be started using
-```
-PORT=8080 npm run production
-```
-
-If you get the following error:
-```
-bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
-bwrap: setting up uid map: Permission denied
-```
-follow these instructions:
-https://etbe.coker.com.au/2024/04/24/ubuntu-24-04-bubblewrap/
-
-To set the locations of SSL certificates, use the following environment variables:
-```
-SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem PORT=8080 npm run production
-```
-
-### Cronjob
-
-Optionally, you can set up a cronjob to regularly update the mathlib version.
-To do so, run
-```
-crontab -e
-```
-and add the following lines, where all paths must be adjusted appropriately:
-```
-# Need to set PATH manually:
-SHELL=/usr/bin/bash
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.elan/bin:/home/USER/.nvm/versions/node/v20.8.0/bin/
-
-# Update server (i.e. mathlib) of lean4web and delete mathlib cache
-*  */6 * * * cd /home/USER/lean4web && npm run build:server 2>&1 1>/dev/null | logger -t lean4web
-40 2   * * * rm -rf /home/USER/.cache/mathlib/
-```
-
-Note that with this setup, you will still have to manage the lean toolchains manually, as they will slowly fill up your space (~0.9GB per new toolchain): see `elan toolchain --help` for infos.
-
-In addition, we use Nginx and pm2 to manage our server.
-
-#### Managing toolchains
-
-Running and updating the server periodically might accumulate Lean toolchains.
-
-To delete unused toolchains automatically, you can use the
-[elan-cleanup tool](https://github.com/JLimperg/elan-cleanup) and set up a
-cron-job with `crontab -e` and adding the following line, which runs once a month and
-deletes any unused toolchains:
-
-```
-30 2 1 * * /PATH/TO/elan-cleanup/build/bin/elan-cleanup | logger -t lean-cleanup
-```
-
-You can see installed lean toolchains with `elan toolchain list`
-and check the size of `~/.elan`.
-
-### Legal information
+## Legal information
 
 Depending on the GDPR and laws applying to your server, you will need to provide the following
 information:
@@ -115,5 +30,100 @@ the dropdown menu containing that information.
 Further, you might need to add the impressum manually to `index.html`
 for people with javascript disabled!
 
-### Running different projects
-You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](Projects/README.md) for further instructions.
+## Build Instructions
+
+The project is initially designed to run on Ubuntu 22 LTS.
+
+Other OS or distributions have not been tested.
+PRs to the repo to improve the installation on other distributions
+are always welcome!
+
+### Prerequisites
+
+On a running system, you might already have these installed, if not:
+
+- Install NPM: [official instructions](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+- Install Git: `sudo apt-get install git`
+- (optional) Install Bubblewrap: `sudo apt-get install bubblewrap`
+
+### Installation
+
+- Clone this repo:
+  ```
+  git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
+  ```
+  note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
+- Navigate into the cloned repository
+  ```
+  cd lean4web
+  ```
+- Install dependencies
+  ```
+  npm install
+  ```
+
+### Development mode
+
+- Start the project in development mode
+  ```
+  npm start
+  ```
+- Go to http://localhost:3000
+
+### Production mode
+
+- Compile the project
+  ```
+  npm run build
+  ```
+- Start the server
+  ```
+  npm run prod
+  ```
+- To disable the bubblewrap containers, start the server with
+  ```
+  NO_BWRAP=true npm run prod
+  ```
+- Start the client seperately, for example with
+  ```
+  npm run start:client
+  ```
+  and open http://localhost:3000
+- To set the locations of SSL certificates, use the following environment variables:
+  ```
+  SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run prod
+  ```
+
+### Adding different Lean projects
+
+You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](./Projects.md) for further instructions.
+
+### Environment variables
+
+The following environment variables can be used to modify the server
+
+#### Client
+
+For example for `npm start`, `npm start:client`.
+
+| name   | values | default | description |
+| ------ | ------ | ------- | ----------- |
+| (none) |        |         |             |
+
+#### Server
+
+For example for `npm start`, `npm run production`, `npm run start:server`.
+
+| name                 | values                      | default         | description                                                                                                                                       |
+| -------------------- | --------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NO_BWRAP`           | `true`, `false`             | `false`         | to disable to use of `bubblewrap` in production mode. This means `Lean` runs without any container on your system, which imposes a security risk! |
+| `GITHUB_ACTIONS`     | `true` ,`false`             | `false`         | is set by github actions to change the verbosity of some server output                                                                            |
+| `NODE_ENV`           | `development`, `production` |                 |                                                                                                                                                   |
+| `PROJECTS_BASE_PATH` | string                      | `Projects`      | **relative path** from the root of this repo to the folder where the Lean projects are located.                                                   |
+| `PORT`               | number                      | `8080` or `443` | sets the port for the backend server                                                                                                              |
+| `SSL_CRT_FILE`       | string                      | `""`            | recuired to serve https                                                                                                                           |
+| `SSL_KEY_FILE`       | string                      | `""`            | recuired to serve https                                                                                                                           |
+
+### Others
+
+See [Server Maintenance Notes](./Maintenance.md).
