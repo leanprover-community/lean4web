@@ -1,7 +1,7 @@
 import '../css/Modal.css'
 import '../css/Navigation.css'
 
-import { faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRotateRight, faCode, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons'
 import {
   faArrowUpRightFromSquare,
   faBars,
@@ -33,6 +33,8 @@ import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
+
+import { useNavBar } from '../context/NavBarContext'
 
 /** The menu items either appearing inside the dropdown or outside */
 function FlexibleMenu({
@@ -176,6 +178,8 @@ export function Menu({
 
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
 
+  let navbar = useNavBar()
+
   return (
     <div className="menu">
       {project && (
@@ -247,19 +251,13 @@ export function Menu({
           }}
         />
         <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
+        { navbar.requiresNavBar != 0 && <NavButton icon={faEye} text={`${navbar.hideNavBar ? "Show" : "Hide"} Navbar`} onClick={() => navbar.setHideNavBar(!navbar.hideNavBar)} />}
         <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
         <NavButton
           icon={faDownload}
           text="Save file"
           onClick={() => {
             if (code !== undefined) save(code)
-          }}
-        />
-        <NavButton
-          icon={faShield}
-          text={'Privacy policy'}
-          onClick={() => {
-            setPrivacyOpen(true)
           }}
         />
         {hasImpressum && (
@@ -282,6 +280,9 @@ export function Menu({
           text="GitHub"
           href="https://github.com/leanprover-community/lean4web"
         />
+
+        <NavButton icon={faShield} text="Privacy policy" href="https://lean-lang.org/privacy/" />
+        <NavButton icon={faShield} text="Terms of use" href="https://lean-lang.org/terms/" />
       </Dropdown>
       <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
       {hasImpressum && (
