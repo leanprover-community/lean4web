@@ -260,13 +260,6 @@ export function Menu({
             if (code !== undefined) save(code)
           }}
         />
-        <NavButton
-          icon={faShield}
-          text={'Privacy policy'}
-          onClick={() => {
-            setPrivacyOpen(true)
-          }}
-        />
         {hasImpressum && (
           <NavButton
             icon={faInfoCircle}
@@ -287,6 +280,9 @@ export function Menu({
           text="GitHub"
           href="https://github.com/leanprover-community/lean4web"
         />
+
+        <NavButton icon={faShield} text="Privacy policy" href="https://lean-lang.org/privacy/" />
+        <NavButton icon={faShield} text="Terms of use" href="https://lean-lang.org/terms/" />
       </Dropdown>
       <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
       {hasImpressum && (
