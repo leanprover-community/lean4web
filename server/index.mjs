@@ -161,11 +161,6 @@ function startServerProcess(project) {
     });
   } else {
     if (hasWorkingBwrap()) {
-      // the nix setup runs the server in ~,
-      // `bubblewrap.sh` is somewhere relative to the js source file
-      // (TODO: Move outside the lean4web repo and provide via env path or so)
-      // and the projects are in ~/deploy/live/<project>
-      let cmd = path.join (__dirname, "bubblewrap.sh");
       serverProcess = cp.spawn("./bubblewrap.sh", [PROJECT_PATH], {
         cwd: __dirname,
       });
