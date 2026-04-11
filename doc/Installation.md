@@ -1,7 +1,9 @@
 - [Back to README](../README.md)
 - [User Manual](./Usage.md)
 - Installation
+- [Adding Projects](./Projects.md)
 - [Development](./Development.md)
+- [Server Maintenance](./Maintenance.md)
 - [Troubleshoot](./Troubleshoot.md)
 
 ## Security
@@ -10,7 +12,7 @@ Running a Lean instance on a server is always a potential security risk.
 
 Therefore, this project uses [Bubblewrap](https://github.com/containers/bubblewrap) to run the instance in a container.
 
-You can avoid using bubblewrap by using development mode or by providing `ALLOW_NO_BUBBLEWRAP=true` to production mode. In that case, the Lean server will
+You can avoid using bubblewrap by using development mode or by providing `NO_BWRAP=true` to production mode. In that case, the Lean server will
 run without any container on your server.
 
 ## Legal information
@@ -76,11 +78,11 @@ On a running system, you might already have these installed, if not:
   ```
 - Start the server
   ```
-  npm run production
+  npm run prod
   ```
 - To disable the bubblewrap containers, start the server with
   ```
-  ALLOW_NO_BUBBLEWRAP=true npm run production
+  NO_BWRAP=true npm run prod
   ```
 - Start the client seperately, for example with
   ```
@@ -89,54 +91,39 @@ On a running system, you might already have these installed, if not:
   and open http://localhost:3000
 - To set the locations of SSL certificates, use the following environment variables:
   ```
-  SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run production
+  SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run prod
   ```
 
 ### Adding different Lean projects
 
-You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](../Projects/README.md) for further instructions.
+You can run any lean project through the webeditor by cloning them to the `Projects/` folder. See [Adding Projects](./Projects.md) for further instructions.
+
+### Environment variables
+
+The following environment variables can be used to modify the server
+
+#### Client
+
+For example for `npm start`, `npm start:client`.
+
+| name   | values | default | description |
+| ------ | ------ | ------- | ----------- |
+| (none) |        |         |             |
+
+#### Server
+
+For example for `npm start`, `npm run production`, `npm run start:server`.
+
+| name                 | values                      | default         | description                                                                                                                                       |
+| -------------------- | --------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NO_BWRAP`           | `true`, `false`             | `false`         | to disable to use of `bubblewrap` in production mode. This means `Lean` runs without any container on your system, which imposes a security risk! |
+| `GITHUB_ACTIONS`     | `true` ,`false`             | `false`         | is set by github actions to change the verbosity of some server output                                                                            |
+| `NODE_ENV`           | `development`, `production` |                 |                                                                                                                                                   |
+| `PROJECTS_BASE_PATH` | string                      | `Projects`      | **relative path** from the root of this repo to the folder where the Lean projects are located.                                                   |
+| `PORT`               | number                      | `8080` or `443` | sets the port for the backend server                                                                                                              |
+| `SSL_CRT_FILE`       | string                      | `""`            | recuired to serve https                                                                                                                           |
+| `SSL_KEY_FILE`       | string                      | `""`            | recuired to serve https                                                                                                                           |
 
 ### Others
 
-In addition, we use `Nginx` and `pm2` to manage our server.
-
-(TODO: details)
-
-### Maintenance
-
-#### Cronjob: updating Lean projects
-
-Optionally, you can set up a cronjob to regularly update the Lean projects.
-To do so, run
-
-```
-crontab -e
-```
-
-and add the following lines, where all paths must be adjusted appropriately:
-
-```
-# Need to set PATH manually:
-SHELL=/usr/bin/bash
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.elan/bin:/home/USER/.nvm/versions/node/v20.8.0/bin/
-
-# Update server (i.e. mathlib) of lean4web and delete mathlib cache
-*  */6 * * * cd /home/USER/lean4web && npm run build:server 2>&1 1>/dev/null | logger -t lean4web
-40 2   * * * rm -rf /home/USER/.cache/mathlib/
-```
-
-#### Managing toolchains
-
-Running and updating the server periodically might accumulate Lean toolchains.
-
-To delete unused toolchains automatically, you can use the
-[elan-cleanup tool](https://github.com/JLimperg/elan-cleanup) and set up a
-cron-job with `crontab -e` and adding the following line, which runs once a month and
-deletes any unused toolchains:
-
-```
-30 2 1 * * /PATH/TO/elan-cleanup/build/bin/elan-cleanup | logger -t lean-cleanup
-```
-
-You can see installed lean toolchains with `elan toolchain list`
-and check the size of `~/.elan`.
+See [Server Maintenance Notes](./Maintenance.md).

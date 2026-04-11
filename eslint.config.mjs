@@ -14,7 +14,7 @@ export default [
     ignores: ["dist", "node_modules"],
   },
   {
-    files: ["client/src/**/*.{ts,tsx}"],
+    files: ["client/src/**/*.{ts,tsx}", "server/**/*.{ts,tsx,mjs,cjs,js}"],
     ...js.configs.recommended,
     languageOptions: {
       parser: tsParser,
@@ -52,8 +52,13 @@ export default [
       ],
       "simple-import-sort/imports": "warn",
       "simple-import-sort/exports": "warn",
-
-      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          varsIgnorePattern: "^_",
+          argsIgnorePattern: "^_",
+        },
+      ],
     },
   },
 

@@ -64,7 +64,8 @@ nav .dropdown-overlay {
 }
 
 /* The menu items */
-nav .nav-link {
+nav .nav-link,
+nav select {
   background: none;
   border: none;
   color: inherit;
@@ -82,14 +83,10 @@ nav .nav-link svg {
   width: 1.4rem;
 }
 
-nav .nav-link:hover {
+nav .nav-link:hover,
+nav select:hover {
   color: var(--vscode-menu-selectionForeground);
   background-color: var(--vscode-menu-selectionBackground);
-}
-
-nav select {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
 }
 
 .tooltip {
@@ -100,8 +97,9 @@ nav select {
 .tooltip .tooltiptext {
   visibility: hidden;
   min-width: 300px;
-  background-color: var(--vscode-input-foreground);
-  color: var(--vscode-input-background);
+  background-color: var(--vscode-editorHoverWidget-background);
+  color: var(--vscode-editorHoverWidget-foreground);
+  border: 1px solid var(--vscode-editorHoverWidget-border);
   text-align: left;
   border-radius: 5px;
   padding: 10px;
@@ -139,14 +137,14 @@ nav select {
 
 .tooltip .tooltiptext .commit-author {
   font-style: italic;
-  color: #bbb;
+  opacity: 0.6;
 }
 
 .tooltip .tooltiptext .commit-date {
-  color: #bbb;
+  opacity: 0.6;
 }
 
 .tooltip .tooltiptext .commit-sha {
   font-style: italic;
-  color: #5cb6de;
+  color: var(--vscode-textLink-foreground);
 }

@@ -57,7 +57,7 @@ export function SettingsPopup({
         <h2>Editor settings</h2>
         <p>
           <label htmlFor="abbreviationCharacter">
-            Lead character to trigger unicode input mode
+            Lead character to trigger unicode input mode:
           </label>
           <input
             id="abbreviationCharacter"

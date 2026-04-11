@@ -7,19 +7,21 @@ export function NavButton({
   icon,
   iconElement,
   text,
+  title,
   onClick = () => {},
   href = undefined,
 }: {
   icon?: IconDefinition
   iconElement?: JSX.Element
   text: string
+  title?: string
   onClick?: MouseEventHandler<HTMLAnchorElement>
   href?: string
 }) {
   // note: it seems that we can just leave the `target="_blank"` and it has no
   // effect on links without a `href`. If not, add `if (href)` statement here...
   return (
-    <a className="nav-link" onClick={onClick} href={href!} target="_blank">
+    <a className="nav-link" title={title} onClick={onClick} href={href!} target="_blank">
       {iconElement ?? <FontAwesomeIcon icon={icon!} />}&nbsp;{text}
     </a>
   )

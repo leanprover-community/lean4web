@@ -18,8 +18,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
 import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
+import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
-import lean4webConfig from '../config/config'
 import { codeAtom } from '../editor/code-atoms'
 import ImpressumPopup from '../Popups/Impressum'
 import LoadUrlPopup from '../Popups/LoadUrl'
@@ -29,7 +29,7 @@ import ToolsPopup from '../Popups/Tools'
 import { mobileAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
-import { projectAtom } from '../store/project-atoms'
+import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
@@ -57,6 +57,7 @@ function FlexibleMenu({
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
 }) {
   const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
+  const [{ data: projects }] = useAtom(projectsAtom)
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
     const fileToLoad = event.target.files![0]
@@ -83,16 +84,17 @@ function FlexibleMenu({
           !isInDropdown && setOpenNav(false)
         }}
       >
-        {lean4webConfig.projects.map((proj) =>
-          proj.examples?.map((example) => (
+        {projects.map((it) =>
+          it.config.examples?.map((example) => (
             <NavButton
-              key={`${proj.name}-${example.name}`}
+              key={`${it.config.name}-${example.name}`}
               icon={faStar}
               text={example.name}
+              title={`${it.config.name}: ${example.name}`}
               onClick={() => {
                 setImportUrlAndProject({
-                  url: `${window.location.origin}/api/example/${proj.folder}/${example.file}`,
-                  project: proj.folder,
+                  url: `${window.location.origin}/api/example/${it.folder}/${example.file}`,
+                  project: it.folder,
                 })
                 setOpenExample(false)
               }}
@@ -153,7 +155,8 @@ export function Menu({
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
 }) {
-  const [project, setProject] = useAtom(projectAtom)
+  const [visibleProjects] = useAtom(visibleProjectsAtom)
+  const [project, setProject] = useAtom(currentProjectAtom)
   const [code] = useAtom(codeAtom)
 
   // state for handling the dropdown menus
@@ -175,20 +178,23 @@ export function Menu({
 
   return (
     <div className="menu">
-      <select
-        name="leanVersion"
-        value={project}
-        onChange={(ev) => {
-          setProject(ev.target.value)
-          console.log(`set Lean project to: ${ev.target.value}`)
-        }}
-      >
-        {lean4webConfig.projects.map((proj) => (
-          <option key={proj.folder} value={proj.folder}>
-            {proj.name ?? proj.folder}
-          </option>
-        ))}
-      </select>
+      {project && (
+        <select
+          name="leanVersion"
+          value={project.folder}
+          onChange={(ev) => {
+            setProject(ev.target.value)
+            console.log(`set Lean project to: ${ev.target.value}`)
+          }}
+        >
+          {project.folder}
+          {visibleProjects.map((proj) => (
+            <option key={proj.folder} value={proj.folder}>
+              {proj.config.name}
+            </option>
+          ))}
+        </select>
+      )}
       {mobile && (
         <NavButton
           icon={faCode}
@@ -270,22 +276,24 @@ export function Menu({
           text="Lean community"
           href="https://leanprover-community.github.io/"
         />
-        <NavButton
-          icon={faArrowUpRightFromSquare}
-          text="Lean documentation"
-          href="https://leanprover.github.io/lean4/doc/"
-        />
+        <NavButton icon={faArrowUpRightFromSquare} text="Lean FRO" href="https://lean-lang.org" />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
-          href="https://github.com/hhu-adam/lean4web"
+          href="https://github.com/leanprover-community/lean4web"
         />
       </Dropdown>
       <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
       {hasImpressum && (
         <ImpressumPopup open={impressumOpen} handleClose={() => setImpressumOpen(false)} />
       )}
-      <ToolsPopup open={toolsOpen} handleClose={() => setToolsOpen(false)} project={project} />
+      {project && (
+        <ToolsPopup
+          open={toolsOpen}
+          handleClose={() => setToolsOpen(false)}
+          project={project.folder}
+        />
+      )}
       <SettingsPopup
         open={settingsOpen}
         handleClose={() => setSettingsOpen(false)}

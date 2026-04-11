@@ -20,7 +20,7 @@ import { Menu } from './navigation/Navigation'
 import { mobileAtom, settingsAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
 import { freshlyImportedCodeAtom } from './store/import-atoms'
-import { projectAtom } from './store/project-atoms'
+import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { save } from './utils/SaveToFile'
 
@@ -38,7 +38,7 @@ function App() {
   const [settings] = useAtom(settingsAtom)
   const [mobile] = useAtom(mobileAtom)
   const [, setScreenWidth] = useAtom(screenWidthAtom)
-  const [project] = useAtom(projectAtom)
+  const [project] = useAtom(currentProjectAtom)
   const [code, setCode] = useAtom(codeAtom)
   const [freshlyImportedCode] = useAtom(freshlyImportedCodeAtom)
   const ydoc = useMemo(() => new Y.Doc(), [])
@@ -133,7 +133,7 @@ function App() {
       (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
       window.location.host +
       '/websocket/' +
-      project
+      project.folder
     console.log(`[Lean4web] Socket url is ${socketUrl}`)
     var _options: LeanMonacoOptions = {
       websocket: { url: socketUrl },
@@ -165,7 +165,7 @@ function App() {
 
   // Setting up the editor and infoview
   useEffect(() => {
-    if (project === undefined) return
+    if (!project) return
     console.debug('[Lean4web] Restarting editor')
     var _leanMonaco = new LeanMonaco()
     var leanMonacoEditor = new LeanMonacoEditor()
@@ -175,7 +175,7 @@ function App() {
       await _leanMonaco.start(options)
       await leanMonacoEditor.start(
         editorRef.current!,
-        path.join(project, `${project}.lean`),
+        path.join(project.folder, `${project.folder}.lean`),
         code ?? '',
       )
 

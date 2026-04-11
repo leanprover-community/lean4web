@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "./client/dist/",
+    "outDir": "dist",
     "target": "ES2023",
     "useDefineForClassFields": true,
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
@@ -24,6 +24,6 @@
     /* Performance */
     "skipLibCheck": true
   },
-  "include": ["client/src", "eslint.config.js"],
-  "exclude": ["server", "node_modules"]
+  "include": ["src", "config.tsx"],
+  "exclude": ["node_modules"]
 }
