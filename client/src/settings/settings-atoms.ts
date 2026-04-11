@@ -33,35 +33,35 @@ const settingsBaseAtom = atom<Settings>({ saved: false, inUrl: false, ...default
  * - current (local) state (base)
  * - default values (base)
  */
-export const settingsAtom = atom((get) => {
-  const base = get(settingsBaseAtom)
-  const store = cleanObject(get(settingsStoreAtom))
-  const url = cleanObject(get(settingsUrlStableAtom))
-  return {
-    ...base,
-    ...store,
-    ...url,
-    saved: Object.entries(store).length > 0,
-    inUrl: Object.entries(url).length > 0,
-  } as Settings
-})
+export const settingsAtom = atom(
+  (get) => {
+    const base = get(settingsBaseAtom)
+    const store = cleanObject(get(settingsStoreAtom))
+    const url = cleanObject(get(settingsUrlStableAtom))
+    return {
+      ...base,
+      ...store,
+      ...url,
+      saved: Object.entries(store).length > 0,
+      inUrl: Object.entries(url).length > 0,
+    } as Settings
+  },
+  (get, set, val: Settings) => {
+    const { saved, inUrl, ...settingsToStore } = val
 
-/** Set the new settings, and write them to browser storage or URL if desired */
-export const applySettingsAtom = atom(null, (get, set, val: Settings) => {
-  const { saved, inUrl, ...settingsToStore } = val
+    set(settingsBaseAtom, val)
 
-  set(settingsBaseAtom, val)
+    if (saved) {
+      set(settingsStoreAtom, settingsToStore)
+    } else {
+      localStorage.removeItem('lean4web:settings')
+    }
 
-  if (saved) {
-    set(settingsStoreAtom, settingsToStore)
-  } else {
-    localStorage.removeItem('lean4web:settings')
-  }
-
-  const newSearchParams = inUrl ? encodeSettingsToURL(settingsToStore) : new URLSearchParams()
-  const location = get(locationAtom)
-  set(locationAtom, { ...location, searchParams: newSearchParams })
-})
+    const newSearchParams = inUrl ? encodeSettingsToURL(settingsToStore) : new URLSearchParams()
+    const location = get(locationAtom)
+    set(locationAtom, { ...location, searchParams: newSearchParams })
+  },
+)
 
 /** Indicates whether mobile layout should be used */
 export const mobileAtom = atom((get) => {

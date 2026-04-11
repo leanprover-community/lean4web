@@ -16,7 +16,7 @@ import { codeAtom } from './editor/code-atoms'
 import { Menu } from './navigation/Navigation'
 import { mobileAtom, settingsAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
-import { freshlyImportedCodeAtom } from './store/import-atoms'
+import { importedCodeAtom } from './store/import-atoms'
 import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { save } from './utils/SaveToFile'
@@ -37,7 +37,7 @@ function App() {
   const [, setScreenWidth] = useAtom(screenWidthAtom)
   const [project] = useAtom(currentProjectAtom)
   const [code, setCode] = useAtom(codeAtom)
-  const [freshlyImportedCode] = useAtom(freshlyImportedCodeAtom)
+  const [importedCode] = useAtom(importedCodeAtom)
 
   const model = editor?.getModel()
 
@@ -211,8 +211,8 @@ function App() {
 
   /** Set editor content to the code loaded from the URL */
   useEffect(() => {
-    if (freshlyImportedCode && model) model.setValue(freshlyImportedCode)
-  }, [freshlyImportedCode, model])
+    if (importedCode && model) model.setValue(importedCode)
+  }, [importedCode, model])
 
   // Disable monaco context menu outside the editor
   useEffect(() => {

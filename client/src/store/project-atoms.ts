@@ -4,7 +4,7 @@ import { atomWithQuery } from 'jotai-tanstack-query'
 import { LeanWebProject } from '../api/project-types'
 import { urlArgsAtom, urlArgsStableAtom } from './url-atoms'
 
-const projectsQueryAtom = atomWithQuery<LeanWebProject[]>((get) => ({
+const projectsQueryAtom = atomWithQuery<LeanWebProject[]>(() => ({
   queryKey: ['projects'],
   queryFn: async () => {
     const res = await fetch(`/api/projects`)

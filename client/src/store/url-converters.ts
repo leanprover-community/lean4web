@@ -26,5 +26,6 @@ export function parseArgs(hash: string): UrlArgs {
     .split('&')
     .map((s) => s.split('='))
     .filter((x) => x[0])
+    .map(([key, val]) => [key, decodeURIComponent(val)])
   return Object.fromEntries(args)
 }
