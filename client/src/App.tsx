@@ -48,6 +48,7 @@ function App() {
   const [collabRoomName, setCollabRoomName] = useState('')
   const [collabDisplayName, setCollabDisplayName] = useState('')
   const [isCollaborating, setIsCollaborating] = useState(false)
+  const [collabError, setCollabError] = useState('')
 
   const model = editor?.getModel()
 
@@ -89,15 +90,17 @@ function App() {
       setProvider(null)
       return
     }
+
+    const signalingUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host.replace(':3000', ':8080') + '/yjs-signaling'
+    console.log('COLLAB: Signaling URL:', signalingUrl);
+
     const provider = new WebrtcProvider(
       collabRoomName, // roomname
       ydoc, 
       { 
         maxConns: 50,
         password: undefined,
-        signaling: [
-          'wss://wide-robin-20.snowmountain.deno.net/'
-        ],
+        signaling: [signalingUrl],
         filterBcConns: true,
       }
     )
@@ -345,6 +348,16 @@ function App() {
             style={{background: 'var(--vscode-editor-background, white)', color: 'var(--vscode-editor-foreground, black)', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '300px', border: '1px solid var(--vscode-dropdown-border, #ccc)'}}
             onSubmit={(e) => {
               e.preventDefault();
+              const isValid = /^[a-z0-9]{3,20}$/;
+              if (!isValid.test(collabRoomName)) {
+                setCollabError("Room name must be 3-20 lowercase alphanumeric characters.");
+                return;
+              }
+              if (!isValid.test(collabDisplayName)) {
+                setCollabError("Display name must be 3-20 lowercase alphanumeric characters.");
+                return;
+              }
+              setCollabError("");
               if (collabRoomName) {
                 setIsCollaborating(true);
                 setCollabDialogVisible(false);
@@ -352,16 +365,17 @@ function App() {
             }}
           >
             <h3 style={{marginTop: 0, marginBottom: 0}}>Join Collaboration</h3>
+            {collabError && <div style={{color: 'red', fontSize: '14px'}}>{collabError}</div>}
             <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
               <label>Room Name:</label>
-              <input required value={collabRoomName} onChange={e => setCollabRoomName(e.target.value)} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
+              <input required value={collabRoomName} onChange={e => {setCollabRoomName(e.target.value); setCollabError('');}} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
               <label>Display Name:</label>
-              <input required value={collabDisplayName} onChange={e => setCollabDisplayName(e.target.value)} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
+              <input required value={collabDisplayName} onChange={e => {setCollabDisplayName(e.target.value); setCollabError('');}} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
             </div>
             <div style={{display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '5px'}}>
-              <button type="button" onClick={() => setCollabDialogVisible(false)} style={{padding: '6px 12px', cursor: 'pointer'}}>Cancel</button>
+              <button type="button" onClick={() => {setCollabDialogVisible(false); setCollabError('');}} style={{padding: '6px 12px', cursor: 'pointer'}}>Cancel</button>
               <button type="submit" style={{padding: '6px 12px', cursor: 'pointer'}}>Join</button>
             </div>
           </form>
