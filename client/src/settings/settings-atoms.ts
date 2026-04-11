@@ -14,11 +14,17 @@ const settingsStoreAtom = atomWithStorage<PartialUserSettings>('lean4web:setting
 })
 
 /** The settings which are set in the searchParams of the opened URL */
-const settingsUrlAtom = atom<PartialUserSettings>((get) => {
-  const searchParams = get(locationAtom).searchParams
-  if (!searchParams) return {}
-  return decodeSettingsFromURL(searchParams)
-})
+const settingsUrlAtom = atom(
+  (get) => {
+    const searchParams = get(locationAtom).searchParams
+    if (!searchParams) return {}
+    return decodeSettingsFromURL(searchParams)
+  },
+  (get, set, val: URLSearchParams) => {
+    const location = get(locationAtom)
+    set(locationAtom, { ...location, searchParams: val })
+  },
+)
 
 /** Needed in order for the `settingsAtom` not to update unless the values from the URL actually change */
 const settingsUrlStableAtom = selectAtom(settingsUrlAtom, (settings) => settings, shallowEqual)
@@ -58,8 +64,7 @@ export const settingsAtom = atom(
     }
 
     const newSearchParams = inUrl ? encodeSettingsToURL(settingsToStore) : new URLSearchParams()
-    const location = get(locationAtom)
-    set(locationAtom, { ...location, searchParams: newSearchParams })
+    set(settingsUrlAtom, newSearchParams)
   },
 )
 
