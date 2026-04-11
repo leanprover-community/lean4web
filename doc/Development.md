@@ -52,6 +52,7 @@ graph TD;
   importedCodeQueryAtom-->importedCodeAtom;
   projectsQueryAtom-->projectsAtom
   projectsAtom-->defaultProjectAtom;
+  currentProjectAtom[/currentProjectAtom/]
   projectsAtom-->currentProjectAtom;
   defaultProjectAtom-->currentProjectAtom;
   projectsAtom-->visibleProjectsAtom;
