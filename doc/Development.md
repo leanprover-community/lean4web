@@ -57,6 +57,8 @@ graph TD;
   defaultProjectAtom-->currentProjectAtom;
   projectsAtom-->visibleProjectsAtom;
   currentProjectAtom-->visibleProjectsAtom;
+  importUrlBaseAtom
+  importUrlAtom
   codeAtom[/codeAtom/]
   urlArgsStableAtom-->codeAtom;
   importedCodeAtom-->codeAtom;
@@ -76,7 +78,7 @@ graph TD;
   %% setter
   importUrlAtom -.-> urlArgsAtom;
   codeAtom -.-> urlArgsAtom;
-  codeAtom -.-> importUrlBaseAtom;
+  importUrlBaseAtom <-.-> codeAtom;
   settingsAtom -.-> locationAtom;
 
   setImportUrlAndProjectAtom[/setImportUrlAndProjectAtom/]
