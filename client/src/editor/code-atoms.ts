@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import LZString from 'lz-string'
 
 import { settingsAtom } from '../settings/settings-atoms'
-import { importedCodeAtom, importUrlAtom } from '../store/import-atoms'
+import { importedCodeAtom, importUrlAtom, importUrlBaseAtom } from '../store/import-atoms'
 import { urlArgsAtom, urlArgsStableAtom } from '../store/url-atoms'
 import { fixedEncodeURIComponent } from '../utils/UrlParsing'
 
@@ -23,6 +23,10 @@ export const codeAtom = atom(
   },
   (get, set, code: string) => {
     const urlArgs = get(urlArgsAtom)
+    if (urlArgs.url) {
+      // store the import URL so we can display it later again
+      set(importUrlBaseAtom, urlArgs.url)
+    }
     if (code.length == 0) {
       // delete all url arguments if there is no code
       set(urlArgsAtom, { ...urlArgs, url: undefined, code: undefined, codez: undefined })

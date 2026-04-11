@@ -76,6 +76,7 @@ graph TD;
   %% setter
   importUrlAtom -.-> urlArgsAtom;
   codeAtom -.-> urlArgsAtom;
+  codeAtom -.-> importUrlBaseAtom;
   settingsAtom -.-> locationAtom;
 
   setImportUrlAndProjectAtom[/setImportUrlAndProjectAtom/]
@@ -83,7 +84,6 @@ graph TD;
   currentProjectAtom <-.-> setImportUrlAndProjectAtom
 
   %% Styles
-
   linkStyle 16 stroke: red;
   linkStyle 17 stroke: red;
   linkStyle 18 stroke: red;
@@ -94,6 +94,7 @@ graph TD;
   linkStyle 23 stroke: red;
   linkStyle 24 stroke: red;
   linkStyle 25 stroke: red;
+  linkStyle 26 stroke: red;
 
   classDef query fill:#d0ebff,stroke:#1c7ed6,stroke-width:2px;
   classDef storage fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px;
@@ -112,5 +113,4 @@ graph TD;
 
   %% Setter
   class setImportUrlAndProjectAtom setter;
-  class applySettingsAtom setter;
 ```
