@@ -18,7 +18,9 @@ export const importUrlBaseAtom = atom<string>()
  *
  */
 export const importUrlAtom = atom(
-  (get) => get(urlArgsStableAtom).url ?? get(importUrlBaseAtom),
+  (get) => {
+    return get(urlArgsStableAtom).url ?? get(importUrlBaseAtom)
+  },
   (get, set, url: string) => {
     const urlArgs = get(urlArgsStableAtom)
     set(importUrlBaseAtom, url)

@@ -40,53 +40,69 @@ The project uses various jotai atoms to describe the internal state. Below is an
 
 The colors symbolise outside influence: queries (blue), the page url (orange) or browser storage (green). Red atoms are "setter-only".
 
-Atoms which are considered "prinicipal input" are in a rhomboid.
+Atoms which are changed by "user input" displayed as rhomboid.
 
 ```mermaid
 graph TD;
 
+  locationAtom
+
   %% getter
+  subgraph projects
+    projectsQueryAtom-->projectsAtom
+    projectsAtom-->defaultProjectAtom;
+    currentProjectAtom[/currentProjectAtom/]
+    defaultProjectAtom-->currentProjectAtom;
+    currentProjectAtom-->visibleProjectsAtom;
+    projectsAtom-->currentProjectAtom;
+    projectsAtom-->visibleProjectsAtom;
+  end
+
+  subgraph settings
+    settingsUrlAtom-->settingsUrlStableAtom;
+    settingsAtom[/settingsAtom/]
+    settingsUrlStableAtom-->settingsAtom;
+    settingsAtom-->mobileAtom;
+    settingsBaseAtom<-->settingsAtom;
+    settingsStoreAtom<-->settingsAtom;
+  end
+
   urlArgsAtom-->urlArgsStableAtom;
   urlArgsStableAtom-->importUrlAtom;
-  importUrlAtom-->importedCodeQueryAtom;
-  importedCodeQueryAtom-->importedCodeAtom;
-  projectsQueryAtom-->projectsAtom
-  projectsAtom-->defaultProjectAtom;
-  currentProjectAtom[/currentProjectAtom/]
-  projectsAtom-->currentProjectAtom;
-  defaultProjectAtom-->currentProjectAtom;
-  projectsAtom-->visibleProjectsAtom;
-  currentProjectAtom-->visibleProjectsAtom;
-  importUrlBaseAtom
-  importUrlAtom
+
+  subgraph import from url
+    importUrlAtom-->importedCodeQueryAtom;
+    importedCodeQueryAtom-->importedCodeAtom;
+
+    importUrlBaseAtom
+    importUrlAtom
+  end
+
   codeAtom[/codeAtom/]
   urlArgsStableAtom-->codeAtom;
   importedCodeAtom-->codeAtom;
-  locationAtom-->settingsUrlAtom;
-  settingsUrlAtom-->settingsUrlStableAtom;
-  settingsAtom[/settingsAtom/]
-  settingsUrlStableAtom-->settingsAtom;
-  settingsAtom-->mobileAtom;
+
 
   %% getter and setter
+  locationAtom<-->settingsUrlAtom;
   locationAtom<-->urlArgsAtom;
   importUrlBaseAtom<-->importUrlAtom;
   urlArgsAtom<-->currentProjectAtom;
-  settingsBaseAtom<-->settingsAtom;
-  settingsStoreAtom<-->settingsAtom;
 
   %% setter
-  importUrlAtom -.-> urlArgsAtom;
-  codeAtom -.-> urlArgsAtom;
-  importUrlBaseAtom <-.-> codeAtom;
-  settingsAtom -.-> locationAtom;
+
+  urlArgsAtom -.- importUrlAtom;
+  urlArgsAtom -.settingsAtom, importedCodeAtom.- codeAtom;
+  importUrlBaseAtom -.- codeAtom;
+  settingsUrlAtom -.- settingsAtom;
 
   setImportUrlAndProjectAtom[/setImportUrlAndProjectAtom/]
-  importUrlAtom <-.-> setImportUrlAndProjectAtom
-  currentProjectAtom <-.-> setImportUrlAndProjectAtom
+  importUrlAtom -.- setImportUrlAndProjectAtom
+  currentProjectAtom -.- setImportUrlAndProjectAtom
 
   %% Styles
-  linkStyle 16 stroke: red;
+  linkStyle 9 stroke: red;
+  linkStyle 10 stroke: red;
   linkStyle 17 stroke: red;
   linkStyle 18 stroke: red;
   linkStyle 19 stroke: red;
