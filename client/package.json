@@ -26,7 +26,10 @@
     "react-split": "^2.0.14",
     "react": "^19.2.0",
     "tailwindcss": "^4.1.18",
-    "vscode-ws-jsonrpc": "^3.5.0"
+    "vscode-ws-jsonrpc": "^3.5.0",
+    "y-monaco": "^0.1.6",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.30"
   },
   "devDependencies": {
     "@codingame/esbuild-import-meta-url-plugin": "^1.0.3",
