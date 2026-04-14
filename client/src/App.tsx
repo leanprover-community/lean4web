@@ -19,7 +19,7 @@ import { codeAtom } from './editor/code-atoms'
 import { Menu } from './navigation/Navigation'
 import { mobileAtom, settingsAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
-import { freshlyImportedCodeAtom } from './store/import-atoms'
+import { importedCodeAtom } from './store/import-atoms'
 import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { save } from './utils/SaveToFile'
@@ -40,15 +40,15 @@ function App() {
   const [, setScreenWidth] = useAtom(screenWidthAtom)
   const [project] = useAtom(currentProjectAtom)
   const [code, setCode] = useAtom(codeAtom)
-  const [freshlyImportedCode] = useAtom(freshlyImportedCodeAtom)
   const ydoc = useMemo(() => new Y.Doc(), [])
-  const [provider, setProvider] = useState<WebrtcProvider|null>(null)
-  const [binding, setBinding] = useState<MonacoBinding|null>(null)
+  const [provider, setProvider] = useState<WebrtcProvider | null>(null)
+  const [binding, setBinding] = useState<MonacoBinding | null>(null)
   const [collabDialogVisible, setCollabDialogVisible] = useState(false)
   const [collabRoomName, setCollabRoomName] = useState('')
   const [collabDisplayName, setCollabDisplayName] = useState('')
   const [isCollaborating, setIsCollaborating] = useState(false)
   const [collabError, setCollabError] = useState('')
+  const [importedCode] = useAtom(importedCodeAtom)
 
   const model = editor?.getModel()
 
@@ -96,8 +96,8 @@ function App() {
 
     const provider = new WebrtcProvider(
       collabRoomName, // roomname
-      ydoc, 
-      { 
+      ydoc,
+      {
         maxConns: 50,
         password: undefined,
         signaling: [signalingUrl],
@@ -174,95 +174,95 @@ function App() {
     var leanMonacoEditor = new LeanMonacoEditor()
 
     _leanMonaco.setInfoviewElement(infoviewRef.current!)
-    ;(async () => {
-      await _leanMonaco.start(options)
-      await leanMonacoEditor.start(
-        editorRef.current!,
-        path.join(project.folder, `${project.folder}.lean`),
-        code ?? '',
-      )
+      ; (async () => {
+        await _leanMonaco.start(options)
+        await leanMonacoEditor.start(
+          editorRef.current!,
+          path.join(project.folder, `${project.folder}.lean`),
+          code ?? '',
+        )
 
-      setEditor(leanMonacoEditor.editor)
-      setLeanMonaco(_leanMonaco)
+        setEditor(leanMonacoEditor.editor)
+        setLeanMonaco(_leanMonaco)
 
-      // Add a `Paste` option to the context menu on mobile.
-      // Monaco does not support clipboard pasting as all browsers block it
-      // due to security reasons. Therefore we use a codeMirror editor overlay
-      // which features good mobile support (but no Lean support yet)
-      if (mobile) {
-        leanMonacoEditor.editor?.addAction({
-          id: 'myPaste',
-          label: "Paste: open 'Plain Editor' for editing on mobile",
-          // keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_V],
-          contextMenuGroupId: '9_cutcopypaste',
-          run: (_editor) => {
-            setCodeMirror(true)
-          },
-        })
-      }
+        // Add a `Paste` option to the context menu on mobile.
+        // Monaco does not support clipboard pasting as all browsers block it
+        // due to security reasons. Therefore we use a codeMirror editor overlay
+        // which features good mobile support (but no Lean support yet)
+        if (mobile) {
+          leanMonacoEditor.editor?.addAction({
+            id: 'myPaste',
+            label: "Paste: open 'Plain Editor' for editing on mobile",
+            // keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_V],
+            contextMenuGroupId: '9_cutcopypaste',
+            run: (_editor) => {
+              setCodeMirror(true)
+            },
+          })
+        }
 
-      // // TODO: This was an approach to create a new definition provider, but it
-      // // wasn't that useful. I'll leave it here in connection with the TODO below for
-      // // reference.
-      // monaco.languages.registerDefinitionProvider('lean4', {
-      //   provideDefinition(model, position) {
-      //     const word = model.getWordAtPosition(position);
-      //     if (word) {
-      //       console.log(`[Lean4web] Providing definition for: ${word.word}`);
-      //       // Return the location of the definition
-      //       return [
-      //         {
-      //           uri: model.uri,
-      //           range: {startLineNumber: 0, startColumn: word.startColumn, endColumn: word.endColumn, endLineNumber: 0}, // Replace with actual definition range
-      //         },
-      //       ];
-      //     }
-      //     return null;
-      //   },
-      // });
+        // // TODO: This was an approach to create a new definition provider, but it
+        // // wasn't that useful. I'll leave it here in connection with the TODO below for
+        // // reference.
+        // monaco.languages.registerDefinitionProvider('lean4', {
+        //   provideDefinition(model, position) {
+        //     const word = model.getWordAtPosition(position);
+        //     if (word) {
+        //       console.log(`[Lean4web] Providing definition for: ${word.word}`);
+        //       // Return the location of the definition
+        //       return [
+        //         {
+        //           uri: model.uri,
+        //           range: {startLineNumber: 0, startColumn: word.startColumn, endColumn: word.endColumn, endLineNumber: 0}, // Replace with actual definition range
+        //         },
+        //       ];
+        //     }
+        //     return null;
+        //   },
+        // });
 
-      // TODO: Implement Go-To-Definition better
-      // This approach only gives us the file on the server (plus line number) it wants
-      // to open, is there a better approach?
-      const editorService = (leanMonacoEditor.editor as any)?._codeEditorService
-      if (editorService) {
-        const openEditorBase = editorService.openCodeEditor.bind(editorService)
-        editorService.openCodeEditor = async (input: any, source: any) => {
-          const result = await openEditorBase(input, source)
-          if (result === null) {
-            // found this out with `console.debug(input)`:
-            // `resource.path` is the file go-to-def tries to open on the disk
-            // we try to create a doc-gen link from that. Could not extract the
-            // (fully-qualified) decalaration name... with that one could
-            // call `...${path}.html#${declaration}`
-            let path = input.resource.path
-              .replace(new RegExp('^.*/(?:lean|\.lake/packages/[^/]+/)'), '')
-              .replace(new RegExp('\.lean$'), '')
+        // TODO: Implement Go-To-Definition better
+        // This approach only gives us the file on the server (plus line number) it wants
+        // to open, is there a better approach?
+        const editorService = (leanMonacoEditor.editor as any)?._codeEditorService
+        if (editorService) {
+          const openEditorBase = editorService.openCodeEditor.bind(editorService)
+          editorService.openCodeEditor = async (input: any, source: any) => {
+            const result = await openEditorBase(input, source)
+            if (result === null) {
+              // found this out with `console.debug(input)`:
+              // `resource.path` is the file go-to-def tries to open on the disk
+              // we try to create a doc-gen link from that. Could not extract the
+              // (fully-qualified) decalaration name... with that one could
+              // call `...${path}.html#${declaration}`
+              let path = input.resource.path
+                .replace(new RegExp('^.*/(?:lean|\.lake/packages/[^/]+/)'), '')
+                .replace(new RegExp('\.lean$'), '')
 
-            if (
-              window.confirm(
-                `Do you want to open the docs?\n\n${path} (line ${input.options.selection.startLineNumber})`,
-              )
-            ) {
-              let newTab = window.open(
-                `https://leanprover-community.github.io/mathlib4_docs/${path}.html`,
-                '_blank',
-              )
-              if (newTab) {
-                newTab.focus()
+              if (
+                window.confirm(
+                  `Do you want to open the docs?\n\n${path} (line ${input.options.selection.startLineNumber})`,
+                )
+              ) {
+                let newTab = window.open(
+                  `https://leanprover-community.github.io/mathlib4_docs/${path}.html`,
+                  '_blank',
+                )
+                if (newTab) {
+                  newTab.focus()
+                }
               }
             }
+            return null
+            // return result // always return the base result
           }
-          return null
-          // return result // always return the base result
         }
-      }
 
-      // Keeping the `code` state up-to-date with the changes in the editor
-      leanMonacoEditor.editor?.onDidChangeModelContent(() => {
-        setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
-      })
-    })()
+        // Keeping the `code` state up-to-date with the changes in the editor
+        leanMonacoEditor.editor?.onDidChangeModelContent(() => {
+          setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
+        })
+      })()
     return () => {
       leanMonacoEditor.dispose()
       _leanMonaco.dispose()
@@ -271,8 +271,8 @@ function App() {
 
   /** Set editor content to the code loaded from the URL */
   useEffect(() => {
-    if (freshlyImportedCode && model) model.setValue(freshlyImportedCode)
-  }, [freshlyImportedCode, model])
+    if (importedCode && model) model.setValue(importedCode)
+  }, [importedCode, model])
 
   // Disable monaco context menu outside the editor
   useEffect(() => {
@@ -329,7 +329,7 @@ function App() {
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
         />
-        <button 
+        <button
           onClick={() => {
             if (isCollaborating) {
               setIsCollaborating(false)
@@ -343,9 +343,9 @@ function App() {
         </button>
       </nav>
       {collabDialogVisible && (
-        <div style={{position: 'fixed', zIndex: 9999, inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          <form 
-            style={{background: 'var(--vscode-editor-background, white)', color: 'var(--vscode-editor-foreground, black)', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '300px', border: '1px solid var(--vscode-dropdown-border, #ccc)'}}
+        <div style={{ position: 'fixed', zIndex: 9999, inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <form
+            style={{ background: 'var(--vscode-editor-background, white)', color: 'var(--vscode-editor-foreground, black)', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '15px', minWidth: '300px', border: '1px solid var(--vscode-dropdown-border, #ccc)' }}
             onSubmit={(e) => {
               e.preventDefault();
               const isValid = /^[a-z0-9]{3,20}$/;
@@ -364,19 +364,19 @@ function App() {
               }
             }}
           >
-            <h3 style={{marginTop: 0, marginBottom: 0}}>Join Collaboration</h3>
-            {collabError && <div style={{color: 'red', fontSize: '14px'}}>{collabError}</div>}
-            <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
+            <h3 style={{ marginTop: 0, marginBottom: 0 }}>Join Collaboration</h3>
+            {collabError && <div style={{ color: 'red', fontSize: '14px' }}>{collabError}</div>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <label>Room Name:</label>
-              <input required value={collabRoomName} onChange={e => {setCollabRoomName(e.target.value); setCollabError('');}} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
+              <input required value={collabRoomName} onChange={e => { setCollabRoomName(e.target.value); setCollabError(''); }} style={{ padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)' }} />
             </div>
-            <div style={{display: 'flex', flexDirection: 'column', gap: '5px'}}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <label>Display Name:</label>
-              <input required value={collabDisplayName} onChange={e => {setCollabDisplayName(e.target.value); setCollabError('');}} style={{padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)'}} />
+              <input required value={collabDisplayName} onChange={e => { setCollabDisplayName(e.target.value); setCollabError(''); }} style={{ padding: '6px', backgroundColor: 'var(--vscode-input-background, white)', color: 'var(--vscode-input-foreground, black)', border: '1px solid var(--vscode-input-border, #ccc)' }} />
             </div>
-            <div style={{display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '5px'}}>
-              <button type="button" onClick={() => {setCollabDialogVisible(false); setCollabError('');}} style={{padding: '6px 12px', cursor: 'pointer'}}>Cancel</button>
-              <button type="submit" style={{padding: '6px 12px', cursor: 'pointer'}}>Join</button>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '5px' }}>
+              <button type="button" onClick={() => { setCollabDialogVisible(false); setCollabError(''); }} style={{ padding: '6px 12px', cursor: 'pointer' }}>Cancel</button>
+              <button type="submit" style={{ padding: '6px 12px', cursor: 'pointer' }}>Join</button>
             </div>
           </form>
         </div>
