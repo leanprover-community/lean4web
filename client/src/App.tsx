@@ -262,7 +262,6 @@ function App() {
   return (
     <div className="app monaco-editor">
       <nav>
-        <LeanLogo />
         <Menu
           setContent={setContent}
           restart={leanMonaco?.restart}
