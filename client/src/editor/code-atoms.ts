@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import LZString from 'lz-string'
 
 import { settingsAtom } from '../settings/settings-atoms'
-import { freshlyImportedCodeAtom, importedCodeAtom, importUrlAtom } from '../store/import-atoms'
+import { importedCodeAtom, importUrlAtom, importUrlBaseAtom } from '../store/import-atoms'
 import { urlArgsAtom, urlArgsStableAtom } from '../store/url-atoms'
 import { fixedEncodeURIComponent } from '../utils/UrlParsing'
 
@@ -10,41 +10,47 @@ import { fixedEncodeURIComponent } from '../utils/UrlParsing'
 export const codeAtom = atom(
   (get) => {
     const urlArgs = get(urlArgsStableAtom)
-    if (urlArgs.code) {
-      return decodeURIComponent(urlArgs.code)
+    if (urlArgs.url) {
+      return get(importedCodeAtom)
+    } else if (urlArgs.code) {
+      return urlArgs.code
     }
     if (urlArgs.codez) {
       return LZString.decompressFromBase64(urlArgs.codez)
+    } else {
+      return ''
     }
-    return get(freshlyImportedCodeAtom)
   },
   (get, set, code: string) => {
     const urlArgs = get(urlArgsAtom)
+    if (urlArgs.url) {
+      // store the import URL so we can display it later again
+      set(importUrlBaseAtom, urlArgs.url)
+    }
     if (code.length == 0) {
       // delete all url arguments if there is no code
       set(urlArgsAtom, { ...urlArgs, url: undefined, code: undefined, codez: undefined })
       return
     }
-    if (urlArgs.url) {
-      // store freshly imported code and the URL so we can compare later
-      const freshlyImportedCode = get(freshlyImportedCodeAtom)
-      set(importedCodeAtom, freshlyImportedCode)
-      set(importUrlAtom, urlArgs.url)
-    } else {
-      // if the code matches previously imported code, display the URL instead
-      const importedCode = get(importedCodeAtom)
-      if (importedCode !== undefined && importedCode === code) {
-        const importUrl = get(importUrlAtom)
-        set(urlArgsAtom, { ...urlArgs, url: importUrl, code: undefined, codez: undefined })
-        return
-      }
-    }
-    const compress = get(settingsAtom).compress
-    if (compress) {
+    const importedCode = get(importedCodeAtom)
+    const url = get(importUrlAtom) ?? ''
+    if (code == importedCode) {
+      set(urlArgsAtom, {
+        ...urlArgs,
+        url: fixedEncodeURIComponent(url),
+        code: undefined,
+        codez: undefined,
+      })
+    } else if (get(settingsAtom).compress) {
       // LZ padds the string with trailing `=`, which mess up the argument parsing
       // and aren't needed for LZ encoding, so we remove them.
       const compressedCode = LZString.compressToBase64(code).replace(/=*$/, '')
-      set(urlArgsAtom, { ...urlArgs, url: undefined, code: undefined, codez: compressedCode })
+      set(urlArgsAtom, {
+        ...urlArgs,
+        url: undefined,
+        code: undefined,
+        codez: fixedEncodeURIComponent(compressedCode),
+      })
     } else {
       const encodedCode = fixedEncodeURIComponent(code)
       set(urlArgsAtom, { ...urlArgs, url: undefined, code: encodedCode, codez: undefined })
