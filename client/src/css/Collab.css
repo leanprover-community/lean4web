@@ -4,9 +4,9 @@
 
 .yRemoteSelectionHead {
   position: absolute;
-  border-left: orange solid 2px;
-  border-top: orange solid 2px;
-  border-bottom: orange solid 2px;
+  border-left: var(--vscode-symbolIcon-eventForeground) solid 2px;
+  border-top: var(--vscode-symbolIcon-eventForeground) solid 2px;
+  border-bottom: var(--vscode-symbolIcon-eventForeground) solid 2px;
   height: 100%;
   box-sizing: border-box;
 }
@@ -14,7 +14,7 @@
 .yRemoteSelectionHead::after {
   position: absolute;
   content: ' ';
-  border: 3px solid orange;
+  border: 3px solid var(--vscode-symbolIcon-eventForeground);
   border-radius: 4px;
   left: -4px;
   top: -5px;
