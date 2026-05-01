@@ -1,4 +1,4 @@
-import lean4webConfig from '../config/config'
+import { lean4webConfig } from '../../config'
 import { Popup } from '../navigation/Popup'
 
 /** The popup with the privacy policy. */

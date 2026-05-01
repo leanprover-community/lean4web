@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 import { Popup } from '../navigation/Popup'
 import { shallowEqualSubset } from '../utils/shallowEqual'
-import { applySettingsAtom, settingsAtom } from './settings-atoms'
+import { settingsAtom } from './settings-atoms'
 import type { MobileValues, Theme } from './settings-types'
 import { defaultSettings, Settings } from './settings-types'
 
@@ -19,8 +19,7 @@ export function SettingsPopup({
   handleClose: () => void
   closeNav: () => void
 }) {
-  const [settings, setSettings] = useAtom(settingsAtom)
-  const [, applySettings] = useAtom(applySettingsAtom)
+  const [settings, applySettings] = useAtom(settingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
@@ -57,7 +56,7 @@ export function SettingsPopup({
         <h2>Editor settings</h2>
         <p>
           <label htmlFor="abbreviationCharacter">
-            Lead character to trigger unicode input mode
+            Lead character to trigger unicode input mode:
           </label>
           <input
             id="abbreviationCharacter"

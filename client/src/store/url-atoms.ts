@@ -21,4 +21,4 @@ export const urlArgsAtom = atom(
 )
 
 // Prevent updates unless there is a value change
-export const urlArgsStableAtom = selectAtom(urlArgsAtom, (settings) => settings, shallowEqual)
+export const urlArgsStableAtom = selectAtom(urlArgsAtom, (args) => args, shallowEqual)

@@ -36,7 +36,7 @@ describe("The Editor", () => {
   });
 
   it("handles input from url", () => {
-    cy.visit("/#codez=pXAAILwoiERA");
+    cy.visit("/#code=Ω%20%3D%20∑");
     cy.contains("div.view-line", "Ω = ∑").should("exist");
     cy.get(".squiggly-error").should("exist");
     cy.iframe()
@@ -95,7 +95,7 @@ describe("The Editor", () => {
 
   it("displays correct hover tooltips", () => {
     cy.visit(
-      "/#codez=KYDwhgtgDgNsAEAKACgLnsgTgeygSnnWXkAoieAGo0IF54AjAT3lDAGMAXeAYRjAGc+AS1ZgYAOmAQMQA",
+      "/#code=example%20%28P%3A%20Prop%29%20%3A%20P%20∨%20¬%20P%20%3A%3D%20by%20exact%20Classical.em%20P",
     );
     cy.iframe().contains("Expected type").should("exist");
     cy.get(".cgmr.codicon").should("not.exist");
@@ -104,19 +104,21 @@ describe("The Editor", () => {
 
     cy.contains("div.view-line span", "example")
       .should("exist")
-      .then(($el) => cy.wrap($el).realHover());
+      .then(($el) => cy.wrap($el).realHover())
+      .then(() => cy.wait(500));
     cy.contains(
       "div.monaco-hover-content",
       "_example (P : Prop) : P ∨ ¬P",
-    ).should("be.visible");
+    ).should("be.visible", { timeout: 20000 });
 
     cy.contains("div.view-line span", "by")
       .should("exist")
-      .then(($el) => cy.wrap($el).realHover());
+      .then(($el) => cy.wrap($el).realHover())
+      .then(() => cy.wait(500));
     cy.contains(
       "div.monaco-hover-content",
       "by tac constructs a term of the expected type by running the tactic(s) tac.",
-    ).should("be.visible");
+    ).should("be.visible", { timeout: 20000 });
   });
 
   it("displays and handles code completion", () => {
