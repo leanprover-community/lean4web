@@ -25,7 +25,8 @@ import { mobileAtom, settingsAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
 import {
   collabDisplayNameAtom,
-  collabRoomNameAtom,
+  collabPasswordAtom,
+  collabRoomAtom,
   isCollaboratingAtom,
 } from './store/collaboration-atoms'
 import { importedCodeAtom } from './store/import-atoms'
@@ -52,8 +53,10 @@ function App() {
   const ydoc = useMemo(() => new Y.Doc(), [])
   const [provider, setProvider] = useState<WebrtcProvider | null>(null)
   const [binding, setBinding] = useState<MonacoBinding | null>(null)
-  const [collabRoomName] = useAtom(collabRoomNameAtom)
+  const [collabRoom] = useAtom(collabRoomAtom)
   const [collabDisplayName] = useAtom(collabDisplayNameAtom)
+  const [collabPassword] = useAtom(collabPasswordAtom)
+  const [usersInCollab, setUsersInCollab] = useState(0)
   const [isCollaborating] = useAtom(isCollaboratingAtom)
   const [importedCode] = useAtom(importedCodeAtom)
 
@@ -95,7 +98,7 @@ function App() {
   useEffect(() => {
     // const provider = new WebsocketProvider('wss://demos.yjs.dev/ws', roomname, ydoc)
     // See https://github.com/yjs/y-webrtc for options
-    if (!isCollaborating || !collabRoomName) {
+    if (!isCollaborating || !collabRoom) {
       setProvider(null)
       return
     }
@@ -106,16 +109,12 @@ function App() {
       '/yjs-signaling'
     console.log('COLLAB: Signaling URL:', signalingUrl)
 
-    const provider = new WebrtcProvider(
-      collabRoomName, // roomname
-      ydoc,
-      {
-        maxConns: 50,
-        password: undefined,
-        signaling: [signalingUrl],
-        filterBcConns: true,
-      },
-    )
+    const provider = new WebrtcProvider(collabRoom, ydoc, {
+      maxConns: 50,
+      password: collabPassword,
+      signaling: [signalingUrl],
+      filterBcConns: true,
+    })
     if (collabDisplayName) {
       provider.awareness.setLocalStateField('user', { name: collabDisplayName })
     }
@@ -123,7 +122,7 @@ function App() {
     return () => {
       provider?.destroy()
     }
-  }, [ydoc, isCollaborating, collabRoomName, collabDisplayName])
+  }, [ydoc, isCollaborating, collabRoom, collabDisplayName])
 
   // this effect manages the lifetime of the editor binding
   useEffect(() => {
@@ -336,6 +335,19 @@ function App() {
     }
   }, [handleKeyDown, handleKeyUp])
 
+  // keep the number of people in the room updated
+  useEffect(() => {
+    if (!provider) return
+    const update = () => {
+      setUsersInCollab(provider.awareness.getStates().size)
+    }
+    provider.awareness.on('change', update)
+    update()
+    return () => {
+      provider.awareness.off('change', update)
+    }
+  }, [provider])
+
   return (
     <div className="app monaco-editor">
       <nav>
@@ -343,7 +355,7 @@ function App() {
         {isCollaborating && (
           <NavButton
             iconElement={<RotatingGlobe />}
-            text={`${collabRoomName} / ${collabDisplayName}`}
+            text={`${collabDisplayName} ∈ ${collabRoom} (${usersInCollab})`}
             className="leave-collab-button"
             onClick={() => {
               setLeaveCollabOpen(true)

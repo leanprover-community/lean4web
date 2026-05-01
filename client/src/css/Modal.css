@@ -60,6 +60,7 @@ input[type='file'] {
 }
 
 .modal input[type='text'],
+.modal input[type='password'],
 .modal textarea {
   width: 100%;
   box-sizing: border-box;
@@ -92,6 +93,7 @@ input[type='file'] {
 }
 
 .modal input[type='text'],
+.modal input[type='password'],
 .modal select {
   padding: 10px 12px;
 
@@ -101,7 +103,7 @@ input[type='file'] {
   color: var(--vscode-input-foreground);
 }
 
-.modal input[type='text'] {
+.modal input[type='password'] {
   font-family: 'JuliaMono';
 }
 

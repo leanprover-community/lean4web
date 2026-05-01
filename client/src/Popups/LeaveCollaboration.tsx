@@ -2,7 +2,7 @@ import { useAtom } from 'jotai'
 import { FormEvent } from 'react'
 
 import { Popup } from '../navigation/Popup'
-import { isCollaboratingAtom } from '../store/collaboration-atoms'
+import { collabRoomAtom, isCollaboratingAtom } from '../store/collaboration-atoms'
 
 /** The popup to join a collaboration room. */
 function LeaveCollaborationPopup({
@@ -13,6 +13,7 @@ function LeaveCollaborationPopup({
   handleClose: () => void
 }) {
   const [, setIsCollaborating] = useAtom(isCollaboratingAtom)
+  const [collabRoom] = useAtom(collabRoomAtom)
 
   function onSubmit(ev: FormEvent) {
     ev.preventDefault()
@@ -22,7 +23,7 @@ function LeaveCollaborationPopup({
 
   return (
     <Popup open={open} handleClose={handleClose}>
-      <h2>Leave collaboration?</h2>
+      <h2>{`Leave collaboration '${collabRoom}'?`}</h2>
       <form onSubmit={onSubmit}>
         <div className="button-row">
           <button
