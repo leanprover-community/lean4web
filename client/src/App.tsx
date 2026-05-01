@@ -1,4 +1,5 @@
 import './css/App.css'
+import './css/Collab.css'
 import './css/Editor.css'
 
 import { faCode } from '@fortawesome/free-solid-svg-icons'
