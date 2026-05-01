@@ -205,7 +205,7 @@ describe("The Editor", () => {
     cy.on("window:confirm", alertShown);
     cy.visit("/");
     cy.get("div.view-line").type(
-      "import Mathlib.Logic.Basic\n#check Classical.em",
+      "import Mathlib.Logic.Basic #check Classical.em",
     );
     cy.get(".squiggly-info");
 
