@@ -89,6 +89,29 @@ nav select:hover {
   background-color: var(--vscode-menu-selectionBackground);
 }
 
+nav .nav-link.leave-collab-button {
+  animation: pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+nav .nav-link.leave-collab-button span {
+  font-size: 0.7rem;
+}
+
+nav .nav-link.leave-collab-button:hover {
+  color: unset;
+  background-color: unset;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 .tooltip {
   position: relative;
   cursor: pointer;

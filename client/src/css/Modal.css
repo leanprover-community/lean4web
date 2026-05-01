@@ -53,9 +53,16 @@ input[type='file'] {
   }
 }
 
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .modal input[type='text'],
 .modal textarea {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .modal textarea {
@@ -64,7 +71,7 @@ input[type='file'] {
 
 .modal .form-error {
   color: var(--vscode-editorError-foreground);
-  font-weight: bold;
+  font-size: 14px;
 }
 
 .modal input[type='submit'],
@@ -137,4 +144,8 @@ input[type='file'] {
 a {
   text-decoration: none;
   color: var(--vscode-textLink-foreground);
+}
+
+.button-row {
+  display: flex;
 }

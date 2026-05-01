@@ -21,6 +21,7 @@ import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
 import { codeAtom } from '../editor/code-atoms'
+import CollaborationPopup from '../Popups/Collaboration'
 import ImpressumPopup from '../Popups/Impressum'
 import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
@@ -28,11 +29,13 @@ import PrivacyPopup from '../Popups/PrivacyPolicy'
 import ToolsPopup from '../Popups/Tools'
 import { mobileAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
+import { isCollaboratingAtom } from '../store/collaboration-atoms'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
 import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
+import RotatingGlobe from './RotatingGlobe'
 
 /** The menu items either appearing inside the dropdown or outside */
 function FlexibleMenu({
@@ -45,6 +48,7 @@ function FlexibleMenu({
   setContent,
   setLoadUrlOpen,
   setLoadZulipOpen,
+  setJoinCollabOpen,
 }: {
   isInDropdown: boolean
   setOpenNav: Dispatch<SetStateAction<boolean>>
@@ -55,7 +59,9 @@ function FlexibleMenu({
   setContent: (code: string) => void
   setLoadUrlOpen: Dispatch<SetStateAction<boolean>>
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
+  setJoinCollabOpen: Dispatch<SetStateAction<boolean>>
 }) {
+  const [isCollaborating] = useAtom(isCollaboratingAtom)
   const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
   const [{ data: projects }] = useAtom(projectsAtom)
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
@@ -139,6 +145,15 @@ function FlexibleMenu({
           }}
         />
       </Dropdown>
+      {!isCollaborating && (
+        <NavButton
+          iconElement={<RotatingGlobe />}
+          text="Collaborate"
+          onClick={() => {
+            setJoinCollabOpen(true)
+          }}
+        />
+      )}
     </>
   )
 }
@@ -165,6 +180,7 @@ export function Menu({
   const [openLoad, setOpenLoad] = useState(false)
   const [loadUrlOpen, setLoadUrlOpen] = useState(false)
   const [loadZulipOpen, setLoadZulipOpen] = useState(false)
+  const [joinCollabOpen, setJoinCollabOpen] = useState(false)
 
   // state for the popups
   const [privacyOpen, setPrivacyOpen] = useState(false)
@@ -215,6 +231,7 @@ export function Menu({
           setContent={setContent}
           setLoadUrlOpen={setLoadUrlOpen}
           setLoadZulipOpen={setLoadZulipOpen}
+          setJoinCollabOpen={setJoinCollabOpen}
         />
       )}
       <Dropdown
@@ -237,6 +254,7 @@ export function Menu({
             setContent={setContent}
             setLoadUrlOpen={setLoadUrlOpen}
             setLoadZulipOpen={setLoadZulipOpen}
+            setJoinCollabOpen={setJoinCollabOpen}
           />
         )}
         <NavButton
@@ -304,6 +322,12 @@ export function Menu({
         open={loadZulipOpen}
         handleClose={() => setLoadZulipOpen(false)}
         setContent={setContent}
+      />
+      <CollaborationPopup
+        open={joinCollabOpen}
+        handleClose={() => {
+          setJoinCollabOpen(false)
+        }}
       />
     </div>
   )
