@@ -1,5 +1,6 @@
 .yRemoteSelection {
-  background-color: rgb(250, 129, 0, 0.5);
+  background-color: color-mix(in srgb, var(--vscode-symbolIcon-eventForeground) 25%, transparent);
+  border: 1px solid var(--vscode-contrastActiveBorder); /* for high-contrast theme */
 }
 
 .yRemoteSelectionHead {
