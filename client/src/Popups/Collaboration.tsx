@@ -48,7 +48,7 @@ function CollaborationPopup({ open, handleClose }: { open: boolean; handleClose:
         <div>
           <p>
             Others can join the collaboration by using the same "room name". The "display name" can
-            be chosen freely.{' '}
+            be chosen freely.
           </p>
           <p>
             An optional password can be provided to restrict room access. Note that supplying a

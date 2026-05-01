@@ -105,9 +105,9 @@ function App() {
 
     const signalingUrl =
       (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-      window.location.host.replace(':3000', ':8080') +
+      window.location.host +
       '/yjs-signaling'
-    console.log('COLLAB: Signaling URL:', signalingUrl)
+    console.log('[Lean4web] collab signaling url:', signalingUrl)
 
     const provider = new WebrtcProvider(collabRoom, ydoc, {
       maxConns: 50,
