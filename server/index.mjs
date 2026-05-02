@@ -27,7 +27,8 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const environment = process.env.NODE_ENV;
 const isGithubAction = process.env.GITHUB_ACTIONS;
 const isDevelopment = environment === "development";
-const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() === "true" ?? false;
+const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() == "true" ?? false;
+const ENABLE_COLLAB = process.env.VITE_COLLAB?.toLowerCase() != "false" ?? true;
 
 const crtFile = process.env.SSL_CRT_FILE;
 const keyFile = process.env.SSL_KEY_FILE;
@@ -228,9 +229,8 @@ function FilenamesToUri(prefix, obj) {
   return obj;
 }
 
-const enableCollab = process.argv.includes('--collab=yes');
-if (enableCollab) {
-  console.log("COLLAB: Enabling signaling server for collaboration.");
+if (ENABLE_COLLAB) {
+  console.log("[Lean4web]: enabling signaling server for collaboration.");
 }
 
 const yjsTopics = new Map(); // roomName -> Set<Connection>
@@ -247,8 +247,10 @@ const sendYjs = (conn, message) => {
 };
 
 const setupYjsConnection = (conn, req) => {
-  const ip = req ? (req.headers["x-forwarded-for"] || req.socket.remoteAddress) : "unknown";
-  console.log(`COLLAB: New connection established from ${ip}`);
+  const ip = req
+    ? req.headers["x-forwarded-for"] || req.socket.remoteAddress
+    : "unknown";
+  console.log(`[Lean4web]: new collab connection established from ${ip}`);
   const subscribedTopics = new Set();
   let closed = false;
   // Check if connection is still alive
@@ -270,7 +272,7 @@ const setupYjsConnection = (conn, req) => {
     pongReceived = true;
   });
   conn.on("close", () => {
-    console.log(`COLLAB: Connection closed from ${ip}`);
+    console.log(`[Lean4web]: collab connection closed from ${ip}`);
     subscribedTopics.forEach((topicName) => {
       const subs = yjsTopics.get(topicName) || new Set();
       subs.delete(conn);
@@ -301,7 +303,9 @@ const setupYjsConnection = (conn, req) => {
               }
               topic.add(conn);
               subscribedTopics.add(topicName);
-              console.log(`COLLAB: Client subscribed to topic: ${topicName}`);
+              console.log(
+                `[Lean4web]: client subscribed to collab topic: ${topicName}`,
+              );
             }
           });
           break;
@@ -310,14 +314,18 @@ const setupYjsConnection = (conn, req) => {
             const subs = yjsTopics.get(topicName);
             if (subs) {
               subs.delete(conn);
-              console.log(`COLLAB: Client unsubscribed from topic: ${topicName}`);
+              console.log(
+                `[Lean4web]: client unsubscribed from collab topic: ${topicName}`,
+              );
             }
           });
           break;
         case "publish":
           if (message.topic) {
             const receivers = yjsTopics.get(message.topic);
-            console.log(`COLLAB: Client published to topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`);
+            console.log(
+              `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
+            );
             if (receivers) {
               message.clients = receivers.size;
               receivers.forEach((receiver) => sendYjs(receiver, message));
@@ -335,11 +343,16 @@ wss.addListener("connection", async function (ws, req) {
   const urlRegEx = /^\/websocket\/([\w.-]+)$/;
   const reRes = urlRegEx.exec(req.url);
   if (!reRes) {
-    if (enableCollab && (req.url === "/yjs-signaling" || req.url === "/yjs-signaling/")) {
+    if (
+      ENABLE_COLLAB &&
+      (req.url === "/yjs-signaling" || req.url === "/yjs-signaling/")
+    ) {
       setupYjsConnection(ws, req);
       return;
     }
-    console.error(`Connection refused because of invalid URL: ${req.url}`);
+    console.error(
+      `[Lean4web]: connection refused because of invalid URL: ${req.url}`,
+    );
     return;
   }
   const project = reRes[1];

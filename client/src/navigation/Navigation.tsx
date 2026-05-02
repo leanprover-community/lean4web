@@ -61,6 +61,7 @@ function FlexibleMenu({
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
   setJoinCollabOpen: Dispatch<SetStateAction<boolean>>
 }) {
+  const ENABLE_COLLAB = import.meta.env.VITE_COLLAB != 'false'
   const [isCollaborating] = useAtom(isCollaboratingAtom)
   const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
   const [{ data: projects }] = useAtom(projectsAtom)
@@ -145,7 +146,7 @@ function FlexibleMenu({
           }}
         />
       </Dropdown>
-      {!isCollaborating && (
+      {ENABLE_COLLAB && !isCollaborating && (
         <NavButton
           iconElement={<RotatingGlobe />}
           text="Collaborate"

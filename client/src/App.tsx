@@ -122,7 +122,7 @@ function App() {
     return () => {
       provider?.destroy()
     }
-  }, [ydoc, isCollaborating, collabRoom, collabDisplayName])
+  }, [ydoc, isCollaborating, collabRoom, collabDisplayName, collabPassword])
 
   // this effect manages the lifetime of the editor binding
   useEffect(() => {

@@ -6,8 +6,8 @@
     "server": "index.mjs"
   },
   "scripts": {
-    "dev": "NODE_ENV=development nodemon index.mjs --collab=yes",
-    "prod": "NODE_ENV=production nodemon index.mjs --collab=yes",
+    "dev": "NODE_ENV=development nodemon index.mjs",
+    "prod": "NODE_ENV=production nodemon index.mjs",
     "build": "./build.sh"
   },
   "dependencies": {

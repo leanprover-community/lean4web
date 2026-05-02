@@ -26,7 +26,7 @@ function CollaborationPopup({ open, handleClose }: { open: boolean; handleClose:
       return
     }
     if (collabPassword != undefined && !isValidPwd.test(collabPassword)) {
-      setCollabError('The room name must be up to 20 alphanumeric characters.')
+      setCollabError('The password must be up to 20 alphanumeric characters.')
       return
     }
     if (!isValid.test(collabDisplayName)) {
@@ -35,7 +35,6 @@ function CollaborationPopup({ open, handleClose }: { open: boolean; handleClose:
     }
     setCollabError('')
     if (collabRoom) {
-      setCollabPassword(undefined)
       setIsCollaborating(true)
       handleClose()
     }
