@@ -1,3 +1,4 @@
+import { fixedEncodeURIComponent } from '../utils/UrlParsing'
 import { UrlArgs } from './url-types'
 
 /**
@@ -9,7 +10,7 @@ export function formatArgs(args: UrlArgs): string {
     '#' +
     Object.entries(args)
       .filter(([_key, val]) => (val?.trim().length ?? 0) > 0)
-      .map(([key, val]) => `${key}=${val}`)
+      .map(([key, val]) => `${key}=${fixedEncodeURIComponent(val)}`)
       .join('&')
   if (out == '#') {
     return ''
