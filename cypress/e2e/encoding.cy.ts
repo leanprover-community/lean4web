@@ -12,14 +12,12 @@ describe("", () => {
       .should("not.be.checked");
     cy.get("input#saveSettings").click();
 
-    // type payload
     cy.get("div.view-lines").type(payload);
 
     // change project
     cy.get("nav>*>select[name='leanVersion']").select("Stable Lean");
     cy.url().should("include", "project=Stable");
 
-    // test
     cy.contains("div.view-line", payload).should("exist");
   });
 });
