@@ -4,7 +4,6 @@ import LZString from 'lz-string'
 import { settingsAtom } from '../settings/settings-atoms'
 import { importedCodeAtom, importUrlAtom, importUrlBaseAtom } from '../store/import-atoms'
 import { urlArgsAtom, urlArgsStableAtom } from '../store/url-atoms'
-import { fixedEncodeURIComponent } from '../utils/UrlParsing'
 
 /** Atom which represents the editor content and synchronises it with the url hash. */
 export const codeAtom = atom(
@@ -37,7 +36,7 @@ export const codeAtom = atom(
     if (code == importedCode) {
       set(urlArgsAtom, {
         ...urlArgs,
-        url: fixedEncodeURIComponent(url),
+        url: url,
         code: undefined,
         codez: undefined,
       })
@@ -49,11 +48,10 @@ export const codeAtom = atom(
         ...urlArgs,
         url: undefined,
         code: undefined,
-        codez: fixedEncodeURIComponent(compressedCode),
+        codez: compressedCode,
       })
     } else {
-      const encodedCode = fixedEncodeURIComponent(code)
-      set(urlArgsAtom, { ...urlArgs, url: undefined, code: encodedCode, codez: undefined })
+      set(urlArgsAtom, { ...urlArgs, url: undefined, code: code, codez: undefined })
     }
   },
 )
