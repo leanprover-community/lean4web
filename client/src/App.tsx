@@ -1,5 +1,4 @@
 import './css/App.css'
-import './css/Collab.css'
 import './css/Editor.css'
 
 import { faCode } from '@fortawesome/free-solid-svg-icons'
@@ -330,47 +329,59 @@ function App() {
     }
   }, [handleKeyDown, handleKeyUp])
 
-  // keep the number of people in the room updated
+  // keep the number of people in the room and their names updated and assign them color codes via css
+  const cursorColors = ['pink', 'orange', 'lime', 'red', 'blue', 'green', 'cyan', 'black', 'grey'];
   useEffect(() => {
     if (!provider) return
-    const update = ({ added, updated, removed }, origin) => {
+    const styleElement = document.createElement('style')
+    document.head.appendChild(styleElement);
+
+    const update = () => {
+      
+      let css = '';
+      const states = provider.awareness.getStates()
       setUsersInCollab(provider.awareness.getStates().size)
-      // console.log({added, removed, updated})
-      // deterministically use clientId to assign remote cursor color for each connected user
-      if(added && added.length == 1) {
-        let clientId = added[0]
-        // console.log("remote user added", clientId);
-        const styleElement = document.createElement('style')
-        const cursorColors = ['pink','orange','lime', 'red', 'blue', 'green', 'cyan', 'black', 'grey', 'yellow'];
-        let color = cursorColors[clientId % 10]
-        const dynamicCSS = `
+      states.forEach((state: { [x: string]: any}, clientId: number) => {
+        // deterministically use clientId to assign remote cursor color for each connected user
+        const color = cursorColors[clientId % cursorColors.length]
+        const name = state?.user?.name
+        
+        css += `
           .yRemoteSelection-${clientId} {
             background-color: color-mix(in srgb, ${color} 25%, transparent);
             border: 1px solid ${color};
           }
           
           .yRemoteSelectionHead-${clientId} {
+            position: absolute;
             border-left: ${color} solid 2px;
             border-top: ${color} solid 2px;
             border-bottom: ${color} solid 2px;
+            height: 100%;
+            box-sizing: border-box;
           }
 
           .yRemoteSelectionHead-${clientId}::after {
-            border: 3px solid ${color};
+            background-color: ${color};
+            position: absolute;
+            color: white;
+            content: '${name}';
+            top: -15px;
+            left: -4px;
+            border-radius: 1px;
+            border: none;
+            padding: 2px 1px;
           }
         `;
-        styleElement.innerHTML = dynamicCSS
-        document.head.appendChild(styleElement);
-      }
+      });
+      styleElement.innerHTML = css;
+    };
 
-      if(removed && removed.length == 1){
-        // console.log("remote user removed", removed[0])
-      }
-    }
     provider.awareness.on('change', update)
-    // update()
+    update()
     return () => {
       provider.awareness.off('change', update)
+      document.head.removeChild(styleElement);
     }
   }, [provider])
 
