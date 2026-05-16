@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { atomWithQuery } from 'jotai-tanstack-query'
 
-import { fixedEncodeURIComponent, lookupUrl } from '../utils/UrlParsing'
+import { lookupUrl } from '../utils/UrlParsing'
 import { currentProjectAtom } from './project-atoms'
 import { urlArgsAtom, urlArgsStableAtom } from './url-atoms'
 
@@ -26,7 +26,7 @@ export const importUrlAtom = atom(
     set(importUrlBaseAtom, url)
     set(urlArgsAtom, {
       ...urlArgs,
-      url: fixedEncodeURIComponent(url),
+      url: url,
       code: undefined,
       codez: undefined,
     })

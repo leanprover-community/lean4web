@@ -195,7 +195,7 @@ function startServerProcess(project) {
   return serverProcess;
 }
 
-/** Transform client URI to valid file on the server */
+/** Transform client URI to valid file on the server. (mutates the input `obj`) */
 function urisToFilenames(prefix, obj) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -214,7 +214,7 @@ function urisToFilenames(prefix, obj) {
   return obj;
 }
 
-/** Transform server file back into client URI */
+/** Transform server file back into client URI. (mutates the input `obj`) */
 function FilenamesToUri(prefix, obj) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -376,7 +376,7 @@ wss.addListener("connection", async function (ws, req) {
     return;
   }
 
-  const socket = {
+  const reader = new rpc.WebSocketMessageReader({
     onMessage: (cb) => {
       ws.on("message", cb);
     },
@@ -386,12 +386,12 @@ wss.addListener("connection", async function (ws, req) {
     onClose: (cb) => {
       ws.on("close", cb);
     },
+  });
+  const writer = new rpc.WebSocketMessageWriter({
     send: (data, cb) => {
       ws.send(data, cb);
     },
-  };
-  const reader = new rpc.WebSocketMessageReader(socket);
-  const writer = new rpc.WebSocketMessageWriter(socket);
+  });
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () =>
     ws.close(),
   );
@@ -399,7 +399,7 @@ wss.addListener("connection", async function (ws, req) {
   socketConnection.forward(serverConnection, (message) => {
     const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
 
-    if (!message.method === "textDocument/definition") {
+    if (message.method != "textDocument/definition") {
       urisToFilenames(prefix, message);
     }
 

@@ -34,11 +34,6 @@ import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { save } from './utils/SaveToFile'
 
-/** Returns true if the browser wants dark mode */
-function isBrowserDefaultDark() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-}
-
 function App() {
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)

@@ -1,5 +1,5 @@
 [![GitHub license](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/leanprover-community/lean4web/blob/main/LICENSE)
-[![(Runtime) Build and Test](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml/badge.svg)](https://github.com/leanprover-community/lean4web/actions/workflows/build.yml)
+[![ci status](https://github.com/leanprover-community/lean4web/actions/workflows/ci.yml/badge.svg)](https://github.com/leanprover-community/lean4web/actions/workflows/ci.yml)
 
 # Lean Web
 

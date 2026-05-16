@@ -1,3 +1,7 @@
+#root {
+  height: 100vh;
+}
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
@@ -5,10 +9,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #2b2b2b;
   color: #fff;
-}
-
-#root {
-  height: 100vh;
 }
 
 @media (prefers-color-scheme: light) {
