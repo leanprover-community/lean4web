@@ -333,11 +333,42 @@ function App() {
   // keep the number of people in the room updated
   useEffect(() => {
     if (!provider) return
-    const update = () => {
+    const update = ({ added, updated, removed }, origin) => {
       setUsersInCollab(provider.awareness.getStates().size)
+      console.log({added, removed, updated})
+      // deterministically use clientId to assign remote cursor color for each connected user
+      if(added && added.length == 1) {
+        let clientId = added[0]
+        console.log("remote user added", clientId);
+        const styleElement = document.createElement('style')
+        const cursorColors = ['pink','orange','lime', 'red', 'blue', 'green', 'cyan', 'black', 'grey', 'yellow'];
+        let color = cursorColors[clientId % 10]
+        const dynamicCSS = `
+          .yRemoteSelection-${clientId} {
+            background-color: color-mix(in srgb, ${color} 25%, transparent);
+            border: 1px solid ${color};
+          }
+          
+          .yRemoteSelectionHead-${clientId} {
+            border-left: ${color} solid 2px;
+            border-top: ${color} solid 2px;
+            border-bottom: ${color} solid 2px;
+          }
+
+          .yRemoteSelectionHead-${clientId}::after {
+            border: 3px solid ${color};
+          }
+        `;
+        styleElement.innerHTML = dynamicCSS
+        document.head.appendChild(styleElement);
+      }
+
+      if(removed && removed.length == 1){
+        console.log("remote user removed", removed[0])
+      }
     }
     provider.awareness.on('change', update)
-    update()
+    // update()
     return () => {
       provider.awareness.off('change', update)
     }
