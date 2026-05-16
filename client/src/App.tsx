@@ -335,11 +335,11 @@ function App() {
     if (!provider) return
     const update = ({ added, updated, removed }, origin) => {
       setUsersInCollab(provider.awareness.getStates().size)
-      console.log({added, removed, updated})
+      // console.log({added, removed, updated})
       // deterministically use clientId to assign remote cursor color for each connected user
       if(added && added.length == 1) {
         let clientId = added[0]
-        console.log("remote user added", clientId);
+        // console.log("remote user added", clientId);
         const styleElement = document.createElement('style')
         const cursorColors = ['pink','orange','lime', 'red', 'blue', 'green', 'cyan', 'black', 'grey', 'yellow'];
         let color = cursorColors[clientId % 10]
@@ -364,7 +364,7 @@ function App() {
       }
 
       if(removed && removed.length == 1){
-        console.log("remote user removed", removed[0])
+        // console.log("remote user removed", removed[0])
       }
     }
     provider.awareness.on('change', update)
