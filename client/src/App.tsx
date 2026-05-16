@@ -8,14 +8,26 @@ import { useAtom } from 'jotai/react'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import * as monaco from 'monaco-editor'
 import * as path from 'path'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Split from 'react-split'
+import { MonacoBinding } from 'y-monaco'
+import { WebrtcProvider } from 'y-webrtc'
+import * as Y from 'yjs'
 
 import LeanLogo from './assets/logo.svg'
 import { codeAtom } from './editor/code-atoms'
+import { NavButton } from './navigation/NavButton'
 import { Menu } from './navigation/Navigation'
+import RotatingGlobe from './navigation/RotatingGlobe'
+import LeaveCollaborationPopup from './Popups/LeaveCollaboration'
 import { mobileAtom, settingsAtom } from './settings/settings-atoms'
 import { lightThemes } from './settings/settings-types'
+import {
+  collabDisplayNameAtom,
+  collabPasswordAtom,
+  collabRoomAtom,
+  isCollaboratingAtom,
+} from './store/collaboration-atoms'
 import { importedCodeAtom } from './store/import-atoms'
 import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
@@ -32,7 +44,17 @@ function App() {
   const [, setScreenWidth] = useAtom(screenWidthAtom)
   const [project] = useAtom(currentProjectAtom)
   const [code, setCode] = useAtom(codeAtom)
+  const ydoc = useMemo(() => new Y.Doc(), [])
+  const [provider, setProvider] = useState<WebrtcProvider | null>(null)
+  const [binding, setBinding] = useState<MonacoBinding | null>(null)
+  const [collabRoom] = useAtom(collabRoomAtom)
+  const [collabDisplayName] = useAtom(collabDisplayNameAtom)
+  const [collabPassword] = useAtom(collabPasswordAtom)
+  const [usersInCollab, setUsersInCollab] = useState(0)
+  const [isCollaborating] = useAtom(isCollaboratingAtom)
   const [importedCode] = useAtom(importedCodeAtom)
+
+  const [leaveCollabOpen, setLeaveCollabOpen] = useState(false)
 
   const model = editor?.getModel()
 
@@ -60,6 +82,59 @@ function App() {
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
   }, [setScreenWidth])
+
+  // clean up ydoc on unmount
+  useEffect(() => {
+    return () => ydoc.destroy()
+  }, [ydoc])
+
+  // this effect manages the lifetime of the Yjs document and the provider
+  useEffect(() => {
+    // const provider = new WebsocketProvider('wss://demos.yjs.dev/ws', roomname, ydoc)
+    // See https://github.com/yjs/y-webrtc for options
+    if (!isCollaborating || !collabRoom) {
+      setProvider(null)
+      return
+    }
+
+    const signalingUrl =
+      (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+      window.location.host +
+      '/yjs-signaling'
+    console.log('[Lean4web] collab signaling url:', signalingUrl)
+
+    const provider = new WebrtcProvider(collabRoom, ydoc, {
+      maxConns: 50,
+      password: collabPassword,
+      signaling: [signalingUrl],
+      filterBcConns: true,
+    })
+    if (collabDisplayName) {
+      provider.awareness.setLocalStateField('user', { name: collabDisplayName })
+    }
+    setProvider(provider)
+    return () => {
+      provider?.destroy()
+    }
+  }, [ydoc, isCollaborating, collabRoom, collabDisplayName, collabPassword])
+
+  // this effect manages the lifetime of the editor binding
+  useEffect(() => {
+    if (provider == null || editor == null) {
+      return
+    }
+    console.log('reached', provider)
+    const binding = new MonacoBinding(
+      ydoc.getText(),
+      editor.getModel()!,
+      new Set([editor]),
+      provider?.awareness,
+    )
+    setBinding(binding)
+    return () => {
+      binding.destroy()
+    }
+  }, [ydoc, provider, editor])
 
   // Update LeanMonaco options when preferences are loaded or change
   useEffect(() => {
@@ -254,10 +329,76 @@ function App() {
     }
   }, [handleKeyDown, handleKeyUp])
 
+  // keep the number of people in the room and their names updated and assign them color codes via css
+  const cursorColors = ['pink', 'orange', 'lime', 'red', 'blue', 'green', 'cyan', 'black', 'grey'];
+  useEffect(() => {
+    if (!provider) return
+    const styleElement = document.createElement('style')
+    document.head.appendChild(styleElement);
+
+    const update = () => {
+      
+      let css = '';
+      const states = provider.awareness.getStates()
+      setUsersInCollab(provider.awareness.getStates().size)
+      states.forEach((state: { [x: string]: any}, clientId: number) => {
+        // deterministically use clientId to assign remote cursor color for each connected user
+        const color = cursorColors[clientId % cursorColors.length]
+        const name = state?.user?.name
+        
+        css += `
+          .yRemoteSelection-${clientId} {
+            background-color: color-mix(in srgb, ${color} 25%, transparent);
+            border: 1px solid ${color};
+          }
+          
+          .yRemoteSelectionHead-${clientId} {
+            position: absolute;
+            border-left: ${color} solid 2px;
+            border-top: ${color} solid 2px;
+            border-bottom: ${color} solid 2px;
+            height: 100%;
+            box-sizing: border-box;
+          }
+
+          .yRemoteSelectionHead-${clientId}::after {
+            background-color: ${color};
+            position: absolute;
+            color: white;
+            content: '${name}';
+            top: -15px;
+            left: -4px;
+            border-radius: 1px;
+            border: none;
+            padding: 2px 1px;
+          }
+        `;
+      });
+      styleElement.innerHTML = css;
+    };
+
+    provider.awareness.on('change', update)
+    update()
+    return () => {
+      provider.awareness.off('change', update)
+      document.head.removeChild(styleElement);
+    }
+  }, [provider])
+
   return (
     <div className="app monaco-editor">
       <nav>
         <LeanLogo />
+        {isCollaborating && (
+          <NavButton
+            iconElement={<RotatingGlobe />}
+            text={`${collabDisplayName} ∈ ${collabRoom} (${usersInCollab})`}
+            className="leave-collab-button"
+            onClick={() => {
+              setLeaveCollabOpen(true)
+            }}
+          />
+        )}
         <Menu
           setContent={setContent}
           restart={leanMonaco?.restart}
@@ -317,6 +458,12 @@ function App() {
           </p>
         </div>
       </Split>
+      <LeaveCollaborationPopup
+        open={leaveCollabOpen}
+        handleClose={() => {
+          setLeaveCollabOpen(false)
+        }}
+      />
     </div>
   )
 }

@@ -53,9 +53,17 @@ input[type='file'] {
   }
 }
 
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .modal input[type='text'],
+.modal input[type='password'],
 .modal textarea {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .modal textarea {
@@ -64,7 +72,7 @@ input[type='file'] {
 
 .modal .form-error {
   color: var(--vscode-editorError-foreground);
-  font-weight: bold;
+  font-size: 14px;
 }
 
 .modal input[type='submit'],
@@ -85,6 +93,7 @@ input[type='file'] {
 }
 
 .modal input[type='text'],
+.modal input[type='password'],
 .modal select {
   padding: 10px 12px;
 
@@ -94,12 +103,12 @@ input[type='file'] {
   color: var(--vscode-input-foreground);
 }
 
-.modal input[type='text'] {
+.modal input[type='password'] {
   font-family: 'JuliaMono';
 }
 
 .modal #abbreviationCharacter {
-  width: 15px;
+  width: 35px;
   margin-left: 4px;
 }
 
@@ -137,4 +146,8 @@ input[type='file'] {
 a {
   text-decoration: none;
   color: var(--vscode-textLink-foreground);
+}
+
+.button-row {
+  display: flex;
 }
