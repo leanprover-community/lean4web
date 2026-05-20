@@ -1,5 +1,6 @@
 import './css/App.css'
 import './css/Editor.css'
+import './css/Collab.css'
 
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -14,6 +15,7 @@ import { MonacoBinding } from 'y-monaco'
 import { WebrtcProvider } from 'y-webrtc'
 import * as Y from 'yjs'
 
+import { CollabStates } from './api/collab-types'
 import LeanLogo from './assets/logo.svg'
 import { codeAtom } from './editor/code-atoms'
 import { NavButton } from './navigation/NavButton'
@@ -27,10 +29,12 @@ import {
   collabPasswordAtom,
   collabRoomAtom,
   isCollaboratingAtom,
+  usersInCollabAtom,
 } from './store/collaboration-atoms'
 import { importedCodeAtom } from './store/import-atoms'
 import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
+import { getCollaboratorColor } from './utils/collabColors'
 import { save } from './utils/SaveToFile'
 
 function App() {
@@ -50,7 +54,7 @@ function App() {
   const [collabRoom] = useAtom(collabRoomAtom)
   const [collabDisplayName] = useAtom(collabDisplayNameAtom)
   const [collabPassword] = useAtom(collabPasswordAtom)
-  const [usersInCollab, setUsersInCollab] = useState(0)
+  const [usersInCollab, setUsersInCollab] = useAtom(usersInCollabAtom)
   const [isCollaborating] = useAtom(isCollaboratingAtom)
   const [importedCode] = useAtom(importedCodeAtom)
 
@@ -329,61 +333,47 @@ function App() {
     }
   }, [handleKeyDown, handleKeyUp])
 
-  // keep the number of people in the room and their names updated and assign them color codes via css
-  const cursorColors = ['pink', 'orange', 'lime', 'red', 'blue', 'green', 'cyan', 'black', 'grey'];
+  // keep the number of people in the room and their names updated and assign them colors
   useEffect(() => {
     if (!provider) return
     const styleElement = document.createElement('style')
-    document.head.appendChild(styleElement);
+    document.head.appendChild(styleElement)
 
     const update = () => {
-      
-      let css = '';
-      const states = provider.awareness.getStates()
-      setUsersInCollab(provider.awareness.getStates().size)
-      states.forEach((state: { [x: string]: any}, clientId: number) => {
+      let css = ''
+      const states = provider.awareness.getStates() as CollabStates
+      setUsersInCollab(states)
+
+      states.forEach((state, clientId) => {
         // deterministically use clientId to assign remote cursor color for each connected user
-        const color = cursorColors[clientId % cursorColors.length]
+        const color = getCollaboratorColor(clientId)
         const name = state?.user?.name
-        
         css += `
-          .yRemoteSelection-${clientId} {
-            background-color: color-mix(in srgb, ${color} 25%, transparent);
-            border: 1px solid ${color};
-          }
-          
-          .yRemoteSelectionHead-${clientId} {
-            position: absolute;
-            border-left: ${color} solid 2px;
-            border-top: ${color} solid 2px;
-            border-bottom: ${color} solid 2px;
-            height: 100%;
-            box-sizing: border-box;
-          }
-
-          .yRemoteSelectionHead-${clientId}::after {
-            background-color: ${color};
-            position: absolute;
-            color: white;
-            content: '${name}';
-            top: -15px;
-            left: -4px;
-            border-radius: 1px;
-            border: none;
-            padding: 2px 1px;
-          }
-        `;
-      });
-      styleElement.innerHTML = css;
-    };
-
+            .yRemoteSelection-${clientId} {
+              background-color: color-mix(in srgb, var(${color}) 25%, transparent);
+              border-color: var(${color});
+            }
+            .yRemoteSelectionHead-${clientId} {
+              border-color: var(${color});
+            }
+            .yRemoteSelectionHead-${clientId}::after {
+              border-color: var(${color});
+              background-color: var(${color});
+            }
+            .view-line:hover .yRemoteSelectionHead-${clientId}::after {
+              content: '${name}';
+            }
+          `
+      })
+      styleElement.innerHTML = css
+    }
     provider.awareness.on('change', update)
     update()
     return () => {
       provider.awareness.off('change', update)
-      document.head.removeChild(styleElement);
+      document.head.removeChild(styleElement)
     }
-  }, [provider])
+  }, [provider, setUsersInCollab])
 
   return (
     <div className="app monaco-editor">
@@ -392,7 +382,7 @@ function App() {
         {isCollaborating && (
           <NavButton
             iconElement={<RotatingGlobe />}
-            text={`${collabDisplayName} ∈ ${collabRoom} (${usersInCollab})`}
+            text={`${collabDisplayName} ∈ ${collabRoom} (${usersInCollab?.size ?? 0})`}
             className="leave-collab-button"
             onClick={() => {
               setLeaveCollabOpen(true)

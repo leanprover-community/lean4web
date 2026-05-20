@@ -54,6 +54,9 @@ function CollaborationPopup({ open, handleClose }: { open: boolean; handleClose:
             different password will not result in an error. Instead each combination of room name
             and password will have its own room.
           </p>
+          <p>
+            <b>When joining you will use your current code!</b>
+          </p>
         </div>
         <label>Room name:</label>
         <input
