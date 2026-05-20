@@ -55,7 +55,7 @@ function CollaborationPopup({ open, handleClose }: { open: boolean; handleClose:
             and password will have its own room.
           </p>
           <p>
-            <b>When joining you will use your current code!</b>
+            <b>When joining, the current code will be lost!</b>
           </p>
         </div>
         <label>Room name:</label>
