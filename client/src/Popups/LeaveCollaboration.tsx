@@ -19,11 +19,12 @@ function LeaveCollaborationPopup({
 }) {
   const [, setIsCollaborating] = useAtom(isCollaboratingAtom)
   const [collabRoom] = useAtom(collabRoomAtom)
-  const [usersInCollab] = useAtom(usersInCollabAtom)
+  const [usersInCollab, setUsersInCollab] = useAtom(usersInCollabAtom)
 
   function onSubmit(ev: FormEvent) {
     ev.preventDefault()
     setIsCollaborating(false)
+    setUsersInCollab(undefined)
     handleClose()
   }
 

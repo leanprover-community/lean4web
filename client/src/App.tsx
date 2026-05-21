@@ -378,11 +378,13 @@ function App() {
   return (
     <div className="app monaco-editor">
       <nav>
-        <LeanLogo />
+        {!mobile && <LeanLogo />}
         {isCollaborating && (
           <NavButton
             iconElement={<RotatingGlobe />}
-            text={`${collabDisplayName} ∈ ${collabRoom} (${usersInCollab?.size ?? 0})`}
+            text={
+              mobile ? '' : `${collabDisplayName} ∈ ${collabRoom} (${usersInCollab?.size ?? 0})`
+            }
             className="leave-collab-button"
             onClick={() => {
               setLeaveCollabOpen(true)

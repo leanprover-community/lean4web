@@ -12,7 +12,6 @@ nav > svg {
   width: unset;
   vertical-align: middle;
   margin-left: 0.5rem;
-  margin-right: 1rem;
   filter: invert(1);
   mix-blend-mode: difference;
 }
