@@ -10,7 +10,7 @@ import {
 } from '../store/collaboration-atoms'
 
 /** The popup to join a collaboration room. */
-function CollaborationPopup({ open, handleClose, handleJoinCollab }: { open: boolean; handleClose: () => void; handleJoinCollab: () => void }) {
+function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open: boolean; handleClose: () => void; handleJoinCollab: () => void }) {
   const [collabRoom, setCollabRoom] = useAtom(collabRoomAtom)
   const [collabDisplayName, setCollabDisplayName] = useAtom(collabDisplayNameAtom)
   const [collabPassword, setCollabPassword] = useAtom(collabPasswordAtom)
@@ -104,4 +104,4 @@ function CollaborationPopup({ open, handleClose, handleJoinCollab }: { open: boo
   )
 }
 
-export default CollaborationPopup
+export default JoinCollaborationPopup

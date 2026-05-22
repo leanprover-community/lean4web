@@ -21,7 +21,7 @@ import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
 import { codeAtom } from '../editor/code-atoms'
-import CollaborationPopup from '../Popups/Collaboration'
+import JoinCollaborationPopup from '../Popups/JoinCollaboration'
 import ImpressumPopup from '../Popups/Impressum'
 import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
@@ -326,7 +326,7 @@ export function Menu({
         handleClose={() => setLoadZulipOpen(false)}
         setContent={setContent}
       />
-      <CollaborationPopup
+      <JoinCollaborationPopup
         open={joinCollabOpen}
         handleJoinCollab={handleJoinCollab}
         handleClose={() => {
