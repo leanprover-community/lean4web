@@ -165,11 +165,13 @@ export function Menu({
   restart,
   codeMirror,
   setCodeMirror,
+  handleJoinCollab,
 }: {
   setContent: (code: string) => void
   restart?: () => void
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
+  handleJoinCollab: () => void
 }) {
   const [visibleProjects] = useAtom(visibleProjectsAtom)
   const [project, setProject] = useAtom(currentProjectAtom)
@@ -326,6 +328,7 @@ export function Menu({
       />
       <CollaborationPopup
         open={joinCollabOpen}
+        handleJoinCollab={handleJoinCollab}
         handleClose={() => {
           setJoinCollabOpen(false)
         }}

@@ -9,7 +9,7 @@ import { useAtom } from 'jotai/react'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import * as monaco from 'monaco-editor'
 import * as path from 'path'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Split from 'react-split'
 import { MonacoBinding } from 'y-monaco'
 import { WebrtcProvider } from 'y-webrtc'
@@ -48,14 +48,14 @@ function App() {
   const [, setScreenWidth] = useAtom(screenWidthAtom)
   const [project] = useAtom(currentProjectAtom)
   const [code, setCode] = useAtom(codeAtom)
-  const ydoc = useMemo(() => new Y.Doc(), [])
+  const [ydoc, setYdoc] = useState(() => new Y.Doc())
   const [provider, setProvider] = useState<WebrtcProvider | null>(null)
-  const [binding, setBinding] = useState<MonacoBinding | null>(null)
+  const bindingRef = useRef<MonacoBinding | null>(null)
   const [collabRoom] = useAtom(collabRoomAtom)
   const [collabDisplayName] = useAtom(collabDisplayNameAtom)
   const [collabPassword] = useAtom(collabPasswordAtom)
   const [usersInCollab, setUsersInCollab] = useAtom(usersInCollabAtom)
-  const [isCollaborating] = useAtom(isCollaboratingAtom)
+  const [isCollaborating, setIsCollaborating] = useAtom(isCollaboratingAtom)
   const [importedCode] = useAtom(importedCodeAtom)
 
   const [leaveCollabOpen, setLeaveCollabOpen] = useState(false)
@@ -92,22 +92,18 @@ function App() {
     return () => ydoc.destroy()
   }, [ydoc])
 
-  // this effect manages the lifetime of the Yjs document and the provider
-  useEffect(() => {
-    // const provider = new WebsocketProvider('wss://demos.yjs.dev/ws', roomname, ydoc)
+  function handleJoinCollab() {
     // See https://github.com/yjs/y-webrtc for options
-    if (!isCollaborating || !collabRoom) {
-      setProvider(null)
-      return
-    }
-
     const signalingUrl =
       (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
       window.location.host +
       '/yjs-signaling'
     console.log('[Lean4web] collab signaling url:', signalingUrl)
 
-    const provider = new WebrtcProvider(collabRoom, ydoc, {
+    const newYdoc = new Y.Doc()
+    setYdoc(newYdoc)
+
+    const provider = new WebrtcProvider(collabRoom, newYdoc, {
       maxConns: 50,
       password: collabPassword,
       signaling: [signalingUrl],
@@ -115,28 +111,74 @@ function App() {
     })
     if (collabDisplayName) {
       provider.awareness.setLocalStateField('user', { name: collabDisplayName })
+      provider.awareness.setLocalStateField('rejoined', Date.now())
     }
     setProvider(provider)
-    return () => {
-      provider?.destroy()
+  }
+
+  function handleLeaveCollab() {
+    console.log("handleLeaveCollab")
+    setIsCollaborating(false)
+    setUsersInCollab(undefined)
+    if (bindingRef.current) {
+      bindingRef.current.destroy()
+      bindingRef.current = null
     }
-  }, [ydoc, isCollaborating, collabRoom, collabDisplayName, collabPassword])
+    if (editor) {
+      const model = editor.getModel()
+      if (model) {
+        const remoteDecorations = model.getAllDecorations()
+          .filter(d => 
+            d.options.className?.includes('yRemoteSelection') ||
+            d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
+            d.options.beforeContentClassName?.includes('yRemoteSelectionHead')
+          )
+          .map(d => d.id)
+        if (remoteDecorations.length > 0) {
+          editor.deltaDecorations(remoteDecorations, [])
+        }
+      }
+    }
+    if(provider){
+      provider.awareness.setLocalState(null) // broadcast removal first
+      provider.destroy()
+      setProvider(null)
+    }
+    if(styleRefForRemoteCursors && styleRefForRemoteCursors.current) styleRefForRemoteCursors.current.innerHTML = '';
+    ydoc.destroy()
+    usernamesRef.current.clear()
+  }
 
   // this effect manages the lifetime of the editor binding
   useEffect(() => {
     if (provider == null || editor == null) {
       return
     }
-    console.log('reached', provider)
     const binding = new MonacoBinding(
       ydoc.getText(),
       editor.getModel()!,
       new Set([editor]),
       provider?.awareness,
     )
-    setBinding(binding)
+    bindingRef.current = binding
     return () => {
-      binding.destroy()
+      if (bindingRef.current === binding) {
+        binding.destroy()
+        bindingRef.current = null
+      }
+      const model = editor.getModel()
+      if (model) {
+        const remoteDecorations = model.getAllDecorations()
+          .filter(d => 
+            d.options.className?.includes('yRemoteSelection') ||
+            d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
+            d.options.beforeContentClassName?.includes('yRemoteSelectionHead')
+          )
+          .map(d => d.id)
+        if (remoteDecorations.length > 0) {
+          editor.deltaDecorations(remoteDecorations, [])
+        }
+      }
     }
   }, [ydoc, provider, editor])
 
@@ -333,47 +375,100 @@ function App() {
     }
   }, [handleKeyDown, handleKeyUp])
 
-  // keep the number of people in the room and their names updated and assign them colors
+  const styleRefForRemoteCursors = useRef<HTMLStyleElement | null>(null)
+  const usernamesRef = useRef<Map<number, string>>(new Map())
+  // Keep a style tag in which we will update cursor styles for each clientid
   useEffect(() => {
-    if (!provider) return
     const styleElement = document.createElement('style')
     document.head.appendChild(styleElement)
 
-    const update = () => {
-      let css = ''
-      const states = provider.awareness.getStates() as CollabStates
-      setUsersInCollab(states)
+    styleRefForRemoteCursors.current = styleElement
 
-      states.forEach((state, clientId) => {
-        // deterministically use clientId to assign remote cursor color for each connected user
-        const color = getCollaboratorColor(clientId)
-        const name = state?.user?.name
-        css += `
-            .yRemoteSelection-${clientId} {
-              background-color: color-mix(in srgb, var(${color}) 25%, transparent);
-              border-color: var(${color});
-            }
-            .yRemoteSelectionHead-${clientId} {
-              border-color: var(${color});
-            }
-            .yRemoteSelectionHead-${clientId}::after {
-              border-color: var(${color});
-              background-color: var(${color});
-            }
-            .view-line:hover .yRemoteSelectionHead-${clientId}::after {
-              content: '${name}';
-            }
-          `
-      })
-      styleElement.innerHTML = css
-    }
-    provider.awareness.on('change', update)
-    update()
     return () => {
-      provider.awareness.off('change', update)
-      document.head.removeChild(styleElement)
+      styleElement.remove()
+      styleRefForRemoteCursors.current = null
     }
-  }, [provider, setUsersInCollab])
+  }, [])
+
+  // This effect uses the Yjs provider awareness to track room members. Style changes are made in a separate effect.
+  useEffect(() => {
+    if (!provider) return
+
+    const update = (event?: { added: number[]; updated: number[]; removed: number[] }) => {
+      const added = event?.added || []
+      const updated = event?.updated || []
+      const removed = event?.removed || []
+
+      // If called manually (event is undefined) or user joins/leaves, we definitely update state
+      let changed = !event || added.length > 0 || removed.length > 0
+
+      const states = provider.awareness.getStates() as CollabStates
+
+      // If only updates occurred, check if any of them changed their name
+      if (!changed && updated.length > 0) {
+        for (const clientId of updated) {
+          const state = states.get(clientId)
+          const name = state?.user?.name || 'Anonymous'
+          if (usernamesRef.current.get(clientId) !== name) {
+            changed = true
+            break
+          }
+        }
+      }
+
+      if (changed) {
+        const newNames = new Map<number, string>()
+        states.forEach((state, clientId) => {
+          newNames.set(clientId, state?.user?.name || 'Anonymous')
+        })
+        usernamesRef.current = newNames
+
+        setUsersInCollab(new Map(states))
+      }
+    }
+
+    provider.awareness.on('update', update)
+    update()
+
+    return () => {
+      provider.awareness.off('update', update)
+    }
+  }, [provider])
+
+  // This effect updates cursor styles whenever room members change
+  useEffect(() => {
+    if (!styleRefForRemoteCursors.current) return
+    // If not collaborating, clear remote cursor styles
+    if (!provider || !usersInCollab) {
+      styleRefForRemoteCursors.current.innerHTML = ''
+      return
+    }
+
+    let css = ''
+    usersInCollab.forEach((state, clientId) => {
+      // deterministically use clientId to assign remote cursor color for each connected user
+      const color = getCollaboratorColor(clientId)
+      const name = (state?.user?.name || 'Anonymous').replace(/"/g, '\\"')
+      css += `
+          .yRemoteSelection-${clientId} {
+            background-color: color-mix(in srgb, var(${color}) 25%, transparent);
+            border-color: var(${color});
+          }
+          .yRemoteSelectionHead-${clientId} {
+            border-color: var(${color});
+          }
+          .yRemoteSelectionHead-${clientId}::after {
+            border-color: var(${color});
+            background-color: var(${color});
+          }
+          .view-line:hover .yRemoteSelectionHead-${clientId}::after {
+            content: "${name}";
+          }
+        `
+    })
+    styleRefForRemoteCursors.current.innerHTML = css
+
+  }, [usersInCollab, provider])
 
   return (
     <div className="app monaco-editor">
@@ -396,6 +491,7 @@ function App() {
           restart={leanMonaco?.restart}
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
+          handleJoinCollab={handleJoinCollab}
         />
       </nav>
       <Split
@@ -455,6 +551,7 @@ function App() {
         handleClose={() => {
           setLeaveCollabOpen(false)
         }}
+        handleLeaveCollab={handleLeaveCollab}
       />
     </div>
   )

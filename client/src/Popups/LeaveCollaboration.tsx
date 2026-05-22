@@ -4,7 +4,6 @@ import { FormEvent } from 'react'
 import { Popup } from '../navigation/Popup'
 import {
   collabRoomAtom,
-  isCollaboratingAtom,
   usersInCollabAtom,
 } from '../store/collaboration-atoms'
 import { getCollaboratorColor } from '../utils/collabColors'
@@ -13,19 +12,19 @@ import { getCollaboratorColor } from '../utils/collabColors'
 function LeaveCollaborationPopup({
   open,
   handleClose,
+  handleLeaveCollab
 }: {
   open: boolean
   handleClose: () => void
+  handleLeaveCollab: () => void
 }) {
-  const [, setIsCollaborating] = useAtom(isCollaboratingAtom)
   const [collabRoom] = useAtom(collabRoomAtom)
-  const [usersInCollab, setUsersInCollab] = useAtom(usersInCollabAtom)
+  const [usersInCollab] = useAtom(usersInCollabAtom)
 
   function onSubmit(ev: FormEvent) {
     ev.preventDefault()
-    setIsCollaborating(false)
-    setUsersInCollab(undefined)
     handleClose()
+    handleLeaveCollab()
   }
 
   return (
@@ -36,6 +35,7 @@ function LeaveCollaborationPopup({
           {Array.from(usersInCollab?.entries() ?? []).map(([clientId, state]) => (
             <div
               className="user-tag"
+              key={clientId}
               style={{ backgroundColor: `var(${getCollaboratorColor(clientId)})` }}
             >
               {state.user.name}
