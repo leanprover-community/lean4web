@@ -27,7 +27,8 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const environment = process.env.NODE_ENV;
 const isGithubAction = process.env.GITHUB_ACTIONS;
 const isDevelopment = environment === "development";
-const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() === "true" ?? false;
+const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() == "true" ?? false;
+const ENABLE_COLLAB = process.env.VITE_COLLAB?.toLowerCase() != "false" ?? true;
 
 const crtFile = process.env.SSL_CRT_FILE;
 const keyFile = process.env.SSL_KEY_FILE;
@@ -228,11 +229,130 @@ function FilenamesToUri(prefix, obj) {
   return obj;
 }
 
+if (ENABLE_COLLAB) {
+  console.log("[Lean4web]: enabling signaling server for collaboration.");
+}
+
+const yjsTopics = new Map(); // roomName -> Set<Connection>
+
+const sendYjs = (conn, message) => {
+  if (conn.readyState !== 0 && conn.readyState !== 1) {
+    conn.close();
+  }
+  try {
+    conn.send(JSON.stringify(message));
+  } catch (e) {
+    conn.close();
+  }
+};
+
+const setupYjsConnection = (conn, req) => {
+  const ip = req
+    ? req.headers["x-forwarded-for"] || req.socket.remoteAddress
+    : "unknown";
+  console.log(`[Lean4web]: new collab connection established from ${ip}`);
+  const subscribedTopics = new Set();
+  let closed = false;
+  // Check if connection is still alive
+  let pongReceived = true;
+  const pingInterval = setInterval(() => {
+    if (!pongReceived) {
+      conn.close();
+      clearInterval(pingInterval);
+    } else {
+      pongReceived = false;
+      try {
+        conn.ping();
+      } catch (e) {
+        conn.close();
+      }
+    }
+  }, 30000);
+  conn.on("pong", () => {
+    pongReceived = true;
+  });
+  conn.on("close", () => {
+    console.log(`[Lean4web]: collab connection closed from ${ip}`);
+    subscribedTopics.forEach((topicName) => {
+      const subs = yjsTopics.get(topicName) || new Set();
+      subs.delete(conn);
+      if (subs.size === 0) {
+        yjsTopics.delete(topicName);
+      }
+    });
+    subscribedTopics.clear();
+    closed = true;
+  });
+  conn.on("message", (message) => {
+    if (typeof message === "string" || message instanceof Buffer) {
+      try {
+        message = JSON.parse(message);
+      } catch (e) {
+        return;
+      }
+    }
+    if (message && message.type && !closed) {
+      switch (message.type) {
+        case "subscribe":
+          (message.topics || []).forEach((topicName) => {
+            if (typeof topicName === "string") {
+              let topic = yjsTopics.get(topicName);
+              if (!topic) {
+                topic = new Set();
+                yjsTopics.set(topicName, topic);
+              }
+              topic.add(conn);
+              subscribedTopics.add(topicName);
+              console.log(
+                `[Lean4web]: client subscribed to collab topic: ${topicName}`,
+              );
+            }
+          });
+          break;
+        case "unsubscribe":
+          (message.topics || []).forEach((topicName) => {
+            const subs = yjsTopics.get(topicName);
+            if (subs) {
+              subs.delete(conn);
+              console.log(
+                `[Lean4web]: client unsubscribed from collab topic: ${topicName}`,
+              );
+            }
+          });
+          break;
+        case "publish":
+          if (message.topic) {
+            const receivers = yjsTopics.get(message.topic);
+            console.log(
+              `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
+            );
+            if (receivers) {
+              message.clients = receivers.size;
+              receivers.forEach((receiver) => sendYjs(receiver, message));
+            }
+          }
+          break;
+        case "ping":
+          sendYjs(conn, { type: "pong" });
+      }
+    }
+  });
+};
+
 wss.addListener("connection", async function (ws, req) {
   const urlRegEx = /^\/websocket\/([\w.-]+)$/;
   const reRes = urlRegEx.exec(req.url);
   if (!reRes) {
-    console.error(`Connection refused because of invalid URL: ${req.url}`);
+    if (
+      ENABLE_COLLAB &&
+      (req.url === "/yjs-signaling" || req.url === "/yjs-signaling/")
+    ) {
+      setupYjsConnection(ws, req);
+      return;
+    }
+    console.error(
+      `[Lean4web]: connection refused because of invalid URL: ${req.url}`,
+    );
     return;
   }
   const project = reRes[1];

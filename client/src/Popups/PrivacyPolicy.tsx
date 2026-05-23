@@ -8,13 +8,16 @@ function PrivacyPopup({ open, handleClose }: { open: boolean; handleClose: () =>
       <h2>Privacy Policy</h2>
 
       <p>
-        Our server collects metadata (such as IP address, browser, operating system) and the data
-        that the user enters into the editor. The data is used to compute the Lean output and
+        Our server collects metadata (such as IP address, browser, operating system) and the content
+        which the user enters into the editor. The data is used to compute the Lean output and
         display it to the user. The information will be stored as long as the user stays on our
         website and will be deleted immediately afterwards. We keep logs to improve our software,
-        but the contained data is anonymised.
+        but the contained data is anonymised and does not contain user code.
       </p>
-
+      <p>
+        The collaboration feature keeps an in-memory list of active rooms. The content is then
+        shared directly peer-to-peer and therefore not stored on the server.
+      </p>
       <p>
         We don't use cookies but you can choose to save the settings in the browser store by
         activating the option in the settings.

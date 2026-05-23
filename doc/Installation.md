@@ -106,9 +106,9 @@ The following environment variables can be used to modify the server
 
 For example for `npm start`, `npm start:client`.
 
-| name   | values | default | description |
-| ------ | ------ | ------- | ----------- |
-| (none) |        |         |             |
+| name          | values          | default | description                      |
+| ------------- | --------------- | ------- | -------------------------------- |
+| `VITE_COLLAB` | `true`, `false` | `true`  | Enable the collaboration feature |
 
 #### Server
 
@@ -117,6 +117,7 @@ For example for `npm start`, `npm run production`, `npm run start:server`.
 | name                 | values                      | default         | description                                                                                                                                       |
 | -------------------- | --------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `NO_BWRAP`           | `true`, `false`             | `false`         | to disable to use of `bubblewrap` in production mode. This means `Lean` runs without any container on your system, which imposes a security risk! |
+| `VITE_COLLAB`        | `true`, `false`             | `true`          | Enable the collaboration feature                                                                                                                  |
 | `GITHUB_ACTIONS`     | `true` ,`false`             | `false`         | is set by github actions to change the verbosity of some server output                                                                            |
 | `NODE_ENV`           | `development`, `production` |                 |                                                                                                                                                   |
 | `PROJECTS_BASE_PATH` | string                      | `Projects`      | **relative path** from the root of this repo to the folder where the Lean projects are located.                                                   |

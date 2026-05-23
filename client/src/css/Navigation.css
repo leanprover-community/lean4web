@@ -12,7 +12,6 @@ nav > svg {
   width: unset;
   vertical-align: middle;
   margin-left: 0.5rem;
-  margin-right: 1rem;
   filter: invert(1);
   mix-blend-mode: difference;
 }
@@ -87,6 +86,29 @@ nav .nav-link:hover,
 nav select:hover {
   color: var(--vscode-menu-selectionForeground);
   background-color: var(--vscode-menu-selectionBackground);
+}
+
+nav .nav-link.leave-collab-button {
+  animation: pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+nav .nav-link.leave-collab-button span {
+  font-size: 0.8rem;
+}
+
+nav .nav-link.leave-collab-button:hover {
+  color: unset;
+  background-color: unset;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .tooltip {

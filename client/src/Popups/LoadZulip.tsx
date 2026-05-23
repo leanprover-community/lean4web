@@ -50,7 +50,7 @@ function LoadZulipPopup({
         Copy paste a zulip message here to extract code-blocks.{' '}
         <i>(mobile: "copy to clipboard", web: "view message source")</i>
       </p>
-      {error ? <p className="form-error">{error}</p> : null}
+      {error && <p className="form-error">{error}</p>}
       <form onSubmit={handleLoad}>
         <textarea
           name="Zulip message input"
