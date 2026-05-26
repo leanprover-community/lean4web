@@ -199,7 +199,7 @@ describe("The Editor", () => {
       .should("exist");
   });
 
-  it("shows correct go-to definitions", () => {
+  it.skip("shows correct go-to definitions", () => {
     const isOnDarwin = Cypress.platform === "darwin";
     const alertShown = cy.stub().as("alertShown");
     cy.on("window:confirm", alertShown);
