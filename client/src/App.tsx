@@ -360,7 +360,7 @@ function App() {
         code !== undefined
       ) {
         event.preventDefault()
-        save(code)
+        save(code, project?.folder)
       }
     },
     [code],

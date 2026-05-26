@@ -271,9 +271,9 @@ export function Menu({
         <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
         <NavButton
           icon={faDownload}
-          text="Save file"
+          text="Save"
           onClick={() => {
-            if (code !== undefined) save(code)
+            if (code !== undefined) save(code, project?.folder)
           }}
         />
         <NavButton
