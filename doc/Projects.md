@@ -24,8 +24,12 @@ The name of the folder is simultaneously the key used in the URL, e.g. a project
 
 You might want to look at the provided `MathlibDemo` project for comparison.
 
-**Important**: In order for `lake` to use any `leanOptions` specified in the project's lakefile, you must make sure there is a file `Projects/MyCoolProject/MyCoolProject.lean`
-where folder name and file name coincide.
+## project structure
+
+Any lake project can be used as a project. However, same features make some assumptions:
+
+- In order for `lake` to use any `leanOptions` specified in the project's lakefile, you must make sure there is a file `Projects/MyCoolProject/MyCoolProject.lean` where folder name and file name coincide.
+- The download button creates a ZIP where the editor content is placed in `MyCoolProject/MyCoolProject.lean` and the files `lean_toolchain`, `lake-manifest.json`, `lakefile.lean` (or `lakefile.toml`) are copied over. In particular, if the lakefile defines other targets, the downloaded lake project might not work as there might be missing these files.
 
 ## project config
 
