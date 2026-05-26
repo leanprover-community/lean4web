@@ -1,17 +1,12 @@
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 
-const textFile = (content: string) =>
-  new Blob([content], {
-    type: 'text/plain;charset=utf-8',
-  })
-
 /**
  * If a `project` is provided, downloads a complete Lake project as a ZIP.
  * Otherwise downloads a single Lean file.
  */
-export const save = async (content: string, project?: string) => {
-  const mainFile = textFile(content)
+export async function save(content: string, project?: string) {
+  const mainFile = new Blob([content], { type: 'text/plain;charset=utf-8' })
 
   // Single-file download
   if (!project) {
@@ -20,33 +15,17 @@ export const save = async (content: string, project?: string) => {
   }
 
   const projectFiles = [
-    {
-      endpoint: 'manifest',
-      filename: 'lake-manifest.json',
-    },
-    {
-      endpoint: 'toolchain',
-      filename: 'lean-toolchain',
-    },
-    {
-      endpoint: 'lakefile',
-      filename: 'lakefile.lean',
-    },
-    {
-      endpoint: 'lakefile-toml',
-      filename: 'lakefile.toml',
-    },
+    { endpoint: 'manifest', filename: 'lake-manifest.json' },
+    { endpoint: 'toolchain', filename: 'lean-toolchain' },
+    { endpoint: 'lakefile', filename: 'lakefile.lean' },
+    { endpoint: 'lakefile-toml', filename: 'lakefile.toml' },
   ]
 
   const fetchedFiles = await Promise.all(
     projectFiles.map(async ({ endpoint, filename }) => {
       try {
         const response = await fetch(`${window.location.origin}/api/${endpoint}/${project}`)
-
-        if (!response.ok) {
-          return undefined
-        }
-
+        if (!response.ok) return undefined
         return {
           filename,
           content: await response.text(),
@@ -70,9 +49,6 @@ export const save = async (content: string, project?: string) => {
     root?.file(file.filename, file.content)
   })
 
-  const zipBlob = await zip.generateAsync({
-    type: 'blob',
-  })
-
+  const zipBlob = await zip.generateAsync({ type: 'blob' })
   saveAs(zipBlob, `${project}.zip`)
 }
