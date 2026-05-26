@@ -20,7 +20,7 @@
     "jotai-react": "^0.0.0",
     "jotai-tanstack-query": "^0.11.0",
     "jotai": "^2.16.1",
-    "lean4monaco": "^1.1.9",
+    "lean4monaco": "^1.1.11",
     "lz-string": "^1.5.0",
     "react-dom": "^19.2.0",
     "react-split": "^2.0.14",
