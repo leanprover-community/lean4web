@@ -22,6 +22,7 @@ import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
 import { codeAtom } from '../editor/code-atoms'
 import ImpressumPopup from '../Popups/Impressum'
+import JoinCollaborationPopup from '../Popups/JoinCollaboration'
 import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
@@ -250,9 +251,9 @@ export function Menu({
         <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
         <NavButton
           icon={faDownload}
-          text="Save file"
+          text="Save"
           onClick={() => {
-            if (code !== undefined) save(code)
+            if (code !== undefined) save(code, project?.folder)
           }}
         />
         <NavButton
