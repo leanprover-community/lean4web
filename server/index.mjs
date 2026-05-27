@@ -12,6 +12,8 @@ import * as rpc from "vscode-ws-jsonrpc";
 import * as jsonrpcserver from "vscode-ws-jsonrpc/server";
 import { WebSocketServer } from "ws";
 
+import { zLeanWebProjectConfig } from "./types.mjs";
+
 let socketCounter = 0;
 
 function logStats() {
@@ -59,11 +61,24 @@ app.use("/api/projects", async (req, res) => {
 
       const projectDir = path.join(PROJECTS_BASE_PATH, entry.name);
       const configPath = path.join(projectDir, "leanweb-config.json");
+      const toolchainPath = path.join(projectDir, "lean-toolchain");
 
       let config = null;
       try {
         const raw = await fs.promises.readFile(configPath, "utf-8");
-        config = JSON.parse(raw);
+        const toolchain = (
+          await fs.promises.readFile(toolchainPath, "utf-8")
+        ).trim();
+
+        config = zLeanWebProjectConfig.parse(JSON.parse(raw));
+        config.name = config.name.replaceAll(
+          "_LeanVers_",
+          toolchainToName(toolchain, true),
+        );
+        config.name = config.name.replaceAll(
+          "_Vers_",
+          toolchainToName(toolchain, false),
+        );
       } catch (err) {
         console.debug(err);
         // File missing or invalid JSON — keep config as null
@@ -73,10 +88,11 @@ app.use("/api/projects", async (req, res) => {
         projects.push({
           folder: entry.name,
           config: {
-            name: String(config.name), // TODO: ensure this is not null
-            hidden: Boolean(config.hidden) ?? false,
-            default: Boolean(config.default) ?? false,
-            examples: config.examples ?? [], // TODO: validate
+            name: config.name,
+            hidden: config.hidden ?? false,
+            default: config.default ?? false,
+            examples: config.examples ?? [],
+            sortOrder: config.sortOrder ?? null,
           },
         });
       }
@@ -454,4 +470,15 @@ function hasWorkingBwrap() {
   if (which.status !== 0) return false;
   const test = cp.spawnSync("bwrap", ["--version"], { stdio: "ignore" });
   return test.status === 0;
+}
+
+function toolchainToName(toolchain, prefixLean) {
+  console.log(toolchain);
+  const nightly = toolchain.match(/^leanprover\/lean4\:nightly-(.*)$/);
+  if (nightly) return prefixLean ? `Lean ${nightly[1]}` : nightly[1];
+  console.log(nightly);
+  const release = toolchain.match(/^leanprover\/lean4\:(.*)$/);
+  console.log(release);
+  if (release) return prefixLean ? `Lean ${release[1]}` : release[1];
+  return "Lean";
 }
