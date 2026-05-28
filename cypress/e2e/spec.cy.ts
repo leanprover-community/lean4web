@@ -1,7 +1,7 @@
 describe("The Editor", () => {
   it("displays the version selection", () => {
     cy.visit("/");
-    cy.get("nav>*>select[name='leanVersion']").select("MathlibDemo");
+    cy.get("nav>select[name='leanVersion']").select("MathlibDemo");
     cy.iframe().contains("MathlibDemo.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
@@ -14,7 +14,7 @@ describe("The Editor", () => {
       .find(".modal-close")
       .click();
 
-    cy.get("nav>*>select[name='leanVersion']").select("Stable");
+    cy.get("nav>select[name='leanVersion']").select("Stable");
     cy.iframe().contains("Stable.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
