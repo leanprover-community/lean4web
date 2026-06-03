@@ -56,3 +56,19 @@ describe("The Settings can be changed for", () => {
       });
   });
 });
+
+describe("The version selection menu", () => {
+  it("displays a versioned name for the MathlibDemo project", () => {
+    cy.visit("/");
+    cy.get("nav>*>select[name='leanVersion'] option[value='MathlibDemo']")
+      .invoke("text")
+      .should("match", /^Lean v4\.[0-9]+\.[0-9]+(-rc[0-9]+)? with Mathlib/);
+  });
+
+  it("displays a versioned name for the Stable project", () => {
+    cy.visit("/");
+    cy.get("nav>*>select[name='leanVersion'] option[value='Stable']")
+      .invoke("text")
+      .should("match", /^Lean v4\./);
+  });
+});
