@@ -91,7 +91,7 @@ app.use("/api/projects", async (req, res) => {
             hidden: config.hidden ?? false,
             default: config.default ?? false,
             examples: config.examples ?? [],
-            sortOrder: config.sortOrder ?? null,
+            sortOrder: config.sortOrder ?? 0,
           },
         });
       }
@@ -342,9 +342,7 @@ function toolchainToName(toolchain, prefixLean) {
   console.log(toolchain);
   const nightly = toolchain.match(/^leanprover\/lean4\:nightly-(.*)$/);
   if (nightly) return prefixLean ? `Lean ${nightly[1]}` : nightly[1];
-  console.log(nightly);
   const release = toolchain.match(/^leanprover\/lean4\:(.*)$/);
-  console.log(release);
   if (release) return prefixLean ? `Lean ${release[1]}` : release[1];
   return "Lean";
 }

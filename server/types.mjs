@@ -9,6 +9,6 @@ export const zLeanWebProjectConfig = z.object({
   name: z.string(),
   hidden: z.boolean().optional(),
   default: z.boolean().optional(),
-  sortOrder: z.number().optional(),
+  sortOrder: z.number().min(0).optional(),
   examples: z.array(zLeanWebExample).optional(),
 });

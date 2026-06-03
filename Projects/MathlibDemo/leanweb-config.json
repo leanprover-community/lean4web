@@ -1,5 +1,6 @@
 {
-  "name": "Latest Mathlib",  "default": true,
+  "name": "_LeanVers_ with Mathlib",
+  "default": true,
   "hidden": false,
   "examples": [
     { "file": "MathlibDemo/Bijection.lean", "name": "Bijection" },
