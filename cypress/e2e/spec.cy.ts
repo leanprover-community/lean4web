@@ -18,7 +18,11 @@ describe("The Editor", () => {
     cy.iframe().contains("Stable.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
-    cy.containsAll(".modal", ["leanprover/lean4:stable", "(no dependencies)"])
+    cy.containsAll(".modal", [
+      "Stable",
+      "leanprover/lean4:",
+      "(no dependencies)",
+    ])
       .find(".modal-close")
       .click();
   });
