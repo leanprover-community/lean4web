@@ -473,7 +473,6 @@ function hasWorkingBwrap() {
 }
 
 function toolchainToName(toolchain, prefixLean) {
-  console.log(toolchain);
   const nightly = toolchain.match(/^leanprover\/lean4\:nightly-(.*)$/);
   if (nightly) return prefixLean ? `Lean ${nightly[1]}` : nightly[1];
   const release = toolchain.match(/^leanprover\/lean4\:(.*)$/);
