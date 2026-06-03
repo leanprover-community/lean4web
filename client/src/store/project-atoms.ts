@@ -22,7 +22,7 @@ function sortProjects(p: LeanWebProject, q: LeanWebProject): number {
 
   // Secondary sort: sortOrder field
   const n = q.config.sortOrder - p.config.sortOrder
-  if (n === 0) return n
+  if (n !== 0) return n
 
   // Fallback: names
   return p.config.name.localeCompare(q.config.name)
