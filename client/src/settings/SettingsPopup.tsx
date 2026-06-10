@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 import { Popup } from '../navigation/Popup'
 import { shallowEqualSubset } from '../utils/shallowEqual'
-import { settingsAtom } from './settings-atoms'
+import { localOnlySettingAtom, settingsAtom } from './settings-atoms'
 import type { MobileValues, Theme } from './settings-types'
 import { defaultSettings, Settings } from './settings-types'
 
@@ -21,6 +21,7 @@ export function SettingsPopup({
 }) {
   const [settings, applySettings] = useAtom(settingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingAtom)
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings((prev) => ({ ...prev, [key]: value }))
@@ -52,7 +53,6 @@ export function SettingsPopup({
           )}
         </select>
       </p> */}
-
         <h2>Editor settings</h2>
         <p>
           <label htmlFor="abbreviationCharacter">
@@ -107,7 +107,6 @@ export function SettingsPopup({
           />
           <label htmlFor="showExpectedType">Show Expected Type</label>
         </p>
-
         <h2>User settings</h2>
         <p>
           <label htmlFor="theme">Theme: </label>
@@ -197,6 +196,20 @@ export function SettingsPopup({
             value={newSettings.saved ? 'Apply & Save' : 'Apply'}
             onClick={() => applySettings(newSettings)}
           />
+        </p>
+        <h2>Local Settings</h2>
+        <p>
+          <i>These settings are always preserved in the browser's local storage.</i>
+        </p>
+        <p>
+          <Switch
+            id="hideNavbar"
+            onChange={() => {
+              setLocalOnlySettings('hideNavbar', !localOnlySettings.hideNavbar)
+            }}
+            checked={!!localOnlySettings.hideNavbar}
+          />
+          <label htmlFor="hideNavbar">Always hide the site navigation header for links from the Lean FRO or Mathlib Initiative</label>
         </p>
       </form>
     </Popup>

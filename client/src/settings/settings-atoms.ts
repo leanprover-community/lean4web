@@ -1,4 +1,4 @@
-import { atomWithStorage, selectAtom } from 'jotai/utils'
+import { atomWithStorage, createJSONStorage, selectAtom } from 'jotai/utils'
 import { atom } from 'jotai/vanilla'
 
 import { locationAtom } from '../store/location-atoms'
@@ -11,6 +11,70 @@ import { decodeSettingsFromURL, encodeSettingsToURL } from './settings-url-conve
 /** User settings as they are stored in storage */
 const settingsStoreAtom = atomWithStorage<PartialUserSettings>('lean4web:settings', {}, undefined, {
   getOnInit: true,
+})
+
+/** "Local Only" settings: always stored on localstorage, never in the URL, always in local storage */
+interface PartialLocalOnlyUserSettings {
+  /** Hide the navigation bar that otherwise appears when `?from=lean` or `?from=mathlib` is set. */
+  hideNavbar?: boolean
+}
+
+// Migrate legacy `hideNavBar` option to new setting (added June 2026, delete after October 2026)
+if (localStorage.getItem('hideNavBar')) {
+  if (localStorage.getItem('hideNavBar') === "true") {
+    localStorage.setItem("lean4web:local-settings", '{"hideNavbar":true}')
+  }
+  localStorage.removeItem('hideNavBar')
+}
+
+const localOnlyStorage = createJSONStorage<PartialLocalOnlyUserSettings>(() => localStorage)
+
+/** Delete local storage if all items become falsy */
+const prunedLocalOnlyStorage: typeof localOnlyStorage = {
+  ...localOnlyStorage,
+  setItem(key, value) {
+    if (Object.keys(value).length === 0) {
+      localOnlyStorage.removeItem(key)
+    } else {
+      localOnlyStorage.setItem(key, value)
+    }
+  },
+}
+
+const fullLocalOnlySettingsAtom = atomWithStorage<PartialLocalOnlyUserSettings>(
+  'lean4web:local-settings',
+  {},
+  prunedLocalOnlyStorage,
+  { getOnInit: true },
+)
+
+/** Local-only settings are always stored in local storage, never in the URL */
+export const localOnlySettingAtom = atom(
+  (get) => get(fullLocalOnlySettingsAtom),
+  (get, set, key: keyof PartialLocalOnlyUserSettings, value: boolean) => {
+    const next = { ...get(fullLocalOnlySettingsAtom) }
+    if (!value) {
+      delete next[key]
+    } else {
+      next[key] = true
+    }
+    set(fullLocalOnlySettingsAtom, next)
+  },
+)
+
+/** Static: do the URL's search parameters indicate that we should show a navigation header? */
+export const navBarRequestedAtom = atom<null | 'mathlib' | 'lean'>(() => {
+  const params = new URLSearchParams(window.location.search)
+  const fromParam = params.get('from')
+  if (fromParam === 'mathlib') return 'mathlib'
+  if (fromParam === 'lean') return 'lean'
+  return null
+})
+
+/** Which navigation header will be shown */
+export const navBarAtom = atom<null | 'mathlib' | 'lean'>((get) => {
+  if (get(localOnlySettingAtom).hideNavbar) return null
+  return get(navBarRequestedAtom)
 })
 
 /** The settings which are set in the searchParams of the opened URL */

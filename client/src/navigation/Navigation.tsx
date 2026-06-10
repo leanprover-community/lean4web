@@ -1,7 +1,7 @@
 import '../css/Modal.css'
 import '../css/Navigation.css'
 
-import { faArrowRotateRight, faCode, faInfoCircle, faEye } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRotateRight, faCode, faEye, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import {
   faArrowUpRightFromSquare,
   faBars,
@@ -15,7 +15,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
 import { lean4webConfig } from '../../config'
@@ -26,15 +26,13 @@ import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
 import ToolsPopup from '../Popups/Tools'
-import { mobileAtom } from '../settings/settings-atoms'
+import { localOnlySettingAtom, mobileAtom, navBarRequestedAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
 import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
-
-import { useNavBar } from '../context/NavBarContext'
 
 /** The menu items either appearing inside the dropdown or outside */
 function FlexibleMenu({
@@ -177,8 +175,8 @@ export function Menu({
   const [mobile] = useAtom(mobileAtom)
 
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
-
-  let navbar = useNavBar()
+  const navBarRequested = useAtomValue(navBarRequestedAtom);
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingAtom)
 
   return (
     <div className="menu">
@@ -251,7 +249,13 @@ export function Menu({
           }}
         />
         <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
-        { navbar.requiresNavBar != 0 && <NavButton icon={faEye} text={`${navbar.hideNavBar ? "Show" : "Hide"} Navbar`} onClick={() => navbar.setHideNavBar(!navbar.hideNavBar)} />}
+        {navBarRequested !== null && (
+          <NavButton
+            icon={faEye}
+            text={`${localOnlySettings.hideNavbar ? 'Show' : 'Hide'} site navigation`}
+            onClick={() => setLocalOnlySettings('hideNavbar', !localOnlySettings.hideNavbar)}
+          />
+        )}
         <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
         <NavButton
           icon={faDownload}

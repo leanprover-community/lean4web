@@ -1,52 +1,51 @@
-import React, { useState } from "react";
-import "./css/Nav.css";
+import './css/Nav.css'
 
-import GitHubIcon from "./assets/github.svg?react"
-import MathLibLogo from "./assets/mathlib_initiative_logo.svg?react"
-import { useNavBar } from "./context/NavBarContext";
+import { useAtomValue } from 'jotai'
+import React, { useState } from 'react'
+
+import GitHubIcon from './assets/github.svg?react'
+import MathLibLogo from './assets/mathlib_initiative_logo.svg?react'
+import { navBarAtom } from './settings/settings-atoms'
 
 export interface NavItem {
-  title: React.ReactNode;
-  url?: string;
-  active?: boolean;
-  alt?: string;
-  classes?: string;
-  blank?: boolean;
+  title: React.ReactNode
+  url?: string
+  active?: boolean
+  alt?: string
+  classes?: string
+  blank?: boolean
 }
 
 const NavItemComponent: React.FC<{ item: NavItem }> = ({ item }) => {
-  const classes = item.classes ? ` ${item.classes}` : "";
+  const classes = item.classes ? ` ${item.classes}` : ''
 
   return (
-    <li className={`nav-item-lean${item.active ? " active" : ""}`}>
+    <li className={`nav-item-lean${item.active ? ' active' : ''}`}>
       {item.url ? (
         <a
           href={item.url}
           className={`bar-link-lean${classes}`}
-          aria-label={item.alt || ""}
-          target={item.blank ? "_blank" : "_self"}
-          rel={item.blank ? "noopener noreferrer" : undefined}
+          aria-label={item.alt || ''}
+          target={item.blank ? '_blank' : '_self'}
+          rel={item.blank ? 'noopener noreferrer' : undefined}
         >
           {item.title}
         </a>
       ) : (
-        <button
-          className={`bar-link-lean${classes}`}
-          aria-label={item.alt || ""}
-        >
+        <button className={`bar-link-lean${classes}`} aria-label={item.alt || ''}>
           {item.title}
         </button>
       )}
     </li>
-  );
-};
+  )
+}
 
 interface NavBarProps {
-  logo: React.FC,
-  leftItems: NavItem[];
-  rightItems: NavItem[];
-  menuItems: NavItem[];
-  externalLinks: NavItem[];
+  logo: React.FC
+  leftItems: NavItem[]
+  rightItems: NavItem[]
+  menuItems: NavItem[]
+  externalLinks: NavItem[]
   classname: string
 }
 
@@ -56,10 +55,10 @@ export const NavBar: React.FC<NavBarProps> = ({
   rightItems,
   menuItems,
   externalLinks,
-  classname
+  classname,
 }) => {
-  const [isNavOpen, setIsNavOpen] = useState(false);
-  const [isFroOpen, setIsFroOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false)
+  const [isFroOpen, setIsFroOpen] = useState(false)
 
   return (
     <header className={`site-header ${classname}`}>
@@ -136,63 +135,63 @@ export const NavBar: React.FC<NavBarProps> = ({
         </menu>
       </nav>
     </header>
-  );
-};
+  )
+}
 
-const LeanLogo: React.FC = () =>
-    <a className="nav-logo" href="https://lean-lang.org/">
-      <svg
-        width="70"
-        height="20"
-        viewBox="0 0 486 169"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="#386EE0"
-        fill="transparent"
-        strokeWidth="10"
-      >
-        <path
-          d="M206.333 5.67949H105.667M206.333 5.67949L243.25 84.5M206.333 5.67949V84.5M243.25 84.5H317.549M243.25 84.5L279.667 163.321L280.889 163.318L317.549 84.5M206.333 84.5V163.321H5V5M206.333 84.5H105.667M317.549 84.5L353 5.67949M353 5.67949V164M353 5.67949H353.667L480.333 163.454H481V5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        ></path>
-      </svg>
-    </a>
+const LeanLogo: React.FC = () => (
+  <a className="nav-logo" href="https://lean-lang.org/">
+    <svg
+      width="70"
+      height="20"
+      viewBox="0 0 486 169"
+      xmlns="http://www.w3.org/2000/svg"
+      stroke="#386EE0"
+      fill="transparent"
+      strokeWidth="10"
+    >
+      <path
+        d="M206.333 5.67949H105.667M206.333 5.67949L243.25 84.5M206.333 5.67949V84.5M243.25 84.5H317.549M243.25 84.5L279.667 163.321L280.889 163.318L317.549 84.5M206.333 84.5V163.321H5V5M206.333 84.5H105.667M317.549 84.5L353 5.67949M353 5.67949V164M353 5.67949H353.667L480.333 163.454H481V5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      ></path>
+    </svg>
+  </a>
+)
 
 const NavBarLean: React.FC = () => {
   const outItems: NavItem[] = [
-    { title: "Playground", url: "https://live.lean-lang.org/", blank: true, active: true },
+    { title: 'Playground', url: 'https://live.lean-lang.org/', blank: true, active: true },
     {
-      title: "Reservoir",
-      url: "https://reservoir.lean-lang.org/",
+      title: 'Reservoir',
+      url: 'https://reservoir.lean-lang.org/',
       blank: true,
     },
-  ];
+  ]
 
   const rightItems: NavItem[] = [
     {
-      title: <GitHubIcon style={{fill: "var(--color-text)"}}  />,
-      alt: "Github",
-      url: "https://github.com/leanprover/lean4",
+      title: <GitHubIcon style={{ fill: 'var(--color-text)' }} />,
+      alt: 'Github',
+      url: 'https://github.com/leanprover/lean4',
       blank: true,
     },
-  ];
+  ]
 
   const leftItems: NavItem[] = [
-    { title: "Install", url: "https://lean-lang.org/install" },
-    { title: "Learn", url: "https://lean-lang.org/learn" },
-    { title: "Community", url: "https://lean-lang.org/community" },
-    { title: "Use Cases", url: "https://lean-lang.org/use-cases" },
-    { title: "FRO", url: "https://lean-lang.org/fro" },
-  ];
+    { title: 'Install', url: 'https://lean-lang.org/install' },
+    { title: 'Learn', url: 'https://lean-lang.org/learn' },
+    { title: 'Community', url: 'https://lean-lang.org/community' },
+    { title: 'Use Cases', url: 'https://lean-lang.org/use-cases' },
+    { title: 'FRO', url: 'https://lean-lang.org/fro' },
+  ]
 
   const menuItems = [
-    { title: "Home", url: "https://lean-lang.org/fro" },
-    { title: "About", url: "https://lean-lang.org/fro/about" },
-    { title: "Team", url: "https://lean-lang.org/fro/team" },
-    { title: "Roadmap", url: "https://lean-lang.org/fro/roadmap" },
-    { title: "Contact", url: "https://lean-lang.org/fro/contact" },
-
-  ];
+    { title: 'Home', url: 'https://lean-lang.org/fro' },
+    { title: 'About', url: 'https://lean-lang.org/fro/about' },
+    { title: 'Team', url: 'https://lean-lang.org/fro/team' },
+    { title: 'Roadmap', url: 'https://lean-lang.org/fro/roadmap' },
+    { title: 'Contact', url: 'https://lean-lang.org/fro/contact' },
+  ]
 
   return (
     <NavBar
@@ -203,46 +202,49 @@ const NavBarLean: React.FC = () => {
       externalLinks={outItems}
       classname="lean"
     />
-  );
-};
-  
-const MathLibIniciativeLogo = () =>
-    <MathLibLogo height={40} width={100}/>
+  )
+}
+
+const MathLibIniciativeLogo = () => <MathLibLogo height={40} width={100} />
 
 const NavBarMathLib: React.FC = () => {
   const outItems: NavItem[] = [
-    { title: "Lean", url: "https://lean-lang.org/", blank: true },
-    { title: "Mathlib Community", url: "https://leanprover-community.github.io/", blank: true },
-    { title: "Playground", url: "https://live.lean-lang.org/?from=lean", blank: true, active: true },
-    { title: "Reservoir", url: "https://reservoir.lean-lang.org/", blank: true },
-  ];
+    { title: 'Lean', url: 'https://lean-lang.org/', blank: true },
+    { title: 'Mathlib Community', url: 'https://leanprover-community.github.io/', blank: true },
+    {
+      title: 'Playground',
+      url: 'https://live.lean-lang.org/?from=lean',
+      blank: true,
+      active: true,
+    },
+    { title: 'Reservoir', url: 'https://reservoir.lean-lang.org/', blank: true },
+  ]
 
   const rightItems: NavItem[] = [
     {
-      title: <GitHubIcon style={{fill: "var(--color-text)"}}  />,
-      alt: "Github",
-      url: "https://github.com/leanprover/lean4",
+      title: <GitHubIcon style={{ fill: 'var(--color-text)' }} />,
+      alt: 'Github',
+      url: 'https://github.com/leanprover/lean4',
       blank: true,
-    }
-  ];
+    },
+  ]
 
   const leftItems: NavItem[] = [
-    { title: "About", url: "https://mathlib-initiative.org/about" },
-    { title: "Roadmap", url: "https://mathlib-initiative.org/roadmap" },
-    { title: "Team", url: "https://mathlib-initiative.org/team" },
-    { title: "Careers", url: "https://mathlib-initiative.org/careers" },
-    { title: "Support Us", url: "https://mathlib-initiative.org/support" },
-    { title: "Contact", url: "https://mathlib-initiative.org/contact" },
-  ];
+    { title: 'About', url: 'https://mathlib-initiative.org/about' },
+    { title: 'Roadmap', url: 'https://mathlib-initiative.org/roadmap' },
+    { title: 'Team', url: 'https://mathlib-initiative.org/team' },
+    { title: 'Careers', url: 'https://mathlib-initiative.org/careers' },
+    { title: 'Support Us', url: 'https://mathlib-initiative.org/support' },
+    { title: 'Contact', url: 'https://mathlib-initiative.org/contact' },
+  ]
 
   const menuItems = [
-    { title: "Home", url: "https://lean-lang.org/fro" },
-    { title: "About", url: "https://lean-lang.org/fro/about" },
-    { title: "Team", url: "https://lean-lang.org/fro/team" },
-    { title: "Roadmap", url: "https://lean-lang.org/fro/roadmap" },
-    { title: "Contact", url: "https://lean-lang.org/fro/contact" },
-
-  ];
+    { title: 'Home', url: 'https://lean-lang.org/fro' },
+    { title: 'About', url: 'https://lean-lang.org/fro/about' },
+    { title: 'Team', url: 'https://lean-lang.org/fro/team' },
+    { title: 'Roadmap', url: 'https://lean-lang.org/fro/roadmap' },
+    { title: 'Contact', url: 'https://lean-lang.org/fro/contact' },
+  ]
 
   return (
     <NavBar
@@ -253,18 +255,17 @@ const NavBarMathLib: React.FC = () => {
       externalLinks={outItems}
       classname="mathlib"
     />
-  );
-};
-
-
-const NavBarComp: React.FC = () => {
-  let navBar = useNavBar()
-
-  return (!navBar.hideNavBar && <>
-    {navBar.requiresNavBar === 1 && <NavBarMathLib/>}
-    {navBar.requiresNavBar === 2 && <NavBarLean/>}
-  </>)
-
+  )
 }
 
-export {NavBarLean, NavBarMathLib, NavBarComp};
+const NavBarComp: React.FC = () => {
+  const navBar = useAtomValue(navBarAtom)
+  return (
+    <>
+      {navBar === 'mathlib' && <NavBarMathLib />}
+      {navBar === 'lean' && <NavBarLean />}
+    </>
+  )
+}
+
+export { NavBarComp, NavBarLean, NavBarMathLib }
