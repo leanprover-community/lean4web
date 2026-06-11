@@ -78,6 +78,10 @@ nav select {
   padding-bottom: 0.6rem;
 }
 
+nav .nav-link.disabled {
+  cursor: not-allowed;
+}
+
 /* Zulip logo (instead of font-awesome icon) */
 nav .nav-link svg {
   width: 1.4rem;
@@ -147,4 +151,78 @@ nav select:hover {
 .tooltip .tooltiptext .commit-sha {
   font-style: italic;
   color: var(--vscode-textLink-foreground);
+}
+
+.comparator-warning {
+  max-width: 290px;
+  color: var(--vscode-editorHoverWidget-foreground);
+  background-color: var(--comparator-warning-bg);
+  font-size: 90%;
+  padding: 0.9em 1em;
+  box-shadow: 0 0.2rem 0.6rem 0 var(--vscode-widget-shadow);
+  border: 1px solid var(--vscode-editorHoverWidget-border);
+  border-radius: 0.4em;
+  position: relative;
+}
+
+.comparator-warning.dark {
+  --comparator-warning-bg: oklch(0.2264 0.1066 0);
+}
+.comparator-warning.light {
+  --comparator-warning-bg: oklch(0.9581 0.0293 0);
+}
+.comparator-warning.cobalt {
+  --comparator-warning-bg: oklch(0.2981 0.1382 0);
+}
+
+.comparator-warning button.comparator-warning-close {
+  float: right;
+  font-size: 1.6em;
+  cursor: pointer;
+  padding-top: 0.1em;
+  border: none;
+  background: none;
+  color: inherit;
+  margin: 0;
+}
+.comparator-warning button.comparator-warning-close:hover {
+  color: var(--vscode-inputOption-activeForeground);
+}
+
+.comparator-warning p {
+  margin: 0 0 0.6em;
+}
+
+.comparator-warning-arrow {
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  margin-top: -0.5em;
+  top: 0;
+}
+
+.comparator-warning-arrow::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: var(--comparator-warning-bg);
+  border: 1px solid var(--vscode-editorHoverWidget-border);
+  transform: rotate(45deg);
+  border-right: none;
+  border-bottom: none;
+}
+
+.comparator-warning-perma-dismiss {
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  color: var(--vscode-textLink-foreground);
+  font-weight: bold;
+}
+
+.comparator-warning-perma-dismiss:hover {
+  text-decoration: underline;
 }

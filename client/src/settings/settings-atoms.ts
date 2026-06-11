@@ -17,12 +17,14 @@ const settingsStoreAtom = atomWithStorage<PartialUserSettings>('lean4web:setting
 interface PartialLocalOnlyUserSettings {
   /** Hide the navigation bar that otherwise appears when `?from=lean` or `?from=mathlib` is set. */
   hideNavbar?: boolean
+  /** Suppress the warning about checking code from unknown websites with comparator. */
+  ignoreComparatorWarning?: boolean
 }
 
 // Migrate legacy `hideNavBar` option to new setting (added June 2026, delete after October 2026)
 if (localStorage.getItem('hideNavBar')) {
-  if (localStorage.getItem('hideNavBar') === "true") {
-    localStorage.setItem("lean4web:local-settings", '{"hideNavbar":true}')
+  if (localStorage.getItem('hideNavBar') === 'true') {
+    localStorage.setItem('lean4web:local-settings', '{"hideNavbar":true}')
   }
   localStorage.removeItem('hideNavBar')
 }
@@ -49,7 +51,7 @@ const fullLocalOnlySettingsAtom = atomWithStorage<PartialLocalOnlyUserSettings>(
 )
 
 /** Local-only settings are always stored in local storage, never in the URL */
-export const localOnlySettingAtom = atom(
+export const localOnlySettingsAtom = atom(
   (get) => get(fullLocalOnlySettingsAtom),
   (get, set, key: keyof PartialLocalOnlyUserSettings, value: boolean) => {
     const next = { ...get(fullLocalOnlySettingsAtom) }
@@ -73,7 +75,7 @@ export const navBarRequestedAtom = atom<null | 'mathlib' | 'lean'>(() => {
 
 /** Which navigation header will be shown */
 export const navBarAtom = atom<null | 'mathlib' | 'lean'>((get) => {
-  if (get(localOnlySettingAtom).hideNavbar) return null
+  if (get(localOnlySettingsAtom).hideNavbar) return null
   return get(navBarRequestedAtom)
 })
 
