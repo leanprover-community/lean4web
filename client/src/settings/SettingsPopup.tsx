@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 import { Popup } from '../navigation/Popup'
 import { shallowEqualSubset } from '../utils/shallowEqual'
-import { localOnlySettingAtom, settingsAtom } from './settings-atoms'
+import { localOnlySettingsAtom, settingsAtom } from './settings-atoms'
 import type { MobileValues, Theme } from './settings-types'
 import { defaultSettings, Settings } from './settings-types'
 
@@ -21,7 +21,7 @@ export function SettingsPopup({
 }) {
   const [settings, applySettings] = useAtom(settingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
-  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingAtom)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings((prev) => ({ ...prev, [key]: value }))
@@ -209,8 +209,23 @@ export function SettingsPopup({
             }}
             checked={!!localOnlySettings.hideNavbar}
           />
-          <label htmlFor="hideNavbar">Always hide the site navigation header for links from the Lean FRO or Mathlib Initiative</label>
+          <label htmlFor="hideNavbar">
+            Always hide the site navigation header for links from the Lean FRO or Mathlib Initiative
+          </label>
         </p>
+        <p>
+          <Switch
+            id="comparatorWarning"
+            onChange={() => {
+              setLocalOnlySettings(
+                'ignoreComparatorWarning',
+                !localOnlySettings.ignoreComparatorWarning,
+              )
+            }}
+            checked={!!localOnlySettings.ignoreComparatorWarning}
+          />
+          <label htmlFor="comparatorWarning">Hide warnings about code from unknown sources</label>
+        </p>{' '}
       </form>
     </Popup>
   )
