@@ -1,0 +1,18 @@
+name = "verso-demo"
+reservoir = false
+defaultTargets = ["VersoDemo"]
+
+[leanOptions]
+pp.unicode.fun = true
+
+[[require]]
+name = "verso"
+scope = "leanprover"
+rev = "versobox-shim"
+
+[[lean_lib]]
+name = "VersoDemo"
+
+[[lean_exe]]
+name = "generate-doc"
+root = "Main"

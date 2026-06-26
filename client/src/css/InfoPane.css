@@ -1,0 +1,27 @@
+#infopane [role='tablist'] {
+  padding-inline: 0.5rem;
+  border-bottom: 1px solid var(--vscode-editorWidget-border);
+}
+
+.infoview-tab {
+  border: none;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+  padding: 0.4em 0.8em;
+  border-bottom: 1px solid transparent;
+  color: var(--vscode-descriptionForeground);
+}
+
+.infoview-tab:hover {
+  color: var(--vscode-panelTitle-activeForeground);
+}
+
+.infoview-tab.selected {
+  color: var(--vscode-panelTitle-activeForeground);
+  border-bottom-color: var(--vscode-focusBorder);
+}
+
+.infoview-tab:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+}

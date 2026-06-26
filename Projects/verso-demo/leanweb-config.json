@@ -1,0 +1,13 @@
+{
+  "name": "_LeanVers_ with Verso",
+  "hidden": false,
+  "verso": true,
+  "examples": [
+    {
+      "file": "VersoDemo/IntegralApprox.lean",
+      "name": "Verso Math and Programming"
+    },
+    { "file": "VersoDemo/Cantor.lean", "name": "Verso Proof States" },
+    { "file": "VersoDemo/DFADiagram.lean", "name": "Verso Diagrams" }
+  ]
+}
