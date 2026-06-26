@@ -176,9 +176,18 @@ export default function InfoPane({ codeMirror, infoviewRef, isVerso, leanMonaco 
               This Lean file does not import VersoManual, so it's not possible to read out a Lean
               document.
             </p>
+            <p>A minimal Verso document looks like this:</p>
+            <pre>
+              {`import VersoManual
+open Verso Genre Manual InlineLean
+
+#doc (Manual) "Example" =>
+
+Hello World`}
+            </pre>
             <p>
-              Switch to the Infoview tab (or a different project) to work on a normal Lean
-              development.
+              If you want to work on a normal Lean development, switch to the Infoview tab (or a
+              different project).
             </p>
           </div>
         ) : versoState === 'noDoc' ? (
