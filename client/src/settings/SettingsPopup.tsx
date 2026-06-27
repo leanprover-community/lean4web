@@ -55,7 +55,7 @@ export function SettingsPopup({
       </p> */}
 
         <h2>Editor settings</h2>
-        <p>
+        <div>
           <label htmlFor="abbreviationCharacter">
             Lead character to trigger unicode input mode:
           </label>
@@ -67,8 +67,8 @@ export function SettingsPopup({
             }}
             value={newSettings.abbreviationCharacter}
           />
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="wordWrap"
             onChange={() => {
@@ -77,8 +77,8 @@ export function SettingsPopup({
             checked={newSettings.wordWrap}
           />
           <label htmlFor="wordWrap">Wrap code</label>
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="ruler"
             onChange={() => {
@@ -104,8 +104,8 @@ export function SettingsPopup({
               }}
             />
           )}
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="acceptSuggestionOnEnter"
             onChange={() => {
@@ -114,8 +114,8 @@ export function SettingsPopup({
             checked={newSettings.acceptSuggestionOnEnter}
           />
           <label htmlFor="acceptSuggestionOnEnter">Accept suggestion on Enter</label>
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="showGoalNames"
             onChange={() => {
@@ -124,8 +124,8 @@ export function SettingsPopup({
             checked={newSettings.showGoalNames}
           />
           <label htmlFor="showGoalNames">Show goal names</label>
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="showExpectedType"
             onChange={() => {
@@ -134,10 +134,10 @@ export function SettingsPopup({
             checked={newSettings.showExpectedType}
           />
           <label htmlFor="showExpectedType">Show expected type</label>
-        </p>
+        </div>
 
         <h2>User settings</h2>
-        <p>
+        <div>
           <label htmlFor="theme">Theme: </label>
           <select
             id="theme"
@@ -155,7 +155,7 @@ export function SettingsPopup({
             <option value="Default High Contrast">high contrast</option>
             <option value="Cobalt">cobalt</option>
           </select>
-        </p>
+        </div>
         <div>
           <span>Layout: </span>
           <Box sx={{ width: 200 }}>
@@ -173,7 +173,7 @@ export function SettingsPopup({
             />
           </Box>
         </div>
-        <p>
+        <div>
           <Switch
             id="compress"
             onChange={() => {
@@ -182,8 +182,8 @@ export function SettingsPopup({
             checked={newSettings.compress}
           />
           <label htmlFor="compress">Compress code in URL</label>
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="inUrl"
             onChange={() => {
@@ -192,12 +192,12 @@ export function SettingsPopup({
             checked={newSettings.inUrl}
           />
           <label htmlFor="inUrl">Add settings to URL</label>
-        </p>
+        </div>
         <h2>Save</h2>
         <p>
           <i>Editor settings and User settings are not preserved unless you opt-in to save them.</i>
         </p>
-        <p>
+        <div>
           <Switch
             id="savingAllowed"
             onChange={() => {
@@ -206,8 +206,8 @@ export function SettingsPopup({
             checked={newSettings.saved}
           />
           <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
-        </p>
-        <p>
+        </div>
+        <div>
           {!shallowEqualSubset(defaultSettings, newSettings) && (
             <button
               id="resetSettings"
@@ -225,7 +225,7 @@ export function SettingsPopup({
             value={newSettings.saved ? 'Apply & Save' : 'Apply'}
             onClick={() => applySettings(newSettings)}
           />
-        </p>
+        </div>
       </form>
     </Popup>
   )
