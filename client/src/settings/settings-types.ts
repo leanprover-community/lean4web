@@ -10,6 +10,8 @@ export interface Settings {
   showExpectedType: boolean
   /** Compress the `code=` in the URL into `codez=` using LZ-string */
   compress: boolean
+  /** If present, show a ruler at the specified position */
+  rulerPosition?: number
   /** Display code editor and infoview in narrow, vertically stacked, mobile-friendly mode.
    * Usually inferred from window width. */
   mobile: MobileValues

@@ -79,13 +79,43 @@ export function SettingsPopup({
         </p>
         <p>
           <Switch
+            id="rulerPosition"
+            onChange={() => {
+              updateSetting(
+                'rulerPosition',
+                newSettings.rulerPosition != undefined ? undefined : 100,
+              )
+            }}
+            checked={newSettings.rulerPosition != undefined}
+          />
+          <label htmlFor="showExpectedType">Show ruler</label>
+          {newSettings.rulerPosition != undefined && (
+            <TextField
+              className="ruler-input"
+              type="number"
+              value={newSettings.rulerPosition}
+              slotProps={{
+                htmlInput: {
+                  min: 20,
+                  max: 500,
+                  step: 10,
+                },
+              }}
+              onChange={(e) => {
+                updateSetting('rulerPosition', Number(e.target.value))
+              }}
+            />
+          )}
+        </p>
+        <p>
+          <Switch
             id="acceptSuggestionOnEnter"
             onChange={() => {
               updateSetting('acceptSuggestionOnEnter', !newSettings.acceptSuggestionOnEnter)
             }}
             checked={newSettings.acceptSuggestionOnEnter}
           />
-          <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
+          <label htmlFor="acceptSuggestionOnEnter">Accept suggestion on Enter</label>
         </p>
         <p>
           <Switch
@@ -95,7 +125,7 @@ export function SettingsPopup({
             }}
             checked={newSettings.showGoalNames}
           />
-          <label htmlFor="showGoalNames">Show Goal Names</label>
+          <label htmlFor="showGoalNames">Show goal names</label>
         </p>
         <p>
           <Switch
@@ -105,7 +135,7 @@ export function SettingsPopup({
             }}
             checked={newSettings.showExpectedType}
           />
-          <label htmlFor="showExpectedType">Show Expected Type</label>
+          <label htmlFor="showExpectedType">Show expected type</label>
         </p>
 
         <h2>User settings</h2>
