@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box'
 import Slider from '@mui/material/Slider'
 import Switch from '@mui/material/Switch'
+import TextField from '@mui/material/TextField'
 import { useAtom } from 'jotai/react'
 import { useState } from 'react'
 
@@ -79,21 +80,18 @@ export function SettingsPopup({
         </p>
         <p>
           <Switch
-            id="rulerPosition"
+            id="ruler"
             onChange={() => {
-              updateSetting(
-                'rulerPosition',
-                newSettings.rulerPosition != undefined ? undefined : 100,
-              )
+              updateSetting('ruler', newSettings.ruler != undefined ? undefined : 100)
             }}
-            checked={newSettings.rulerPosition != undefined}
+            checked={newSettings.ruler != undefined}
           />
           <label htmlFor="showExpectedType">Show ruler</label>
-          {newSettings.rulerPosition != undefined && (
+          {newSettings.ruler != undefined && (
             <TextField
               className="ruler-input"
               type="number"
-              value={newSettings.rulerPosition}
+              value={newSettings.ruler}
               slotProps={{
                 htmlInput: {
                   min: 20,
@@ -102,7 +100,7 @@ export function SettingsPopup({
                 },
               }}
               onChange={(e) => {
-                updateSetting('rulerPosition', Number(e.target.value))
+                updateSetting('ruler', Number(e.target.value))
               }}
             />
           )}

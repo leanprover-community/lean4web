@@ -6,6 +6,7 @@ export function decodeSettingsFromURL(searchParams: URLSearchParams): PartialUse
     acceptSuggestionOnEnter: parseBooleanSearchParam(searchParams, 'acceptSuggestionOnEnter'),
     mobile: parseBooleanSearchParam(searchParams, 'mobile'),
     compress: parseBooleanSearchParam(searchParams, 'compress'),
+    ruler: parseNumber(searchParams, 'ruler'),
     showGoalNames: parseBooleanSearchParam(searchParams, 'showGoalNames'),
     showExpectedType: parseBooleanSearchParam(searchParams, 'showExpectedType'),
     theme: decodeTheme(searchParams.get('theme') ?? undefined),
@@ -25,6 +26,11 @@ function decodeTheme(val?: string): Theme | undefined {
     default:
       console.warn(`expected search param 'theme' to be 'light' or 'dark'.`)
   }
+}
+
+function parseNumber(searchParams: URLSearchParams, name: string) {
+  const param = searchParams.get(name) ?? undefined
+  return param ? Number(param) : undefined
 }
 
 function parseBooleanSearchParam(searchParams: URLSearchParams, name: string) {
