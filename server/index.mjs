@@ -271,7 +271,7 @@ const sendYjs = (conn, message) => {
   }
   try {
     conn.send(JSON.stringify(message));
-  } catch (e) {
+  } catch {
     conn.close();
   }
 };
@@ -293,7 +293,7 @@ const setupYjsConnection = (conn, req) => {
       pongReceived = false;
       try {
         conn.ping();
-      } catch (e) {
+      } catch {
         conn.close();
       }
     }
@@ -317,7 +317,7 @@ const setupYjsConnection = (conn, req) => {
     if (typeof message === "string" || message instanceof Buffer) {
       try {
         message = JSON.parse(message);
-      } catch (e) {
+      } catch {
         return;
       }
     }

@@ -328,6 +328,8 @@ function App() {
       leanMonacoEditor.dispose()
       _leanMonaco.dispose()
     }
+    // a change to `code` must not restart the editor
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infoviewRef, editorRef, options, project, settings])
 
   /** Set editor content to the code loaded from the URL */
@@ -368,7 +370,7 @@ function App() {
         save(code, project?.folder)
       }
     },
-    [code],
+    [code, project],
   )
 
   useEffect(() => {
@@ -438,7 +440,7 @@ function App() {
     return () => {
       provider.awareness.off('update', update)
     }
-  }, [provider])
+  }, [provider, setUsersInCollab])
 
   // This effect updates cursor styles whenever room members change
   useEffect(() => {
