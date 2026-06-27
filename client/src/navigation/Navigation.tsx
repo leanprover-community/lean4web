@@ -21,8 +21,8 @@ import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
 import { codeAtom } from '../editor/code-atoms'
-import JoinCollaborationPopup from '../Popups/JoinCollaboration'
 import ImpressumPopup from '../Popups/Impressum'
+import JoinCollaborationPopup from '../Popups/JoinCollaboration'
 import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
@@ -196,7 +196,7 @@ export function Menu({
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
 
   return (
-    <div className="menu">
+    <>
       {project && (
         <select
           name="leanVersion"
@@ -333,6 +333,6 @@ export function Menu({
           setJoinCollabOpen(false)
         }}
       />
-    </div>
+    </>
   )
 }
