@@ -12,9 +12,17 @@ export function Popup({
 }) {
   return (
     <div className={`modal-wrapper${open ? '' : ' hidden'}`}>
-      <div className="modal-backdrop" aria-hidden={true} onClick={handleClose} />
+      <div
+        className="modal-backdrop"
+        aria-hidden={true}
+        onClick={handleClose}
+      />
       <div className="modal">
-        <button className="codicon codicon-close modal-close" aria-label="close dialog" onClick={handleClose} />
+        <button
+          className="codicon codicon-close modal-close"
+          aria-label="close dialog"
+          onClick={handleClose}
+        />
         {children}
       </div>
     </div>

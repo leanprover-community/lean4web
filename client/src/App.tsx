@@ -132,8 +132,12 @@ function App() {
           .filter(
             (d) =>
               d.options.className?.includes('yRemoteSelection') ||
-              d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
-              d.options.beforeContentClassName?.includes('yRemoteSelectionHead'),
+              d.options.afterContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ) ||
+              d.options.beforeContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ),
           )
           .map((d) => d.id)
         if (remoteDecorations.length > 0) {
@@ -176,8 +180,12 @@ function App() {
           .filter(
             (d) =>
               d.options.className?.includes('yRemoteSelection') ||
-              d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
-              d.options.beforeContentClassName?.includes('yRemoteSelectionHead'),
+              d.options.afterContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ) ||
+              d.options.beforeContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ),
           )
           .map((d) => d.id)
         if (remoteDecorations.length > 0) {
@@ -215,7 +223,9 @@ function App() {
         'editor.wordWrap': settings.wordWrap ? 'on' : 'off',
         'editor.wrappingStrategy': 'advanced',
         'editor.semanticHighlighting.enabled': true,
-        'editor.acceptSuggestionOnEnter': settings.acceptSuggestionOnEnter ? 'on' : 'off',
+        'editor.acceptSuggestionOnEnter': settings.acceptSuggestionOnEnter
+          ? 'on'
+          : 'off',
         'lean4.input.eagerReplacementEnabled': true,
         'lean4.infoview.showGoalNames': settings.showGoalNames,
         'lean4.infoview.emphasizeFirstGoal': true,
@@ -404,7 +414,11 @@ function App() {
   useEffect(() => {
     if (!provider) return
 
-    const update = (event?: { added: number[]; updated: number[]; removed: number[] }) => {
+    const update = (event?: {
+      added: number[]
+      updated: number[]
+      removed: number[]
+    }) => {
       const added = event?.added || []
       const updated = event?.updated || []
       const removed = event?.removed || []
@@ -527,7 +541,10 @@ function App() {
         direction={mobile ? 'vertical' : 'horizontal'}
         style={{ flexDirection: mobile ? 'column' : 'row' }}
       >
-        <div className="codeview-wrapper" style={mobile ? { width: '100%' } : { height: '100%' }}>
+        <div
+          className="codeview-wrapper"
+          style={mobile ? { width: '100%' } : { height: '100%' }}
+        >
           {codeMirror && (
             <CodeMirror
               className="codeview plain"
@@ -539,7 +556,10 @@ function App() {
               onChange={setContent}
             />
           )}
-          <div ref={editorRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
+          <div
+            ref={editorRef}
+            className={`codeview${codeMirror ? ' hidden' : ''}`}
+          />
         </div>
         <div
           ref={infoviewRef}
@@ -550,8 +570,8 @@ function App() {
             You are in the plain text editor
             <br />
             <br />
-            Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode} />) for the infoview
-            to update!
+            Go back to the Monaco Editor (click{' '}
+            <FontAwesomeIcon icon={faCode} />) for the infoview to update!
           </p>
         </div>
       </Split>

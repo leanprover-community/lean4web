@@ -1,86 +1,86 @@
-import * as cp from "node:child_process";
-import * as fs from "node:fs";
-import https from "node:https";
-import os from "node:os";
-import * as path from "node:path";
-import * as url from "node:url";
+import * as cp from 'node:child_process'
+import * as fs from 'node:fs'
+import https from 'node:https'
+import os from 'node:os'
+import * as path from 'node:path'
+import * as url from 'node:url'
 
-import express from "express";
-import anonymize from "ip-anonymize";
-import nocache from "nocache";
-import * as rpc from "vscode-ws-jsonrpc";
-import * as jsonrpcserver from "vscode-ws-jsonrpc/server";
-import { WebSocketServer } from "ws";
+import express from 'express'
+import anonymize from 'ip-anonymize'
+import nocache from 'nocache'
+import * as rpc from 'vscode-ws-jsonrpc'
+import * as jsonrpcserver from 'vscode-ws-jsonrpc/server'
+import { WebSocketServer } from 'ws'
 
-import { zLeanWebProjectConfig } from "./types.mjs";
+import { zLeanWebProjectConfig } from './types.mjs'
 
-let socketCounter = 0;
+let socketCounter = 0
 
 function logStats() {
-  console.log(`[${new Date()}] Number of open sockets - ${socketCounter}`);
+  console.log(`[${new Date()}] Number of open sockets - ${socketCounter}`)
   console.log(
     `[${new Date()}] Free RAM - ${Math.round(os.freemem() / 1024 / 1024)} / ${Math.round(os.totalmem() / 1024 / 1024)} MB`,
-  );
+  )
 }
 
-const __filename = url.fileURLToPath(import.meta.url);
-const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+const __filename = url.fileURLToPath(import.meta.url)
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
-const environment = process.env.NODE_ENV;
-const isGithubAction = process.env.GITHUB_ACTIONS;
-const isDevelopment = environment === "development";
-const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() == "true";
-const ENABLE_COLLAB = process.env.VITE_COLLAB?.toLowerCase() != "false";
+const environment = process.env.NODE_ENV
+const isGithubAction = process.env.GITHUB_ACTIONS
+const isDevelopment = environment === 'development'
+const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() == 'true'
+const ENABLE_COLLAB = process.env.VITE_COLLAB?.toLowerCase() != 'false'
 
-const crtFile = process.env.SSL_CRT_FILE;
-const keyFile = process.env.SSL_KEY_FILE;
+const crtFile = process.env.SSL_CRT_FILE
+const keyFile = process.env.SSL_KEY_FILE
 
 const PROJECTS_BASE_PATH = path.join(
   __dirname,
-  "..",
-  process.env.PROJECTS_BASE_PATH ?? "Projects",
-);
+  '..',
+  process.env.PROJECTS_BASE_PATH ?? 'Projects',
+)
 
-const app = express();
+const app = express()
 
 // our test setup waits until the server returns `200`
-app.get("/health", (_req, res) => {
-  res.status(200).send("Server is running");
-});
+app.get('/health', (_req, res) => {
+  res.status(200).send('Server is running')
+})
 
 // endpoint to list all available projects
-app.use("/api/projects", async (req, res) => {
+app.use('/api/projects', async (req, res) => {
   try {
     const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
       withFileTypes: true,
-    });
-    const projects = [];
+    })
+    const projects = []
 
     for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
+      if (!entry.isDirectory()) continue
 
-      const projectDir = path.join(PROJECTS_BASE_PATH, entry.name);
-      const configPath = path.join(projectDir, "leanweb-config.json");
-      const toolchainPath = path.join(projectDir, "lean-toolchain");
+      const projectDir = path.join(PROJECTS_BASE_PATH, entry.name)
+      const configPath = path.join(projectDir, 'leanweb-config.json')
+      const toolchainPath = path.join(projectDir, 'lean-toolchain')
 
-      let config = null;
+      let config = null
       try {
-        const raw = await fs.promises.readFile(configPath, "utf-8");
+        const raw = await fs.promises.readFile(configPath, 'utf-8')
         const toolchain = (
-          await fs.promises.readFile(toolchainPath, "utf-8")
-        ).trim();
+          await fs.promises.readFile(toolchainPath, 'utf-8')
+        ).trim()
 
-        config = zLeanWebProjectConfig.parse(JSON.parse(raw));
+        config = zLeanWebProjectConfig.parse(JSON.parse(raw))
         config.name = config.name.replaceAll(
-          "_LeanVers_",
+          '_LeanVers_',
           toolchainToName(toolchain, true),
-        );
+        )
         config.name = config.name.replaceAll(
-          "_Vers_",
+          '_Vers_',
           toolchainToName(toolchain, false),
-        );
+        )
       } catch (err) {
-        console.debug(err);
+        console.debug(err)
         // File missing or invalid JSON — keep config as null
       }
 
@@ -94,115 +94,115 @@ app.use("/api/projects", async (req, res) => {
             examples: config.examples ?? [],
             sortOrder: config.sortOrder ?? 0,
           },
-        });
+        })
       }
     }
 
-    res.json(projects);
+    res.json(projects)
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to load projects" });
+    console.error(err)
+    res.status(500).json({ error: 'Failed to load projects' })
   }
-});
+})
 
 // `*example` has the form `MathlibDemo/MathlibLatest/Logic.lean`
-app.use("/api/example/:project/*example", (req, res, next) => {
-  const pathComponents = req.params.example.filter((it) => it.length > 0);
-  if (!(pathComponents[pathComponents.length - 1] ?? "").endsWith(".lean")) {
-    res.status(400).json({ error: "Bad request" });
+app.use('/api/example/:project/*example', (req, res, next) => {
+  const pathComponents = req.params.example.filter((it) => it.length > 0)
+  if (!(pathComponents[pathComponents.length - 1] ?? '').endsWith('.lean')) {
+    res.status(400).json({ error: 'Bad request' })
   } else {
-    const filePath = path.join(req.params.project, ...pathComponents);
-    req.url = filePath;
-    express.static(PROJECTS_BASE_PATH)(req, res, next);
+    const filePath = path.join(req.params.project, ...pathComponents)
+    req.url = filePath
+    express.static(PROJECTS_BASE_PATH)(req, res, next)
   }
-});
+})
 
 // `:project` is the project like `MathlibDemo`
-app.use("/api/manifest/:project", (req, res, next) => {
-  const project = req.params.project;
-  req.url = "lake-manifest.json";
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
-});
+app.use('/api/manifest/:project', (req, res, next) => {
+  const project = req.params.project
+  req.url = 'lake-manifest.json'
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+})
 
 // `:project` is the project like `MathlibDemo`
-app.use("/api/toolchain/:project", (req, res, next) => {
-  const project = req.params.project;
-  req.url = "lean-toolchain";
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
-});
+app.use('/api/toolchain/:project', (req, res, next) => {
+  const project = req.params.project
+  req.url = 'lean-toolchain'
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+})
 
 // `:project` is the project like `MathlibDemo`
-app.use("/api/lakefile-toml/:project", (req, res, next) => {
-  const project = req.params.project;
-  req.url = "lakefile.toml";
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
-});
+app.use('/api/lakefile-toml/:project', (req, res, next) => {
+  const project = req.params.project
+  req.url = 'lakefile.toml'
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+})
 
 // `:project` is the project like `MathlibDemo`
-app.use("/api/lakefile/:project", (req, res, next) => {
-  const project = req.params.project;
-  req.url = "lakefile.lean";
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
-});
+app.use('/api/lakefile/:project', (req, res, next) => {
+  const project = req.params.project
+  req.url = 'lakefile.lean'
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+})
 
 // Using the client files
-app.use(express.static(path.join(__dirname, "..", "client", "dist")));
+app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 
-app.use(nocache());
+app.use(nocache())
 
-const hasBwrap = hasWorkingBwrap();
+const hasBwrap = hasWorkingBwrap()
 if (!hasBwrap) {
   if (isDevelopment) {
     if (!isGithubAction) {
-      console.info("Bubblewrap is not available.");
+      console.info('Bubblewrap is not available.')
     }
   } else {
-    console.warn("Bubblewrap is not available!");
+    console.warn('Bubblewrap is not available!')
   }
 }
 
-let server;
+let server
 if (crtFile && keyFile) {
-  var privateKey = fs.readFileSync(keyFile, "utf8");
-  var certificate = fs.readFileSync(crtFile, "utf8");
-  var credentials = { key: privateKey, cert: certificate };
+  var privateKey = fs.readFileSync(keyFile, 'utf8')
+  var certificate = fs.readFileSync(crtFile, 'utf8')
+  var credentials = { key: privateKey, cert: certificate }
 
-  const PORT = process.env.PORT ?? 443;
+  const PORT = process.env.PORT ?? 443
   server = https
     .createServer(credentials, app)
-    .listen(PORT, () => console.log(`HTTPS on port ${PORT}`));
+    .listen(PORT, () => console.log(`HTTPS on port ${PORT}`))
 
   // redirect http to https
-  express().get("*", function (req, res) {
-    res.redirect("https://" + req.headers.host + req.url).listen(80);
-  });
+  express().get('*', function (req, res) {
+    res.redirect('https://' + req.headers.host + req.url).listen(80)
+  })
 } else {
-  const PORT = process.env.PORT ?? 8080;
-  server = app.listen(PORT, () => console.log(`HTTP on port ${PORT}`));
+  const PORT = process.env.PORT ?? 8080
+  server = app.listen(PORT, () => console.log(`HTTP on port ${PORT}`))
 }
 
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server })
 
 function startServerProcess(project) {
-  const PROJECT_PATH = path.join(PROJECTS_BASE_PATH, project);
-  let serverProcess;
+  const PROJECT_PATH = path.join(PROJECTS_BASE_PATH, project)
+  let serverProcess
   if (isDevelopment) {
-    serverProcess = cp.spawn("lake", ["serve", "--"], {
+    serverProcess = cp.spawn('lake', ['serve', '--'], {
       cwd: PROJECT_PATH,
-    });
+    })
   } else {
     if (hasWorkingBwrap()) {
-      serverProcess = cp.spawn("./bubblewrap.sh", [PROJECT_PATH], {
+      serverProcess = cp.spawn('./bubblewrap.sh', [PROJECT_PATH], {
         cwd: __dirname,
-      });
+      })
     } else if (NO_BWRAP) {
-      console.warn("Started process witouut bubblewrap!");
-      serverProcess = cp.spawn("lake", ["serve", "--"], { cwd: PROJECT_PATH });
+      console.warn('Started process witouut bubblewrap!')
+      serverProcess = cp.spawn('lake', ['serve', '--'], { cwd: PROJECT_PATH })
     } else {
       console.error(
-        "Bubblewrap is not available! You can set `NO_BWRAP=true` to start the processes without container.",
-      );
-      return 300;
+        'Bubblewrap is not available! You can set `NO_BWRAP=true` to start the processes without container.',
+      )
+      return 300
     }
   }
 
@@ -210,272 +210,272 @@ function startServerProcess(project) {
   //   console.log(`Lean Server: ${data}`);
   // });
 
-  serverProcess.stderr.on("data", (data) =>
+  serverProcess.stderr.on('data', (data) =>
     console.error(`Lean Server: ${data}`),
-  );
+  )
 
-  serverProcess.on("error", (error) =>
+  serverProcess.on('error', (error) =>
     console.error(`Launching Lean Server failed: ${error}`),
-  );
+  )
 
-  serverProcess.on("close", (code) => {
-    console.log(`lean server exited with code ${code}`);
-  });
+  serverProcess.on('close', (code) => {
+    console.log(`lean server exited with code ${code}`)
+  })
 
-  return serverProcess;
+  return serverProcess
 }
 
 /** Transform client URI to valid file on the server. (mutates the input `obj`) */
 function urisToFilenames(prefix, obj) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
-      if (key === "uri") {
-        obj[key] = obj[key].replace("file://", `file://${prefix}`);
-      } else if (key === "rootUri") {
-        obj[key] = obj[key].replace("file://", `file://${prefix}`);
-      } else if (key === "rootPath") {
-        obj[key] = path.join(prefix, obj[key]);
+      if (key === 'uri') {
+        obj[key] = obj[key].replace('file://', `file://${prefix}`)
+      } else if (key === 'rootUri') {
+        obj[key] = obj[key].replace('file://', `file://${prefix}`)
+      } else if (key === 'rootPath') {
+        obj[key] = path.join(prefix, obj[key])
       }
-      if (typeof obj[key] === "object" && obj[key] !== null) {
-        urisToFilenames(prefix, obj[key]);
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        urisToFilenames(prefix, obj[key])
       }
     }
   }
-  return obj;
+  return obj
 }
 
 /** Transform server file back into client URI. (mutates the input `obj`) */
 function FilenamesToUri(prefix, obj) {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) {
-      if (key === "uri") {
-        obj[key] = obj[key].replace(prefix, "");
+      if (key === 'uri') {
+        obj[key] = obj[key].replace(prefix, '')
       }
-      if (typeof obj[key] === "object" && obj[key] !== null) {
-        FilenamesToUri(prefix, obj[key]);
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        FilenamesToUri(prefix, obj[key])
       }
     }
   }
-  return obj;
+  return obj
 }
 
 if (ENABLE_COLLAB) {
-  console.log("[Lean4web]: enabling signaling server for collaboration.");
+  console.log('[Lean4web]: enabling signaling server for collaboration.')
 }
 
-const yjsTopics = new Map(); // roomName -> Set<Connection>
+const yjsTopics = new Map() // roomName -> Set<Connection>
 
 const sendYjs = (conn, message) => {
   if (conn.readyState !== 0 && conn.readyState !== 1) {
-    conn.close();
+    conn.close()
   }
   try {
-    conn.send(JSON.stringify(message));
+    conn.send(JSON.stringify(message))
   } catch {
-    conn.close();
+    conn.close()
   }
-};
+}
 
 const setupYjsConnection = (conn, req) => {
   const ip = req
-    ? req.headers["x-forwarded-for"] || req.socket.remoteAddress
-    : "unknown";
-  console.log(`[Lean4web]: new collab connection established from ${ip}`);
-  const subscribedTopics = new Set();
-  let closed = false;
+    ? req.headers['x-forwarded-for'] || req.socket.remoteAddress
+    : 'unknown'
+  console.log(`[Lean4web]: new collab connection established from ${ip}`)
+  const subscribedTopics = new Set()
+  let closed = false
   // Check if connection is still alive
-  let pongReceived = true;
+  let pongReceived = true
   const pingInterval = setInterval(() => {
     if (!pongReceived) {
-      conn.close();
-      clearInterval(pingInterval);
+      conn.close()
+      clearInterval(pingInterval)
     } else {
-      pongReceived = false;
+      pongReceived = false
       try {
-        conn.ping();
+        conn.ping()
       } catch {
-        conn.close();
+        conn.close()
       }
     }
-  }, 30000);
-  conn.on("pong", () => {
-    pongReceived = true;
-  });
-  conn.on("close", () => {
-    console.log(`[Lean4web]: collab connection closed from ${ip}`);
+  }, 30000)
+  conn.on('pong', () => {
+    pongReceived = true
+  })
+  conn.on('close', () => {
+    console.log(`[Lean4web]: collab connection closed from ${ip}`)
     subscribedTopics.forEach((topicName) => {
-      const subs = yjsTopics.get(topicName) || new Set();
-      subs.delete(conn);
+      const subs = yjsTopics.get(topicName) || new Set()
+      subs.delete(conn)
       if (subs.size === 0) {
-        yjsTopics.delete(topicName);
+        yjsTopics.delete(topicName)
       }
-    });
-    subscribedTopics.clear();
-    closed = true;
-  });
-  conn.on("message", (message) => {
-    if (typeof message === "string" || message instanceof Buffer) {
+    })
+    subscribedTopics.clear()
+    closed = true
+  })
+  conn.on('message', (message) => {
+    if (typeof message === 'string' || message instanceof Buffer) {
       try {
-        message = JSON.parse(message);
+        message = JSON.parse(message)
       } catch {
-        return;
+        return
       }
     }
     if (message && message.type && !closed) {
       switch (message.type) {
-        case "subscribe":
-          (message.topics || []).forEach((topicName) => {
-            if (typeof topicName === "string") {
-              let topic = yjsTopics.get(topicName);
+        case 'subscribe':
+          ;(message.topics || []).forEach((topicName) => {
+            if (typeof topicName === 'string') {
+              let topic = yjsTopics.get(topicName)
               if (!topic) {
-                topic = new Set();
-                yjsTopics.set(topicName, topic);
+                topic = new Set()
+                yjsTopics.set(topicName, topic)
               }
-              topic.add(conn);
-              subscribedTopics.add(topicName);
+              topic.add(conn)
+              subscribedTopics.add(topicName)
               console.log(
                 `[Lean4web]: client subscribed to collab topic: ${topicName}`,
-              );
+              )
             }
-          });
-          break;
-        case "unsubscribe":
-          (message.topics || []).forEach((topicName) => {
-            const subs = yjsTopics.get(topicName);
+          })
+          break
+        case 'unsubscribe':
+          ;(message.topics || []).forEach((topicName) => {
+            const subs = yjsTopics.get(topicName)
             if (subs) {
-              subs.delete(conn);
+              subs.delete(conn)
               console.log(
                 `[Lean4web]: client unsubscribed from collab topic: ${topicName}`,
-              );
+              )
             }
-          });
-          break;
-        case "publish":
+          })
+          break
+        case 'publish':
           if (message.topic) {
-            const receivers = yjsTopics.get(message.topic);
+            const receivers = yjsTopics.get(message.topic)
             console.log(
               `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
-            );
+            )
             if (receivers) {
-              message.clients = receivers.size;
-              receivers.forEach((receiver) => sendYjs(receiver, message));
+              message.clients = receivers.size
+              receivers.forEach((receiver) => sendYjs(receiver, message))
             }
           }
-          break;
-        case "ping":
-          sendYjs(conn, { type: "pong" });
+          break
+        case 'ping':
+          sendYjs(conn, { type: 'pong' })
       }
     }
-  });
-};
+  })
+}
 
-wss.addListener("connection", async function (ws, req) {
-  const urlRegEx = /^\/websocket\/([\w.-]+)$/;
-  const reRes = urlRegEx.exec(req.url);
+wss.addListener('connection', async function (ws, req) {
+  const urlRegEx = /^\/websocket\/([\w.-]+)$/
+  const reRes = urlRegEx.exec(req.url)
   if (!reRes) {
     if (
       ENABLE_COLLAB &&
-      (req.url === "/yjs-signaling" || req.url === "/yjs-signaling/")
+      (req.url === '/yjs-signaling' || req.url === '/yjs-signaling/')
     ) {
-      setupYjsConnection(ws, req);
-      return;
+      setupYjsConnection(ws, req)
+      return
     }
     console.error(
       `[Lean4web]: connection refused because of invalid URL: ${req.url}`,
-    );
-    return;
+    )
+    return
   }
-  const project = reRes[1];
+  const project = reRes[1]
 
   if (!project.match(/^[a-zA-Z][a-zA-Z1-9.-_]*/)) {
     console.error(
       `Connection refused because of invalid project name: ${project}`,
-    );
-    return;
+    )
+    return
   }
 
   const ip = anonymize(
-    req.headers["x-forwarded-for"] || req.socket.remoteAddress,
-  );
-  const ps = await startServerProcess(project);
+    req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+  )
+  const ps = await startServerProcess(project)
 
   if (ps === null) {
     console.error(
       `Connection refused because of nonexistent project directory: ${project}`,
-    );
-    return;
+    )
+    return
   }
 
   const reader = new rpc.WebSocketMessageReader({
     onMessage: (cb) => {
-      ws.on("message", cb);
+      ws.on('message', cb)
     },
     onError: (cb) => {
-      ws.on("error", cb);
+      ws.on('error', cb)
     },
     onClose: (cb) => {
-      ws.on("close", cb);
+      ws.on('close', cb)
     },
-  });
+  })
   const writer = new rpc.WebSocketMessageWriter({
     send: (data, cb) => {
-      ws.send(data, cb);
+      ws.send(data, cb)
     },
-  });
+  })
   const socketConnection = jsonrpcserver.createConnection(reader, writer, () =>
     ws.close(),
-  );
-  const serverConnection = jsonrpcserver.createProcessStreamConnection(ps);
+  )
+  const serverConnection = jsonrpcserver.createProcessStreamConnection(ps)
   socketConnection.forward(serverConnection, (message) => {
-    const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
+    const prefix = isDevelopment ? PROJECTS_BASE_PATH : ''
 
-    if (message.method != "textDocument/definition") {
-      urisToFilenames(prefix, message);
+    if (message.method != 'textDocument/definition') {
+      urisToFilenames(prefix, message)
     }
 
     if (isDevelopment && !isGithubAction) {
-      console.log(`CLIENT: ${JSON.stringify(message)}`);
+      console.log(`CLIENT: ${JSON.stringify(message)}`)
     }
-    return message;
-  });
+    return message
+  })
   serverConnection.forward(socketConnection, (message) => {
-    const prefix = isDevelopment ? PROJECTS_BASE_PATH : "";
-    FilenamesToUri(prefix, message);
+    const prefix = isDevelopment ? PROJECTS_BASE_PATH : ''
+    FilenamesToUri(prefix, message)
     if (isDevelopment && !isGithubAction) {
-      console.log(`SERVER: ${JSON.stringify(message)}`);
+      console.log(`SERVER: ${JSON.stringify(message)}`)
     }
-    return message;
-  });
+    return message
+  })
 
-  ws.on("close", () => {
-    socketCounter -= 1;
+  ws.on('close', () => {
+    socketCounter -= 1
     if (!isGithubAction) {
-      console.log(`[${new Date()}] Socket closed - ${ip}`);
-      logStats();
+      console.log(`[${new Date()}] Socket closed - ${ip}`)
+      logStats()
     }
-  });
+  })
 
-  socketConnection.onClose(() => serverConnection.dispose());
-  serverConnection.onClose(() => socketConnection.dispose());
+  socketConnection.onClose(() => serverConnection.dispose())
+  serverConnection.onClose(() => socketConnection.dispose())
 
-  socketCounter += 1;
+  socketCounter += 1
   if (!isGithubAction) {
-    console.log(`[${new Date()}] Socket opened - ${ip}`);
-    logStats();
+    console.log(`[${new Date()}] Socket opened - ${ip}`)
+    logStats()
   }
-});
+})
 
 function hasWorkingBwrap() {
-  const which = cp.spawnSync("which", ["bwrap"], { stdio: "ignore" });
-  if (which.status !== 0) return false;
-  const test = cp.spawnSync("bwrap", ["--version"], { stdio: "ignore" });
-  return test.status === 0;
+  const which = cp.spawnSync('which', ['bwrap'], { stdio: 'ignore' })
+  if (which.status !== 0) return false
+  const test = cp.spawnSync('bwrap', ['--version'], { stdio: 'ignore' })
+  return test.status === 0
 }
 
 function toolchainToName(toolchain, prefixLean) {
-  const nightly = toolchain.match(/^leanprover\/lean4:nightly-(.*)$/);
-  if (nightly) return prefixLean ? `Lean ${nightly[1]}` : nightly[1];
-  const release = toolchain.match(/^leanprover\/lean4:(.*)$/);
-  if (release) return prefixLean ? `Lean ${release[1]}` : release[1];
-  return "Lean";
+  const nightly = toolchain.match(/^leanprover\/lean4:nightly-(.*)$/)
+  if (nightly) return prefixLean ? `Lean ${nightly[1]}` : nightly[1]
+  const release = toolchain.match(/^leanprover\/lean4:(.*)$/)
+  if (release) return prefixLean ? `Lean ${release[1]}` : release[1]
+  return 'Lean'
 }

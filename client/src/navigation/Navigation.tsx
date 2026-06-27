@@ -1,7 +1,11 @@
 import '../css/Modal.css'
 import '../css/Navigation.css'
 
-import { faArrowRotateRight, faCode, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowRotateRight,
+  faCode,
+  faInfoCircle,
+} from '@fortawesome/free-solid-svg-icons'
 import {
   faArrowUpRightFromSquare,
   faBars,
@@ -31,7 +35,11 @@ import { mobileAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { isCollaboratingAtom } from '../store/collaboration-atoms'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
-import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
+import {
+  currentProjectAtom,
+  projectsAtom,
+  visibleProjectsAtom,
+} from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
@@ -129,7 +137,11 @@ function FlexibleMenu({
         {/* Need `ev.stopPropagation` to prevent closing until the file is loaded.
           Otherwise the file-upload is destroyed too early. */}
         {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events jsx-a11y/no-noninteractive-element-interactions */}
-        <label htmlFor="file-upload" className="nav-link" onClick={(ev) => ev.stopPropagation()}>
+        <label
+          htmlFor="file-upload"
+          className="nav-link"
+          onClick={(ev) => ev.stopPropagation()}
+        >
           <FontAwesomeIcon icon={faUpload} /> Load file from disk
         </label>
         <NavButton
@@ -268,8 +280,16 @@ export function Menu({
             setSettingsOpen(true)
           }}
         />
-        <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
-        <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
+        <NavButton
+          icon={faHammer}
+          text="Lean Info"
+          onClick={() => setToolsOpen(true)}
+        />
+        <NavButton
+          icon={faArrowRotateRight}
+          text="Restart server"
+          onClick={restart}
+        />
         <NavButton
           icon={faDownload}
           text="Save"
@@ -298,16 +318,26 @@ export function Menu({
           text="Lean community"
           href="https://leanprover-community.github.io/"
         />
-        <NavButton icon={faArrowUpRightFromSquare} text="Lean FRO" href="https://lean-lang.org" />
+        <NavButton
+          icon={faArrowUpRightFromSquare}
+          text="Lean FRO"
+          href="https://lean-lang.org"
+        />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
           href="https://github.com/leanprover-community/lean4web"
         />
       </Dropdown>
-      <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
+      <PrivacyPopup
+        open={privacyOpen}
+        handleClose={() => setPrivacyOpen(false)}
+      />
       {hasImpressum && (
-        <ImpressumPopup open={impressumOpen} handleClose={() => setImpressumOpen(false)} />
+        <ImpressumPopup
+          open={impressumOpen}
+          handleClose={() => setImpressumOpen(false)}
+        />
       )}
       {project && (
         <ToolsPopup
@@ -321,7 +351,10 @@ export function Menu({
         handleClose={() => setSettingsOpen(false)}
         closeNav={() => setOpenNav(false)}
       />
-      <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} />
+      <LoadUrlPopup
+        open={loadUrlOpen}
+        handleClose={() => setLoadUrlOpen(false)}
+      />
       <LoadZulipPopup
         open={loadZulipOpen}
         handleClose={() => setLoadZulipOpen(false)}

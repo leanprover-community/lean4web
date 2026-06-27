@@ -14,7 +14,8 @@ function getGlobeIcon(timezone: string) {
   if (timezone.startsWith('America')) return faGlobeAmericas
   if (timezone.startsWith('Europe')) return faGlobeEurope
   if (timezone.startsWith('Asia')) return faGlobeAsia
-  if (timezone.startsWith('Australia') || timezone.startsWith('Pacific')) return faGlobeOceania
+  if (timezone.startsWith('Australia') || timezone.startsWith('Pacific'))
+    return faGlobeOceania
   return faGlobeEurope
 }
 
