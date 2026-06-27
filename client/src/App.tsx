@@ -210,7 +210,7 @@ function App() {
          */
         'workbench.colorTheme': settings.theme,
         'editor.tabSize': 2,
-        // "editor.rulers": [100],
+        'editor.rulers': settings.ruler ? [settings.ruler] : [],
         'editor.lightbulb.enabled': 'on',
         'editor.wordWrap': settings.wordWrap ? 'on' : 'off',
         'editor.wrappingStrategy': 'advanced',

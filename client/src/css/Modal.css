@@ -103,6 +103,14 @@ input[type='file'] {
   color: var(--vscode-input-foreground);
 }
 
+.modal .ruler-input {
+  margin-left: 8px;
+}
+
+.ruler-input input {
+  padding: 4px;
+}
+
 .modal input[type='password'] {
   font-family: 'JuliaMono';
 }
