@@ -16,6 +16,8 @@ export type LeanWebProjectConfig = {
   hidden: boolean
   /** The default project. There must be exactly one project marked as default */
   default: boolean
+  /** Sort order: the default project always comes first, followed by projects in decreasing sort order. (No sort order is treated as 0.)  */
+  sortOrder: number
   /** A list of examples which are added under the menu `Examples` */
   examples: LeanWebExample[]
 }
