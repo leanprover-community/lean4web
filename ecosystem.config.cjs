@@ -2,17 +2,17 @@
 module.exports = {
   apps: [
     {
-      name: "lean4web",
-      script: "server/index.mjs",
+      name: 'lean4web',
+      script: 'server/index.mjs',
       env: {
-        NODE_ENV: "production",
+        NODE_ENV: 'production',
         PORT: 8001,
         NO_BWRAP: false,
         VITE_COLLAB: true,
-        PROJECTS_BASE_PATH: "Projects", // relative path to the folder containing all projects
+        PROJECTS_BASE_PATH: 'Projects', // relative path to the folder containing all projects
         SSL_CRT_FILE: undefined,
         SSL_KEY_FILE: undefined,
       },
     },
   ],
-};
+}

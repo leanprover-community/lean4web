@@ -1,9 +1,20 @@
-import { lightThemes, PartialUserSettings, Theme, UserSettings } from './settings-types'
+import {
+  lightThemes,
+  PartialUserSettings,
+  Theme,
+  UserSettings,
+} from './settings-types'
 
-export function decodeSettingsFromURL(searchParams: URLSearchParams): PartialUserSettings {
+export function decodeSettingsFromURL(
+  searchParams: URLSearchParams,
+): PartialUserSettings {
   return {
-    abbreviationCharacter: searchParams.get('abbreviationCharacter') ?? undefined,
-    acceptSuggestionOnEnter: parseBooleanSearchParam(searchParams, 'acceptSuggestionOnEnter'),
+    abbreviationCharacter:
+      searchParams.get('abbreviationCharacter') ?? undefined,
+    acceptSuggestionOnEnter: parseBooleanSearchParam(
+      searchParams,
+      'acceptSuggestionOnEnter',
+    ),
     mobile: parseBooleanSearchParam(searchParams, 'mobile'),
     compress: parseBooleanSearchParam(searchParams, 'compress'),
     ruler: parseNumber(searchParams, 'ruler'),
@@ -66,7 +77,10 @@ function setParam<K extends keyof UserSettings>(
 ) {
   switch (key) {
     case 'theme':
-      searchParams.set(String(key), lightThemes.includes(value as Theme) ? 'light' : 'dark')
+      searchParams.set(
+        String(key),
+        lightThemes.includes(value as Theme) ? 'light' : 'dark',
+      )
       break
     case 'mobile':
       if (value !== 'auto') {

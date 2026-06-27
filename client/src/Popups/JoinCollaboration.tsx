@@ -10,9 +10,19 @@ import {
 } from '../store/collaboration-atoms'
 
 /** The popup to join a collaboration room. */
-function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open: boolean; handleClose: () => void; handleJoinCollab: () => void }) {
+function JoinCollaborationPopup({
+  open,
+  handleClose,
+  handleJoinCollab,
+}: {
+  open: boolean
+  handleClose: () => void
+  handleJoinCollab: () => void
+}) {
   const [collabRoom, setCollabRoom] = useAtom(collabRoomAtom)
-  const [collabDisplayName, setCollabDisplayName] = useAtom(collabDisplayNameAtom)
+  const [collabDisplayName, setCollabDisplayName] = useAtom(
+    collabDisplayNameAtom,
+  )
   const [collabPassword, setCollabPassword] = useAtom(collabPasswordAtom)
   const [, setIsCollaborating] = useAtom(isCollaboratingAtom)
   const [collabError, setCollabError] = useState('')
@@ -47,57 +57,61 @@ function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open:
       <form onSubmit={onSubmit}>
         <div>
           <p>
-            Others can join the collaboration by using the same "room name". The "display name" can
-            be chosen freely.
+            Others can join the collaboration by using the same "room name". The
+            "display name" can be chosen freely.
           </p>
           <p>
-            An optional password can be provided to restrict room access. Note that supplying a
-            different password will not result in an error. Instead each combination of room name
-            and password will have its own room.
+            An optional password can be provided to restrict room access. Note
+            that supplying a different password will not result in an error.
+            Instead each combination of room name and password will have its own
+            room.
           </p>
           <p>
             <b>When joining, the current code will be lost!</b>
           </p>
         </div>
-        <label>Room name:
-        <input
-          required
-          type="text"
-          placeholder="Room name"
-          value={collabRoom}
-          onChange={(e) => {
-            setCollabRoom(e.target.value)
-            setCollabError('')
-          }}
-        />
+        <label>
+          Room name:
+          <input
+            required
+            type="text"
+            placeholder="Room name"
+            value={collabRoom}
+            onChange={(e) => {
+              setCollabRoom(e.target.value)
+              setCollabError('')
+            }}
+          />
         </label>
-        <label>Display name:
-        <input
-          required
-          type="text"
-          placeholder="Your display name"
-          value={collabDisplayName}
-          onChange={(e) => {
-            setCollabDisplayName(e.target.value)
-            setCollabError('')
-          }}
-        />
+        <label>
+          Display name:
+          <input
+            required
+            type="text"
+            placeholder="Your display name"
+            value={collabDisplayName}
+            onChange={(e) => {
+              setCollabDisplayName(e.target.value)
+              setCollabError('')
+            }}
+          />
         </label>
-        <label>Password (optional):
-        <input
-          type="password"
-          placeholder="room password"
-          value={collabPassword}
-          onChange={(e) => {
-            const pwd = e.target.value
-            if (pwd.length == 0) {
-              setCollabPassword(undefined)
-            } else {
-              setCollabPassword(pwd)
-            }
-            setCollabError('')
-          }}
-        />
+        <label>
+          Password (optional):
+          <input
+            type="password"
+            placeholder="room password"
+            value={collabPassword}
+            onChange={(e) => {
+              const pwd = e.target.value
+              if (pwd.length == 0) {
+                setCollabPassword(undefined)
+              } else {
+                setCollabPassword(pwd)
+              }
+              setCollabError('')
+            }}
+          />
         </label>
         {collabError && <p className="form-error">{collabError}</p>}
         <input type="submit" value="Join" />

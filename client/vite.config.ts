@@ -1,10 +1,10 @@
-import importMetaUrlPlugin from "@codingame/esbuild-import-meta-url-plugin";
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react-swc";
-import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-import { viteStaticCopy } from "vite-plugin-static-copy";
-import svgr from "vite-plugin-svgr";
+import importMetaUrlPlugin from '@codingame/esbuild-import-meta-url-plugin'
+import tailwindcss from '@tailwindcss/vite'
+import react from '@vitejs/plugin-react-swc'
+import { defineConfig } from 'vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
+import svgr from 'vite-plugin-svgr'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,15 +17,15 @@ export default defineConfig({
   },
   build: {
     // Note: This has to match the path in `server/index.mjs` and in `tsconfig.json`
-    outDir: "dist",
+    outDir: 'dist',
   },
   plugins: [
     react(),
     tailwindcss(),
     svgr({
-      include: ["**/*.svg?react", "**/*.svg"],
+      include: ['**/*.svg?react', '**/*.svg'],
       svgrOptions: {
-        exportType: "default",
+        exportType: 'default',
         ref: true,
         svgo: false,
         titleProp: true,
@@ -33,47 +33,47 @@ export default defineConfig({
     }),
     nodePolyfills({
       overrides: {
-        fs: "memfs",
+        fs: 'memfs',
       },
     }),
     viteStaticCopy({
       targets: [
         {
           src: [
-            "../node_modules/@leanprover/infoview/dist/*",
-            "../node_modules/lean4monaco/dist/webview/webview.js",
+            '../node_modules/@leanprover/infoview/dist/*',
+            '../node_modules/lean4monaco/dist/webview/webview.js',
           ],
-          dest: "infoview",
+          dest: 'infoview',
         },
         {
-          src: ["../node_modules/@leanprover/infoview/dist/codicon.ttf"],
-          dest: "assets",
+          src: ['../node_modules/@leanprover/infoview/dist/codicon.ttf'],
+          dest: 'assets',
         },
       ],
     }),
   ],
-  publicDir: "public",
-  base: "/", // setting this to `/leanweb/` means the server is now accessible at `localhost:3000/leanweb`
+  publicDir: 'public',
+  base: '/', // setting this to `/leanweb/` means the server is now accessible at `localhost:3000/leanweb`
   server: {
     port: 3000,
     proxy: {
-      "/websocket": {
-        target: "ws://localhost:8080",
+      '/websocket': {
+        target: 'ws://localhost:8080',
         ws: true,
       },
-      "/yjs-signaling": {
-        target: "ws://localhost:8080",
+      '/yjs-signaling': {
+        target: 'ws://localhost:8080',
         ws: true,
       },
-      "/api": {
-        target: "http://localhost:8080",
+      '/api': {
+        target: 'http://localhost:8080',
       },
     },
     watch: {
-      ignored: ["**/.lake/**", "**/build/**"],
+      ignored: ['**/.lake/**', '**/build/**'],
     },
   },
   resolve: {
     alias: {},
   },
-});
+})

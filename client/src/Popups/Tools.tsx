@@ -95,13 +95,17 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
       let githubUrl = `https://api.github.com/repos/${m![1]}/${m![2]}/commits/${pkg.rev}`
 
       // oxlint-disable-next-line no-unused-expressions
-      pkg.url.replace('github.com/', 'api.github.com/repos/') + `/commits/${pkg.rev}`
+      pkg.url.replace('github.com/', 'api.github.com/repos/') +
+        `/commits/${pkg.rev}`
       console.debug(`[LeanWeb]: fetch from ${githubUrl}`)
 
       fetch(githubUrl)
         .then((response) => {
           if (!response.ok) {
-            console.warn(`[LeanWeb]: failed request (${response.status})`, response)
+            console.warn(
+              `[LeanWeb]: failed request (${response.status})`,
+              response,
+            )
           }
           return response.json()
         })
@@ -130,7 +134,12 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
   }, [handleHover, linkRef, loaded])
 
   return (
-    <a ref={linkRef} className="tooltip" href={`${pkg.url}/commits/${pkg.rev}/`} target="_blank">
+    <a
+      ref={linkRef}
+      className="tooltip"
+      href={`${pkg.url}/commits/${pkg.rev}/`}
+      target="_blank"
+    >
       {pkg.rev.substring(0, 7)}
       <div className="tooltiptext" id="tooltip-content">
         {error ? (
@@ -138,14 +147,21 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
         ) : loaded && commit ? (
           <>
             {/* valid */}
-            <img src={commit?.author?.avatar_url} alt={`commit author ${commit?.commit?.author?.name}`}/>
+            <img
+              src={commit?.author?.avatar_url}
+              alt={`commit author ${commit?.commit?.author?.name}`}
+            />
             <p>
               <span className="commit-date">
                 {new Date(commit?.commit?.author?.date).toLocaleString()}
               </span>
               <br />
-              <span className="commit-message">{commit?.commit?.message.split('\n')[0]}</span>{' '}
-              <span className="commit-author">by {commit?.commit?.author?.name}</span>
+              <span className="commit-message">
+                {commit?.commit?.message.split('\n')[0]}
+              </span>{' '}
+              <span className="commit-author">
+                by {commit?.commit?.author?.name}
+              </span>
               <br />
               <span className="commit-sha">{commit?.sha}</span>
             </p>
@@ -260,8 +276,8 @@ function ToolsPopup({
       </table>
       <h2>Tools</h2>
       <p>
-        To see the actual Lean version implied by the toolchain above, the following can be pasted
-        into the editor:
+        To see the actual Lean version implied by the toolchain above, the
+        following can be pasted into the editor:
       </p>
       <pre>
         <code>#eval Lean.versionString</code>
