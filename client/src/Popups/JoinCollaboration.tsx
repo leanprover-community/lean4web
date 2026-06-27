@@ -59,10 +59,9 @@ function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open:
             <b>When joining, the current code will be lost!</b>
           </p>
         </div>
-        <label>Room name:</label>
+        <label>Room name:
         <input
           required
-          autoFocus
           type="text"
           placeholder="Room name"
           value={collabRoom}
@@ -71,7 +70,8 @@ function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open:
             setCollabError('')
           }}
         />
-        <label>Display name:</label>
+        </label>
+        <label>Display name:
         <input
           required
           type="text"
@@ -82,7 +82,8 @@ function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open:
             setCollabError('')
           }}
         />
-        <label>Password (optional):</label>
+        </label>
+        <label>Password (optional):
         <input
           type="password"
           placeholder="room password"
@@ -97,6 +98,7 @@ function JoinCollaborationPopup({ open, handleClose, handleJoinCollab }: { open:
             setCollabError('')
           }}
         />
+        </label>
         {collabError && <p className="form-error">{collabError}</p>}
         <input type="submit" value="Join" />
       </form>

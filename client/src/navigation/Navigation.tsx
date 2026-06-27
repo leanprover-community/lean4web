@@ -128,6 +128,7 @@ function FlexibleMenu({
         />
         {/* Need `ev.stopPropagation` to prevent closing until the file is loaded.
           Otherwise the file-upload is destroyed too early. */}
+        {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events jsx-a11y/no-noninteractive-element-interactions */}
         <label htmlFor="file-upload" className="nav-link" onClick={(ev) => ev.stopPropagation()}>
           <FontAwesomeIcon icon={faUpload} /> Load file from disk
         </label>

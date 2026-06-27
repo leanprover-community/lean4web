@@ -138,7 +138,7 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
         ) : loaded && commit ? (
           <>
             {/* valid */}
-            <img src={commit?.author?.avatar_url} />
+            <img src={commit?.author?.avatar_url} alt={`commit author ${commit?.commit?.author?.name}`}/>
             <p>
               <span className="commit-date">
                 {new Date(commit?.commit?.author?.date).toLocaleString()}
