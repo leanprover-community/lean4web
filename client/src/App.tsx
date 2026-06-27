@@ -490,7 +490,9 @@ function App() {
         )}
         <Menu
           setContent={setContent}
-          restart={leanMonaco?.restart}
+          restart={() => {
+            leanMonaco?.restart()
+          }}
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
           handleJoinCollab={handleJoinCollab}
