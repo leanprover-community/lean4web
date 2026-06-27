@@ -41,7 +41,9 @@ const importedCodeQueryAtom = atomWithQuery((get) => {
     queryFn: async () => {
       if (!url) return undefined
       const res = await fetch(lookupUrl(url))
-      const code = res.ok ? await res.text() : `Error: failed to load code from ${url}`
+      const code = res.ok
+        ? await res.text()
+        : `Error: failed to load code from ${url}`
       return code
     },
     enabled: url != undefined,

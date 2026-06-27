@@ -82,7 +82,10 @@ export function SettingsPopup({
           <Switch
             id="ruler"
             onChange={() => {
-              updateSetting('ruler', newSettings.ruler != undefined ? undefined : 100)
+              updateSetting(
+                'ruler',
+                newSettings.ruler != undefined ? undefined : 100,
+              )
             }}
             checked={newSettings.ruler != undefined}
           />
@@ -109,11 +112,16 @@ export function SettingsPopup({
           <Switch
             id="acceptSuggestionOnEnter"
             onChange={() => {
-              updateSetting('acceptSuggestionOnEnter', !newSettings.acceptSuggestionOnEnter)
+              updateSetting(
+                'acceptSuggestionOnEnter',
+                !newSettings.acceptSuggestionOnEnter,
+              )
             }}
             checked={newSettings.acceptSuggestionOnEnter}
           />
-          <label htmlFor="acceptSuggestionOnEnter">Accept suggestion on Enter</label>
+          <label htmlFor="acceptSuggestionOnEnter">
+            Accept suggestion on Enter
+          </label>
         </div>
         <div>
           <Switch
@@ -160,7 +168,11 @@ export function SettingsPopup({
           <span>Layout: </span>
           <Box sx={{ width: 200 }}>
             <Slider
-              value={mobileSliderMarks.find((item) => item.key === newSettings.mobile)?.value ?? 1}
+              value={
+                mobileSliderMarks.find(
+                  (item) => item.key === newSettings.mobile,
+                )?.value ?? 1
+              }
               step={1}
               marks={mobileSliderMarks}
               max={2}
@@ -195,7 +207,10 @@ export function SettingsPopup({
         </div>
         <h2>Save</h2>
         <p>
-          <i>Editor settings and User settings are not preserved unless you opt-in to save them.</i>
+          <i>
+            Editor settings and User settings are not preserved unless you
+            opt-in to save them.
+          </i>
         </p>
         <div>
           <Switch
@@ -205,14 +220,20 @@ export function SettingsPopup({
             }}
             checked={newSettings.saved}
           />
-          <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
+          <label htmlFor="savingAllowed">
+            Save settings (in the browser's local storage)
+          </label>
         </div>
         <div>
           {!shallowEqualSubset(defaultSettings, newSettings) && (
             <button
               id="resetSettings"
               onClick={(e) => {
-                setNewSettings({ saved: false, inUrl: false, ...defaultSettings })
+                setNewSettings({
+                  saved: false,
+                  inUrl: false,
+                  ...defaultSettings,
+                })
                 e.preventDefault()
               }}
             >
@@ -231,20 +252,21 @@ export function SettingsPopup({
   )
 }
 
-const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] = [
-  {
-    value: 0,
-    label: 'Mobile',
-    key: true,
-  },
-  {
-    value: 1,
-    label: 'Auto',
-    key: 'auto',
-  },
-  {
-    value: 2,
-    label: 'Desktop',
-    key: false,
-  },
-]
+const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] =
+  [
+    {
+      value: 0,
+      label: 'Mobile',
+      key: true,
+    },
+    {
+      value: 1,
+      label: 'Auto',
+      key: 'auto',
+    },
+    {
+      value: 2,
+      label: 'Desktop',
+      key: false,
+    },
+  ]

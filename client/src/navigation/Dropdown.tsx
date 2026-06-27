@@ -34,7 +34,10 @@ export function Dropdown({
           }}
         />
         {open && (
-          <div className={`dropdown-content${open ? '' : ' '}`} onClick={() => setOpen(false)}>
+          <div
+            className={`dropdown-content${open ? '' : ' '}`}
+            onClick={() => setOpen(false)}
+          >
             {children}
           </div>
         )}

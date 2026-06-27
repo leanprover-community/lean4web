@@ -1,10 +1,10 @@
 {
   "name": "leanweb-server",
   "private": true,
-  "type": "module",
   "bin": {
     "server": "index.mjs"
   },
+  "type": "module",
   "scripts": {
     "dev": "NODE_ENV=development nodemon index.mjs",
     "prod": "NODE_ENV=production nodemon index.mjs",

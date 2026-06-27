@@ -2,7 +2,13 @@ import { lean4webConfig } from '../../config'
 import { Popup } from '../navigation/Popup'
 
 /** The popup with the privacy policy. */
-function ImpressumPopup({ open, handleClose }: { open: boolean; handleClose: () => void }) {
+function ImpressumPopup({
+  open,
+  handleClose,
+}: {
+  open: boolean
+  handleClose: () => void
+}) {
   return (
     <Popup open={open} handleClose={handleClose}>
       <h2>Impressum</h2>
