@@ -1,13 +1,13 @@
-import { defineConfig } from "oxlint";
+import { defineConfig } from 'oxlint'
 
 export default defineConfig({
   categories: {
-    correctness: "warn",
-    perf: "off",
-    style: "off",
-    restriction: "off",
-    pedantic: "off",
-    suspicious: "off",
+    correctness: 'warn',
+    perf: 'off',
+    style: 'off',
+    restriction: 'off',
+    pedantic: 'off',
+    suspicious: 'off',
   },
   rules: {},
-});
+})

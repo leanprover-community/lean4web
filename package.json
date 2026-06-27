@@ -1,12 +1,12 @@
 {
   "name": "leanweb",
-  "private": true,
   "version": "0.2.2",
-  "type": "module",
+  "private": true,
   "workspaces": [
     "client",
     "server"
   ],
+  "type": "module",
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start:server\" \"npm run start:client\"",
     "start:client": "npm --workspace client run dev",
@@ -28,6 +28,9 @@
     "test:prod:windows:bare": "wait-on \"http://localhost:3000\" && CYPRESS_USER_AGENT_OS=\"Windows NT 10.0; Win64; x64\" cypress run --browser chromium",
     "test:prod:windows": "concurrently -k -s first -n server,cypress -c blue,cyan \"npm run build && PORT=3000 npm run production\" \"npm run test:prod:windows:bare\" --hide server"
   },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  },
   "devDependencies": {
     "@types/node": "^26.0.1",
     "@typescript-eslint/eslint-plugin": "^8.50.1",
@@ -45,8 +48,5 @@
   },
   "engines": {
     "node": ">=24.x"
-  },
-  "dependencies": {
-    "jszip": "^3.10.1"
   }
 }
