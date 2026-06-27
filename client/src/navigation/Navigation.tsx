@@ -88,7 +88,7 @@ function FlexibleMenu({
         useOverlay={isInDropdown}
         onClick={() => {
           setOpenLoad(false)
-          !isInDropdown && setOpenNav(false)
+          if (!isInDropdown) setOpenNav(false)
         }}
       >
         {projects.map((it) =>
@@ -117,7 +117,7 @@ function FlexibleMenu({
         useOverlay={isInDropdown}
         onClick={() => {
           setOpenExample(false)
-          !isInDropdown && setOpenNav(false)
+          if (!isInDropdown) setOpenNav(false)
         }}
       >
         <input

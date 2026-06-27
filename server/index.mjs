@@ -29,8 +29,8 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const environment = process.env.NODE_ENV;
 const isGithubAction = process.env.GITHUB_ACTIONS;
 const isDevelopment = environment === "development";
-const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() == "true" ?? false;
-const ENABLE_COLLAB = process.env.VITE_COLLAB?.toLowerCase() != "false" ?? true;
+const NO_BWRAP = process.env.NO_BWRAP?.toLowerCase() == "true";
+const ENABLE_COLLAB = process.env.VITE_COLLAB?.toLowerCase() != "false";
 
 const crtFile = process.env.SSL_CRT_FILE;
 const keyFile = process.env.SSL_KEY_FILE;
@@ -473,9 +473,9 @@ function hasWorkingBwrap() {
 }
 
 function toolchainToName(toolchain, prefixLean) {
-  const nightly = toolchain.match(/^leanprover\/lean4\:nightly-(.*)$/);
+  const nightly = toolchain.match(/^leanprover\/lean4:nightly-(.*)$/);
   if (nightly) return prefixLean ? `Lean ${nightly[1]}` : nightly[1];
-  const release = toolchain.match(/^leanprover\/lean4\:(.*)$/);
+  const release = toolchain.match(/^leanprover\/lean4:(.*)$/);
   if (release) return prefixLean ? `Lean ${release[1]}` : release[1];
   return "Lean";
 }
