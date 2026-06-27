@@ -62,7 +62,7 @@ The file `leanweb-config.json` takes the following form:
   only be accessed via direct link.
 - `sortOrder`(non-negative number): sort order of the projects in the dropdown. The default always
   comes first, then projects with higher `sortOrder` value. Ties are resolved alphabetically.
-- `examples`: list of examples. The path is relativ to the project's directory, e.g. 
+- `examples`: list of examples. The path is relativ to the project's directory, e.g.
   `{PROJECTS_BASE_PATH}/{PROJECT_FOLDER}/{EXAMPLE_PATH.lean}`
 
 ## automatic builds

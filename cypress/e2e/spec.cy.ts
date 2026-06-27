@@ -14,13 +14,13 @@ describe("The Editor", () => {
       .find(".modal-close")
       .click();
 
-    cy.get("nav>*>select[name='leanVersion']").select("Stable");
+    cy.get("nav>*>select[name='leanVersion']").select("Lean stable");
     cy.iframe().contains("Stable.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
     cy.containsAll(".modal", [
       "Stable",
-      "leanprover/lean4:",
+      "leanprover/lean4:stable",
       "(no dependencies)",
     ])
       .find(".modal-close")
@@ -231,5 +231,14 @@ describe("The Editor", () => {
       metaKey: isOnDarwin,
     });
     cy.get("@alertShown").should("have.been.calledTwice");
+  });
+});
+
+describe("The version selection menu", () => {
+  it("displays a versioned name for the Stable project", () => {
+    cy.visit("/");
+    cy.get("nav>*>select[name='leanVersion'] option[value='Stable']")
+      .invoke("text")
+      .should("match", /^Lean stable/);
   });
 });
