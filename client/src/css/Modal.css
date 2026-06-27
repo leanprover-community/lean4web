@@ -76,7 +76,7 @@ input[type='file'] {
 }
 
 .modal input[type='submit'],
-.modal button,
+.modal button:not(.modal-close),
 .modal .file-upload-button {
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
@@ -87,7 +87,7 @@ input[type='file'] {
 }
 
 .modal input[type='submit'],
-.modal button {
+.modal button:not(.modal-close) {
   display: block;
   margin: 1rem auto;
 }
@@ -137,6 +137,11 @@ input[type='file'] {
 .modal-close {
   float: right;
   scale: 2;
+  border: unset;
+  margin: 0;
+  padding: 4px;
+  background-color: unset;
+  border-radius: 4px;
   color: var(--vscode-input-foreground);
   cursor: pointer;
 }
@@ -144,7 +149,9 @@ input[type='file'] {
 .modal-close:hover {
   float: right;
   scale: 2;
-  color: var(--vscode-inputOption-activeForeground); /* TODO: what's the best var to use here? */
+  color: var(
+    --vscode-inputOption-activeForeground
+  ); /* TODO: what's the best var to use here? */
 }
 
 .modal table {

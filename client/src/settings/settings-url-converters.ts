@@ -19,10 +19,8 @@ function decodeTheme(val?: string): Theme | undefined {
   switch (val.toLowerCase()) {
     case 'light':
       return 'Visual Studio Light'
-      break
     case 'dark':
       return 'Visual Studio Dark'
-      break
     default:
       console.warn(`expected search param 'theme' to be 'light' or 'dark'.`)
   }
@@ -72,7 +70,7 @@ function setParam<K extends keyof UserSettings>(
       break
     case 'mobile':
       if (value !== 'auto') {
-        searchParams.set(String(key), String(value as Boolean))
+        searchParams.set(String(key), String(value as boolean))
       }
       break
     default:

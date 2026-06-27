@@ -85,7 +85,7 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
       setLoaded(true)
 
       // construct github api URL from repo URL
-      let m = pkg.url.match(/github.com\/([^\/]+)\/([^\/\.]+)/i) // exclude '\.' to strip potential '.git' at the end
+      let m = pkg.url.match(/github.com\/([^/]+)\/([^/.]+)/i) // exclude '\.' to strip potential '.git' at the end
       if (!m || m.length < 2) {
         console.warn(`[LeanWeb]: cannot parse package url`, pkg.url)
         setError('Not Found')
@@ -94,6 +94,7 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
 
       let githubUrl = `https://api.github.com/repos/${m![1]}/${m![2]}/commits/${pkg.rev}`
 
+      // oxlint-disable-next-line no-unused-expressions
       pkg.url.replace('github.com/', 'api.github.com/repos/') + `/commits/${pkg.rev}`
       console.debug(`[LeanWeb]: fetch from ${githubUrl}`)
 
@@ -137,7 +138,7 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
         ) : loaded && commit ? (
           <>
             {/* valid */}
-            <img src={commit?.author?.avatar_url} />
+            <img src={commit?.author?.avatar_url} alt={`commit author ${commit?.commit?.author?.name}`}/>
             <p>
               <span className="commit-date">
                 {new Date(commit?.commit?.author?.date).toLocaleString()}

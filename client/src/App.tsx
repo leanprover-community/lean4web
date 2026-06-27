@@ -297,8 +297,8 @@ function App() {
             // (fully-qualified) decalaration name... with that one could
             // call `...${path}.html#${declaration}`
             let path = input.resource.path
-              .replace(new RegExp('^.*/(?:lean|\.lake/packages/[^/]+/)'), '')
-              .replace(new RegExp('\.lean$'), '')
+              .replace(new RegExp('^.*/(?:lean|.lake/packages/[^/]+/)'), '')
+              .replace(new RegExp('.lean$'), '')
 
             if (
               window.confirm(
@@ -321,7 +321,10 @@ function App() {
 
       // Keeping the `code` state up-to-date with the changes in the editor
       leanMonacoEditor.editor?.onDidChangeModelContent(() => {
-        setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
+        const val = leanMonacoEditor.editor?.getModel()?.getValue()
+        if (val) {
+          setCode(val)
+        }
       })
     })()
     return () => {
