@@ -1,7 +1,7 @@
 describe("The Editor", () => {
   it("displays the version selection", () => {
     cy.visit("/");
-    cy.get("nav>*>select[name='leanVersion']").select("MathlibDemo");
+    cy.get("nav>select[name='leanVersion']").select("MathlibDemo");
     cy.iframe().contains("MathlibDemo.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
@@ -13,8 +13,16 @@ describe("The Editor", () => {
     ])
       .find(".modal-close")
       .click();
+    cy.get("nav>select[name='leanVersion']").debug();
+    cy.get("nav>select[name='leanVersion'] option").then(($options) => {
+      const options = [...$options].map((option) => ({
+        text: option.text,
+        value: option.value,
+      }));
 
-    cy.get("nav>*>select[name='leanVersion']").select("Lean stable");
+      console.table(options);
+    });
+    cy.get("nav>select[name='leanVersion']").select("Lean stable");
     cy.iframe().contains("Stable.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
@@ -237,7 +245,7 @@ describe("The Editor", () => {
 describe("The version selection menu", () => {
   it("displays a versioned name for the Stable project", () => {
     cy.visit("/");
-    cy.get("nav>*>select[name='leanVersion'] option[value='Stable']")
+    cy.get("nav>select[name='leanVersion'] option[value='Stable']")
       .invoke("text")
       .should("match", /^Lean stable/);
   });
