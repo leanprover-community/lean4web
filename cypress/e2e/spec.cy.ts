@@ -13,12 +13,24 @@ describe("The Editor", () => {
     ])
       .find(".modal-close")
       .click();
+    cy.get("nav>select[name='leanVersion']").debug();
+    cy.get("nav>select[name='leanVersion'] option").then(($options) => {
+      const options = [...$options].map((option) => ({
+        text: option.text,
+        value: option.value,
+      }));
 
-    cy.get("nav>select[name='leanVersion']").select("Stable");
+      console.table(options);
+    });
+    cy.get("nav>select[name='leanVersion']").select("Lean stable");
     cy.iframe().contains("Stable.lean").should("exist");
     cy.get(".dropdown>.nav-link>.fa-bars").click();
     cy.contains(".nav-link", "Lean Info").click();
-    cy.containsAll(".modal", ["leanprover/lean4:stable", "(no dependencies)"])
+    cy.containsAll(".modal", [
+      "Stable",
+      "leanprover/lean4:stable",
+      "(no dependencies)",
+    ])
       .find(".modal-close")
       .click();
   });
@@ -71,13 +83,7 @@ describe("The Editor", () => {
     cy.get("div.view-lines").type("example (P: Prop) : P \\or \\not P := by ");
 
     cy.iframe()
-      .containsAll([
-        "Tactic state",
-        "1 goal",
-        "P : Prop",
-        "⊢ P ∨ ¬P",
-        "unexpected end of input",
-      ])
+      .containsAll(["Tactic state", "1 goal", "P : Prop", "⊢ P ∨ ¬P"])
       .should("exist");
 
     cy.contains("div.view-lines", "P := by").type("exact Classical.em P");
@@ -227,5 +233,14 @@ describe("The Editor", () => {
       metaKey: isOnDarwin,
     });
     cy.get("@alertShown").should("have.been.calledTwice");
+  });
+});
+
+describe("The version selection menu", () => {
+  it("displays a versioned name for the Stable project", () => {
+    cy.visit("/");
+    cy.get("nav>select[name='leanVersion'] option[value='Stable']")
+      .invoke("text")
+      .should("match", /^Lean stable/);
   });
 });

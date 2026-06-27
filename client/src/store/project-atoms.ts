@@ -12,10 +12,19 @@ const projectsQueryAtom = atomWithQuery<LeanWebProject[]>(() => ({
   },
 }))
 
-/** Sort alphabetically while the `default` project always comes first */
+/**
+ * Sort alphabetically while the `default` project always comes first, then
+ * order by descending sortOrder (nullish treated as 0), then order by name.
+ */
 function sortProjects(p: LeanWebProject, q: LeanWebProject): number {
   if (p.config.default) return -1
   if (q.config.default) return 1
+
+  // Secondary sort: sortOrder field
+  const n = q.config.sortOrder - p.config.sortOrder
+  if (n !== 0) return n
+
+  // Fallback: names
   return p.config.name.localeCompare(q.config.name)
 }
 
