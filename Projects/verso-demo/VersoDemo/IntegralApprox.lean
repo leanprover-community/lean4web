@@ -7,7 +7,7 @@ The area under $`\sin x` from $`0` to $`k` can be calculated exactly:
 
 $$`\int_0^k \sin x \,dx = 1 - \cos k`
 
-This means that we can exactly compute the area under $`\sin x` from $`0` to $`1.5` like this:
+This means that we can directly compute the area under $`\sin x` from $`0` to $`1.5` like this:
 
 ```lean (name := eval1)
 #eval 1 - Float.cos 1.5
@@ -17,11 +17,12 @@ This means that we can exactly compute the area under $`\sin x` from $`0` to $`1
 ```
 
 But we can approximate this integral with a (left) [Riemann sum](https://en.wikipedia.org/wiki/Riemann_sum).
-If we say we want to break the interval from $`0` to $`k` into $`n` different rectangles, then we can define the left riemann sum as
+If we say we want to break the interval from $`0` to $`k` into $`n` different rectangles, then we can define the left Riemann sum as
 
 $$`\sum_{i=0}^{n - 1} \sin x \times dx`
 
-Where $`dx = {k \over n}` and $`x = i \times dx`, which we can then express in Lean like this:
+Where $`dx = {k \over n}` and $`x = i \times dx`.
+This approximation can be written as a function in Lean:
 
 ```lean
 def leftSum k n (f : (x dx : Float) → Float) :=
