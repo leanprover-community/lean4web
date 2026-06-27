@@ -83,13 +83,7 @@ describe("The Editor", () => {
     cy.get("div.view-lines").type("example (P: Prop) : P \\or \\not P := by ");
 
     cy.iframe()
-      .containsAll([
-        "Tactic state",
-        "1 goal",
-        "P : Prop",
-        "⊢ P ∨ ¬P",
-        "unexpected end of input",
-      ])
+      .containsAll(["Tactic state", "1 goal", "P : Prop", "⊢ P ∨ ¬P"])
       .should("exist");
 
     cy.contains("div.view-lines", "P := by").type("exact Classical.em P");

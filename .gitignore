@@ -16,6 +16,7 @@ cypress/screenshots
 cypress/videos
 
 **/.lake
+**/_out
 
 # Editor directories and files
 .vscode/*
