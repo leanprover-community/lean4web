@@ -181,7 +181,19 @@ if (crtFile && keyFile) {
   server = app.listen(PORT, () => console.log(`HTTP on port ${PORT}`))
 }
 
-const wss = new WebSocketServer({ server })
+const wss = new WebSocketServer({
+  server,
+  perMessageDeflate: {
+    // Only compress large messages (e.g. the full-environment completion
+    // dumps). `threshold` is only honored when context takeover is disabled
+    // on the sending side, so `serverNoContextTakeover` is required here for
+    // the threshold to take effect on server->client messages.
+    // Default threshold is 1024 bytes.
+    // (cf. https://github.com/microsoft/playwright/issues/33810)
+    threshold: 16 * 1024 * 1024, // 16 MB
+    serverNoContextTakeover: true,
+  },
+})
 
 function startServerProcess(project) {
   const PROJECT_PATH = path.join(PROJECTS_BASE_PATH, project)
