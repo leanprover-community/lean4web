@@ -30,6 +30,7 @@ import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
 import { codeAtom } from '../editor/code-atoms'
 import ImpressumPopup from '../Popups/Impressum'
+import JoinCollaborationPopup from '../Popups/JoinCollaboration'
 import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
@@ -42,6 +43,7 @@ import {
 } from '../settings/settings-atoms'
 import { lightThemes } from '../settings/settings-types'
 import { SettingsPopup } from '../settings/SettingsPopup'
+import { isCollaboratingAtom } from '../store/collaboration-atoms'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
 import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
 import { urlArgsStableAtom } from '../store/url-atoms'
@@ -49,6 +51,7 @@ import { parseArgs } from '../store/url-converters'
 import { save } from '../utils/SaveToFile'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
+import RotatingGlobe from './RotatingGlobe'
 
 const referrerNeedsComparator = (() => {
   // Never highlight comparator option if there's no code
@@ -75,6 +78,7 @@ function FlexibleMenu({
   setContent,
   setLoadUrlOpen,
   setLoadZulipOpen,
+  setJoinCollabOpen,
 }: {
   isInDropdown: boolean
   setOpenNav: Dispatch<SetStateAction<boolean>>
@@ -85,9 +89,13 @@ function FlexibleMenu({
   setContent: (code: string) => void
   setLoadUrlOpen: Dispatch<SetStateAction<boolean>>
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
+  setJoinCollabOpen: Dispatch<SetStateAction<boolean>>
 }) {
+  const ENABLE_COLLAB = import.meta.env.VITE_COLLAB != 'false'
+  const [isCollaborating] = useAtom(isCollaboratingAtom)
   const setImportUrlAndProject = useSetAtom(setImportUrlAndProjectAtom)
   const { data: projects } = useAtomValue(projectsAtom)
+
   const urlArgs = useAtomValue(urlArgsStableAtom)
   const code = useAtomValue(codeAtom)
   const isUsingUrlCode = !!urlArgs?.url
@@ -248,6 +256,15 @@ function FlexibleMenu({
           </div>
         </ClickAwayListener>
       </Popper>{' '}
+      {ENABLE_COLLAB && !isCollaborating && (
+        <NavButton
+          iconElement={<RotatingGlobe />}
+          text="Collaborate"
+          onClick={() => {
+            setJoinCollabOpen(true)
+          }}
+        />
+      )}
     </>
   )
 }
@@ -258,11 +275,13 @@ export function Menu({
   restart,
   codeMirror,
   setCodeMirror,
+  handleJoinCollab,
 }: {
   setContent: (code: string) => void
   restart?: () => void
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
+  handleJoinCollab: () => void
 }) {
   const [visibleProjects] = useAtom(visibleProjectsAtom)
   const [project, setProject] = useAtom(currentProjectAtom)
@@ -274,6 +293,7 @@ export function Menu({
   const [openLoad, setOpenLoad] = useState(false)
   const [loadUrlOpen, setLoadUrlOpen] = useState(false)
   const [loadZulipOpen, setLoadZulipOpen] = useState(false)
+  const [joinCollabOpen, setJoinCollabOpen] = useState(false)
 
   // state for the popups
   const [privacyOpen, setPrivacyOpen] = useState(false)
@@ -326,6 +346,7 @@ export function Menu({
           setContent={setContent}
           setLoadUrlOpen={setLoadUrlOpen}
           setLoadZulipOpen={setLoadZulipOpen}
+          setJoinCollabOpen={setJoinCollabOpen}
         />
       )}
       <Dropdown
@@ -348,6 +369,7 @@ export function Menu({
             setContent={setContent}
             setLoadUrlOpen={setLoadUrlOpen}
             setLoadZulipOpen={setLoadZulipOpen}
+            setJoinCollabOpen={setJoinCollabOpen}
           />
         )}
         <NavButton
@@ -418,6 +440,13 @@ export function Menu({
         open={loadZulipOpen}
         handleClose={() => setLoadZulipOpen(false)}
         setContent={setContent}
+      />
+      <JoinCollaborationPopup
+        open={joinCollabOpen}
+        handleJoinCollab={handleJoinCollab}
+        handleClose={() => {
+          setJoinCollabOpen(false)
+        }}
       />
     </div>
   )
