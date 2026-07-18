@@ -1,13 +1,7 @@
 import '../css/Modal.css'
 import '../css/Navigation.css'
 
-import {
-  faArrowRotateRight,
-  faCode,
-  faEye,
-  faHandshake,
-  faInfoCircle,
-} from '@fortawesome/free-solid-svg-icons'
+import { faArrowRotateRight, faCode, faEye, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import {
   faArrowUpRightFromSquare,
   faBars,
@@ -21,8 +15,6 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import ClickAwayListener from '@mui/material/ClickAwayListener'
-import Popper from '@mui/material/Popper'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
@@ -35,37 +27,16 @@ import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
 import ToolsPopup from '../Popups/Tools'
-import {
-  localOnlySettingsAtom,
-  mobileAtom,
-  navBarRequestedAtom,
-  settingsAtom,
-} from '../settings/settings-atoms'
-import { lightThemes } from '../settings/settings-types'
+import { localOnlySettingsAtom, mobileAtom, navBarRequestedAtom } from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { isCollaboratingAtom } from '../store/collaboration-atoms'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
 import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
-import { urlArgsStableAtom } from '../store/url-atoms'
-import { parseArgs } from '../store/url-converters'
 import { save } from '../utils/SaveToFile'
+import CollaborateButton from './CollaborateButton'
+import ComparatorButton from './ComparatorButton'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
-import RotatingGlobe from './RotatingGlobe'
-
-const referrerNeedsComparator = (() => {
-  // Never highlight comparator option if there's no code
-  const args = parseArgs(window.location.hash)
-  if (!args.code?.trim() && !args.codez?.trim()) return false // No warning for empty code or example-url-driven code
-
-  // Highlight comparator if there's no referrer or if the referrer isn't safelisted
-  if (!document.referrer) return true
-  const referrer = new URL(document.referrer)
-  if (!lean4webConfig.comparatorSafeList) return true
-  return !lean4webConfig.comparatorSafeList.some((item) =>
-    item instanceof RegExp ? referrer.hostname.match(item) : referrer.hostname === item,
-  )
-})()
 
 /** The menu items either appearing inside the dropdown or outside */
 function FlexibleMenu({
@@ -91,32 +62,9 @@ function FlexibleMenu({
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
   setJoinCollabOpen: Dispatch<SetStateAction<boolean>>
 }) {
-  const ENABLE_COLLAB = import.meta.env.VITE_COLLAB != 'false'
-  const [isCollaborating] = useAtom(isCollaboratingAtom)
   const setImportUrlAndProject = useSetAtom(setImportUrlAndProjectAtom)
   const { data: projects } = useAtomValue(projectsAtom)
-
-  const urlArgs = useAtomValue(urlArgsStableAtom)
-  const code = useAtomValue(codeAtom)
-  const isUsingUrlCode = !!urlArgs?.url
-
-  const settings = useAtomValue(settingsAtom)
-  const themeVariant = lightThemes.includes(settings.theme)
-    ? 'light'
-    : settings.theme === 'Cobalt'
-      ? 'cobalt'
-      : 'dark'
-  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
-  const [comparatorWarningDismissed, setComparatorWarningDismissed] = useState(false)
-  const comparatorWarningEligible =
-    !isInDropdown &&
-    !isUsingUrlCode &&
-    referrerNeedsComparator &&
-    !localOnlySettings.ignoreComparatorWarning
-  const [trustButtonEl, setTrustButtonEl] = useState<HTMLAnchorElement | null>(null)
-  const [trustArrowEl, setTrustArrowEl] = useState<HTMLElement | null>(null)
-  const comparatorWarningOpen =
-    !!trustButtonEl && comparatorWarningEligible && !comparatorWarningDismissed
+  const isCollaborating = useAtomValue(isCollaboratingAtom)
 
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
@@ -199,71 +147,9 @@ function FlexibleMenu({
           }}
         />
       </Dropdown>
-      {lean4webConfig.comparator && (
-        <NavButton
-          ref={isInDropdown ? undefined : setTrustButtonEl}
-          icon={faHandshake}
-          text={'Can I Trust This Proof?'}
-          disabled={isUsingUrlCode}
-          title={
-            isUsingUrlCode
-              ? 'Example urls not supported by Comparator tool! Edit the text to enable.'
-              : (code ?? '').trim() === ''
-                ? 'Open the Comparator verification tool'
-                : 'Open this proof in the Comparator verification tool'
-          }
-          onClick={() => {
-            window.location.assign(lean4webConfig.comparator + window.location.hash)
-          }}
-        />
-      )}
-      <Popper
-        open={comparatorWarningOpen}
-        anchorEl={trustButtonEl}
-        placement="bottom-end"
-        modifiers={[
-          { name: 'flip', enabled: false },
-          { name: 'offset', options: { offset: [0, 12] } },
-          { name: 'arrow', enabled: true, options: { element: trustArrowEl, padding: 8 } },
-        ]}
-      >
-        <ClickAwayListener onClickAway={() => setComparatorWarningDismissed(true)}>
-          <div
-            className={`comparator-warning ${themeVariant}`}
-            role="status"
-            aria-label="Verify untrusted proofs with Comparator"
-          >
-            <span className="comparator-warning-arrow" ref={setTrustArrowEl}></span>
-            <button
-              className="codicon codicon-close comparator-warning-close"
-              aria-label="Dismiss"
-              onClick={() => setComparatorWarningDismissed(true)}
-            />
-            <p>
-              Don't trust proofs from untrusted sources unless they're validated against a trusted
-              challenge. Use the <strong>Can I Trust This Proof?</strong> button to check this proof
-              with the online version of Lean's Comparator tool.
-            </p>
-            <button
-              className="comparator-warning-perma-dismiss"
-              onClick={() => {
-                setComparatorWarningDismissed(true)
-                setLocalOnlySettings('ignoreComparatorWarning', true)
-              }}
-            >
-              Don't show this again
-            </button>
-          </div>
-        </ClickAwayListener>
-      </Popper>{' '}
-      {ENABLE_COLLAB && !isCollaborating && (
-        <NavButton
-          iconElement={<RotatingGlobe />}
-          text="Collaborate"
-          onClick={() => {
-            setJoinCollabOpen(true)
-          }}
-        />
+      {lean4webConfig.emphasizeComparator && !isCollaborating && <ComparatorButton isInDropdown={isInDropdown} />}
+      {lean4webConfig.emphasizeCollaborate && (
+        <CollaborateButton setJoinCollabOpen={setJoinCollabOpen} />
       )}
     </>
   )
@@ -306,6 +192,7 @@ export function Menu({
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
   const navBarRequested = useAtomValue(navBarRequestedAtom)
   const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
+  const isCollaborating = useAtomValue(isCollaboratingAtom)
 
   return (
     <div className="menu">
@@ -371,6 +258,10 @@ export function Menu({
             setLoadZulipOpen={setLoadZulipOpen}
             setJoinCollabOpen={setJoinCollabOpen}
           />
+        )}
+        {(!lean4webConfig.emphasizeComparator || isCollaborating) && <ComparatorButton isInDropdown />}
+        {!lean4webConfig.emphasizeCollaborate && (
+          <CollaborateButton setJoinCollabOpen={setJoinCollabOpen} />
         )}
         <NavButton
           icon={faGear}

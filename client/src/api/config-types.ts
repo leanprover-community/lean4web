@@ -22,4 +22,8 @@ export type LeanWebConfig = {
    * Ignored if `comparator` option is `null`.
    */
   comparatorSafeList: (string | RegExp)[] | null
+  /** Bring "Can I Trust This Proof?" into the top bar (when not on mobile) */
+  emphasizeComparator: boolean
+  /** Bring "Collaborate" into the top bar (when not on mobile) */
+  emphasizeCollaborate: boolean
 }
