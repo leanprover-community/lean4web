@@ -147,7 +147,9 @@ function FlexibleMenu({
           }}
         />
       </Dropdown>
-      {lean4webConfig.emphasizeComparator && !isCollaborating && <ComparatorButton isInDropdown={isInDropdown} />}
+      {lean4webConfig.emphasizeComparator && !isCollaborating && (
+        <ComparatorButton isInDropdown={isInDropdown} />
+      )}
       {lean4webConfig.emphasizeCollaborate && (
         <CollaborateButton setJoinCollabOpen={setJoinCollabOpen} />
       )}
@@ -259,7 +261,9 @@ export function Menu({
             setJoinCollabOpen={setJoinCollabOpen}
           />
         )}
-        {(!lean4webConfig.emphasizeComparator || isCollaborating) && <ComparatorButton isInDropdown />}
+        {(!lean4webConfig.emphasizeComparator || isCollaborating) && (
+          <ComparatorButton isInDropdown />
+        )}
         {!lean4webConfig.emphasizeCollaborate && (
           <CollaborateButton setJoinCollabOpen={setJoinCollabOpen} />
         )}
@@ -283,7 +287,10 @@ export function Menu({
           icon={faDownload}
           text="Save"
           onClick={() => {
-            if (code !== undefined) save(code, project?.folder)
+            if (code !== undefined) {
+              // save(code, project?.folder)
+              save(code) // disabling project zip download for now (doesn't work with fro-specific config)
+            }
           }}
         />
         {hasImpressum && (

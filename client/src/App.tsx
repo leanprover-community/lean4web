@@ -364,7 +364,8 @@ function App() {
         code !== undefined
       ) {
         event.preventDefault()
-        save(code, project?.folder)
+        // save(code, project?.folder)
+        save(code) // disabling project zip download for now (doesn't work with fro-specific config)
       }
     },
     [code],
