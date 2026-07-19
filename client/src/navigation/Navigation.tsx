@@ -195,7 +195,7 @@ export function Menu({
   const isCollaborating = useAtomValue(isCollaboratingAtom)
 
   return (
-    <div className="menu">
+    <>
       {project && (
         <select
           name="leanVersion"
@@ -281,9 +281,9 @@ export function Menu({
         <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
         <NavButton
           icon={faDownload}
-          text="Save file"
+          text="Save"
           onClick={() => {
-            if (code !== undefined) save(code)
+            if (code !== undefined) save(code, project?.folder)
           }}
         />
         {hasImpressum && (
@@ -339,6 +339,6 @@ export function Menu({
           setJoinCollabOpen(false)
         }}
       />
-    </div>
+    </>
   )
 }

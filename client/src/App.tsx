@@ -116,7 +116,7 @@ function App() {
   }
 
   function handleLeaveCollab() {
-    console.log("handleLeaveCollab")
+    console.log('handleLeaveCollab')
     setIsCollaborating(false)
     setUsersInCollab(undefined)
     if (bindingRef.current) {
@@ -126,24 +126,27 @@ function App() {
     if (editor) {
       const model = editor.getModel()
       if (model) {
-        const remoteDecorations = model.getAllDecorations()
-          .filter(d => 
-            d.options.className?.includes('yRemoteSelection') ||
-            d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
-            d.options.beforeContentClassName?.includes('yRemoteSelectionHead')
+        const remoteDecorations = model
+          .getAllDecorations()
+          .filter(
+            (d) =>
+              d.options.className?.includes('yRemoteSelection') ||
+              d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
+              d.options.beforeContentClassName?.includes('yRemoteSelectionHead'),
           )
-          .map(d => d.id)
+          .map((d) => d.id)
         if (remoteDecorations.length > 0) {
           editor.deltaDecorations(remoteDecorations, [])
         }
       }
     }
-    if(provider){
+    if (provider) {
       provider.awareness.setLocalState(null) // broadcast removal first
       provider.destroy()
       setProvider(null)
     }
-    if(styleRefForRemoteCursors && styleRefForRemoteCursors.current) styleRefForRemoteCursors.current.innerHTML = '';
+    if (styleRefForRemoteCursors && styleRefForRemoteCursors.current)
+      styleRefForRemoteCursors.current.innerHTML = ''
     ydoc.destroy()
     usernamesRef.current.clear()
   }
@@ -167,13 +170,15 @@ function App() {
       }
       const model = editor.getModel()
       if (model) {
-        const remoteDecorations = model.getAllDecorations()
-          .filter(d => 
-            d.options.className?.includes('yRemoteSelection') ||
-            d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
-            d.options.beforeContentClassName?.includes('yRemoteSelectionHead')
+        const remoteDecorations = model
+          .getAllDecorations()
+          .filter(
+            (d) =>
+              d.options.className?.includes('yRemoteSelection') ||
+              d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
+              d.options.beforeContentClassName?.includes('yRemoteSelectionHead'),
           )
-          .map(d => d.id)
+          .map((d) => d.id)
         if (remoteDecorations.length > 0) {
           editor.deltaDecorations(remoteDecorations, [])
         }
@@ -359,7 +364,7 @@ function App() {
         code !== undefined
       ) {
         event.preventDefault()
-        save(code)
+        save(code, project?.folder)
       }
     },
     [code],
@@ -466,19 +471,16 @@ function App() {
         `
     })
     styleRefForRemoteCursors.current.innerHTML = css
-
   }, [usersInCollab, provider])
 
   return (
     <div className="app monaco-editor">
       <nav>
-        {!mobile && <LeanLogo />}
+        <LeanLogo />
         {isCollaborating && (
           <NavButton
             iconElement={<RotatingGlobe />}
-            text={
-              mobile ? '' : `${collabDisplayName} ∈ ${collabRoom} (${usersInCollab?.size ?? 0})`
-            }
+            text={`${collabDisplayName} ∈ ${collabRoom} (${usersInCollab?.size ?? 0})`}
             className="leave-collab-button"
             onClick={() => {
               setLeaveCollabOpen(true)
@@ -487,7 +489,9 @@ function App() {
         )}
         <Menu
           setContent={setContent}
-          restart={leanMonaco?.restart}
+          restart={() => {
+            leanMonaco?.restart()
+          }}
           codeMirror={codeMirror}
           setCodeMirror={setCodeMirror}
           handleJoinCollab={handleJoinCollab}

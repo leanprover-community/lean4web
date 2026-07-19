@@ -126,17 +126,31 @@ app.use("/api/example/:project/*example", (req, res, next) => {
   }
 });
 
-// `:project` is the project like `mathlib-demo`
+// `:project` is the project like `MathlibDemo`
 app.use("/api/manifest/:project", (req, res, next) => {
   const project = req.params.project;
   req.url = "lake-manifest.json";
   express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
 });
 
-// `:project` is the project like `mathlib-demo`
+// `:project` is the project like `MathlibDemo`
 app.use("/api/toolchain/:project", (req, res, next) => {
   const project = req.params.project;
   req.url = "lean-toolchain";
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
+});
+
+// `:project` is the project like `MathlibDemo`
+app.use("/api/lakefile-toml/:project", (req, res, next) => {
+  const project = req.params.project;
+  req.url = "lakefile.toml";
+  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
+});
+
+// `:project` is the project like `MathlibDemo`
+app.use("/api/lakefile/:project", (req, res, next) => {
+  const project = req.params.project;
+  req.url = "lakefile.lean";
   express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next);
 });
 

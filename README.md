@@ -8,7 +8,7 @@ This is a web application running Lean 4 server-side. There is a playground host
 In contrast to the [Lean 3 web editor](https://github.com/leanprover-community/lean-web-editor), in this web editor, the Lean server is
 running on a web server, and not in the browser.
 
-## Scope of lean4web
+## Scope of Lean Web
 
 - Minimalistic and accessible way to run some (smallish) Lean snippets
 - Run [MWEs](https://leanprover-community.github.io/mwe.html) from [Zulip](https://leanprover.zulipchat.com) with the latest [Mathlib](https://github.com/leanprover-community/mathlib4) installed.

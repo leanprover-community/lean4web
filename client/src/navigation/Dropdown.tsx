@@ -3,7 +3,7 @@ import { MouseEventHandler, ReactNode } from 'react'
 
 import { NavButton } from './NavButton'
 
-/** A button to appear in the hamburger menu or to navigation bar. */
+/** A button to appear in the hamburger menu or the navigation bar. */
 export function Dropdown({
   open,
   setOpen,
