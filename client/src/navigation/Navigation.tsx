@@ -1,7 +1,12 @@
 import '../css/Modal.css'
 import '../css/Navigation.css'
 
-import { faArrowRotateRight, faCode, faEye, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowRotateRight,
+  faCode,
+  faEye,
+  faInfoCircle,
+} from '@fortawesome/free-solid-svg-icons'
 import {
   faArrowUpRightFromSquare,
   faBars,
@@ -27,11 +32,19 @@ import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
 import ToolsPopup from '../Popups/Tools'
-import { localOnlySettingsAtom, mobileAtom, navBarRequestedAtom } from '../settings/settings-atoms'
+import {
+  localOnlySettingsAtom,
+  mobileAtom,
+  navBarRequestedAtom,
+} from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { isCollaboratingAtom } from '../store/collaboration-atoms'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
-import { currentProjectAtom, projectsAtom, visibleProjectsAtom } from '../store/project-atoms'
+import {
+  currentProjectAtom,
+  projectsAtom,
+  visibleProjectsAtom,
+} from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
 import CollaborateButton from './CollaborateButton'
 import ComparatorButton from './ComparatorButton'
@@ -89,7 +102,7 @@ function FlexibleMenu({
         useOverlay={isInDropdown}
         onClick={() => {
           setOpenLoad(false)
-          !isInDropdown && setOpenNav(false)
+          if (!isInDropdown) setOpenNav(false)
         }}
       >
         {projects.map((it) =>
@@ -118,7 +131,7 @@ function FlexibleMenu({
         useOverlay={isInDropdown}
         onClick={() => {
           setOpenExample(false)
-          !isInDropdown && setOpenNav(false)
+          if (!isInDropdown) setOpenNav(false)
         }}
       >
         <input
@@ -129,7 +142,12 @@ function FlexibleMenu({
         />
         {/* Need `ev.stopPropagation` to prevent closing until the file is loaded.
           Otherwise the file-upload is destroyed too early. */}
-        <label htmlFor="file-upload" className="nav-link" onClick={(ev) => ev.stopPropagation()}>
+        {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events jsx-a11y/no-noninteractive-element-interactions */}
+        <label
+          htmlFor="file-upload"
+          className="nav-link"
+          onClick={(ev) => ev.stopPropagation()}
+        >
           <FontAwesomeIcon icon={faUpload} /> Load file from disk
         </label>
         <NavButton
@@ -193,7 +211,9 @@ export function Menu({
 
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
   const navBarRequested = useAtomValue(navBarRequestedAtom)
-  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(
+    localOnlySettingsAtom,
+  )
   const isCollaborating = useAtomValue(isCollaboratingAtom)
 
   return (
@@ -274,15 +294,25 @@ export function Menu({
             setSettingsOpen(true)
           }}
         />
-        <NavButton icon={faHammer} text="Lean Info" onClick={() => setToolsOpen(true)} />
+        <NavButton
+          icon={faHammer}
+          text="Lean Info"
+          onClick={() => setToolsOpen(true)}
+        />
         {navBarRequested !== null && (
           <NavButton
             icon={faEye}
             text={`${localOnlySettings.hideNavbar ? 'Show' : 'Hide'} site navigation`}
-            onClick={() => setLocalOnlySettings('hideNavbar', !localOnlySettings.hideNavbar)}
+            onClick={() =>
+              setLocalOnlySettings('hideNavbar', !localOnlySettings.hideNavbar)
+            }
           />
         )}
-        <NavButton icon={faArrowRotateRight} text="Restart server" onClick={restart} />
+        <NavButton
+          icon={faArrowRotateRight}
+          text="Restart server"
+          onClick={restart}
+        />
         <NavButton
           icon={faDownload}
           text="Save"
@@ -307,19 +337,37 @@ export function Menu({
           text="Lean community"
           href="https://leanprover-community.github.io/"
         />
-        <NavButton icon={faArrowUpRightFromSquare} text="Lean FRO" href="https://lean-lang.org" />
+        <NavButton
+          icon={faArrowUpRightFromSquare}
+          text="Lean FRO"
+          href="https://lean-lang.org"
+        />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
           href="https://github.com/leanprover-community/lean4web"
         />
 
-        <NavButton icon={faShield} text="Privacy policy" href="https://lean-lang.org/privacy/" />
-        <NavButton icon={faShield} text="Terms of use" href="https://lean-lang.org/terms/" />
+        <NavButton
+          icon={faShield}
+          text="Privacy policy"
+          href="https://lean-lang.org/privacy/"
+        />
+        <NavButton
+          icon={faShield}
+          text="Terms of use"
+          href="https://lean-lang.org/terms/"
+        />
       </Dropdown>
-      <PrivacyPopup open={privacyOpen} handleClose={() => setPrivacyOpen(false)} />
+      <PrivacyPopup
+        open={privacyOpen}
+        handleClose={() => setPrivacyOpen(false)}
+      />
       {hasImpressum && (
-        <ImpressumPopup open={impressumOpen} handleClose={() => setImpressumOpen(false)} />
+        <ImpressumPopup
+          open={impressumOpen}
+          handleClose={() => setImpressumOpen(false)}
+        />
       )}
       {project && (
         <ToolsPopup
@@ -333,7 +381,10 @@ export function Menu({
         handleClose={() => setSettingsOpen(false)}
         closeNav={() => setOpenNav(false)}
       />
-      <LoadUrlPopup open={loadUrlOpen} handleClose={() => setLoadUrlOpen(false)} />
+      <LoadUrlPopup
+        open={loadUrlOpen}
+        handleClose={() => setLoadUrlOpen(false)}
+      />
       <LoadZulipPopup
         open={loadZulipOpen}
         handleClose={() => setLoadZulipOpen(false)}

@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - "main"
-      - "dev"
+      - 'main'
+      - 'dev'
   pull_request:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -139,7 +139,7 @@ jobs:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
   lint:
-    name: Lint
+    name: Lint & Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -152,6 +152,9 @@ jobs:
         run: npm ci
       - name: lint
         run: npm run lint
+      - name: format
+        continue-on-error: true
+        run: npm run fmt:check
   all-tests-pass:
     name: All Tests Pass
     runs-on: ubuntu-latest

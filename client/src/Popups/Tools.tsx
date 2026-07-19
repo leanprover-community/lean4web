@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { Popup } from '../navigation/Popup'
 
@@ -76,56 +76,70 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
   const [error, setError] = useState<string>()
 
   // Load commit info on hovering the first time
-  const handleHover = (_event: any) => {
-    // Do not fetch twice
-    if (loaded) {
-      return
-    }
-    setLoaded(true)
+  const handleHover = useCallback(
+    (_event: any) => {
+      // Do not fetch twice
+      if (loaded) {
+        return
+      }
+      setLoaded(true)
 
-    // construct github api URL from repo URL
-    let m = pkg.url.match(/github.com\/([^\/]+)\/([^\/\.]+)/i) // exclude '\.' to strip potential '.git' at the end
-    if (!m || m.length < 2) {
-      console.warn(`[LeanWeb]: cannot parse package url`, pkg.url)
-      setError('Not Found')
-      return
-    }
+      // construct github api URL from repo URL
+      let m = pkg.url.match(/github.com\/([^/]+)\/([^/.]+)/i) // exclude '\.' to strip potential '.git' at the end
+      if (!m || m.length < 2) {
+        console.warn(`[LeanWeb]: cannot parse package url`, pkg.url)
+        setError('Not Found')
+        return
+      }
 
-    let githubUrl = `https://api.github.com/repos/${m![1]}/${m![2]}/commits/${pkg.rev}`
+      let githubUrl = `https://api.github.com/repos/${m![1]}/${m![2]}/commits/${pkg.rev}`
 
-    pkg.url.replace('github.com/', 'api.github.com/repos/') + `/commits/${pkg.rev}`
-    console.debug(`[LeanWeb]: fetch from ${githubUrl}`)
+      // oxlint-disable-next-line no-unused-expressions
+      pkg.url.replace('github.com/', 'api.github.com/repos/') +
+        `/commits/${pkg.rev}`
+      console.debug(`[LeanWeb]: fetch from ${githubUrl}`)
 
-    fetch(githubUrl)
-      .then((response) => {
-        if (!response.ok) {
-          console.warn(`[LeanWeb]: failed request (${response.status})`, response)
-        }
-        return response.json()
-      })
-      .then((data) => {
-        if (data.message) {
-          // e.g. when reaching rate limit
-          setError(data.message)
-        } else {
-          setCommit(data)
-        }
-      })
-      .catch((error) => {
-        setError(error)
-        console.error(error)
-      })
-  }
+      fetch(githubUrl)
+        .then((response) => {
+          if (!response.ok) {
+            console.warn(
+              `[LeanWeb]: failed request (${response.status})`,
+              response,
+            )
+          }
+          return response.json()
+        })
+        .then((data) => {
+          if (data.message) {
+            // e.g. when reaching rate limit
+            setError(data.message)
+          } else {
+            setCommit(data)
+          }
+        })
+        .catch((error) => {
+          setError(error)
+          console.error(error)
+        })
+    },
+    [loaded, pkg.rev, pkg.url],
+  )
 
   useEffect(() => {
-    linkRef.current?.addEventListener('mouseover', handleHover)
+    var elem = linkRef.current
+    elem?.addEventListener('mouseover', handleHover)
     return () => {
-      linkRef.current?.removeEventListener('mouseover', handleHover)
+      elem?.removeEventListener('mouseover', handleHover)
     }
-  }, [linkRef, loaded])
+  }, [handleHover, linkRef, loaded])
 
   return (
-    <a ref={linkRef} className="tooltip" href={`${pkg.url}/commits/${pkg.rev}/`} target="_blank">
+    <a
+      ref={linkRef}
+      className="tooltip"
+      href={`${pkg.url}/commits/${pkg.rev}/`}
+      target="_blank"
+    >
       {pkg.rev.substring(0, 7)}
       <div className="tooltiptext" id="tooltip-content">
         {error ? (
@@ -133,14 +147,21 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
         ) : loaded && commit ? (
           <>
             {/* valid */}
-            <img src={commit?.author?.avatar_url} />
+            <img
+              src={commit?.author?.avatar_url}
+              alt={`commit author ${commit?.commit?.author?.name}`}
+            />
             <p>
               <span className="commit-date">
                 {new Date(commit?.commit?.author?.date).toLocaleString()}
               </span>
               <br />
-              <span className="commit-message">{commit?.commit?.message.split('\n')[0]}</span>{' '}
-              <span className="commit-author">by {commit?.commit?.author?.name}</span>
+              <span className="commit-message">
+                {commit?.commit?.message.split('\n')[0]}
+              </span>{' '}
+              <span className="commit-author">
+                by {commit?.commit?.author?.name}
+              </span>
               <br />
               <span className="commit-sha">{commit?.sha}</span>
             </p>
@@ -255,8 +276,8 @@ function ToolsPopup({
       </table>
       <h2>Tools</h2>
       <p>
-        To see the actual Lean version implied by the toolchain above, the following can be pasted
-        into the editor:
+        To see the actual Lean version implied by the toolchain above, the
+        following can be pasted into the editor:
       </p>
       <pre>
         <code>#eval Lean.versionString</code>

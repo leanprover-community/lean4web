@@ -9,7 +9,9 @@ interface CollaborateButtonProps {
   setJoinCollabOpen: Dispatch<SetStateAction<boolean>>
 }
 
-export default function CollaborateButton({ setJoinCollabOpen }: CollaborateButtonProps) {
+export default function CollaborateButton({
+  setJoinCollabOpen,
+}: CollaborateButtonProps) {
   const collaborationEnabled = import.meta.env.VITE_COLLAB != 'false'
   const isCollaborating = useAtomValue(isCollaboratingAtom)
 

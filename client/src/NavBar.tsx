@@ -32,7 +32,10 @@ const NavItemComponent: React.FC<{ item: NavItem }> = ({ item }) => {
           {item.title}
         </a>
       ) : (
-        <button className={`bar-link-lean${classes}`} aria-label={item.alt || ''}>
+        <button
+          className={`bar-link-lean${classes}`}
+          aria-label={item.alt || ''}
+        >
           {item.title}
         </button>
       )}
@@ -160,7 +163,12 @@ const LeanLogo: React.FC = () => (
 
 const NavBarLean: React.FC = () => {
   const outItems: NavItem[] = [
-    { title: 'Playground', url: 'https://live.lean-lang.org/', blank: true, active: true },
+    {
+      title: 'Playground',
+      url: 'https://live.lean-lang.org/',
+      blank: true,
+      active: true,
+    },
     {
       title: 'Reservoir',
       url: 'https://reservoir.lean-lang.org/',
@@ -210,14 +218,22 @@ const MathLibIniciativeLogo = () => <MathLibLogo height={40} width={100} />
 const NavBarMathLib: React.FC = () => {
   const outItems: NavItem[] = [
     { title: 'Lean', url: 'https://lean-lang.org/', blank: true },
-    { title: 'Mathlib Community', url: 'https://leanprover-community.github.io/', blank: true },
+    {
+      title: 'Mathlib Community',
+      url: 'https://leanprover-community.github.io/',
+      blank: true,
+    },
     {
       title: 'Playground',
       url: 'https://live.lean-lang.org/?from=lean',
       blank: true,
       active: true,
     },
-    { title: 'Reservoir', url: 'https://reservoir.lean-lang.org/', blank: true },
+    {
+      title: 'Reservoir',
+      url: 'https://reservoir.lean-lang.org/',
+      blank: true,
+    },
   ]
 
   const rightItems: NavItem[] = [

@@ -14,7 +14,10 @@ export function lookupUrl(url: string): string {
   const regex = RegExp('https://github.com/(.+)/blob/(.+)')
 
   if (regex.test(url)) {
-    url = url.replace(regex, 'https://raw.githubusercontent.com/$1/refs/heads/$2')
+    url = url.replace(
+      regex,
+      'https://raw.githubusercontent.com/$1/refs/heads/$2',
+    )
   }
 
   return url

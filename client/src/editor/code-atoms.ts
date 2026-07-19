@@ -2,7 +2,11 @@ import { atom } from 'jotai'
 import LZString from 'lz-string'
 
 import { settingsAtom } from '../settings/settings-atoms'
-import { importedCodeAtom, importUrlAtom, importUrlBaseAtom } from '../store/import-atoms'
+import {
+  importedCodeAtom,
+  importUrlAtom,
+  importUrlBaseAtom,
+} from '../store/import-atoms'
 import { urlArgsAtom, urlArgsStableAtom } from '../store/url-atoms'
 
 /** Atom which represents the editor content and synchronises it with the url hash. */
@@ -28,7 +32,12 @@ export const codeAtom = atom(
     }
     if (code.length == 0) {
       // delete all url arguments if there is no code
-      set(urlArgsAtom, { ...urlArgs, url: undefined, code: undefined, codez: undefined })
+      set(urlArgsAtom, {
+        ...urlArgs,
+        url: undefined,
+        code: undefined,
+        codez: undefined,
+      })
       return
     }
     const importedCode = get(importedCodeAtom)
@@ -51,7 +60,12 @@ export const codeAtom = atom(
         codez: compressedCode,
       })
     } else {
-      set(urlArgsAtom, { ...urlArgs, url: undefined, code: code, codez: undefined })
+      set(urlArgsAtom, {
+        ...urlArgs,
+        url: undefined,
+        code: code,
+        codez: undefined,
+      })
     }
   },
 )

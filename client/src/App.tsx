@@ -131,8 +131,12 @@ function App() {
           .filter(
             (d) =>
               d.options.className?.includes('yRemoteSelection') ||
-              d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
-              d.options.beforeContentClassName?.includes('yRemoteSelectionHead'),
+              d.options.afterContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ) ||
+              d.options.beforeContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ),
           )
           .map((d) => d.id)
         if (remoteDecorations.length > 0) {
@@ -175,8 +179,12 @@ function App() {
           .filter(
             (d) =>
               d.options.className?.includes('yRemoteSelection') ||
-              d.options.afterContentClassName?.includes('yRemoteSelectionHead') ||
-              d.options.beforeContentClassName?.includes('yRemoteSelectionHead'),
+              d.options.afterContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ) ||
+              d.options.beforeContentClassName?.includes(
+                'yRemoteSelectionHead',
+              ),
           )
           .map((d) => d.id)
         if (remoteDecorations.length > 0) {
@@ -209,12 +217,14 @@ function App() {
          */
         'workbench.colorTheme': settings.theme,
         'editor.tabSize': 2,
-        // "editor.rulers": [100],
+        'editor.rulers': settings.ruler ? [settings.ruler] : [],
         'editor.lightbulb.enabled': 'on',
         'editor.wordWrap': settings.wordWrap ? 'on' : 'off',
         'editor.wrappingStrategy': 'advanced',
         'editor.semanticHighlighting.enabled': true,
-        'editor.acceptSuggestionOnEnter': settings.acceptSuggestionOnEnter ? 'on' : 'off',
+        'editor.acceptSuggestionOnEnter': settings.acceptSuggestionOnEnter
+          ? 'on'
+          : 'off',
         'lean4.input.eagerReplacementEnabled': true,
         'lean4.infoview.showGoalNames': settings.showGoalNames,
         'lean4.infoview.emphasizeFirstGoal': true,
@@ -296,8 +306,8 @@ function App() {
             // (fully-qualified) decalaration name... with that one could
             // call `...${path}.html#${declaration}`
             let path = input.resource.path
-              .replace(new RegExp('^.*/(?:lean|\.lake/packages/[^/]+/)'), '')
-              .replace(new RegExp('\.lean$'), '')
+              .replace(new RegExp('^.*/(?:lean|.lake/packages/[^/]+/)'), '')
+              .replace(new RegExp('.lean$'), '')
 
             if (
               window.confirm(
@@ -320,13 +330,18 @@ function App() {
 
       // Keeping the `code` state up-to-date with the changes in the editor
       leanMonacoEditor.editor?.onDidChangeModelContent(() => {
-        setCode(leanMonacoEditor.editor?.getModel()?.getValue()!)
+        const val = leanMonacoEditor.editor?.getModel()?.getValue()
+        if (val) {
+          setCode(val)
+        }
       })
     })()
     return () => {
       leanMonacoEditor.dispose()
       _leanMonaco.dispose()
     }
+    // a change to `code` must not restart the editor
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infoviewRef, editorRef, options, project, settings])
 
   /** Set editor content to the code loaded from the URL */
@@ -368,7 +383,7 @@ function App() {
         save(code) // disabling project zip download for now (doesn't work with fro-specific config)
       }
     },
-    [code],
+    [code, project],
   )
 
   useEffect(() => {
@@ -399,7 +414,11 @@ function App() {
   useEffect(() => {
     if (!provider) return
 
-    const update = (event?: { added: number[]; updated: number[]; removed: number[] }) => {
+    const update = (event?: {
+      added: number[]
+      updated: number[]
+      removed: number[]
+    }) => {
       const added = event?.added || []
       const updated = event?.updated || []
       const removed = event?.removed || []
@@ -438,7 +457,7 @@ function App() {
     return () => {
       provider.awareness.off('update', update)
     }
-  }, [provider])
+  }, [provider, setUsersInCollab])
 
   // This effect updates cursor styles whenever room members change
   useEffect(() => {
@@ -522,7 +541,10 @@ function App() {
         direction={mobile ? 'vertical' : 'horizontal'}
         style={{ flexDirection: mobile ? 'column' : 'row' }}
       >
-        <div className="codeview-wrapper" style={mobile ? { width: '100%' } : { height: '100%' }}>
+        <div
+          className="codeview-wrapper"
+          style={mobile ? { width: '100%' } : { height: '100%' }}
+        >
           {codeMirror && (
             <CodeMirror
               className="codeview plain"
@@ -534,7 +556,10 @@ function App() {
               onChange={setContent}
             />
           )}
-          <div ref={editorRef} className={`codeview${codeMirror ? ' hidden' : ''}`} />
+          <div
+            ref={editorRef}
+            className={`codeview${codeMirror ? ' hidden' : ''}`}
+          />
         </div>
         <div
           id="infopane-container"

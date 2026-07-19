@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box'
 import Slider from '@mui/material/Slider'
 import Switch from '@mui/material/Switch'
+import TextField from '@mui/material/TextField'
 import { useAtom } from 'jotai/react'
 import { useState } from 'react'
 
@@ -21,7 +22,9 @@ export function SettingsPopup({
 }) {
   const [settings, applySettings] = useAtom(settingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
-  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(
+    localOnlySettingsAtom,
+  )
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings((prev) => ({ ...prev, [key]: value }))
@@ -54,7 +57,7 @@ export function SettingsPopup({
         </select>
       </p> */}
         <h2>Editor settings</h2>
-        <p>
+        <div>
           <label htmlFor="abbreviationCharacter">
             Lead character to trigger unicode input mode:
           </label>
@@ -66,8 +69,8 @@ export function SettingsPopup({
             }}
             value={newSettings.abbreviationCharacter}
           />
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="wordWrap"
             onChange={() => {
@@ -76,18 +79,53 @@ export function SettingsPopup({
             checked={newSettings.wordWrap}
           />
           <label htmlFor="wordWrap">Wrap code</label>
-        </p>
-        <p>
+        </div>
+        <div>
+          <Switch
+            id="ruler"
+            onChange={() => {
+              updateSetting(
+                'ruler',
+                newSettings.ruler != undefined ? undefined : 100,
+              )
+            }}
+            checked={newSettings.ruler != undefined}
+          />
+          <label htmlFor="showExpectedType">Show ruler</label>
+          {newSettings.ruler != undefined && (
+            <TextField
+              className="ruler-input"
+              type="number"
+              value={newSettings.ruler}
+              slotProps={{
+                htmlInput: {
+                  min: 20,
+                  max: 500,
+                  step: 10,
+                },
+              }}
+              onChange={(e) => {
+                updateSetting('ruler', Number(e.target.value))
+              }}
+            />
+          )}
+        </div>
+        <div>
           <Switch
             id="acceptSuggestionOnEnter"
             onChange={() => {
-              updateSetting('acceptSuggestionOnEnter', !newSettings.acceptSuggestionOnEnter)
+              updateSetting(
+                'acceptSuggestionOnEnter',
+                !newSettings.acceptSuggestionOnEnter,
+              )
             }}
             checked={newSettings.acceptSuggestionOnEnter}
           />
-          <label htmlFor="acceptSuggestionOnEnter">Accept Suggestion on Enter</label>
-        </p>
-        <p>
+          <label htmlFor="acceptSuggestionOnEnter">
+            Accept suggestion on Enter
+          </label>
+        </div>
+        <div>
           <Switch
             id="showGoalNames"
             onChange={() => {
@@ -95,9 +133,9 @@ export function SettingsPopup({
             }}
             checked={newSettings.showGoalNames}
           />
-          <label htmlFor="showGoalNames">Show Goal Names</label>
-        </p>
-        <p>
+          <label htmlFor="showGoalNames">Show goal names</label>
+        </div>
+        <div>
           <Switch
             id="showExpectedType"
             onChange={() => {
@@ -105,10 +143,10 @@ export function SettingsPopup({
             }}
             checked={newSettings.showExpectedType}
           />
-          <label htmlFor="showExpectedType">Show Expected Type</label>
-        </p>
+          <label htmlFor="showExpectedType">Show expected type</label>
+        </div>
         <h2>User settings</h2>
-        <p>
+        <div>
           <label htmlFor="theme">Theme: </label>
           <select
             id="theme"
@@ -126,12 +164,16 @@ export function SettingsPopup({
             <option value="Default High Contrast">high contrast</option>
             <option value="Cobalt">cobalt</option>
           </select>
-        </p>
+        </div>
         <div>
           <span>Layout: </span>
           <Box sx={{ width: 200 }}>
             <Slider
-              value={mobileSliderMarks.find((item) => item.key === newSettings.mobile)?.value ?? 1}
+              value={
+                mobileSliderMarks.find(
+                  (item) => item.key === newSettings.mobile,
+                )?.value ?? 1
+              }
               step={1}
               marks={mobileSliderMarks}
               max={2}
@@ -144,7 +186,7 @@ export function SettingsPopup({
             />
           </Box>
         </div>
-        <p>
+        <div>
           <Switch
             id="compress"
             onChange={() => {
@@ -153,8 +195,8 @@ export function SettingsPopup({
             checked={newSettings.compress}
           />
           <label htmlFor="compress">Compress code in URL</label>
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="inUrl"
             onChange={() => {
@@ -163,12 +205,15 @@ export function SettingsPopup({
             checked={newSettings.inUrl}
           />
           <label htmlFor="inUrl">Add settings to URL</label>
-        </p>
+        </div>
         <h2>Save</h2>
         <p>
-          <i>Editor settings and User settings are not preserved unless you opt-in to save them.</i>
+          <i>
+            Editor settings and User settings are not preserved unless you
+            opt-in to save them.
+          </i>
         </p>
-        <p>
+        <div>
           <Switch
             id="savingAllowed"
             onChange={() => {
@@ -176,14 +221,20 @@ export function SettingsPopup({
             }}
             checked={newSettings.saved}
           />
-          <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
-        </p>
-        <p>
+          <label htmlFor="savingAllowed">
+            Save settings (in the browser's local storage)
+          </label>
+        </div>
+        <div>
           {!shallowEqualSubset(defaultSettings, newSettings) && (
             <button
               id="resetSettings"
               onClick={(e) => {
-                setNewSettings({ saved: false, inUrl: false, ...defaultSettings })
+                setNewSettings({
+                  saved: false,
+                  inUrl: false,
+                  ...defaultSettings,
+                })
                 e.preventDefault()
               }}
             >
@@ -196,12 +247,14 @@ export function SettingsPopup({
             value={newSettings.saved ? 'Apply & Save' : 'Apply'}
             onClick={() => applySettings(newSettings)}
           />
-        </p>
+        </div>
         <h2>Local Settings</h2>
-        <p>
-          <i>These settings are always preserved in the browser's local storage.</i>
-        </p>
-        <p>
+        <div>
+          <i>
+            These settings are always preserved in the browser's local storage.
+          </i>
+        </div>
+        <div>
           <Switch
             id="hideNavbar"
             onChange={() => {
@@ -210,10 +263,11 @@ export function SettingsPopup({
             checked={!!localOnlySettings.hideNavbar}
           />
           <label htmlFor="hideNavbar">
-            Always hide the site navigation header for links from the Lean FRO or Mathlib Initiative
+            Always hide the site navigation header for links from the Lean FRO
+            or Mathlib Initiative
           </label>
-        </p>
-        <p>
+        </div>
+        <div>
           <Switch
             id="comparatorWarning"
             onChange={() => {
@@ -224,27 +278,30 @@ export function SettingsPopup({
             }}
             checked={!!localOnlySettings.ignoreComparatorWarning}
           />
-          <label htmlFor="comparatorWarning">Hide warnings about code from unknown sources</label>
-        </p>{' '}
+          <label htmlFor="comparatorWarning">
+            Hide warnings about code from unknown sources
+          </label>
+        </div>{' '}
       </form>
     </Popup>
   )
 }
 
-const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] = [
-  {
-    value: 0,
-    label: 'Mobile',
-    key: true,
-  },
-  {
-    value: 1,
-    label: 'Auto',
-    key: 'auto',
-  },
-  {
-    value: 2,
-    label: 'Desktop',
-    key: false,
-  },
-]
+const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] =
+  [
+    {
+      value: 0,
+      label: 'Mobile',
+      key: true,
+    },
+    {
+      value: 1,
+      label: 'Auto',
+      key: 'auto',
+    },
+    {
+      value: 2,
+      label: 'Desktop',
+      key: false,
+    },
+  ]

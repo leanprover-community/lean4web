@@ -54,7 +54,6 @@ function LoadZulipPopup({
       <form onSubmit={handleLoad}>
         <textarea
           name="Zulip message input"
-          autoFocus
           placeholder="Paste Zulip message"
           ref={textInputRef}
         />

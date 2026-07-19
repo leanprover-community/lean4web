@@ -5,13 +5,25 @@ import { locationAtom } from '../store/location-atoms'
 import { screenWidthAtom } from '../store/window-atoms'
 import { cleanObject } from '../utils/cleanObject'
 import { shallowEqual } from '../utils/shallowEqual'
-import { defaultSettings, PartialUserSettings, Settings } from './settings-types'
-import { decodeSettingsFromURL, encodeSettingsToURL } from './settings-url-converters'
+import {
+  defaultSettings,
+  PartialUserSettings,
+  Settings,
+} from './settings-types'
+import {
+  decodeSettingsFromURL,
+  encodeSettingsToURL,
+} from './settings-url-converters'
 
 /** User settings as they are stored in storage */
-const settingsStoreAtom = atomWithStorage<PartialUserSettings>('lean4web:settings', {}, undefined, {
-  getOnInit: true,
-})
+const settingsStoreAtom = atomWithStorage<PartialUserSettings>(
+  'lean4web:settings',
+  {},
+  undefined,
+  {
+    getOnInit: true,
+  },
+)
 
 /** "Local Only" settings: always stored on localstorage, never in the URL, always in local storage */
 interface PartialLocalOnlyUserSettings {
@@ -29,7 +41,9 @@ if (localStorage.getItem('hideNavBar')) {
   localStorage.removeItem('hideNavBar')
 }
 
-const localOnlyStorage = createJSONStorage<PartialLocalOnlyUserSettings>(() => localStorage)
+const localOnlyStorage = createJSONStorage<PartialLocalOnlyUserSettings>(
+  () => localStorage,
+)
 
 /** Delete local storage if all items become falsy */
 const prunedLocalOnlyStorage: typeof localOnlyStorage = {
@@ -93,10 +107,18 @@ const settingsUrlAtom = atom(
 )
 
 /** Needed in order for the `settingsAtom` not to update unless the values from the URL actually change */
-const settingsUrlStableAtom = selectAtom(settingsUrlAtom, (settings) => settings, shallowEqual)
+const settingsUrlStableAtom = selectAtom(
+  settingsUrlAtom,
+  (settings) => settings,
+  shallowEqual,
+)
 
 /** The settings which apply for the current session */
-const settingsBaseAtom = atom<Settings>({ saved: false, inUrl: false, ...defaultSettings })
+const settingsBaseAtom = atom<Settings>({
+  saved: false,
+  inUrl: false,
+  ...defaultSettings,
+})
 
 /**
  * The user settings combined from different sources, with decreasing priority:
@@ -129,7 +151,9 @@ export const settingsAtom = atom(
       localStorage.removeItem('lean4web:settings')
     }
 
-    const newSearchParams = inUrl ? encodeSettingsToURL(settingsToStore) : new URLSearchParams()
+    const newSearchParams = inUrl
+      ? encodeSettingsToURL(settingsToStore)
+      : new URLSearchParams()
     set(settingsUrlAtom, newSearchParams)
   },
 )

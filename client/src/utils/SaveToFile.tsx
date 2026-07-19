@@ -24,7 +24,9 @@ export async function save(content: string, project?: string) {
   const fetchedFiles = await Promise.all(
     projectFiles.map(async ({ endpoint, filename }) => {
       try {
-        const response = await fetch(`${window.location.origin}/api/${endpoint}/${project}`)
+        const response = await fetch(
+          `${window.location.origin}/api/${endpoint}/${project}`,
+        )
         if (!response.ok) return undefined
         return {
           filename,

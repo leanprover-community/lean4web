@@ -44,7 +44,9 @@ export const defaultProjectAtom = atom((get) => {
     return projects[0]
   }
   if (defaultProjects.length > 1) {
-    console.error(`Expected exactly one default project, but found ${defaultProjects.length}`)
+    console.error(
+      `Expected exactly one default project, but found ${defaultProjects.length}`,
+    )
   }
   return defaultProjects[0]
 })
@@ -57,8 +59,9 @@ export const currentProjectAtom = atom(
     const allProjects = get(projectsAtom).data
     if (!urlArgProject) return defaultProject
     return (
-      allProjects.find((it) => it.folder.toLowerCase() == urlArgProject.toLowerCase()) ??
-      defaultProject
+      allProjects.find(
+        (it) => it.folder.toLowerCase() == urlArgProject.toLowerCase(),
+      ) ?? defaultProject
     )
   },
   (get, set, project: string) => {
@@ -67,7 +70,9 @@ export const currentProjectAtom = atom(
     set(urlArgsAtom, {
       ...urlArgs,
       project:
-        defaultProject == undefined || project !== defaultProject.folder ? project : undefined,
+        defaultProject == undefined || project !== defaultProject.folder
+          ? project
+          : undefined,
     })
   },
 )

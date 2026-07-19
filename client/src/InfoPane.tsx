@@ -22,10 +22,16 @@ const TABS = ['Infoview', 'Verso'] as const
  */
 const DEBOUNCE_MS = 1_000
 
-type GetVersoContentsResult = { success: string } | { errors: string[] } | 'noDoc'
+type GetVersoContentsResult =
+  | { success: string }
+  | { errors: string[] }
+  | 'noDoc'
 type VersoState = GetVersoContentsResult | 'loading' | 'noRpc'
 
-async function getVersoContents(client: LeanClient, uri: string): Promise<GetVersoContentsResult> {
+async function getVersoContents(
+  client: LeanClient,
+  uri: string,
+): Promise<GetVersoContentsResult> {
   const { sessionId } = await client.sendRequest('$/lean/rpc/connect', { uri })
   const result = await client.sendRequest('$/lean/rpc/call', {
     textDocument: { uri },
@@ -55,7 +61,8 @@ function useVersoRPC(
 
     let currentDocumentVersion = -1
     let currentVersionHasRpcRequest = false
-    let versionDebounceTimer: ReturnType<typeof setTimeout> | undefined = undefined
+    let versionDebounceTimer: ReturnType<typeof setTimeout> | undefined =
+      undefined
 
     const report = async (client: LeanClient, uri: string) => {
       const documentVersionBeforeRpc = currentDocumentVersion
@@ -121,8 +128,15 @@ function useVersoRPC(
   }, [leanMonaco, isVerso, setVersoState])
 }
 
-export default function InfoPane({ codeMirror, infoviewRef, isVerso, leanMonaco }: InfoPaneProps) {
-  const [tab, setTab] = useState<(typeof TABS)[number]>(isVerso ? 'Verso' : 'Infoview')
+export default function InfoPane({
+  codeMirror,
+  infoviewRef,
+  isVerso,
+  leanMonaco,
+}: InfoPaneProps) {
+  const [tab, setTab] = useState<(typeof TABS)[number]>(
+    isVerso ? 'Verso' : 'Infoview',
+  )
   const [versoState, setVersoState] = useState<VersoState>('loading')
   useVersoRPC(leanMonaco, isVerso, setVersoState)
 
@@ -140,7 +154,11 @@ export default function InfoPane({ codeMirror, infoviewRef, isVerso, leanMonaco 
           {TABS.map((label) => (
             <button
               role="tab"
-              className={tab === label ? 'infoview-tab selected' : 'infoview-tab not-selected'}
+              className={
+                tab === label
+                  ? 'infoview-tab selected'
+                  : 'infoview-tab not-selected'
+              }
               key={label}
               aria-selected={tab === label}
               onClick={() => setTab(label)}
@@ -160,8 +178,8 @@ export default function InfoPane({ codeMirror, infoviewRef, isVerso, leanMonaco 
           You are in the plain text editor
           <br />
           <br />
-          Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode} />) for the infoview to
-          update!
+          Go back to the Monaco Editor (click <FontAwesomeIcon icon={faCode} />)
+          for the infoview to update!
         </p>
       </div>
       {isVerso &&
@@ -173,8 +191,8 @@ export default function InfoPane({ codeMirror, infoviewRef, isVerso, leanMonaco 
         ) : versoState === 'noRpc' ? (
           <div style={{ paddingInline: '1em' }}>
             <p>
-              This Lean file does not import VersoManual, so it's not possible to read out a Lean
-              document.
+              This Lean file does not import VersoManual, so it's not possible
+              to read out a Lean document.
             </p>
             <p>A minimal Verso document looks like this:</p>
             <pre>
@@ -186,28 +204,40 @@ open Verso Genre Manual InlineLean
 Hello World`}
             </pre>
             <p>
-              If you want to work on a normal Lean development, switch to the Infoview tab (or a
-              different project).
+              If you want to work on a normal Lean development, switch to the
+              Infoview tab (or a different project).
             </p>
           </div>
         ) : versoState === 'noDoc' ? (
           <div style={{ paddingInline: '1em' }}>
             <p>
-              Verso did not find a VersoManual document in this Lean file. This may be because
-              you're missing a <code style={{ fontFamily: 'monospace' }}>#doc</code> command, or it
-              may be because a Lean type error prevented the document from loading correctly.
+              Verso did not find a VersoManual document in this Lean file. This
+              may be because you're missing a{' '}
+              <code style={{ fontFamily: 'monospace' }}>#doc</code> command, or
+              it may be because a Lean type error prevented the document from
+              loading correctly.
             </p>
-            <p>Switching to the Infoview tab may help you diagnose the problem.</p>
+            <p>
+              Switching to the Infoview tab may help you diagnose the problem.
+            </p>
           </div>
         ) : 'success' in versoState ? (
           <iframe
             srcDoc={versoState.success}
-            style={{ border: 'none', width: '100%', height: '100%', background: 'white' }}
+            style={{
+              border: 'none',
+              width: '100%',
+              height: '100%',
+              background: 'white',
+            }}
           />
         ) : (
           'errors' in versoState && (
             <div style={{ paddingInline: '1em' }}>
-              <p>Error{versoState.errors.length !== 1 && 's'} in document generation</p>
+              <p>
+                Error{versoState.errors.length !== 1 && 's'} in document
+                generation
+              </p>
               <ul>
                 {versoState.errors.map((err, i) => (
                   <li key={i}>{err}</li>

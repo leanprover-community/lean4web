@@ -2,17 +2,14 @@ import { useAtom } from 'jotai'
 import { FormEvent } from 'react'
 
 import { Popup } from '../navigation/Popup'
-import {
-  collabRoomAtom,
-  usersInCollabAtom,
-} from '../store/collaboration-atoms'
+import { collabRoomAtom, usersInCollabAtom } from '../store/collaboration-atoms'
 import { getCollaboratorColor } from '../utils/collabColors'
 
 /** The popup to join a collaboration room. */
 function LeaveCollaborationPopup({
   open,
   handleClose,
-  handleLeaveCollab
+  handleLeaveCollab,
 }: {
   open: boolean
   handleClose: () => void
@@ -32,15 +29,19 @@ function LeaveCollaborationPopup({
       <h2>{`Leave collaboration '${collabRoom}'?`}</h2>
       <form onSubmit={onSubmit}>
         <div className="user-tag-row">
-          {Array.from(usersInCollab?.entries() ?? []).map(([clientId, state]) => (
-            <div
-              className="user-tag"
-              key={clientId}
-              style={{ backgroundColor: `var(${getCollaboratorColor(clientId)})` }}
-            >
-              {state.user.name}
-            </div>
-          ))}
+          {Array.from(usersInCollab?.entries() ?? []).map(
+            ([clientId, state]) => (
+              <div
+                className="user-tag"
+                key={clientId}
+                style={{
+                  backgroundColor: `var(${getCollaboratorColor(clientId)})`,
+                }}
+              >
+                {state.user.name}
+              </div>
+            ),
+          )}
         </div>
         <p>When leaving, the current code will be preserved.</p>
         <div className="button-row">

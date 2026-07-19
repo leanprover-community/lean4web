@@ -1,12 +1,12 @@
-import { LeanWebConfig } from "./src/api/config-types";
-import * as React from "react";
+import { LeanWebConfig } from './src/api/config-types'
+import * as React from 'react'
 
 export const lean4webConfig: LeanWebConfig = {
-  serverCountry: "Germany",
+  serverCountry: 'Germany',
   contactDetails: null,
   impressum: null,
-  comparator: "https://comparator.live.lean-lang.org/",
-  comparatorSafeList: ["lean-lang.org", /^.*\.lean-lang\.org$/],
+  comparator: 'https://comparator.live.lean-lang.org/',
+  comparatorSafeList: ['lean-lang.org', /^.*\.lean-lang\.org$/],
   emphasizeCollaborate: false,
   emphasizeComparator: true,
-};
+}

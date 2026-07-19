@@ -26,30 +26,39 @@ const referrerNeedsComparator = (() => {
   const referrer = new URL(document.referrer)
   if (!lean4webConfig.comparatorSafeList) return true
   return !lean4webConfig.comparatorSafeList.some((item) =>
-    item instanceof RegExp ? referrer.hostname.match(item) : referrer.hostname === item,
+    item instanceof RegExp
+      ? referrer.hostname.match(item)
+      : referrer.hostname === item,
   )
 })()
 
-export default function ComparatorButton({ isInDropdown }: ComparatorButtonProps) {
+export default function ComparatorButton({
+  isInDropdown,
+}: ComparatorButtonProps) {
   const settings = useAtomValue(settingsAtom)
   const themeVariant = lightThemes.includes(settings.theme)
     ? 'light'
     : settings.theme === 'Cobalt'
       ? 'cobalt'
       : 'dark'
-  const [comparatorWarningDismissed, setComparatorWarningDismissed] = useState(false)
+  const [comparatorWarningDismissed, setComparatorWarningDismissed] =
+    useState(false)
 
   const urlArgs = useAtomValue(urlArgsStableAtom)
   const code = useAtomValue(codeAtom)
   const isUsingUrlCode = !!urlArgs?.url
-  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(
+    localOnlySettingsAtom,
+  )
 
   const comparatorWarningEligible =
     !isInDropdown &&
     !isUsingUrlCode &&
     referrerNeedsComparator &&
     !localOnlySettings.ignoreComparatorWarning
-  const [trustButtonEl, setTrustButtonEl] = useState<HTMLAnchorElement | null>(null)
+  const [trustButtonEl, setTrustButtonEl] = useState<HTMLAnchorElement | null>(
+    null,
+  )
   const [trustArrowEl, setTrustArrowEl] = useState<HTMLElement | null>(null)
   const comparatorWarningOpen =
     !!trustButtonEl && comparatorWarningEligible && !comparatorWarningDismissed
@@ -70,7 +79,9 @@ export default function ComparatorButton({ isInDropdown }: ComparatorButtonProps
                 : 'Open this proof in the Comparator verification tool'
           }
           onClick={() => {
-            window.location.assign(lean4webConfig.comparator + window.location.hash)
+            window.location.assign(
+              lean4webConfig.comparator + window.location.hash,
+            )
           }}
         />
       )}
@@ -81,25 +92,35 @@ export default function ComparatorButton({ isInDropdown }: ComparatorButtonProps
         modifiers={[
           { name: 'flip', enabled: false },
           { name: 'offset', options: { offset: [0, 12] } },
-          { name: 'arrow', enabled: true, options: { element: trustArrowEl, padding: 8 } },
+          {
+            name: 'arrow',
+            enabled: true,
+            options: { element: trustArrowEl, padding: 8 },
+          },
         ]}
       >
-        <ClickAwayListener onClickAway={() => setComparatorWarningDismissed(true)}>
+        <ClickAwayListener
+          onClickAway={() => setComparatorWarningDismissed(true)}
+        >
           <div
             className={`comparator-warning ${themeVariant}`}
             role="status"
             aria-label="Verify untrusted proofs with Comparator"
           >
-            <span className="comparator-warning-arrow" ref={setTrustArrowEl}></span>
+            <span
+              className="comparator-warning-arrow"
+              ref={setTrustArrowEl}
+            ></span>
             <button
               className="codicon codicon-close comparator-warning-close"
               aria-label="Dismiss"
               onClick={() => setComparatorWarningDismissed(true)}
             />
             <p>
-              Don't trust proofs from untrusted sources unless they're validated against a trusted
-              challenge. Use the <strong>Can I Trust This Proof?</strong> button to check this proof
-              with the online version of Lean's Comparator tool.
+              Don't trust proofs from untrusted sources unless they're validated
+              against a trusted challenge. Use the{' '}
+              <strong>Can I Trust This Proof?</strong> button to check this
+              proof with the online version of Lean's Comparator tool.
             </p>
             <button
               className="comparator-warning-perma-dismiss"

@@ -1,9 +1,9 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const zLeanWebExample = z.object({
   file: z.string(),
   name: z.string(),
-});
+})
 
 export const zLeanWebProjectConfig = z.object({
   name: z.string(),
@@ -12,4 +12,4 @@ export const zLeanWebProjectConfig = z.object({
   sortOrder: z.number().min(0).optional(),
   examples: z.array(zLeanWebExample).optional(),
   verso: z.boolean().optional(),
-});
+})
