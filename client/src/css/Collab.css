@@ -1,0 +1,57 @@
+.yRemoteSelection {
+  border: 1px solid;
+}
+
+.yRemoteSelectionHead {
+  position: absolute;
+  border-left: 2px solid;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.yRemoteSelectionHead::after {
+  position: absolute;
+  left: -3.5px;
+  top: -5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--vscode-editor-background);
+  content: ' ';
+}
+
+.view-lines .view-line:first-child .yRemoteSelectionHead::after {
+  top: unset;
+  bottom: -5px;
+}
+
+.view-line:hover .yRemoteSelectionHead::after {
+  border: none;
+  width: unset;
+  height: unset;
+  padding: 0 2px;
+  top: -20px;
+  left: -4px;
+}
+
+.view-lines .view-line:first-child:hover .yRemoteSelectionHead::after {
+  top: unset;
+  bottom: -20px;
+}
+
+.user-tag-row {
+  display: flex;
+  gap: 4px;
+}
+
+.user-tag {
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: var(--vscode-editor-background);
+  font-family: 'JuliaMono';
+  font-weight: bold;
+  padding: 4px 8px;
+}
