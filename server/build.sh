@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [ -n "$LEAN4WEB_SKIP_PROJECT_BUILD" ]; then
+  echo "Skipping build because LEAN4WEB_SKIP_PROJECT_BUILD is set"
+  exit 0
+fi
+
 PROJECTS_BASE_PATH=${PROJECTS_BASE_PATH:-"Projects"}
 
 cd "$(dirname $0)/../$PROJECTS_BASE_PATH"
