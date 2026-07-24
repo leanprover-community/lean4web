@@ -160,7 +160,7 @@ app.use(express.static(path.join(__dirname, '..', 'client', 'dist')))
 app.use(nocache())
 
 const hasBwrap = hasWorkingBwrap()
-if (!hasBwrap) {
+if (!hasBwrap && !NO_BWRAP) {
   if (isDevelopment) {
     if (!isGithubAction) {
       console.info('Bubblewrap is not available.')
@@ -212,13 +212,13 @@ function startServerProcess(project) {
       cwd: PROJECT_PATH,
     })
   } else {
-    if (hasWorkingBwrap()) {
+    if (NO_BWRAP) {
+      console.warn('Started process without bubblewrap!')
+      serverProcess = cp.spawn('lake', ['serve', '--'], { cwd: PROJECT_PATH })
+    } else if (hasWorkingBwrap()) {
       serverProcess = cp.spawn('./bubblewrap.sh', [PROJECT_PATH], {
         cwd: __dirname,
       })
-    } else if (NO_BWRAP) {
-      console.warn('Started process witouut bubblewrap!')
-      serverProcess = cp.spawn('lake', ['serve', '--'], { cwd: PROJECT_PATH })
     } else {
       console.error(
         'Bubblewrap is not available! You can set `NO_BWRAP=true` to start the processes without container.',
