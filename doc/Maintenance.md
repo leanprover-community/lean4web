@@ -29,7 +29,7 @@ SHELL=/usr/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/home/USER/.elan/bin:/home/USER/.nvm/versions/node/v20.8.0/bin/
 
 # Update server (i.e. mathlib) of lean4web and delete mathlib cache
-*  */6 * * * cd /home/USER/lean4web && npm run build:server 2>&1 1>/dev/null | logger -t lean4web
+*  */6 * * * cd /home/USER/lean4web && npm run build:projects 2>&1 1>/dev/null | logger -t lean4web
 40 2   * * * rm -rf /home/USER/.cache/mathlib/
 ```
 
