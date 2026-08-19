@@ -21,6 +21,8 @@ export interface Settings {
   theme: Theme
   /** Wrap code */
   wordWrap: boolean
+  /** Enable vim keybindings in the editor (Monaco editor only, not the mobile plain editor) */
+  vimMode: boolean
   // internal: saved to browser storage
   saved: boolean
   // internal: written to search params
@@ -45,6 +47,7 @@ export const defaultSettings: UserSettings = {
   mobile: 'auto',
   theme: isBrowserDefaultDark() ? 'Visual Studio Dark' : 'Visual Studio Light',
   wordWrap: true,
+  vimMode: false,
 }
 
 export type Theme =

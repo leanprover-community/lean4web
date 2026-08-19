@@ -40,6 +40,7 @@ import { save } from './utils/SaveToFile'
 function App() {
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
+  const vimStatusBarRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
@@ -345,6 +346,28 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infoviewRef, editorRef, options, project, settings])
 
+  // Attach/detach vim keybindings to the current editor instance
+  useEffect(() => {
+    if (!editor || !settings.vimMode) return
+    let vimMode: { dispose(): void } | undefined
+    let cancelled = false
+    ;(async () => {
+      const { initVimMode } = await import('monaco-vim')
+      if (cancelled) return
+      vimMode = initVimMode(editor, vimStatusBarRef.current)
+    })()
+    return () => {
+      cancelled = true
+      try {
+        vimMode?.dispose()
+      } catch (e) {
+        // The editor this vim mode was attached to may already be disposed
+        // (settings changes recreate the editor before `editor` state updates)
+        console.warn('[Lean4web] vim mode dispose failed', e)
+      }
+    }
+  }, [editor, settings.vimMode])
+
   /** Set editor content to the code loaded from the URL */
   useEffect(() => {
     if (importedCode && model) model.setValue(importedCode)
@@ -559,6 +582,10 @@ function App() {
           <div
             ref={editorRef}
             className={`codeview${codeMirror ? ' hidden' : ''}`}
+          />
+          <div
+            ref={vimStatusBarRef}
+            className={`vim-status-bar${settings.vimMode && !codeMirror ? '' : ' hidden'}`}
           />
         </div>
         <div
