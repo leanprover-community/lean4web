@@ -21,7 +21,7 @@ export interface Settings {
   theme: Theme
   /** Wrap code */
   wordWrap: boolean
-  /** Enable vim keybindings in the editor (Monaco editor only, not the mobile plain editor) */
+  /** Enable vim keybindings in the web editor. */
   vimMode: boolean
   // internal: saved to browser storage
   saved: boolean

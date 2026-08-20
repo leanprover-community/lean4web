@@ -33,6 +33,24 @@
   display: none;
 }
 
+/* The ex-command prompt (":w" etc.) is a bare <input> injected by monaco-vim.
+   Strip the default browser chrome so it reads as part of the status line. */
+.vim-status-bar span {
+  /* monaco-vim sets an inline generic 'monospace' on the prompt wrapper */
+  font-family: inherit !important;
+}
+
+.vim-status-bar input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+}
+
 .editor-support-warning {
   border: 3px solid var(--vscode-editorWarning-foreground);
   border-radius: 5px;

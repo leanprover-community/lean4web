@@ -346,15 +346,15 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infoviewRef, editorRef, options, project, settings])
 
-  // Attach/detach vim keybindings to the current editor instance
+  // Attach or detach vim keybindings to the current editor instance.
   useEffect(() => {
     if (!editor || !settings.vimMode) return
     let vimMode: { dispose(): void } | undefined
     let cancelled = false
     ;(async () => {
-      const { initVimMode } = await import('monaco-vim')
+      const { initVimMode, VimStatusBar } = await import('./editor/vim-status-bar')
       if (cancelled) return
-      vimMode = initVimMode(editor, vimStatusBarRef.current)
+      vimMode = initVimMode(editor, vimStatusBarRef.current, VimStatusBar)
     })()
     return () => {
       cancelled = true
