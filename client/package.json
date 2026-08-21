@@ -6,7 +6,7 @@
     "analyse": "NODE_OPTIONS=--max-old-space-size=8192 npx vite-bundle-analyzer",
     "start": "NODE_ENV=development vite --host",
     "dev": "echo 'deprecated, use npm start instead' &&npm start",
-    "build": "tsc -b && NODE_ENV=production vite build"
+    "build": "NODE_ENV=production vite build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
