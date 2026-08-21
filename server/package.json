@@ -1,5 +1,5 @@
 {
-  "name": "leanweb-server",
+  "name": "@leanweb/server",
   "private": true,
   "bin": {
     "server": "index.mjs"
