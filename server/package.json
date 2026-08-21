@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "NODE_ENV=development nodemon index.mjs",
     "prod": "NODE_ENV=production nodemon index.mjs",
-    "build": "./build.sh"
+    "build": "echo 'deprecated, use build:projects instead' && npm run build:projects",
+    "build:projects": "./build.sh"
   },
   "dependencies": {
     "express": "^5.1.0",
