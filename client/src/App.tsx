@@ -4,12 +4,11 @@ import './css/Collab.css'
 
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { useAtom } from 'jotai/react'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
 import * as monaco from 'monaco-editor'
 import * as path from 'path'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 import Split from 'react-split'
 import { MonacoBinding } from 'y-monaco'
 import { WebrtcProvider } from 'y-webrtc'
@@ -23,7 +22,6 @@ import { Menu } from './navigation/Navigation'
 import RotatingGlobe from './navigation/RotatingGlobe'
 import LeaveCollaborationPopup from './Popups/LeaveCollaboration'
 import { mobileAtom, settingsAtom } from './settings/settings-atoms'
-import { lightThemes } from './settings/settings-types'
 import {
   collabDisplayNameAtom,
   collabPasswordAtom,
@@ -36,6 +34,8 @@ import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { getCollaboratorColor } from './utils/collabColors'
 import { save } from './utils/SaveToFile'
+
+const CodeMirrorEditor = lazy(() => import('./editor/CodeMirrorEditor'))
 
 function App() {
   const editorRef = useRef<HTMLDivElement>(null)
@@ -546,15 +546,9 @@ function App() {
           style={mobile ? { width: '100%' } : { height: '100%' }}
         >
           {codeMirror && (
-            <CodeMirror
-              className="codeview plain"
-              value={code}
-              extensions={[EditorView.lineWrapping]}
-              height="100%"
-              maxHeight="100%"
-              theme={lightThemes.includes(settings.theme) ? 'light' : 'dark'}
-              onChange={setContent}
-            />
+            <Suspense fallback={<div>Loading editor…</div>}>
+              <CodeMirrorEditor setContent={setContent} />
+            </Suspense>
           )}
           <div
             ref={editorRef}
