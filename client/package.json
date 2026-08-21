@@ -1,5 +1,5 @@
 {
-  "name": "leanweb-client",
+  "name": "@leanweb/client",
   "private": true,
   "type": "module",
   "scripts": {
