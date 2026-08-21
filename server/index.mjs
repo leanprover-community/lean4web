@@ -93,6 +93,7 @@ app.use('/api/projects', async (req, res) => {
             default: config.default ?? false,
             examples: config.examples ?? [],
             sortOrder: config.sortOrder ?? 0,
+            verso: config.verso ?? false,
           },
         })
       }
@@ -104,6 +105,14 @@ app.use('/api/projects', async (req, res) => {
     res.status(500).json({ error: 'Failed to load projects' })
   }
 })
+
+// Placeholder endpoint to give verso output view an empty document to display
+app.use(
+  '/verso/view',
+  express.static(
+    path.join(PROJECTS_BASE_PATH, 'verso-demo', '_out', 'html-single'),
+  ),
+)
 
 // `*example` has the form `MathlibDemo/MathlibLatest/Logic.lean`
 app.use('/api/example/:project/*example', (req, res, next) => {

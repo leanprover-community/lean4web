@@ -1,6 +1,4 @@
-#root {
-  height: 100vh;
-}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
 body {
   margin: 0;
@@ -9,6 +7,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #2b2b2b;
   color: #fff;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (prefers-color-scheme: light) {

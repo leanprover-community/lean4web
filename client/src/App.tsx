@@ -2,8 +2,6 @@ import './css/App.css'
 import './css/Editor.css'
 import './css/Collab.css'
 
-import { faCode } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import CodeMirror, { EditorView } from '@uiw/react-codemirror'
 import { useAtom } from 'jotai/react'
 import { LeanMonaco, LeanMonacoEditor, LeanMonacoOptions } from 'lean4monaco'
@@ -18,6 +16,7 @@ import * as Y from 'yjs'
 import { CollabStates } from './api/collab-types'
 import LeanLogo from './assets/logo.svg'
 import { codeAtom } from './editor/code-atoms'
+import InfoPane from './InfoPane'
 import { NavButton } from './navigation/NavButton'
 import { Menu } from './navigation/Navigation'
 import RotatingGlobe from './navigation/RotatingGlobe'
@@ -380,7 +379,8 @@ function App() {
         code !== undefined
       ) {
         event.preventDefault()
-        save(code, project?.folder)
+        // save(code, project?.folder)
+        save(code) // disabling project zip download for now (doesn't work with fro-specific config)
       }
     },
     [code, project],
@@ -562,17 +562,21 @@ function App() {
           />
         </div>
         <div
-          ref={infoviewRef}
-          className="vscode-light infoview"
-          style={mobile ? { width: '100%' } : { height: '100%' }}
+          id="infopane-container"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr',
+            gridTemplateRows: '1fr',
+            ...(mobile ? { width: '100%' } : { height: '100%' }),
+          }}
         >
-          <p className={`editor-support-warning${codeMirror ? '' : ' hidden'}`}>
-            You are in the plain text editor
-            <br />
-            <br />
-            Go back to the Monaco Editor (click{' '}
-            <FontAwesomeIcon icon={faCode} />) for the infoview to update!
-          </p>
+          <InfoPane
+            leanMonaco={leanMonaco}
+            codeMirror={codeMirror}
+            infoviewRef={infoviewRef}
+            isVerso={project?.config.verso ?? false}
+            key={project?.config?.name}
+          />
         </div>
       </Split>
       <LeaveCollaborationPopup

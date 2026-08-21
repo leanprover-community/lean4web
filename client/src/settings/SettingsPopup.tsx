@@ -7,7 +7,7 @@ import { useState } from 'react'
 
 import { Popup } from '../navigation/Popup'
 import { shallowEqualSubset } from '../utils/shallowEqual'
-import { settingsAtom } from './settings-atoms'
+import { localOnlySettingsAtom, settingsAtom } from './settings-atoms'
 import type { MobileValues, Theme } from './settings-types'
 import { defaultSettings, Settings } from './settings-types'
 
@@ -22,6 +22,9 @@ export function SettingsPopup({
 }) {
   const [settings, applySettings] = useAtom(settingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(
+    localOnlySettingsAtom,
+  )
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings((prev) => ({ ...prev, [key]: value }))
@@ -53,7 +56,6 @@ export function SettingsPopup({
           )}
         </select>
       </p> */}
-
         <h2>Editor settings</h2>
         <div>
           <label htmlFor="abbreviationCharacter">
@@ -143,7 +145,6 @@ export function SettingsPopup({
           />
           <label htmlFor="showExpectedType">Show expected type</label>
         </div>
-
         <h2>User settings</h2>
         <div>
           <label htmlFor="theme">Theme: </label>
@@ -247,6 +248,40 @@ export function SettingsPopup({
             onClick={() => applySettings(newSettings)}
           />
         </div>
+        <h2>Local Settings</h2>
+        <div>
+          <i>
+            These settings are always preserved in the browser's local storage.
+          </i>
+        </div>
+        <div>
+          <Switch
+            id="hideNavbar"
+            onChange={() => {
+              setLocalOnlySettings('hideNavbar', !localOnlySettings.hideNavbar)
+            }}
+            checked={!!localOnlySettings.hideNavbar}
+          />
+          <label htmlFor="hideNavbar">
+            Always hide the site navigation header for links from the Lean FRO
+            or Mathlib Initiative
+          </label>
+        </div>
+        <div>
+          <Switch
+            id="comparatorWarning"
+            onChange={() => {
+              setLocalOnlySettings(
+                'ignoreComparatorWarning',
+                !localOnlySettings.ignoreComparatorWarning,
+              )
+            }}
+            checked={!!localOnlySettings.ignoreComparatorWarning}
+          />
+          <label htmlFor="comparatorWarning">
+            Hide warnings about code from unknown sources
+          </label>
+        </div>{' '}
       </form>
     </Popup>
   )
