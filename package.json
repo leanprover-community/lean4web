@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "start": "concurrently -n server,client -c blue,green \"npm run start:server\" \"npm run start:client\"",
-    "start:client": "npm --workspace @leanweb/client run dev",
+    "start:client": "npm --workspace @leanweb/client start",
     "start:server": "npm --workspace @leanweb/server run dev",
     "build": "npm run build:projects && npm run build:client",
     "build:client": "npm --workspace @leanweb/client run build",

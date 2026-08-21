@@ -32,6 +32,14 @@ Automated integration tests using `cypress`.
 
 The tests produce screenshots on failure. In the Github-CI, failing tests will produce screenshots and videos which will be attached as artifacts for inspection.
 
+### Bundle Analyser
+
+To inspect the bundle size:
+
+```
+npm --workspace @leanweb/client run analyse
+```
+
 ### Application Design
 
 #### Atom structure
