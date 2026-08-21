@@ -14,7 +14,7 @@ defaults:
   run:
     shell: bash
 env:
-  NODE_VERSION: 25
+  NODE_VERSION: 26
 jobs:
   test:
     runs-on: ${{ matrix.os }}
