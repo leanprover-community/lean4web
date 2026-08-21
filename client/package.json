@@ -4,8 +4,7 @@
   "type": "module",
   "scripts": {
     "analyse": "NODE_OPTIONS=--max-old-space-size=8192 npx vite-bundle-analyzer",
-    "start": "NODE_ENV=development vite --host",
-    "dev": "echo 'deprecated, use npm start instead' &&npm start",
+    "dev": "NODE_ENV=development vite --host",
     "build": "NODE_ENV=production vite build"
   },
   "dependencies": {
