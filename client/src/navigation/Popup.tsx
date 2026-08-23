@@ -1,5 +1,6 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useRef } from 'react'
 import { FocusTrap } from 'focus-trap-react'
+import { useEscape } from '../hooks/useEscape'
 
 /** A popup which overlays the entire screen. */
 export function Popup({
@@ -11,19 +12,11 @@ export function Popup({
   handleClose: () => void // TODO: what's the correct type?
   children?: ReactNode
 }) {
-  useEffect(() => {
-    if (!open) return
-    const handleKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key === 'Escape') {
-        ev.preventDefault()
-        handleClose()
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [open, handleClose])
+  const ref = useRef<HTMLDialogElement>(null)
+
+  useEscape(ref, () => {
+    handleClose()
+  })
 
   if (!open) return
   return (
@@ -34,7 +27,7 @@ export function Popup({
         onClick={handleClose}
       />
       <FocusTrap>
-        <dialog className="modal" open={open}>
+        <dialog ref={ref} className="modal" open={open}>
           <button
             className="codicon codicon-close modal-close"
             aria-label="close dialog"

@@ -34,12 +34,16 @@ import { currentProjectAtom } from './store/project-atoms'
 import { screenWidthAtom } from './store/window-atoms'
 import { getCollaboratorColor } from './utils/collabColors'
 import { save } from './utils/SaveToFile'
+import { useEscape } from './hooks/useEscape'
 
 const CodeMirrorEditor = lazy(() => import('./editor/CodeMirrorEditor'))
 
-function App() {
+export function App() {
+  const editorWrapperRef = useRef<HTMLDivElement>(null)
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
+  const firstItemRef = useRef<HTMLButtonElement>(null)
+
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
   const [leanMonaco, setLeanMonaco] = useState<LeanMonaco>()
@@ -155,6 +159,10 @@ function App() {
     ydoc.destroy()
     usernamesRef.current.clear()
   }
+
+  useEscape(editorWrapperRef, () => {
+    firstItemRef.current?.focus()
+  })
 
   // this effect manages the lifetime of the editor binding
   useEffect(() => {
@@ -318,6 +326,7 @@ function App() {
               let newTab = window.open(
                 `https://leanprover-community.github.io/mathlib4_docs/${path}.html`,
                 '_blank',
+                'noopener',
               )
               if (newTab) {
                 newTab.focus()
@@ -542,6 +551,7 @@ function App() {
         style={{ flexDirection: mobile ? 'column' : 'row' }}
       >
         <div
+          ref={editorWrapperRef}
           className="codeview-wrapper"
           style={mobile ? { width: '100%' } : { height: '100%' }}
         >
@@ -579,5 +589,3 @@ function App() {
     </div>
   )
 }
-
-export default App
