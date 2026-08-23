@@ -54,7 +54,7 @@ jobs:
           lint: false
 
       - name: Build sample projects
-        run: npm run build:server
+        run: npm run build:projects
 
       - name: Ensure sample project 'MathlibDemo' is built
         run: |

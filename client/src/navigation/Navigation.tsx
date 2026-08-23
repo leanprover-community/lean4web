@@ -112,6 +112,7 @@ function FlexibleMenu({
                   project: it.folder,
                 })
                 setOpenExample(false)
+                setOpenNav(false)
               }}
             />
           )),
@@ -149,6 +150,7 @@ function FlexibleMenu({
           text="Load from URL"
           onClick={() => {
             setLoadUrlOpen(true)
+            setOpenNav(false)
           }}
         />
         <NavButton
@@ -156,6 +158,7 @@ function FlexibleMenu({
           text="Load Zulip Message"
           onClick={() => {
             setLoadZulipOpen(true)
+            setOpenNav(false)
           }}
         />
       </Dropdown>
@@ -165,6 +168,7 @@ function FlexibleMenu({
           text="Collaborate"
           onClick={() => {
             setJoinCollabOpen(true)
+            setOpenNav(false)
           }}
         />
       )}
@@ -278,23 +282,31 @@ export function Menu({
           text="Settings"
           onClick={() => {
             setSettingsOpen(true)
+            setOpenNav(false)
           }}
         />
         <NavButton
           icon={faHammer}
           text="Lean Info"
-          onClick={() => setToolsOpen(true)}
+          onClick={() => {
+            setToolsOpen(true)
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faArrowRotateRight}
           text="Restart server"
-          onClick={restart}
+          onClick={() => {
+            restart?.()
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faDownload}
           text="Save"
           onClick={() => {
             if (code !== undefined) save(code, project?.folder)
+            setOpenNav(false)
           }}
         />
         <NavButton
@@ -302,6 +314,7 @@ export function Menu({
           text={'Privacy policy'}
           onClick={() => {
             setPrivacyOpen(true)
+            setOpenNav(false)
           }}
         />
         {hasImpressum && (
@@ -310,6 +323,7 @@ export function Menu({
             text={'Impressum'}
             onClick={() => {
               setImpressumOpen(true)
+              setOpenNav(false)
             }}
           />
         )}
@@ -317,16 +331,25 @@ export function Menu({
           icon={faArrowUpRightFromSquare}
           text="Lean community"
           href="https://leanprover-community.github.io/"
+          onClick={() => {
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="Lean FRO"
           href="https://lean-lang.org"
+          onClick={() => {
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
           href="https://github.com/leanprover-community/lean4web"
+          onClick={() => {
+            setOpenNav(false)
+          }}
         />
       </Dropdown>
       <PrivacyPopup

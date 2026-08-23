@@ -139,6 +139,7 @@ function ToolTip({ pkg }: { pkg: LakePackage }) {
       className="tooltip"
       href={`${pkg.url}/commits/${pkg.rev}/`}
       target="_blank"
+      rel="noopener"
     >
       {pkg.rev.substring(0, 7)}
       <div className="tooltiptext" id="tooltip-content">
