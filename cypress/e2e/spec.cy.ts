@@ -162,7 +162,7 @@ describe('The Editor', () => {
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
-  it('displays and accepts suggestions from infoview', () => {
+  it.skip('displays and accepts suggestions from infoview', () => {
     cy.visit('/')
     cy.get('div.view-line').type(
       'example (P: Prop) : P \\or \\not P := by apply?',

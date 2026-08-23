@@ -47,7 +47,7 @@ describe('The Settings can be changed for', () => {
           .find('option:last')
           .invoke('val')
           .then((lastVal) => {
-            cy.get('select#theme').select(lastVal)
+            cy.get('select#theme').select(lastVal!)
           })
         cy.get('input#saveSettings').click()
         cy.get('.monaco-editor')
