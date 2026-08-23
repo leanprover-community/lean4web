@@ -20,13 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
-import {
-  ChangeEvent,
-  Dispatch,
-  RefObject,
-  SetStateAction,
-  useState,
-} from 'react'
+import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
 
 import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'

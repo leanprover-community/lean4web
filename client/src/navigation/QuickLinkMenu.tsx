@@ -8,7 +8,9 @@ import { NavButton } from './NavButton'
  */
 export function QuickLinkMenu({
   ref,
+  // oxlint-disable-next-line no-unused-vars // TODO
   infoviewRef,
+  // oxlint-disable-next-line no-unused-vars // TODO
   editorRef,
 }: {
   ref?: RefObject<HTMLButtonElement | null>

@@ -35,7 +35,6 @@ import { screenWidthAtom } from './store/window-atoms'
 import { getCollaboratorColor } from './utils/collabColors'
 import { save } from './utils/SaveToFile'
 import { useEscape } from './hooks/useEscape'
-import { QuickLinkMenu } from './navigation/QuickLinkMenu'
 
 const CodeMirrorEditor = lazy(() => import('./editor/CodeMirrorEditor'))
 
