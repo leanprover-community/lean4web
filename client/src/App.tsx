@@ -42,7 +42,7 @@ export function App() {
   const editorWrapperRef = useRef<HTMLDivElement>(null)
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
-  const firstItemRef = useRef<HTMLButtonElement>(null)
+  const firstItemRef = useRef<HTMLSelectElement>(null)
 
   const [dragging, setDragging] = useState<boolean | null>(false)
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>()
@@ -517,6 +517,7 @@ export function App() {
           />
         )}
         <Menu
+          firstItemRef={firstItemRef}
           setContent={setContent}
           restart={() => {
             leanMonaco?.restart()
