@@ -70,7 +70,7 @@ jobs:
           cd Projects/Stable
           lake build --no-build
 
-      - name: Manually building projects on Windows
+      - name: Build sample projects (Windows)
         if: runner.os == 'Windows'
         run: |
           cd Projects/MathlibDemo
