@@ -28,7 +28,7 @@ nav select {
 
 /* A dropdown comprises a `nav-link` and a `dropdown-content`. The latter has absolute
 positioning to be displayed on top of things. */
-nav .dropdown {
+nav > .dropdown {
   display: inline-block;
   position: relative;
 }
@@ -53,7 +53,7 @@ nav .dropdown-content .dropdown .dropdown-content {
   left: 0;
 }
 /* Second level dropdowns */
-nav .dropdown-content .dropdown > .nav-link {
+nav .dropdown-content .dropdown .nav-link {
   /* Don't know why but apparently that yields the correct width. */
   display: block;
 }
@@ -81,6 +81,11 @@ nav select {
   padding-top: 0.6rem;
   padding-bottom: 0.6rem;
   flex-shrink: 0;
+  font-size: 1rem;
+}
+
+nav .dropdown-content .nav-link {
+  text-align: left;
 }
 
 /* Zulip logo (instead of font-awesome icon) */
@@ -189,4 +194,23 @@ nav .nav-link.leave-collab-button:hover {
 .tooltip .tooltiptext .commit-sha {
   font-style: italic;
   color: var(--vscode-textLink-foreground);
+}
+
+.quicklink {
+  position: absolute;
+  display: flex;
+  padding-left: 0.2rem;
+  padding-right: 0.2rem;
+  gap: 0.2rem;
+  align-items: center;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background-color: var(--vscode-list-dropBackground);
+  transform: translateY(-200%);
+  transition: transform 150ms ease;
+}
+
+.quicklink:focus-within {
+  transform: translateY(0);
 }

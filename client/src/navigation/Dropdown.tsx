@@ -1,7 +1,8 @@
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
-import { MouseEventHandler, ReactNode } from 'react'
+import { MouseEventHandler, ReactNode, useRef } from 'react'
 
 import { NavButton } from './NavButton'
+import { useEscape } from '../hooks/useEscape'
 
 /** A button to appear in the hamburger menu or the navigation bar. */
 export function Dropdown({
@@ -18,12 +19,18 @@ export function Dropdown({
   icon?: IconDefinition
   text?: string
   useOverlay?: boolean
-  onClick?: MouseEventHandler<HTMLAnchorElement>
+  onClick?: MouseEventHandler<HTMLElement>
   children?: ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEscape(ref, () => {
+    setOpen(false)
+  })
+
   return (
     <>
-      <div className="dropdown">
+      <div ref={ref} className="dropdown">
         <NavButton
           icon={icon}
           text={text!}
@@ -33,17 +40,11 @@ export function Dropdown({
             ev.stopPropagation()
           }}
         />
-        {open && (
-          <div
-            className={`dropdown-content${open ? '' : ' '}`}
-            onClick={() => setOpen(false)}
-          >
-            {children}
-          </div>
-        )}
+        {open && <div className="dropdown-content">{children}</div>}
       </div>
       {useOverlay && open && (
         <div
+          aria-hidden={true}
           className="dropdown-overlay"
           onClick={(ev) => {
             setOpen(false)

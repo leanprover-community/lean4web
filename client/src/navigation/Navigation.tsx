@@ -20,7 +20,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAtom } from 'jotai'
-import { ChangeEvent, Dispatch, SetStateAction, useState } from 'react'
+import {
+  ChangeEvent,
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useRef,
+  useState,
+} from 'react'
 
 import { lean4webConfig } from '../../config'
 import ZulipIcon from '../assets/zulip.svg'
@@ -86,6 +93,8 @@ function FlexibleMenu({
     setOpenLoad(false)
   }
 
+  const ref = useRef<HTMLInputElement>(null)
+
   return (
     <>
       <Dropdown
@@ -112,11 +121,18 @@ function FlexibleMenu({
                   project: it.folder,
                 })
                 setOpenExample(false)
+                setOpenNav(false)
               }}
             />
           )),
         )}
       </Dropdown>
+      <input
+        ref={ref}
+        id="file-upload"
+        type="file"
+        onChange={loadFileFromDisk}
+      />
       <Dropdown
         open={openLoad}
         setOpen={setOpenLoad}
@@ -128,27 +144,20 @@ function FlexibleMenu({
           if (!isInDropdown) setOpenNav(false)
         }}
       >
-        <input
-          id="file-upload"
-          type="file"
-          onChange={loadFileFromDisk}
-          onClick={(ev) => ev.stopPropagation()}
-        />
-        {/* Need `ev.stopPropagation` to prevent closing until the file is loaded.
-          Otherwise the file-upload is destroyed too early. */}
-        {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events jsx-a11y/no-noninteractive-element-interactions */}
-        <label
-          htmlFor="file-upload"
+        <button
+          type="button"
           className="nav-link"
-          onClick={(ev) => ev.stopPropagation()}
+          onClick={() => ref.current?.click()}
         >
-          <FontAwesomeIcon icon={faUpload} /> Load file from disk
-        </label>
+          <FontAwesomeIcon icon={faUpload} aria-hidden="true" />
+          Load file from disk
+        </button>
         <NavButton
           icon={faCloudArrowUp}
           text="Load from URL"
           onClick={() => {
             setLoadUrlOpen(true)
+            setOpenNav(false)
           }}
         />
         <NavButton
@@ -156,6 +165,7 @@ function FlexibleMenu({
           text="Load Zulip Message"
           onClick={() => {
             setLoadZulipOpen(true)
+            setOpenNav(false)
           }}
         />
       </Dropdown>
@@ -165,6 +175,7 @@ function FlexibleMenu({
           text="Collaborate"
           onClick={() => {
             setJoinCollabOpen(true)
+            setOpenNav(false)
           }}
         />
       )}
@@ -179,12 +190,14 @@ export function Menu({
   codeMirror,
   setCodeMirror,
   handleJoinCollab,
+  firstItemRef,
 }: {
   setContent: (code: string) => void
   restart?: () => void
   codeMirror: boolean
   setCodeMirror: Dispatch<SetStateAction<boolean>>
   handleJoinCollab: () => void
+  firstItemRef?: RefObject<HTMLSelectElement | null>
 }) {
   const [visibleProjects] = useAtom(visibleProjectsAtom)
   const [project, setProject] = useAtom(currentProjectAtom)
@@ -212,6 +225,7 @@ export function Menu({
     <>
       {project && (
         <select
+          ref={firstItemRef}
           name="leanVersion"
           value={project.folder}
           onChange={(ev) => {
@@ -278,23 +292,31 @@ export function Menu({
           text="Settings"
           onClick={() => {
             setSettingsOpen(true)
+            setOpenNav(false)
           }}
         />
         <NavButton
           icon={faHammer}
           text="Lean Info"
-          onClick={() => setToolsOpen(true)}
+          onClick={() => {
+            setToolsOpen(true)
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faArrowRotateRight}
           text="Restart server"
-          onClick={restart}
+          onClick={() => {
+            restart?.()
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faDownload}
           text="Save"
           onClick={() => {
             if (code !== undefined) save(code, project?.folder)
+            setOpenNav(false)
           }}
         />
         <NavButton
@@ -302,6 +324,7 @@ export function Menu({
           text={'Privacy policy'}
           onClick={() => {
             setPrivacyOpen(true)
+            setOpenNav(false)
           }}
         />
         {hasImpressum && (
@@ -310,6 +333,7 @@ export function Menu({
             text={'Impressum'}
             onClick={() => {
               setImpressumOpen(true)
+              setOpenNav(false)
             }}
           />
         )}
@@ -317,16 +341,25 @@ export function Menu({
           icon={faArrowUpRightFromSquare}
           text="Lean community"
           href="https://leanprover-community.github.io/"
+          onClick={() => {
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="Lean FRO"
           href="https://lean-lang.org"
+          onClick={() => {
+            setOpenNav(false)
+          }}
         />
         <NavButton
           icon={faArrowUpRightFromSquare}
           text="GitHub"
           href="https://github.com/leanprover-community/lean4web"
+          onClick={() => {
+            setOpenNav(false)
+          }}
         />
       </Dropdown>
       <PrivacyPopup
