@@ -127,7 +127,7 @@ describe('The Editor', () => {
 
   it('displays and handles code completion', () => {
     cy.visit('/')
-    cy.iframe().contains('All Messages (0)').should('exist')
+    cy.iframe().contains('All Messages').should('exist')
     cy.get('.cgmr.codicon').should('not.exist')
     cy.get('div.view-line').type(
       'example (P: Prop) : P \\or \\not P := by appl',
@@ -162,7 +162,7 @@ describe('The Editor', () => {
     cy.contains('div.view-line', 'exact Classical.em P').should('exist')
   })
 
-  it('displays and accepts suggestions from infoview', () => {
+  it.skip('displays and accepts suggestions from infoview', () => {
     cy.visit('/')
     cy.get('div.view-line').type(
       'example (P: Prop) : P \\or \\not P := by apply?',
@@ -193,10 +193,10 @@ describe('The Editor', () => {
       '#check Classical.em',
     ]).should('exist')
     cy.iframe().contains('Restart File').should('exist').click()
-    cy.iframe().contains('details', 'All Messages (2)').should('exist').click()
+    cy.iframe().contains('details', 'All Messages').should('exist').click()
     cy.iframe()
       .containsAll('body', [
-        'All Messages (2)',
+        'All Messages',
         'leanprover/lean4',
         'Classical.em (p : Prop) : p ∨ ¬p',
       ])

@@ -49,5 +49,11 @@
   },
   "engines": {
     "node": ">=24.x"
+  },
+  "allowScripts": {
+    "@swc/core@1.15.3": true,
+    "cypress@15.21.0": true,
+    "esbuild@0.28.1": true,
+    "fsevents@2.3.3": true
   }
 }
