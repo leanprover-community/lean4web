@@ -49,15 +49,21 @@ On a running system, you might already have these installed, if not:
 ### Installation
 
 - Clone this repo:
+
   ```
   git clone --recurse-submodules https://github.com/leanprover-community/lean4web.git
   ```
+
   note that `--recurse-submodules` is needed to load the predefined projects in `Projects/`. (on an existing clone, you can call `git submodule init` and `git submodule update`)
+
 - Navigate into the cloned repository
+
   ```
   cd lean4web
   ```
+
 - Install dependencies
+
   ```
   npm install
   ```
@@ -65,31 +71,45 @@ On a running system, you might already have these installed, if not:
 ### Development mode
 
 - Start the project in development mode
+
   ```
   npm start
   ```
+
 - Go to http://localhost:3000
 
 ### Production mode
 
 - Compile the project
+
   ```
   npm run build
   ```
+
+  On Windows, the subcommand `npm run build:projects` might not work as it is implemented with Bash-Scripts. You can call `npm run build:client` instead and have your own logic to build all Lean projects (e.g. call `lake build` inside each project).
+
 - Start the server
+
   ```
   npm run prod
   ```
+
 - To disable the bubblewrap containers, start the server with
+
   ```
   NO_BWRAP=true npm run prod
   ```
+
 - Start the client seperately, for example with
+
   ```
   npm run start:client
   ```
+
   and open http://localhost:3000
+
 - To set the locations of SSL certificates, use the following environment variables:
+
   ```
   SSL_CRT_FILE=/path/to/crt_file.cer SSL_KEY_FILE=/path/to/private_ssl_key.pem npm run prod
   ```
