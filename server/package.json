@@ -6,12 +6,13 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon index.mjs",
-    "prod": "NODE_ENV=production nodemon index.mjs",
+    "dev": "cross-env NODE_ENV=development nodemon index.mjs",
+    "prod": "cross-env NODE_ENV=production nodemon index.mjs",
     "build": "echo 'deprecated, use build:projects instead' && npm run build:projects",
     "build:projects": "./build.sh"
   },
   "dependencies": {
+    "cross-env": "^10.1.0",
     "express": "^5.1.0",
     "ip-anonymize": "^0.1.0",
     "memfs": "^4.51.1",
