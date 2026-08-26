@@ -63,7 +63,7 @@ describe('The Editor', () => {
     cy.contains('.dropdown .dropdown', 'Examples').click()
     cy.contains('.nav-link', 'Logic').click()
     cy.containsAll([
-      'import Mathlib.Logic.Basic',
+      'import Mathlib.Basic.Logic.Basic',
       'variable (P Q : Prop)',
     ]).should('exist')
   })
@@ -73,7 +73,7 @@ describe('The Editor', () => {
     cy.contains('.nav-link', 'Examples').click()
     cy.contains('.nav-link', 'Logic').click()
     cy.containsAll([
-      'import Mathlib.Logic.Basic',
+      'import Mathlib.Basic.Logic.Basic',
       'variable (P Q : Prop)',
     ]).should('exist')
   })
@@ -209,7 +209,7 @@ describe('The Editor', () => {
     cy.on('window:confirm', alertShown)
     cy.visit('/')
     cy.get('div.view-line').type(
-      'import Mathlib.Logic.Basic #check Classical.em',
+      'import Mathlib.Basic.Logic.Basic #check Classical.em',
     )
     cy.get('.squiggly-info')
 
