@@ -451,6 +451,28 @@ wss.addListener('connection', async function (ws, req) {
     return message
   })
   serverConnection.forward(socketConnection, (message) => {
+    // WORKAROUND: cut the number of completion results sent to the client since a search like `a`
+    // would send ~40MB of completions completely blocking slow connections
+    // This should probably be addressed in the LSP server instead, although the exact form
+    // of the desired change is unclear
+    // note: the completion always sends *all* tactics and only filters them client-side, so this
+    // number must be higher than the total number of tactics, 227 by the looks.
+    const maxCompletions = 300
+    const completionResult = message['result']
+    if (
+      completionResult &&
+      // TODO: The client request sends a `"method"` named `textDocument/completion` (or apparently `completionItem/resolve`)
+      // how do we reliably catch the right response? Do we need to track request ids?
+      completionResult['isIncomplete'] !== undefined &&
+      completionResult['items'] !== undefined
+    ) {
+      completionResult['items'] = completionResult['items'].slice(
+        0,
+        maxCompletions,
+      )
+      completionResult['isIncomplete'] = true
+    }
+
     const prefix = isDevelopment ? PROJECTS_BASE_PATH : ''
     FilenamesToUri(prefix, message)
     if (isDevelopment && !isGithubAction) {
