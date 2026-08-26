@@ -1,6 +1,3 @@
-// note: all numbers in this file are arbitrary and are not chosen
-// with any further meaning
-
 const cursorColors = [
   '--vscode-charts-red',
   '--vscode-charts-blue',
