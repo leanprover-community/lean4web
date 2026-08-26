@@ -455,7 +455,9 @@ wss.addListener('connection', async function (ws, req) {
     // would send ~40MB of completions completely blocking slow connections
     // This should probably be addressed in the LSP server instead, although the exact form
     // of the desired change is unclear
-    const maxCompletions = 100
+    // note: the completion always sends *all* tactics and only filters them client-side, so this
+    // number must be higher than the total number of tactics, 227 by the looks.
+    const maxCompletions = 300
     const completionResult = message['result']
     if (
       completionResult &&
