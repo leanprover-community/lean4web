@@ -42,6 +42,7 @@ export function App() {
   const editorWrapperRef = useRef<HTMLDivElement>(null)
   const editorRef = useRef<HTMLDivElement>(null)
   const infoviewRef = useRef<HTMLDivElement>(null)
+  const vimStatusBarRef = useRef<HTMLDivElement>(null)
   const firstItemRef = useRef<HTMLSelectElement>(null)
 
   const [dragging, setDragging] = useState<boolean | null>(false)
@@ -354,6 +355,28 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [infoviewRef, editorRef, options, project, settings])
 
+  // Attach or detach vim keybindings to the current editor instance.
+  useEffect(() => {
+    if (!editor || !settings.vimMode) return
+    let vimMode: { dispose(): void } | undefined
+    let cancelled = false
+    ;(async () => {
+      const { initVimMode, VimStatusBar } = await import('./editor/vim-status-bar')
+      if (cancelled) return
+      vimMode = initVimMode(editor, vimStatusBarRef.current, VimStatusBar)
+    })()
+    return () => {
+      cancelled = true
+      try {
+        vimMode?.dispose()
+      } catch (e) {
+        // The editor this vim mode was attached to may already be disposed
+        // (settings changes recreate the editor before `editor` state updates)
+        console.warn('[Lean4web] vim mode dispose failed', e)
+      }
+    }
+  }, [editor, settings.vimMode])
+
   /** Set editor content to the code loaded from the URL */
   useEffect(() => {
     if (importedCode && model) model.setValue(importedCode)
@@ -564,6 +587,10 @@ export function App() {
           <div
             ref={editorRef}
             className={`codeview${codeMirror ? ' hidden' : ''}`}
+          />
+          <div
+            ref={vimStatusBarRef}
+            className={`vim-status-bar${settings.vimMode && !codeMirror ? '' : ' hidden'}`}
           />
         </div>
         <div
