@@ -7,11 +7,48 @@
 .codeview-wrapper {
   width: 100%;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .codeview {
   height: 100%;
   width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Status bar for vim mode, filled by monaco-vim (e.g. "--NORMAL--") */
+.vim-status-bar {
+  flex: none;
+  font-family: 'Source Code Pro', monospace;
+  font-size: 0.85rem;
+  padding: 2px 8px;
+  color: var(--vscode-editor-foreground);
+  background-color: var(--vscode-editor-background);
+  border-top: 1px solid var(--vscode-editorWidget-border);
+}
+
+.vim-status-bar.hidden {
+  display: none;
+}
+
+/* The ex-command prompt (":w" etc.) is a bare <input> injected by monaco-vim.
+   Strip the default browser chrome so it reads as part of the status line. */
+.vim-status-bar span {
+  /* monaco-vim sets an inline generic 'monospace' on the prompt wrapper */
+  font-family: inherit !important;
+}
+
+.vim-status-bar input {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
 }
 
 .editor-support-warning {

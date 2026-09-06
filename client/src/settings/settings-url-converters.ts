@@ -22,6 +22,7 @@ export function decodeSettingsFromURL(
     showExpectedType: parseBooleanSearchParam(searchParams, 'showExpectedType'),
     theme: decodeTheme(searchParams.get('theme') ?? undefined),
     wordWrap: parseBooleanSearchParam(searchParams, 'wordWrap'),
+    vimMode: parseBooleanSearchParam(searchParams, 'vimMode'),
   }
 }
 

@@ -42,6 +42,8 @@ The recognised settings are:
   - `showGoalNames`: show goal names in Lean infoview box. default: `true`
   - `showExpectedType`: expected type in Lean infoview opened by default. default: `false`
   - `wordWrap`: wrap code in editor box. default: `true`
+  - `vimMode`: enable vim keybindings in the editor. default: `false`
+
 - Non-boolean settings:
   - `ruler`: a `number`. If specified, the column at which to display the ruler. default: ``
   - `abbreviationCharacter`: lead character for unicode abbreviations. values: a character. default: `\`
