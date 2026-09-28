@@ -33,18 +33,18 @@ jobs:
     steps:
       - name: Setup firefox (macOS)
         if: matrix.os == 'macos-latest' && matrix.browser == 'firefox'
-        uses: browser-actions/setup-firefox@v1
+        uses: browser-actions/setup-firefox@0bc507ddf224827e3b1af68e014d5e42ab93e795 # v1
 
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Install elan
-        uses: leanprover/lean-action@v1
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1
         with:
           lake-package-directory: Projects/MathlibDemo
           use-mathlib-cache: false
@@ -94,7 +94,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cypress-screenshots-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
@@ -110,7 +110,7 @@ jobs:
 
       - name: Upload videos
         if: failure() && steps.cypress_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cypress-videos-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/videos
@@ -132,7 +132,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: runner.os == 'Linux' && failure() && steps.cypress_production_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cypress-screenshots-production-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
@@ -147,7 +147,7 @@ jobs:
 
       - name: Upload screenshots on failure
         if: matrix.os == 'ubuntu-latest' &&matrix.browser == 'chromium' && failure() && steps.cypress_production_windows_no_video.conclusion == 'failure'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cypress-screenshots-production-windows-${{ matrix.os }}-${{ matrix.browser }}
           path: cypress/screenshots
@@ -156,9 +156,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
