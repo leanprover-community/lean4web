@@ -35,7 +35,7 @@ function LeaveCollaborationPopup({
                 className="user-tag"
                 key={clientId}
                 style={{
-                  backgroundColor: `var(${getCollaboratorColor(clientId)})`,
+                  backgroundColor: getCollaboratorColor(clientId),
                 }}
               >
                 {state.user.name}

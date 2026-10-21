@@ -484,15 +484,15 @@ export function App() {
       const name = (state?.user?.name || 'Anonymous').replace(/"/g, '\\"')
       css += `
           .yRemoteSelection-${clientId} {
-            background-color: color-mix(in srgb, var(${color}) 25%, transparent);
-            border-color: var(${color});
+            background-color: color-mix(in srgb, ${color} 25%, transparent);
+            border-color: ${color};
           }
           .yRemoteSelectionHead-${clientId} {
-            border-color: var(${color});
+            border-color: ${color};
           }
           .yRemoteSelectionHead-${clientId}::after {
-            border-color: var(${color});
-            background-color: var(${color});
+            border-color: ${color};
+            background-color: ${color};
           }
           .view-line:hover .yRemoteSelectionHead-${clientId}::after {
             content: "${name}";
