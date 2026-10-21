@@ -226,7 +226,7 @@ describe('The Editor', () => {
       )
 
     // Click on import
-    cy.contains('div.view-line span', 'Mathlib.Logic.Basic').realClick({
+    cy.contains('div.view-line span', 'Mathlib.Basic.Logic.Basic').realClick({
       ctrlKey: !isOnDarwin,
       metaKey: isOnDarwin,
     })
