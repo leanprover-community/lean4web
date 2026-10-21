@@ -20,6 +20,10 @@ Currently, serious Lean code development and larger projects are considered out-
 
 While `lean4web` looks very similar to VSCode with the [Lean4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) installed - and it reuses much of that code - `lean4web` does not claim to be feature complete.
 
+## Security
+
+Providing the use access to a Lean instance running on the server is a severe security risk. That is why we start the Lean server with bubblewrap.
+
 ## Contribution
 
 If you experience any problems, or have feature requests, please open an issue here!
