@@ -410,6 +410,7 @@ wss.addListener('connection', async function (ws, req) {
     console.error(
       `[Lean4web]: connection refused because of invalid URL: ${req.url}`,
     )
+    ws.terminate()
     return
   }
   const project = reRes[1]
