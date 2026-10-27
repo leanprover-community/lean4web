@@ -8,6 +8,7 @@ export function NavButton({
   iconElement,
   text,
   disabled = false,
+  href,
   ref,
   ...props
 }: {
@@ -15,20 +16,32 @@ export function NavButton({
   iconElement?: JSX.Element
   text: string
   disabled?: boolean
-  ref?: Ref<HTMLAnchorElement>
-} & React.AnchorHTMLAttributes<HTMLAnchorElement>) {
-  // note: it seems that we can just leave the `target="_blank"` and it has no
-  // effect on links without a `href`. If not, add `if (href)` statement here...
+  href?: string
+  ref?: Ref<HTMLButtonElement>
+} & React.AnchorHTMLAttributes<HTMLElement>) {
+  if (href)
+    return (
+      <a
+        {...props}
+        href={href}
+        className={props.className ? `nav-link ${props.className}` : 'nav-link'}
+        target="_blank"
+        rel="noopener"
+      >
+        {iconElement ?? <FontAwesomeIcon icon={icon!} />}&nbsp;
+        <span>{text}</span>
+      </a>
+    )
   return (
-    <a
+    <button
       {...props}
       ref={ref}
-      className={`nav-link${disabled ? ' disabled' : ''}${props.className ? ` ${props.className}` : ''}`}
+      className={`nav-link${disabled ? ' disabled' : ''} ${props.className ?? ''}`}
+      type={undefined}
       aria-disabled={disabled || undefined}
       onClick={disabled ? (e) => e.preventDefault() : props.onClick}
-      target="_blank"
     >
       {iconElement ?? <FontAwesomeIcon icon={icon!} />}&nbsp;<span>{text}</span>
-    </a>
+    </button>
   )
 }

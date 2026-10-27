@@ -1,4 +1,4 @@
-import Mathlib.Logic.Basic -- basic facts in logic
+import Mathlib.Basic.Logic.Basic -- basic facts in logic
 -- theorems in Lean's mathematics library
 
 -- Let P and Q be true-false statements

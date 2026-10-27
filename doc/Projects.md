@@ -12,7 +12,7 @@ It is possible to add additional projects to the web editor which can be selecte
 dropdown or through the URL.
 
 The default directory for projects is `./Projects/` but this can be changed by setting
-the environment variable `PROJECTS_BASE_PATH`. This needs to be set for the build process (`npm run build:server`) and for the production mode (`npm run prod` / `ecosystem.config.cjs`) and it contains a
+the environment variable `PROJECTS_BASE_PATH`. This needs to be set for the build process (`npm run build:projects`) and for the production mode (`npm run prod` / `ecosystem.config.cjs`) and it contains a
 relativ path from the project's root directory.
 
 Inside this folder, new Lean projects can be created containing 2 special files:
@@ -67,7 +67,7 @@ The file `leanweb-config.json` takes the following form:
 
 ## automatic builds
 
-If the project contains a file `leanweb-build.sh`, it will be executed as part of `npm run build:server`.
+If the project contains a file `leanweb-build.sh`, it will be executed as part of `npm run build:projects`.
 This can be used to automatically update and build the project. A typical build script could look like
 this:
 

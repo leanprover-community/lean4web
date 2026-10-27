@@ -56,7 +56,7 @@ export default function ComparatorButton({
     !isUsingUrlCode &&
     referrerNeedsComparator &&
     !localOnlySettings.ignoreComparatorWarning
-  const [trustButtonEl, setTrustButtonEl] = useState<HTMLAnchorElement | null>(
+  const [trustButtonEl, setTrustButtonEl] = useState<HTMLButtonElement | null>(
     null,
   )
   const [trustArrowEl, setTrustArrowEl] = useState<HTMLElement | null>(null)

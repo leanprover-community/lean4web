@@ -11,6 +11,7 @@ import nocache from 'nocache'
 import * as rpc from 'vscode-ws-jsonrpc'
 import * as jsonrpcserver from 'vscode-ws-jsonrpc/server'
 import { WebSocketServer } from 'ws'
+import { safeJoin } from './utils/path.mjs'
 
 import { zLeanWebProjectConfig } from './types.mjs'
 
@@ -49,7 +50,7 @@ app.get('/health', (_req, res) => {
 })
 
 // endpoint to list all available projects
-app.use('/api/projects', async (req, res) => {
+app.use('/api/projects', async (_, res) => {
   try {
     const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
       withFileTypes: true,
@@ -114,18 +115,26 @@ app.use(
   ),
 )
 
-const PROJECT_REGEX = /^[a-zA-Z][a-zA-Z0-9-_.]*$/
-
 // `*example` has the form `MathlibDemo/MathlibLatest/Logic.lean`
 app.use('/api/example/:project/*example', (req, res, next) => {
   const project = req.params.project
-  if (!project.match(PROJECT_REGEX)) return next()
   const pathComponents = req.params.example.filter((it) => it.length > 0)
   if (!(pathComponents[pathComponents.length - 1] ?? '').endsWith('.lean')) {
     res.status(400).json({ error: 'Bad request' })
   } else {
-    const filePath = path.join(project, ...pathComponents)
-    req.url = filePath
+    const project = req.params.project
+    if (!isValidProjectName(project)) {
+      return res.status(400).json({ error: 'Bad request' })
+    }
+
+    const filePath = safeJoin(PROJECTS_BASE_PATH, project, ...pathComponents)
+
+    if (!filePath) {
+      return res.status(400).json({ error: 'Bad request' })
+    }
+
+    req.url =
+      '/' + [project, ...pathComponents].map(encodeURIComponent).join('/')
     express.static(PROJECTS_BASE_PATH)(req, res, next)
   }
 })
@@ -133,33 +142,65 @@ app.use('/api/example/:project/*example', (req, res, next) => {
 // `:project` is the project like `MathlibDemo`
 app.use('/api/manifest/:project', (req, res, next) => {
   const project = req.params.project
-  if (!project.match(PROJECT_REGEX)) return next()
+  if (!isValidProjectName(project)) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+
   req.url = 'lake-manifest.json'
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+
+  const projectPath = safeJoin(PROJECTS_BASE_PATH, project)
+  if (!projectPath) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+  return express.static(projectPath)(req, res, next)
 })
 
 // `:project` is the project like `MathlibDemo`
 app.use('/api/toolchain/:project', (req, res, next) => {
   const project = req.params.project
-  if (!project.match(PROJECT_REGEX)) return next()
+  if (!isValidProjectName(project)) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+
   req.url = 'lean-toolchain'
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+
+  const projectPath = safeJoin(PROJECTS_BASE_PATH, project)
+  if (!projectPath) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+  return express.static(projectPath)(req, res, next)
 })
 
 // `:project` is the project like `MathlibDemo`
 app.use('/api/lakefile-toml/:project', (req, res, next) => {
   const project = req.params.project
-  if (!project.match(PROJECT_REGEX)) return next()
+  if (!isValidProjectName(project)) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+
   req.url = 'lakefile.toml'
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+
+  const projectPath = safeJoin(PROJECTS_BASE_PATH, project)
+  if (!projectPath) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+  return express.static(projectPath)(req, res, next)
 })
 
 // `:project` is the project like `MathlibDemo`
 app.use('/api/lakefile/:project', (req, res, next) => {
   const project = req.params.project
-  if (!project.match(PROJECT_REGEX)) return next()
+  if (!isValidProjectName(project)) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+
   req.url = 'lakefile.lean'
-  express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
+
+  const projectPath = safeJoin(PROJECTS_BASE_PATH, project)
+  if (!projectPath) {
+    return res.status(400).json({ error: 'Bad request' })
+  }
+  return express.static(projectPath)(req, res, next)
 })
 
 // Using the client files
@@ -190,9 +231,10 @@ if (crtFile && keyFile) {
     .listen(PORT, () => console.log(`HTTPS on port ${PORT}`))
 
   // redirect http to https
-  express().get('*', function (req, res) {
-    res.redirect('https://' + req.headers.host + req.url).listen(80)
+  app.get('*', (req, res) => {
+    return res.redirect(301, `https://${req.headers.host}${req.url}`)
   })
+  app.listen(80)
 } else {
   const PORT = process.env.PORT ?? 8080
   server = app.listen(PORT, () => console.log(`HTTP on port ${PORT}`))
@@ -213,7 +255,10 @@ const wss = new WebSocketServer({
 })
 
 function startServerProcess(project) {
-  const PROJECT_PATH = path.join(PROJECTS_BASE_PATH, project)
+  const PROJECT_PATH = safeJoin(PROJECTS_BASE_PATH, project)
+
+  if (!PROJECT_PATH) return null
+
   let serverProcess
   if (isDevelopment) {
     serverProcess = cp.spawn('lake', ['serve', '--'], {
@@ -306,9 +351,7 @@ const sendYjs = (conn, message) => {
 }
 
 const setupYjsConnection = (conn, req) => {
-  const ip = req
-    ? req.headers['x-forwarded-for'] || req.socket.remoteAddress
-    : 'unknown'
+  const ip = getAnonymisedIP(req)
   console.log(`[Lean4web]: new collab connection established from ${ip}`)
   const subscribedTopics = new Set()
   let closed = false
@@ -423,7 +466,7 @@ wss.addListener('connection', async function (ws, req) {
   }
   const project = reRes[1]
 
-  if (!project.match(PROJECT_REGEX)) {
+  if (!isValidProjectName(project)) {
     console.error(
       `Connection refused because of invalid project name: ${project}`,
     )
@@ -431,12 +474,10 @@ wss.addListener('connection', async function (ws, req) {
     return
   }
 
-  const ip = anonymize(
-    req.headers['x-forwarded-for'] || req.socket.remoteAddress,
-  )
+  const ip = getAnonymisedIP(req)
   const ps = await startServerProcess(project)
 
-  if (ps === null) {
+  if (ps == null) {
     console.error(
       `Connection refused because of nonexistent project directory: ${project}`,
     )
@@ -477,6 +518,28 @@ wss.addListener('connection', async function (ws, req) {
     return message
   })
   serverConnection.forward(socketConnection, (message) => {
+    // WORKAROUND: cut the number of completion results sent to the client since a search like `a`
+    // would send ~40MB of completions completely blocking slow connections
+    // This should probably be addressed in the LSP server instead, although the exact form
+    // of the desired change is unclear
+    // note: the completion always sends *all* tactics and only filters them client-side, so this
+    // number must be higher than the total number of tactics, 227 by the looks.
+    const maxCompletions = 300
+    const completionResult = message['result']
+    if (
+      completionResult &&
+      // TODO: The client request sends a `"method"` named `textDocument/completion` (or apparently `completionItem/resolve`)
+      // how do we reliably catch the right response? Do we need to track request ids?
+      completionResult['isIncomplete'] !== undefined &&
+      completionResult['items'] !== undefined
+    ) {
+      completionResult['items'] = completionResult['items'].slice(
+        0,
+        maxCompletions,
+      )
+      completionResult['isIncomplete'] = true
+    }
+
     const prefix = isDevelopment ? PROJECTS_BASE_PATH : ''
     FilenamesToUri(prefix, message)
     if (isDevelopment && !isGithubAction) {
@@ -516,4 +579,13 @@ function toolchainToName(toolchain, prefixLean) {
   const release = toolchain.match(/^leanprover\/lean4:(.*)$/)
   if (release) return prefixLean ? `Lean ${release[1]}` : release[1]
   return 'Lean'
+}
+
+function isValidProjectName(project) {
+  return project.match(/^[a-zA-Z][a-zA-Z0-9._-]*$/)
+}
+
+function getAnonymisedIP(req) {
+  const ip = req?.headers['x-forwarded-for'] || req?.socket?.remoteAddress
+  return ip ? anonymize(ip) : 'unknown'
 }
