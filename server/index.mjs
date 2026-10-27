@@ -114,13 +114,17 @@ app.use(
   ),
 )
 
+const PROJECT_REGEX = /^[a-zA-Z][a-zA-Z0-9-_.]*$/
+
 // `*example` has the form `MathlibDemo/MathlibLatest/Logic.lean`
 app.use('/api/example/:project/*example', (req, res, next) => {
+  const project = req.params.project
+  if (!project.match(PROJECT_REGEX)) return next()
   const pathComponents = req.params.example.filter((it) => it.length > 0)
   if (!(pathComponents[pathComponents.length - 1] ?? '').endsWith('.lean')) {
     res.status(400).json({ error: 'Bad request' })
   } else {
-    const filePath = path.join(req.params.project, ...pathComponents)
+    const filePath = path.join(project, ...pathComponents)
     req.url = filePath
     express.static(PROJECTS_BASE_PATH)(req, res, next)
   }
@@ -129,6 +133,7 @@ app.use('/api/example/:project/*example', (req, res, next) => {
 // `:project` is the project like `MathlibDemo`
 app.use('/api/manifest/:project', (req, res, next) => {
   const project = req.params.project
+  if (!project.match(PROJECT_REGEX)) return next()
   req.url = 'lake-manifest.json'
   express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
 })
@@ -136,6 +141,7 @@ app.use('/api/manifest/:project', (req, res, next) => {
 // `:project` is the project like `MathlibDemo`
 app.use('/api/toolchain/:project', (req, res, next) => {
   const project = req.params.project
+  if (!project.match(PROJECT_REGEX)) return next()
   req.url = 'lean-toolchain'
   express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
 })
@@ -143,6 +149,7 @@ app.use('/api/toolchain/:project', (req, res, next) => {
 // `:project` is the project like `MathlibDemo`
 app.use('/api/lakefile-toml/:project', (req, res, next) => {
   const project = req.params.project
+  if (!project.match(PROJECT_REGEX)) return next()
   req.url = 'lakefile.toml'
   express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
 })
@@ -150,6 +157,7 @@ app.use('/api/lakefile-toml/:project', (req, res, next) => {
 // `:project` is the project like `MathlibDemo`
 app.use('/api/lakefile/:project', (req, res, next) => {
   const project = req.params.project
+  if (!project.match(PROJECT_REGEX)) return next()
   req.url = 'lakefile.lean'
   express.static(path.join(PROJECTS_BASE_PATH, project))(req, res, next)
 })
@@ -343,9 +351,10 @@ const setupYjsConnection = (conn, req) => {
       }
     }
     if (message && message.type && !closed) {
+      const topics = Array.isArray(message.topics) ? message.topics : []
       switch (message.type) {
         case 'subscribe':
-          ;(message.topics || []).forEach((topicName) => {
+          topics.forEach((topicName) => {
             if (typeof topicName === 'string') {
               let topic = yjsTopics.get(topicName)
               if (!topic) {
@@ -361,7 +370,7 @@ const setupYjsConnection = (conn, req) => {
           })
           break
         case 'unsubscribe':
-          ;(message.topics || []).forEach((topicName) => {
+          topics.forEach((topicName) => {
             const subs = yjsTopics.get(topicName)
             if (subs) {
               subs.delete(conn)
@@ -372,7 +381,7 @@ const setupYjsConnection = (conn, req) => {
           })
           break
         case 'publish':
-          if (message.topic) {
+          if (typeof message.topic === 'string') {
             const receivers = yjsTopics.get(message.topic)
             console.log(
               `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
@@ -391,6 +400,11 @@ const setupYjsConnection = (conn, req) => {
 }
 
 wss.addListener('connection', async function (ws, req) {
+  // Immediately set error handler (never let connections crash server)
+  ws.on('error', (err) => {
+    console.error(`[Lean4web]: websocket error on ${req.url}: ${err}`)
+  })
+
   const urlRegEx = /^\/websocket\/([\w.-]+)$/
   const reRes = urlRegEx.exec(req.url)
   if (!reRes) {
@@ -404,14 +418,16 @@ wss.addListener('connection', async function (ws, req) {
     console.error(
       `[Lean4web]: connection refused because of invalid URL: ${req.url}`,
     )
+    ws.terminate()
     return
   }
   const project = reRes[1]
 
-  if (!project.match(/^[a-zA-Z][a-zA-Z1-9.-_]*/)) {
+  if (!project.match(PROJECT_REGEX)) {
     console.error(
       `Connection refused because of invalid project name: ${project}`,
     )
+    ws.terminate()
     return
   }
 
@@ -424,6 +440,7 @@ wss.addListener('connection', async function (ws, req) {
     console.error(
       `Connection refused because of nonexistent project directory: ${project}`,
     )
+    ws.terminate()
     return
   }
 
