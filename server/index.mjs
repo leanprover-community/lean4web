@@ -373,7 +373,7 @@ const setupYjsConnection = (conn, req) => {
           })
           break
         case 'publish':
-          if (message.topic) {
+          if (typeof message.topic === 'string') {
             const receivers = yjsTopics.get(message.topic)
             console.log(
               `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
@@ -392,6 +392,11 @@ const setupYjsConnection = (conn, req) => {
 }
 
 wss.addListener('connection', async function (ws, req) {
+  // Immediately set error handler (never let connections crash server)
+  ws.on('error', (err) => {
+    console.error(`[Lean4web]: websocket error on ${req.url}: ${err}`)
+  })
+
   const urlRegEx = /^\/websocket\/([\w.-]+)$/
   const reRes = urlRegEx.exec(req.url)
   if (!reRes) {
@@ -409,10 +414,11 @@ wss.addListener('connection', async function (ws, req) {
   }
   const project = reRes[1]
 
-  if (!project.match(/^[a-zA-Z][a-zA-Z1-9.-_]*/)) {
+  if (!project.match(/^[a-zA-Z][a-zA-Z0-9-_.]*$/)) {
     console.error(
       `Connection refused because of invalid project name: ${project}`,
     )
+    ws.terminate()
     return
   }
 
@@ -425,6 +431,7 @@ wss.addListener('connection', async function (ws, req) {
     console.error(
       `Connection refused because of nonexistent project directory: ${project}`,
     )
+    ws.terminate()
     return
   }
 
