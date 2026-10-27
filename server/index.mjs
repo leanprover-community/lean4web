@@ -376,7 +376,7 @@ const setupYjsConnection = (conn, req) => {
     closed = true
   })
   conn.on('message', (message) => {
-    if ((!message) instanceof Buffer) {
+    if (!(message instanceof Buffer)) {
       console.log(
         `[Lean4web]: invalid yjs message received (not a buffer) from ${ip}`,
       )
@@ -386,6 +386,7 @@ const setupYjsConnection = (conn, req) => {
       message = zCollabSocketMessage.parse(JSON.parse(message))
     } catch {
       console.log(`[Lean4web]: invalid collabSocketMessage from ${ip}`)
+      return
     }
 
     if (message && message.type && !closed) {
