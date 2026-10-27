@@ -13,7 +13,7 @@ import * as jsonrpcserver from 'vscode-ws-jsonrpc/server'
 import { WebSocketServer } from 'ws'
 import { safeJoin } from './utils/path.mjs'
 
-import { zLeanWebProjectConfig } from './types.mjs'
+import { zCollabSocketMessage, zLeanWebProjectConfig } from './types.mjs'
 
 let socketCounter = 0
 
@@ -376,34 +376,36 @@ const setupYjsConnection = (conn, req) => {
     closed = true
   })
   conn.on('message', (message) => {
-    if (typeof message === 'string' || message instanceof Buffer) {
-      try {
-        message = JSON.parse(message)
-      } catch {
-        return
-      }
+    if ((!message) instanceof Buffer) {
+      console.log(
+        `[Lean4web]: invalid yjs message received (not a buffer) from ${ip}`,
+      )
+      return
     }
+    try {
+      message = zCollabSocketMessage.parse(JSON.parse(message))
+    } catch {
+      console.log(`[Lean4web]: invalid collabSocketMessage from ${ip}`)
+    }
+
     if (message && message.type && !closed) {
-      const topics = Array.isArray(message.topics) ? message.topics : []
       switch (message.type) {
         case 'subscribe':
-          topics.forEach((topicName) => {
-            if (typeof topicName === 'string') {
-              let topic = yjsTopics.get(topicName)
-              if (!topic) {
-                topic = new Set()
-                yjsTopics.set(topicName, topic)
-              }
-              topic.add(conn)
-              subscribedTopics.add(topicName)
-              console.log(
-                `[Lean4web]: client subscribed to collab topic: ${topicName}`,
-              )
+          message.topics.forEach((topicName) => {
+            let topic = yjsTopics.get(topicName)
+            if (!topic) {
+              topic = new Set()
+              yjsTopics.set(topicName, topic)
             }
+            topic.add(conn)
+            subscribedTopics.add(topicName)
+            console.log(
+              `[Lean4web]: client subscribed to collab topic: ${topicName}`,
+            )
           })
           break
         case 'unsubscribe':
-          topics.forEach((topicName) => {
+          message.topics.forEach((topicName) => {
             const subs = yjsTopics.get(topicName)
             if (subs) {
               subs.delete(conn)
@@ -414,15 +416,13 @@ const setupYjsConnection = (conn, req) => {
           })
           break
         case 'publish':
-          if (typeof message.topic === 'string') {
-            const receivers = yjsTopics.get(message.topic)
-            console.log(
-              `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
-            )
-            if (receivers) {
-              message.clients = receivers.size
-              receivers.forEach((receiver) => sendYjs(receiver, message))
-            }
+          const receivers = yjsTopics.get(message.topic)
+          console.log(
+            `[lean4web]: client published to collab topic ${message.topic} (receivers: ${receivers ? receivers.size : 0})`,
+          )
+          if (receivers) {
+            message.clients = receivers.size
+            receivers.forEach((receiver) => sendYjs(receiver, message))
           }
           break
         case 'ping':
