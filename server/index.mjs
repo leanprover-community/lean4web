@@ -572,7 +572,7 @@ function toolchainToName(toolchain, prefixLean) {
 }
 
 function isValidProjectName(project) {
-  return project.match(/^[a-zA-Z][a-zA-Z1-9._-]*$/)
+  return project.match(/^[a-zA-Z][a-zA-Z0-9._-]*$/)
 }
 
 function getAnonymisedIP(req) {
