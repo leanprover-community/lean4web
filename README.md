@@ -24,6 +24,8 @@ While `lean4web` looks very similar to VSCode with the [Lean4 extension](https:/
 
 Providing the use access to a Lean instance running on the server is a severe security risk. That is why we start the Lean server with bubblewrap.
 
+To report security issues, please see [Security Policy](https://github.com/leanprover-community/lean4web/security)
+
 ## Contribution
 
 If you experience any problems, or have feature requests, please open an issue here!
