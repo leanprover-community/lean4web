@@ -343,9 +343,10 @@ const setupYjsConnection = (conn, req) => {
       }
     }
     if (message && message.type && !closed) {
+      const topics = Array.isArray(message.topics) ? message.topics : []
       switch (message.type) {
         case 'subscribe':
-          ;(message.topics || []).forEach((topicName) => {
+          topics.forEach((topicName) => {
             if (typeof topicName === 'string') {
               let topic = yjsTopics.get(topicName)
               if (!topic) {
@@ -361,7 +362,7 @@ const setupYjsConnection = (conn, req) => {
           })
           break
         case 'unsubscribe':
-          ;(message.topics || []).forEach((topicName) => {
+          topics.forEach((topicName) => {
             const subs = yjsTopics.get(topicName)
             if (subs) {
               subs.delete(conn)
