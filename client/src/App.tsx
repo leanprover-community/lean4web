@@ -481,7 +481,11 @@ export function App() {
     usersInCollab.forEach((state, clientId) => {
       // deterministically use clientId to assign remote cursor color for each connected user
       const color = getCollaboratorColor(clientId)
-      const name = (state?.user?.name || 'Anonymous').replace(/"/g, '\\"')
+      const rawName = state?.user?.name
+      const name =
+        typeof rawName === 'string' && /^\w{3,20}$/.test(rawName)
+          ? rawName
+          : 'Anonymous'
       css += `
           .yRemoteSelection-${clientId} {
             background-color: color-mix(in srgb, ${color} 25%, transparent);
