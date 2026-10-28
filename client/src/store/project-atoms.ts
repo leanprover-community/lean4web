@@ -58,7 +58,6 @@ export const currentProjectAtom = atom(
     const defaultProject = get(defaultProjectAtom)
     const allProjects = get(projectsAtom).data
     if (!urlArgProject) return defaultProject
-    if (!urlArgProject) return defaultProject
     return (
       allProjects.find(
         (it) => it.folder.toLowerCase() == urlArgProject.toLowerCase(),

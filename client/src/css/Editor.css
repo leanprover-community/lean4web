@@ -46,14 +46,6 @@
   background-repeat: no-repeat;
   background-position: 50%;
 }
-/*
-.gutter-vertical {
-  width: 100% !important;
-}
-
-.gutter-horizontal {
-  height: 100% !important;
-} */
 
 .gutter:hover,
 .dragging .gutter {
