@@ -117,7 +117,6 @@ app.use(
 
 // `*example` has the form `MathlibDemo/MathlibLatest/Logic.lean`
 app.use('/api/example/:project/*example', (req, res, next) => {
-  const project = req.params.project
   const pathComponents = req.params.example.filter((it) => it.length > 0)
   if (!(pathComponents[pathComponents.length - 1] ?? '').endsWith('.lean')) {
     res.status(400).json({ error: 'Bad request' })
