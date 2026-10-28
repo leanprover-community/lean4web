@@ -145,6 +145,7 @@ export function SettingsPopup({
           />
           <label htmlFor="showExpectedType">Show expected type</label>
         </div>
+
         <h2>User settings</h2>
         <div>
           <label htmlFor="theme">Theme: </label>
@@ -281,7 +282,7 @@ export function SettingsPopup({
           <label htmlFor="comparatorWarning">
             Hide warnings about code from unknown sources
           </label>
-        </div>{' '}
+        </div>
       </form>
     </Popup>
   )
