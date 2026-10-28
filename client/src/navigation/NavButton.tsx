@@ -1,12 +1,13 @@
 import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { JSX, RefObject } from 'react'
+import { JSX, Ref } from 'react'
 
 /** A button to appear in the hamburger menu or to navigation bar. */
 export function NavButton({
   icon,
   iconElement,
   text,
+  disabled = false,
   href,
   ref,
   ...props
@@ -14,8 +15,9 @@ export function NavButton({
   icon?: IconDefinition
   iconElement?: JSX.Element
   text: string
+  disabled?: boolean
   href?: string
-  ref?: RefObject<HTMLButtonElement | null>
+  ref?: Ref<HTMLButtonElement>
 } & React.AnchorHTMLAttributes<HTMLElement>) {
   if (href)
     return (
@@ -34,8 +36,10 @@ export function NavButton({
     <button
       {...props}
       ref={ref}
+      className={`nav-link${disabled ? ' disabled' : ''} ${props.className ?? ''}`}
       type={undefined}
-      className={props.className ? `nav-link ${props.className}` : 'nav-link'}
+      aria-disabled={disabled || undefined}
+      onClick={disabled ? (e) => e.preventDefault() : props.onClick}
     >
       {iconElement ?? <FontAwesomeIcon icon={icon!} />}&nbsp;<span>{text}</span>
     </button>

@@ -4,6 +4,7 @@ import '../css/Navigation.css'
 import {
   faArrowRotateRight,
   faCode,
+  faEye,
   faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons'
 import {
@@ -19,7 +20,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import {
   ChangeEvent,
   Dispatch,
@@ -38,7 +39,11 @@ import LoadUrlPopup from '../Popups/LoadUrl'
 import LoadZulipPopup from '../Popups/LoadZulip'
 import PrivacyPopup from '../Popups/PrivacyPolicy'
 import ToolsPopup from '../Popups/Tools'
-import { mobileAtom } from '../settings/settings-atoms'
+import {
+  localOnlySettingsAtom,
+  mobileAtom,
+  navBarRequestedAtom,
+} from '../settings/settings-atoms'
 import { SettingsPopup } from '../settings/SettingsPopup'
 import { isCollaboratingAtom } from '../store/collaboration-atoms'
 import { setImportUrlAndProjectAtom } from '../store/import-atoms'
@@ -48,9 +53,10 @@ import {
   visibleProjectsAtom,
 } from '../store/project-atoms'
 import { save } from '../utils/SaveToFile'
+import CollaborateButton from './CollaborateButton'
+import ComparatorButton from './ComparatorButton'
 import { Dropdown } from './Dropdown'
 import { NavButton } from './NavButton'
-import RotatingGlobe from './RotatingGlobe'
 
 /** The menu items either appearing inside the dropdown or outside */
 function FlexibleMenu({
@@ -76,10 +82,10 @@ function FlexibleMenu({
   setLoadZulipOpen: Dispatch<SetStateAction<boolean>>
   setJoinCollabOpen: Dispatch<SetStateAction<boolean>>
 }) {
-  const ENABLE_COLLAB = import.meta.env.VITE_COLLAB != 'false'
-  const [isCollaborating] = useAtom(isCollaboratingAtom)
-  const [, setImportUrlAndProject] = useAtom(setImportUrlAndProjectAtom)
-  const [{ data: projects }] = useAtom(projectsAtom)
+  const setImportUrlAndProject = useSetAtom(setImportUrlAndProjectAtom)
+  const { data: projects } = useAtomValue(projectsAtom)
+  const isCollaborating = useAtomValue(isCollaboratingAtom)
+
   const loadFileFromDisk = (event: ChangeEvent<HTMLInputElement>) => {
     console.debug('Loading file from disk')
     const fileToLoad = event.target.files![0]
@@ -169,15 +175,11 @@ function FlexibleMenu({
           }}
         />
       </Dropdown>
-      {ENABLE_COLLAB && !isCollaborating && (
-        <NavButton
-          iconElement={<RotatingGlobe />}
-          text="Collaborate"
-          onClick={() => {
-            setJoinCollabOpen(true)
-            setOpenNav(false)
-          }}
-        />
+      {lean4webConfig.emphasizeComparator && !isCollaborating && (
+        <ComparatorButton isInDropdown={isInDropdown} />
+      )}
+      {lean4webConfig.emphasizeCollaborate && (
+        <CollaborateButton setJoinCollabOpen={setJoinCollabOpen} />
       )}
     </>
   )
@@ -220,6 +222,11 @@ export function Menu({
   const [mobile] = useAtom(mobileAtom)
 
   const hasImpressum = lean4webConfig.impressum || lean4webConfig.contactDetails
+  const navBarRequested = useAtomValue(navBarRequestedAtom)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(
+    localOnlySettingsAtom,
+  )
+  const isCollaborating = useAtomValue(isCollaboratingAtom)
 
   return (
     <>
@@ -287,6 +294,12 @@ export function Menu({
             setJoinCollabOpen={setJoinCollabOpen}
           />
         )}
+        {(!lean4webConfig.emphasizeComparator || isCollaborating) && (
+          <ComparatorButton isInDropdown />
+        )}
+        {!lean4webConfig.emphasizeCollaborate && (
+          <CollaborateButton setJoinCollabOpen={setJoinCollabOpen} />
+        )}
         <NavButton
           icon={faGear}
           text="Settings"
@@ -303,6 +316,15 @@ export function Menu({
             setOpenNav(false)
           }}
         />
+        {navBarRequested !== null && (
+          <NavButton
+            icon={faEye}
+            text={`${localOnlySettings.hideNavbar ? 'Show' : 'Hide'} site navigation`}
+            onClick={() =>
+              setLocalOnlySettings('hideNavbar', !localOnlySettings.hideNavbar)
+            }
+          />
+        )}
         <NavButton
           icon={faArrowRotateRight}
           text="Restart server"
@@ -315,15 +337,10 @@ export function Menu({
           icon={faDownload}
           text="Save"
           onClick={() => {
-            if (code !== undefined) save(code, project?.folder)
-            setOpenNav(false)
-          }}
-        />
-        <NavButton
-          icon={faShield}
-          text={'Privacy policy'}
-          onClick={() => {
-            setPrivacyOpen(true)
+            if (code !== undefined) {
+              // save(code, project?.folder)
+              save(code) // disabling project zip download for now (doesn't work with fro-specific config)
+            }
             setOpenNav(false)
           }}
         />
@@ -360,6 +377,17 @@ export function Menu({
           onClick={() => {
             setOpenNav(false)
           }}
+        />
+
+        <NavButton
+          icon={faShield}
+          text="Privacy policy"
+          href="https://lean-lang.org/privacy/"
+        />
+        <NavButton
+          icon={faShield}
+          text="Terms of use"
+          href="https://lean-lang.org/terms/"
         />
       </Dropdown>
       <PrivacyPopup
