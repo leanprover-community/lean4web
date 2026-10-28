@@ -39,23 +39,6 @@ export function SettingsPopup({
           closeNav()
         }}
       >
-        {/* <h2>Project settings</h2>
-      <p><i>These settings are stored in the URL as they change the project's setup</i></p>
-      <p>
-        <label htmlFor="leanVersion">Lean Project: </label>
-        <select
-            id="leanVersion"
-            name="leanVersion"
-            value={project}
-            onChange={(ev) => {
-              setProject(ev.target.value)
-              console.log(`set Lean project to: ${ev.target.value}`)
-              }} >
-          {lean4webConfig.projects.map(proj =>
-            <option key={proj.folder} value={proj.folder}>{proj.name ?? proj.folder}</option>
-          )}
-        </select>
-      </p> */}
         <h2>Editor settings</h2>
         <div>
           <label htmlFor="abbreviationCharacter">
