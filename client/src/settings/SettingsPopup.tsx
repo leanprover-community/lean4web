@@ -22,7 +22,9 @@ export function SettingsPopup({
 }) {
   const [settings, applySettings] = useAtom(settingsAtom)
   const [newSettings, setNewSettings] = useState<Settings>(settings)
-  const [localOnlySettings, setLocalOnlySettings] = useAtom(localOnlySettingsAtom)
+  const [localOnlySettings, setLocalOnlySettings] = useAtom(
+    localOnlySettingsAtom,
+  )
 
   function updateSetting<K extends keyof Settings>(key: K, value: Settings[K]) {
     setNewSettings((prev) => ({ ...prev, [key]: value }))
@@ -82,7 +84,10 @@ export function SettingsPopup({
           <Switch
             id="ruler"
             onChange={() => {
-              updateSetting('ruler', newSettings.ruler != undefined ? undefined : 100)
+              updateSetting(
+                'ruler',
+                newSettings.ruler != undefined ? undefined : 100,
+              )
             }}
             checked={newSettings.ruler != undefined}
           />
@@ -109,11 +114,16 @@ export function SettingsPopup({
           <Switch
             id="acceptSuggestionOnEnter"
             onChange={() => {
-              updateSetting('acceptSuggestionOnEnter', !newSettings.acceptSuggestionOnEnter)
+              updateSetting(
+                'acceptSuggestionOnEnter',
+                !newSettings.acceptSuggestionOnEnter,
+              )
             }}
             checked={newSettings.acceptSuggestionOnEnter}
           />
-          <label htmlFor="acceptSuggestionOnEnter">Accept suggestion on Enter</label>
+          <label htmlFor="acceptSuggestionOnEnter">
+            Accept suggestion on Enter
+          </label>
         </div>
         <div>
           <Switch
@@ -159,7 +169,11 @@ export function SettingsPopup({
           <span>Layout: </span>
           <Box sx={{ width: 200 }}>
             <Slider
-              value={mobileSliderMarks.find((item) => item.key === newSettings.mobile)?.value ?? 1}
+              value={
+                mobileSliderMarks.find(
+                  (item) => item.key === newSettings.mobile,
+                )?.value ?? 1
+              }
               step={1}
               marks={mobileSliderMarks}
               max={2}
@@ -194,7 +208,10 @@ export function SettingsPopup({
         </div>
         <h2>Save</h2>
         <p>
-          <i>Editor settings and User settings are not preserved unless you opt-in to save them.</i>
+          <i>
+            Editor settings and User settings are not preserved unless you
+            opt-in to save them.
+          </i>
         </p>
         <div>
           <Switch
@@ -204,7 +221,9 @@ export function SettingsPopup({
             }}
             checked={newSettings.saved}
           />
-          <label htmlFor="savingAllowed">Save settings (in the browser's local storage)</label>
+          <label htmlFor="savingAllowed">
+            Save settings (in the browser's local storage)
+          </label>
         </div>
         <div>
           {!shallowEqualSubset(defaultSettings, newSettings) && (
@@ -231,7 +250,9 @@ export function SettingsPopup({
         </div>
         <h2>Local Settings</h2>
         <div>
-          <i>These settings are always preserved in the browser's local storage.</i>
+          <i>
+            These settings are always preserved in the browser's local storage.
+          </i>
         </div>
         <div>
           <Switch
@@ -242,7 +263,8 @@ export function SettingsPopup({
             checked={!!localOnlySettings.hideNavbar}
           />
           <label htmlFor="hideNavbar">
-            Always hide the site navigation header for links from the Lean FRO or Mathlib Initiative
+            Always hide the site navigation header for links from the Lean FRO
+            or Mathlib Initiative
           </label>
         </div>
         <div>
@@ -256,27 +278,30 @@ export function SettingsPopup({
             }}
             checked={!!localOnlySettings.ignoreComparatorWarning}
           />
-          <label htmlFor="comparatorWarning">Hide warnings about code from unknown sources</label>
+          <label htmlFor="comparatorWarning">
+            Hide warnings about code from unknown sources
+          </label>
         </div>{' '}
       </form>
     </Popup>
   )
 }
 
-const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] = [
-  {
-    value: 0,
-    label: 'Mobile',
-    key: true,
-  },
-  {
-    value: 1,
-    label: 'Auto',
-    key: 'auto',
-  },
-  {
-    value: 2,
-    label: 'Desktop',
-    key: false,
-  },
-]
+const mobileSliderMarks: { value: number; label: string; key: MobileValues }[] =
+  [
+    {
+      value: 0,
+      label: 'Mobile',
+      key: true,
+    },
+    {
+      value: 1,
+      label: 'Auto',
+      key: 'auto',
+    },
+    {
+      value: 2,
+      label: 'Desktop',
+      key: false,
+    },
+  ]
