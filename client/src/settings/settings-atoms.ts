@@ -33,14 +33,6 @@ interface PartialLocalOnlyUserSettings {
   ignoreComparatorWarning?: boolean
 }
 
-// Migrate legacy `hideNavBar` option to new setting (added June 2026, delete after October 2026)
-if (localStorage.getItem('hideNavBar')) {
-  if (localStorage.getItem('hideNavBar') === 'true') {
-    localStorage.setItem('lean4web:local-settings', '{"hideNavbar":true}')
-  }
-  localStorage.removeItem('hideNavBar')
-}
-
 const localOnlyStorage = createJSONStorage<PartialLocalOnlyUserSettings>(
   () => localStorage,
 )
