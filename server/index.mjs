@@ -137,7 +137,7 @@ async function refreshProjectsCache() {
         console.error('Unable to load projects', err)
         projectsCache = {
           state: 'failed',
-          value: projectsCache.data, // Continue serving stale data, if it exists
+          value: projectsCache.value, // Continue serving stale data, if it exists
         }
       })
   }
