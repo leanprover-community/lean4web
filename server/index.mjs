@@ -49,61 +49,107 @@ app.get('/health', (_req, res) => {
   res.status(200).send('Server is running')
 })
 
-// endpoint to list all available projects
-app.use('/api/projects', async (_, res) => {
-  try {
-    const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
-      withFileTypes: true,
-    })
-    const projects = []
+async function readProjects() {
+  const entries = await fs.promises.readdir(PROJECTS_BASE_PATH, {
+    withFileTypes: true,
+  })
+  const projects = []
 
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue
 
-      const projectDir = path.join(PROJECTS_BASE_PATH, entry.name)
-      const configPath = path.join(projectDir, 'leanweb-config.json')
-      const toolchainPath = path.join(projectDir, 'lean-toolchain')
+    const projectDir = path.join(PROJECTS_BASE_PATH, entry.name)
+    const configPath = path.join(projectDir, 'leanweb-config.json')
+    const toolchainPath = path.join(projectDir, 'lean-toolchain')
 
-      let config = null
-      try {
-        const raw = await fs.promises.readFile(configPath, 'utf-8')
-        const toolchain = (
-          await fs.promises.readFile(toolchainPath, 'utf-8')
-        ).trim()
+    let config = null
+    try {
+      const raw = await fs.promises.readFile(configPath, 'utf-8')
+      const toolchain = (
+        await fs.promises.readFile(toolchainPath, 'utf-8')
+      ).trim()
 
-        config = zLeanWebProjectConfig.parse(JSON.parse(raw))
-        config.name = config.name.replaceAll(
-          '_LeanVers_',
-          toolchainToName(toolchain, true),
-        )
-        config.name = config.name.replaceAll(
-          '_Vers_',
-          toolchainToName(toolchain, false),
-        )
-      } catch (err) {
-        console.debug(err)
-        // File missing or invalid JSON — keep config as null
-      }
-
-      if (config) {
-        projects.push({
-          folder: entry.name,
-          config: {
-            name: config.name,
-            hidden: config.hidden ?? false,
-            default: config.default ?? false,
-            examples: config.examples ?? [],
-            sortOrder: config.sortOrder ?? 0,
-          },
-        })
-      }
+      config = zLeanWebProjectConfig.parse(JSON.parse(raw))
+      config.name = config.name.replaceAll(
+        '_LeanVers_',
+        toolchainToName(toolchain, true),
+      )
+      config.name = config.name.replaceAll(
+        '_Vers_',
+        toolchainToName(toolchain, false),
+      )
+    } catch (err) {
+      console.debug(err)
+      // File missing or invalid JSON — keep config as null
     }
 
-    res.json(projects)
-  } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to load projects' })
+    if (config) {
+      projects.push({
+        folder: entry.name,
+        config: {
+          name: config.name,
+          hidden: config.hidden ?? false,
+          default: config.default ?? false,
+          examples: config.examples ?? [],
+          sortOrder: config.sortOrder ?? 0,
+          verso: config.verso ?? false,
+        },
+      })
+    }
   }
+
+  return projects
+}
+
+/**
+ * State can be 'startup', 'failed', 'cached', or 'running', controlled by refreshProjectsCache()
+ */
+let projectsCache = { state: 'startup' }
+
+/**
+ * Cached results for the /api/projects route will only be refreshed when they are older than PROJECTS_CACHE_TTL_MS.
+ * The first request after this interval will 
+ */
+const PROJECTS_CACHE_TTL_MS = 1_000 * 60 * 5
+
+async function refreshProjectsCache() {
+  if (
+    projectsCache.state === 'startup' ||
+    projectsCache.state === 'failed' ||
+    (projectsCache.state === 'cached' &&
+      Date.now() - projectsCache.lastRefreshed >= PROJECTS_CACHE_TTL_MS)
+  ) {
+    const newValuePromise = readProjects()
+    projectsCache = {
+      state: 'running',
+      promise: newValuePromise,
+      value: projectsCache.value,
+    }
+    newValuePromise
+      .then((data) => {
+        projectsCache = {
+          state: 'cached',
+          lastRefreshed: Date.now(),
+          value: data,
+        }
+      })
+      .catch((err) => {
+        console.error('Unable to load projects', err)
+        projectsCache = {
+          state: 'failed',
+          value: projectsCache.value, // Continue serving stale data, if it exists
+        }
+      })
+  }
+  // Invariant: one of these two values must be defined
+  return projectsCache.value ?? projectsCache.promise
+}
+
+// endpoint to list all available projects
+app.use('/api/projects', (_, res) => {
+  refreshProjectsCache()
+    .then((projects) => res.json(projects))
+    .catch((err) => res.status(500).json({ error: 'Unable to load projects' }))
 })
 
 // `*example` has the form `MathlibDemo/MathlibLatest/Logic.lean`
