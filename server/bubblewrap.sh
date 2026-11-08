@@ -30,6 +30,7 @@ exec bwrap\
   --unshare-pid  \
   --unshare-net  \
   --unshare-uts  \
+  --unshare-ipc  \
   --unshare-cgroup \
   --die-with-parent \
   --chdir "/$PROJECT_NAME/" \
