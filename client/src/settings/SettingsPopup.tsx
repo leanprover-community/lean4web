@@ -62,6 +62,16 @@ export function SettingsPopup({
         </div>
         <div>
           <Switch
+            id="vimMode"
+            onChange={() => {
+              updateSetting('vimMode', !newSettings.vimMode)
+            }}
+            checked={newSettings.vimMode}
+          />
+          <label htmlFor="vimMode">Vim mode</label>
+        </div>
+        <div>
+          <Switch
             id="ruler"
             onChange={() => {
               updateSetting(
