@@ -5,4 +5,8 @@ export const lean4webConfig: LeanWebConfig = {
   serverCountry: 'Germany',
   contactDetails: null,
   impressum: null,
+  comparator: 'https://comparator.live.lean-lang.org/',
+  comparatorSafeList: ['lean-lang.org', /^.*\.lean-lang\.org$/],
+  emphasizeCollaborate: false,
+  emphasizeComparator: true,
 }

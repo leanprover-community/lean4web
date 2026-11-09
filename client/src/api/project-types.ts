@@ -20,6 +20,8 @@ export type LeanWebProjectConfig = {
   sortOrder: number
   /** A list of examples which are added under the menu `Examples` */
   examples: LeanWebExample[]
+  /** Should a "verso" view tab be present and default-foregrounded */
+  verso: boolean
 }
 
 /* A project */

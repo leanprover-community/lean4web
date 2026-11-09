@@ -11,6 +11,7 @@ export const zLeanWebProjectConfig = z.object({
   default: z.boolean().optional(),
   sortOrder: z.number().min(0).optional(),
   examples: z.array(zLeanWebExample).optional(),
+  verso: z.boolean().optional(),
 })
 
 /** Valid topic names, determined client-side in JoinCollaboration.tsx */
