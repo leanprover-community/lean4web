@@ -108,7 +108,7 @@ let projectsCache = { state: 'startup' }
 
 /**
  * Cached results for the /api/projects route will only be refreshed when they are older than PROJECTS_CACHE_TTL_MS.
- * The first request after this interval will 
+ * The first request after this interval will
  */
 const PROJECTS_CACHE_TTL_MS = 1_000 * 60 * 5
 
